@@ -1,0 +1,46 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</head>
+<body>
+    <div id="map" style="height: 100%; width: 100%;"></div>
+    <script>
+        var map = L.map('map').setView([52.205, 0.119], 13);
+        var mapMarkers = [];
+        var busIcon = L.icon({
+            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Bus-logo.svg/2000px-Bus-logo.svg.png',
+            iconSize: [30, 30]
+        });
+
+        function retrieve_busdata() {
+            $.ajax({
+                url: '{% url 'busdata-json' %}',
+                dataType: 'application/json',
+                complete: function (data) {
+                    for (var i = 0; i < mapMarkers.length; i++) {
+                        map.removeLayer(mapMarkers[i]);
+                    }
+                    mapMarkers = [];
+                    var json = JSON.parse(data.responseText);
+                    for (var i = 0; i < json["entities"].length; i++) {
+                        var marker = L.marker([json["entities"][i]["latitude"], json["entities"][i]["longitude"]], {icon: busIcon})
+                                .addTo(map).bindPopup('Route: '+(json["entities"][i]["route_id"] || '')+'<br>Label: '+(json["entities"][i]["label"] || ''));
+                        mapMarkers.push(marker);
+                    }
+                }
+            });
+            setTimeout(retrieve_busdata, 15000);
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            retrieve_busdata();
+        });
+
+    </script>
+</body>
+</html>
