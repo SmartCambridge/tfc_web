@@ -12,8 +12,9 @@
     </script>
 </head>
 <body>
+    <div id="title" style="height: 5%; width: 100%;"></div>
     <div id="map" style="height: 90%; width: 100%;"></div>
-    <div style="height: 10%; width: 100%;">
+    <div style="height: 5%; width: 100%;">
         <a onclick="javascript:route_change('');" href="#">All Buses</a>
         <a onclick="javascript:route_change('SCCM-1');" href="#">City 1</a>
         <a onclick="javascript:route_change('SCCM-2');" href="#">City 2</a>
@@ -49,6 +50,7 @@
                     }
                     mapMarkers = [];
                     var json = JSON.parse(data.responseText);
+                    $('#title').text(new Date(json["timestamp"]*1000));
                     for (var i = 0; i < json["entities"].length; i++) {
                         if (route == "" || route == json["entities"][i]["route_id"]) {
                             var marker = L.marker([json["entities"][i]["latitude"], json["entities"][i]["longitude"]], {icon: busIcon})
