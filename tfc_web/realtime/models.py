@@ -36,7 +36,7 @@ class BusStop(models.Model):
     stop_type = models.CharField(max_length=3)
     bus_stop_type = models.CharField(max_length=3)
     timing_status = models.CharField(max_length=3)
-    default_wait_time = models.IntegerField()
+    default_wait_time = models.IntegerField(null=True, blank=True)
     notes = models.CharField(max_length=255)
     notes_lang = models.CharField(max_length=2)
     administrative_area_code = models.IntegerField()
