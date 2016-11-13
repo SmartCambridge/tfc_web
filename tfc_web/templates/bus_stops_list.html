@@ -1,0 +1,11 @@
+<html>
+<head>
+</head>
+<body>
+    <div>
+        {% for bus_stop in bus_stops %}
+            <a href="{% url 'bus-stop' bus_stop.atco_code %}">{{ bus_stop.atco_code }} - {{ bus_stop.common_name }} - {{ bus_stop.street }} - {{ bus_stop.locality_name }}<br></a>
+        {% endfor %}
+    </div>
+</body>
+</html>
