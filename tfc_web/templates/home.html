@@ -1,0 +1,79 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script>
+        var route = "";
+        function route_change(bus_route) {
+            route = bus_route;
+            retrieve_busdata();
+        }
+    </script>
+</head>
+<body>
+    <div id="title" style="height: 5%; width: 100%;"></div>
+    <div id="map" style="height: 90%; width: 100%;"></div>
+    <div style="height: 5%; width: 100%;">
+        <a onclick="javascript:route_change('');" href="#">All Buses</a>
+        <a onclick="javascript:route_change('SCCM-1');" href="#">City 1</a>
+        <a onclick="javascript:route_change('SCCM-2');" href="#">City 2</a>
+        <a onclick="javascript:route_change('SCCM-3');" href="#">City 3</a>
+        <a onclick="javascript:route_change('SCCM-4');" href="#">City 4</a>
+        <a onclick="javascript:route_change('SCCM-5');" href="#">City 5</a>
+        <a onclick="javascript:route_change('SCCM-6');" href="#">City 6</a>
+        <a onclick="javascript:route_change('SCCM-7');" href="#">City 7</a>
+        <a onclick="javascript:route_change('SCCM-8');" href="#">City 8</a>
+        <a onclick="javascript:route_change('WP-U');" href="#">Universal</a>
+        <a onclick="javascript:route_change('SCCM-PR1');" href="#">Park and Ride Red</a>
+        <a onclick="javascript:route_change('SCCM-PR2');" href="#">Park and Ride Blue</a>
+        <a onclick="javascript:route_change('SCCM-PR3');" href="#">Park and Ride Green</a>
+        <a onclick="javascript:route_change('SCCM-A');" href="#">Busway A</a>
+        <a onclick="javascript:route_change('SCCM-B');" href="#">Busway B</a>
+        <a onclick="javascript:route_change('WP-C');" href="#">Busway C</a>
+    </div>
+    <script>
+        var map = L.map('map').setView([52.205, 0.119], 13);
+        var mapMarkers = [];
+        var busIcon = L.icon({
+            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Bus-logo.svg/2000px-Bus-logo.svg.png',
+            iconSize: [30, 30]
+        });
+
+        function retrieve_busdata() {
+            $.ajax({
+                url: '{% url 'busdata-json' %}',
+                dataType: 'application/json',
+                complete: function (data) {
+                    for (var i = 0; i < mapMarkers.length; i++) {
+                        map.removeLayer(mapMarkers[i]);
+                    }
+                    mapMarkers = [];
+                    var json = JSON.parse(data.responseText);
+                    $('#title').text(new Date(json["timestamp"]*1000));
+                    for (var i = 0; i < json["entities"].length; i++) {
+                        if (route == "" || route == json["entities"][i]["route_id"]) {
+                            var marker = L.marker([json["entities"][i]["latitude"], json["entities"][i]["longitude"]], {icon: busIcon})
+                                    .addTo(map).bindPopup('Route: ' + (json["entities"][i]["route_id"] || '') + '<br>Label: ' + (json["entities"][i]["label"] || ''));
+                            mapMarkers.push(marker);
+                        }
+                    }
+                }
+            });
+        }
+
+        function retrieve_busdata_repeat() {
+            retrieve_busdata();
+            setTimeout(retrieve_busdata_repeat, 15000);
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            retrieve_busdata_repeat();
+        });
+
+    </script>
+</body>
+</html>
