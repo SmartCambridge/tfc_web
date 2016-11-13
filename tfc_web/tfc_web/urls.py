@@ -20,6 +20,13 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.home, name='home'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
-    url(r'^bus/stops/list/$', views.bus_stops_list, name='bus-stops-list'),
-    url(r'^bus/stops/id/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop')
+
+
+    # Bus Stops
+    url(r'^bus/stops/$', views.bus_stops_list, name='bus-stops-list'),
+    url(r'^bus/stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
+
+    # Zones
+    url(r'^zones/$', views.zones_list, name='zones-list'),
+    url(r'^zone/(?P<zone_id>\w+)/$', views.zone, name='zone')
 ]
