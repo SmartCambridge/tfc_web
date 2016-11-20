@@ -20,6 +20,8 @@ This is a django application developed to be used with Python 3. To run the appl
 > (tfc\_web\_venv):\# pip install -r requirements.txt
 > 
 > (tfc\_web\_venv):\# ./manage.py migrate
+>
+> (tfc\_web\_venv):\# ./manage.py collectstatic
 > 
 > (tfc\_web\_venv):\# ./manage.py testserver
 
