@@ -1,5 +1,5 @@
-<html>
-<head>
+{% extends "template.html" %}
+{% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -10,27 +10,29 @@
             retrieve_busdata();
         }
     </script>
-</head>
-<body>
-    <div id="title" style="height: 5%; width: 100%;"></div>
-    <div id="map" style="height: 90%; width: 100%;"></div>
-    <div style="height: 5%; width: 100%;">
-        <a onclick="javascript:route_change('');" href="#">All Buses</a>
-        <a onclick="javascript:route_change('SCCM-1');" href="#">City 1</a>
-        <a onclick="javascript:route_change('SCCM-2');" href="#">City 2</a>
-        <a onclick="javascript:route_change('SCCM-3');" href="#">City 3</a>
-        <a onclick="javascript:route_change('SCCM-4');" href="#">City 4</a>
-        <a onclick="javascript:route_change('SCCM-5');" href="#">City 5</a>
-        <a onclick="javascript:route_change('SCCM-6');" href="#">City 6</a>
-        <a onclick="javascript:route_change('SCCM-7');" href="#">City 7</a>
-        <a onclick="javascript:route_change('SCCM-8');" href="#">City 8</a>
-        <a onclick="javascript:route_change('WP-U');" href="#">Universal</a>
-        <a onclick="javascript:route_change('SCCM-PR1');" href="#">Park and Ride Red</a>
-        <a onclick="javascript:route_change('SCCM-PR2');" href="#">Park and Ride Blue</a>
-        <a onclick="javascript:route_change('SCCM-PR3');" href="#">Park and Ride Green</a>
-        <a onclick="javascript:route_change('SCCM-A');" href="#">Busway A</a>
-        <a onclick="javascript:route_change('SCCM-B');" href="#">Busway B</a>
-        <a onclick="javascript:route_change('WP-C');" href="#">Busway C</a>
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+        <div style="height: 5%; width: 100%;">
+            <a onclick="javascript:route_change('');" href="#">All Buses</a>
+            <a onclick="javascript:route_change('SCCM-1');" href="#">City 1</a>
+            <a onclick="javascript:route_change('SCCM-2');" href="#">City 2</a>
+            <a onclick="javascript:route_change('SCCM-3');" href="#">City 3</a>
+            <a onclick="javascript:route_change('SCCM-4');" href="#">City 4</a>
+            <a onclick="javascript:route_change('SCCM-5');" href="#">City 5</a>
+            <a onclick="javascript:route_change('SCCM-6');" href="#">City 6</a>
+            <a onclick="javascript:route_change('SCCM-7');" href="#">City 7</a>
+            <a onclick="javascript:route_change('SCCM-8');" href="#">City 8</a>
+            <a onclick="javascript:route_change('WP-U');" href="#">Universal</a>
+            <a onclick="javascript:route_change('SCCM-PR1');" href="#">Park and Ride Red</a>
+            <a onclick="javascript:route_change('SCCM-PR2');" href="#">Park and Ride Blue</a>
+            <a onclick="javascript:route_change('SCCM-PR3');" href="#">Park and Ride Green</a>
+            <a onclick="javascript:route_change('SCCM-A');" href="#">Busway A</a>
+            <a onclick="javascript:route_change('SCCM-B');" href="#">Busway B</a>
+            <a onclick="javascript:route_change('WP-C');" href="#">Busway C</a>
+        </div>
     </div>
     <script>
         var map = L.map('map').setView([52.205, 0.119], 13);
@@ -75,5 +77,4 @@
         });
 
     </script>
-</body>
-</html>
+{% endblock %}

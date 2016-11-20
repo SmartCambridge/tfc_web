@@ -1,5 +1,5 @@
-<html>
-<head>
+{% extends "template.html" %}
+{% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
@@ -10,12 +10,14 @@
             retrieve_busdata();
         }
     </script>
-</head>
-<body>
-    <div id="title" style="height: 5%; width: 100%;"></div>
-    <div id="map" style="height: 90%; width: 100%;"></div>
-    <div style="height: 5%; width: 100%;">
-        {{ zone.name }}
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+        <div style="height: 5%; width: 100%;">
+            {{ zone.name }}
+        </div>
     </div>
     <script>
         var map = L.map('map').setView([{{ zone.center.lat }}, {{ zone.center.lng }}], {{ zone.zoom }});
@@ -65,5 +67,4 @@
         });
 
     </script>
-</body>
-</html>
+{% endblock %}
