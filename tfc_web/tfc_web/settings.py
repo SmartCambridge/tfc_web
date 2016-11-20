@@ -104,6 +104,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_URL_PREFIX = '/web'
+
 STATICFILES_DIRS = [
     "static",
 ]
