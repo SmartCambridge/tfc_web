@@ -18,9 +18,8 @@ from realtime import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', views.home, name='home'),
+    url(r'^bus/map/$', views.bus_map, name='bus-map'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
-
 
     # Bus Stops
     url(r'^bus/stops/$', views.bus_stops_list, name='bus-stops-list'),

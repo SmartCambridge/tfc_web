@@ -7,8 +7,8 @@ from django.shortcuts import render
 from realtime.models import BusStop
 
 
-def home(request):
-    return render(request, 'home.html', {})
+def bus_map(request):
+    return render(request, 'bus_map.html', {})
 
 
 def busdata_json(request):
