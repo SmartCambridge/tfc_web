@@ -25,7 +25,13 @@ SECRET_KEY = '5dp83jl89s*4blmgb4e3^cp(e972^bg5(im+_2#g(0vtu8cauk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [ 'smartcambridge.org', 
+                  '.cl.cam.ac.uk', 
+                  'localhost', 
+                  '127.0.0.1', 
+                  '[::1]' ]
+
 
 
 # Application definition

@@ -20,6 +20,11 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='home'),
 
+    # Parking
+    url(r'^parking/', include('tfc_web.urls_parking')),
+
+    # Bus movements
+
     url(r'^bus/map/$', views.bus_map, name='bus-map'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
 
