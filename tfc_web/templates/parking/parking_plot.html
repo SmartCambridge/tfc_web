@@ -7,6 +7,12 @@
     <script src="/static/d3.v3.min.js" charset="utf-8"></script>
     
     <style>
+
+#heading_date {
+  display: inline-block;
+  width: 8em;
+}
+
 .time_shift {
   display: inline-block;
 }
@@ -15,6 +21,10 @@
     width: 600px;
     height: 350px;
 } */
+
+.plot_svg {
+  background-color: AliceBlue;
+}
 
 .axis path,
 .axis line {
@@ -39,7 +49,12 @@
   border-radius: 8px;
   pointer-events: none;
 }
-      
+
+.error {
+  color: red;
+  display: inline-block;
+}
+
     </style>
     
 <script type="text/javascript">
@@ -48,14 +63,13 @@
 //***********  LOAD VARS FROM SERVER    ******************************************
 //********************************************************************************
 
-// Set base URL of web server
-//var DATA_PLOT_ZONE_URL = "/{{config_base_uri}}/plot/zone/{{config_zone_id}}";
-
 var parking_id = "{{config_parking_id}}";
 
 var yyyy = {{config_yyyy}}; // Year e.g. 2016
 var MM = {{config_MM}};     // Month e.g. 07 = July
 var dd = {{config_dd}};     // day e.g. 23
+
+var parking_config = JSON.parse('{{ config_parking_config|escapejs }}');
 
 var yyyyMMdd = '{{config_yyyy}}/{{config_MM}}/{{config_dd}}';
 //********************************************************************************
@@ -101,35 +115,20 @@ function init()
 
     console.log('calling init');
 
+    // embed parking name into page
+    try
+    {
+        document.getElementById('parking_name').innerHTML = parking_config.request_data.parking_name;
+    }
+    catch(err)
+    {
+        document.getElementById('parking_name').innerHTML = '<div class="error">Unrecognised Car Park</div>';
+        console.log('no config data received');
+    }
+
     chart_day_start_ts = 0; // initially set start-time boundary of chart to distant past
 
     plot_date = new Date(yyyy,MM-1,dd); // as loaded in page template config_ values;
-
-    // fix up the previous/next day offset from current URL, which may or may not have YYYY/MM/DD at and
-    //var url_date_offset = (window.location.href).slice(-yyyyMMdd.length) == yyyyMMdd ? '../..' : zone_id;
-
-    // set plot_date_minus_1 to the day before
-    plot_date_minus_1 = new Date(plot_date);
-    plot_date_minus_1.setDate(plot_date.getDate()-1);
-    var minus_1_url = 'X';
-    minus_1_url = minus_1_url + "/" + plot_date_minus_1.getFullYear();
-    minus_1_url = minus_1_url + "/" + ("0" + (plot_date_minus_1.getMonth()+1)).slice(-2);
-    minus_1_url = minus_1_url + "/" + ("0" + plot_date_minus_1.getDate()).slice(-2);
-   
-    document.getElementById("date_minus_1").href = minus_1_url;
-   
-
-    // set plot_date_plus_1 to the day after
-    plot_date_plus_1 = plot_date_minus_1 = new Date(plot_date);
-    plot_date_plus_1.setDate(plot_date.getDate()+1);
-    var plus_1_url = 'X'; //url_date_offset;
-    plus_1_url = plus_1_url + "/" + plot_date_plus_1.getFullYear();
-    plus_1_url = plus_1_url + "/" + ("0" + (plot_date_plus_1.getMonth()+1)).slice(-2);
-    plus_1_url = plus_1_url + "/" + ("0" + plot_date_plus_1.getDate()).slice(-2);
-   
-    document.getElementById("date_plus_1").href = plus_1_url;
-   
-
 
     var heading_date = document.getElementById("heading_date");
 
@@ -140,11 +139,15 @@ function init()
     // initialize empty data structure to hold parking occupancy messages
     try {
         var json_data = JSON.parse("{{ config_parking_data|escapejs }}");
-        //var json_data = JSON.parse('{ "request_data": [1,2,3], "other": "xyz" }');
-        //var json_data = JSON.parse("{ 'request_data': [{ 'parking_id': 'grand-arcade-car-park', 'spaces_occupied': 63, 'ts': 1478822640 }]}");
-        rita_data = json_data.request_data;
-        console.log('rita_data.length is '+rita_data.length);
-
+        if (!json_data)
+        {
+            console.log('no parking data received');
+        }
+        else
+        {
+            rita_data = json_data.request_data;
+            console.log('rita_data.length is '+rita_data.length);
+        }
     } catch(err) {
         console.log('error parsing config_parking_data');
         rita_data = new Array();
@@ -172,13 +175,14 @@ function init_chart()
 {
     var margin = {top: 20, right: 50, bottom: 30, left: 60};
     chart_width = window.innerWidth * 0.8 - margin.left - margin.right;
-    chart_height = window.innerHeight * 0.6 - margin.top - margin.bottom;
+    chart_height = window.innerHeight * 0.5 - margin.top - margin.bottom;
 
     // add the graph canvas to the body of the webpage
     chart_svg = d3.select("#chart").append("svg")
         .attr("width", chart_width + margin.left + margin.right)
         .attr("height", chart_height + margin.top + margin.bottom)
-      .append("g")
+        .attr("class", "plot_svg")
+        .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     // setup x
@@ -297,7 +301,6 @@ function draw_chart(rita_data)
                    .style("opacity", .9);
               chart_tooltip.html("ID: "+d.parking_id+
                                  "<br/>Occupied "+d.spaces_occupied+
-                                 "<br/>Vehicle:"+d.vehicle_id +
                                  "<br/>Timestamp:" + d.ts)
                    .style("left", (d3.event.pageX + 5) + "px")
                    .style("top", (d3.event.pageY - 28) + "px");
@@ -309,51 +312,63 @@ function draw_chart(rita_data)
           });
 
 } // end draw_chart
-      
-    </script>
+
+// ************************************************************************************
+// ************** Date forwards / backwards function             *********************
+// ************************************************************************************
+
+// move page to new date +n days from current date
+function date_shift(n)
+{
+    console.log('date_shift()');
+
+    new_date = new Date(yyyy,MM-1,dd); // as loaded in page template config_ values;
+
+    new_date.setDate(new_date.getDate()+n);
+
+    new_year = new_date.getFullYear();
+    new_month = ("0" + (new_date.getMonth()+1)).slice(-2);
+    new_day = ("0" + new_date.getDate()).slice(-2);
+
+    console.log(new_year+'-'+new_month+'-'+new_day);
+    window.location.href = '?date='+new_year+'-'+new_month+'-'+new_day;
+}
+
+</script>
 {% endblock %}
     
 {% block content %}
-<div style="height: 80vh;">
-        <div id="title" style="height: 5%; width: 100%;"></div>
-        <div style="height: 5%; width: 100%;">
-          <h4>Parking Page v1</h4>
-            {{parking_id}}
-        </div>
+<div style="height: 75vh;">
+<div id="title" style="height: 5%; width: 100%;">
+  Parking: <span id="parking_name"></span>
+</div>
 <div id="chart_title">
-  <h1>
-    <div class="time_shift"><a id="date_minus_1" href="_dummy"><img src="/static/images/chevron-left.png"></a></div>
-    <span id="heading_date"></span>
-    <div class="time_shift"><a id="date_plus_1" href="_dummy"><img src="/static/images/chevron-right.png"></a></div>
-  </h1>
+  <h4>
+    <div class="time_shift"><a href="#" onclick="date_shift(-7)">
+        <img src="../../../static/images/chevron-left-left.png"></a>
+    </div>
+    <div class="time_shift"><a href="#" onclick="date_shift(-1)">
+        <img src="../../../static/images/chevron-left.png"></a>
+    </div>
+    <div id="heading_date"></div>
+    <div class="time_shift"><a href="#" onclick="date_shift(1);">
+        <img src="../../../static/images/chevron-right.png"></a>
+    </div>
+    <div class="time_shift"><a href="#" onclick="date_shift(7);">
+        <img src="../../../static/images/chevron-right-right.png"></a>
+    </div>
+  </h4>
 </div>
 
 <div class="chart" id="chart">
 </div>
 
-</div>
+</div> <!-- end content -->
     
 <script>
-        function retrieve_parking_data() {
-            $.ajax({
-                url: '{{ api_parking_occupancy }}',
-                dataType: 'application/json',
-                complete: function (data) {
-                    var json_data = JSON.parse(data.responseText);
-                    //$('#title').text(new Date(json_data["timestamp"]*1000));
-                    for (var i = 0; i < json_data["request_data"].length; i++) {
-                        console.log(json_data["request_data"][i]["spaces_occupied"]);
-                    }
-                }
-            });
-        }
-
         $(document).ready(function() {
-            //retrieve_parking_data();
             init();
         });
-
-                                        
 </script>
 
 {% endblock %}
