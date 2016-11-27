@@ -10,11 +10,14 @@
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
     <script>
+
+        var PARKING_PLOT_URL = "/web/parking/plot/";
+        
         // could use 'Area' concept here
-        var map = L.map('map').setView([52.2038, 0.1207], 13);
+        var map = L.map('map').setView([52.2038, 0.1207], 14);
         var mapMarkers = [];
         var busIcon = L.icon({
-            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Bus-logo.svg/2000px-Bus-logo.svg.png',
+            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/RWB_Parkhaus.svg',
             iconSize: [30, 30]
         });
 
@@ -22,20 +25,28 @@
         // *************  Parking list info provided by server ****************************
         // ********************************************************************************
         
-        var parking_list = JSON.parse( '{{ config_parking_list|escapejs }}');
+        var parking_list = (JSON.parse( '{{ config_parking_list|escapejs }}' ))["request_data"]["parking_list"];
         
         // ********************************************************************************
         // *************  end of server parking list info      ****************************
         // ********************************************************************************
         
-        for ( var i = 0; i < parking_list["request_data"]["parking_list"].length; i++) {
-                var marker = L.marker([ parking_list["request_data"]["parking_list"][i]["latitude"],
-                                        parking_list["request_data"]["parking_list"][i]["longitude"]
+        for ( var i = 0; i < parking_list.length; i++) {
+                var marker = L.marker([ parking_list[i]["latitude"],
+                                        parking_list[i]["longitude"]
                                       ],
-                                      {icon: busIcon})
+                                      { icon: busIcon}
+                             )
                         .addTo(map)
-                        .bindPopup( 'Car Park: ' +
-                                    parking_list["request_data"]["parking_list"][i]["parking_name"]
+                        .bindPopup(
+                             '<a href="'+
+                             PARKING_PLOT_URL+
+                             '/'+
+                             parking_list[i]['parking_id']+
+                             '" >' +
+                             'Car Park: ' +
+                             parking_list[i]["parking_name"] +
+                             '</a>'
                                   );
                 mapMarkers.push(marker);
         }
