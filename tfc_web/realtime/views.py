@@ -12,7 +12,7 @@ def index(request):
 
 
 def bus_map(request):
-    return render(request, 'bus_map.html', {})
+    return render(request, 'bus_map_move.html', {})
 
 
 def busdata_json(request):

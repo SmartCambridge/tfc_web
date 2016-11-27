@@ -1,0 +1,91 @@
+{% extends "template.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
+    <script>
+        var route = "";
+        function route_change(bus_route) {
+            route = bus_route;
+            retrieve_busdata();
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+        <div style="height: 5%; width: 100%;">
+            <a onclick="javascript:route_change('');" href="#">All Buses</a>
+            <a onclick="javascript:route_change('SCCM-1');" href="#">City 1</a>
+            <a onclick="javascript:route_change('SCCM-2');" href="#">City 2</a>
+            <a onclick="javascript:route_change('SCCM-3');" href="#">City 3</a>
+            <a onclick="javascript:route_change('SCCM-4');" href="#">City 4</a>
+            <a onclick="javascript:route_change('SCCM-5');" href="#">City 5</a>
+            <a onclick="javascript:route_change('SCCM-6');" href="#">City 6</a>
+            <a onclick="javascript:route_change('SCCM-7');" href="#">City 7</a>
+            <a onclick="javascript:route_change('SCCM-8');" href="#">City 8</a>
+            <a onclick="javascript:route_change('WP-U');" href="#">Universal</a>
+            <a onclick="javascript:route_change('SCCM-PR1');" href="#">Park and Ride Red</a>
+            <a onclick="javascript:route_change('SCCM-PR2');" href="#">Park and Ride Blue</a>
+            <a onclick="javascript:route_change('SCCM-PR3');" href="#">Park and Ride Green</a>
+            <a onclick="javascript:route_change('SCCM-A');" href="#">Busway A</a>
+            <a onclick="javascript:route_change('SCCM-B');" href="#">Busway B</a>
+            <a onclick="javascript:route_change('WP-C');" href="#">Busway C</a>
+        </div>
+    </div>
+    <script>
+        var map = L.map('map').setView([52.205, 0.119], 13);
+        var buses = [];
+        var busIcon = L.icon({
+            iconUrl: '{% static 'images/bus-logo.png' %}',
+            iconSize: [30, 30]
+        });
+        var busIconShadow = L.icon({
+            iconUrl: '{% static 'images/bus-logo-shadow.png' %}',
+            iconSize: [30, 30]
+        });
+
+        function retrieve_busdata() {
+            $.ajax({
+                url: '{% url 'busdata-json' %}',
+                dataType: 'application/json',
+                complete: function (data) {
+                    var json = JSON.parse(data.responseText);
+                    $('#title').text(new Date(json["timestamp"]*1000));
+                    for (var i = 0; i < json['entities'].length; i++) {
+                        var bus = json['entities'][i];
+                        existing_bus_index = buses.findIndex(b => b['vehicle_id'] === bus['vehicle_id']);
+                        if (existing_bus_index > -1){
+                            // Bus with that vehicle_id already in the exisitng buses list
+                            bus['marker'] = buses[existing_bus_index]['marker'];
+                            bus['marker'].addLatLng([bus["latitude"], bus["longitude"]], [31000]);
+                            bus['marker'].resume();
+                            buses.splice(existing_bus_index, 1); // remove old entry
+                        } else {
+                            // New bus, not present on the existing buses array, create a marker for it
+                            bus['marker'] = L.Marker.movingMarker([[bus["latitude"], bus["longitude"]], [bus["latitude"], bus["longitude"]]], [31000], {icon: busIcon});
+                            bus['marker'].addTo(map).bindTooltip('Route: ' + (bus["route_id"] || '') + '<br>Label: ' + (bus["label"] || '')).start();
+                        }
+                        buses.push(bus); // Update the entry with the last one
+                    }
+                }
+            });
+        }
+
+        function retrieve_busdata_repeat() {
+            retrieve_busdata();
+            setTimeout(retrieve_busdata_repeat, 30000);
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            retrieve_busdata_repeat();
+        });
+
+    </script>
+{% endblock %}

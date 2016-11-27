@@ -84,3 +84,9 @@ You will need as well to set up a cronjob that executes the following command we
 /home/tfc_prod/tfc_web_venv/bin/python3 /home/tfc_prod/tfc_web/tfc_web/manage.py update_bus_stops
 ```
 
+## Dependencies
+
+This project uses:
+- [Leaflet](http://leafletjs.com/)
+- [Leaflet Moving Marker](https://github.com/ewoken/Leaflet.MovingMarker)
+- [Material Design Lite](https://getmdl.io/)
