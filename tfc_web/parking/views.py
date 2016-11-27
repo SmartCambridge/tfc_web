@@ -54,3 +54,21 @@ def parking_plot(request, parking_id):
         'config_parking_config': json.dumps(parking_config)
     })
 
+#############################################################################
+########   parking/map                                #######################
+#############################################################################
+
+def parking_map(request):
+
+    reader = codecs.getreader("utf-8")
+    try:
+        parking_list = json.load(reader(urlopen(
+            'http://tfc-app2.cl.cam.ac.uk/api/dataserver/parking/list'
+        )))
+    except:
+        parking_list = None
+
+    return render(request, 'parking/parking_map.html', {
+        'config_parking_list': json.dumps(parking_list)
+    })
+

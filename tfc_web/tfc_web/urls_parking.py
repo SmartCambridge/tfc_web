@@ -18,5 +18,6 @@ from parking import views
 
 urlpatterns = [
     url(r'^$', views.index, name='parking_home'),
+    url(r'^map/$', views.parking_map, name='parking_map'),
     url(r'^plot/(?P<parking_id>[-\w]+)/$', views.parking_plot, name='parking_plot')
 ]
