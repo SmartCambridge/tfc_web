@@ -1,4 +1,5 @@
 {% extends "template.html" %}
+{% load static %}
 {% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
@@ -36,9 +37,13 @@
     </div>
     <script>
         var map = L.map('map').setView([52.205, 0.119], 13);
-        var mapMarkers = [];
+        var buses = [];
         var busIcon = L.icon({
-            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Bus-logo.svg/2000px-Bus-logo.svg.png',
+            iconUrl: '{% static 'images/bus-logo.png' %}',
+            iconSize: [30, 30]
+        });
+        var busIconShadow = L.icon({
+            iconUrl: '{% static 'images/bus-logo-shadow.png' %}',
             iconSize: [30, 30]
         });
 
@@ -47,18 +52,39 @@
                 url: '{% url 'busdata-json' %}',
                 dataType: 'application/json',
                 complete: function (data) {
-                    for (var i = 0; i < mapMarkers.length; i++) {
-                        map.removeLayer(mapMarkers[i]);
-                    }
-                    mapMarkers = [];
                     var json = JSON.parse(data.responseText);
                     $('#title').text(new Date(json["timestamp"]*1000));
-                    for (var i = 0; i < json["entities"].length; i++) {
-                        if (route == "" || route == json["entities"][i]["route_id"]) {
-                            var marker = L.marker([json["entities"][i]["latitude"], json["entities"][i]["longitude"]], {icon: busIcon})
-                                    .addTo(map).bindPopup('Route: ' + (json["entities"][i]["route_id"] || '') + '<br>Label: ' + (json["entities"][i]["label"] || ''));
-                            mapMarkers.push(marker);
+                    for (var i = 0; i < json['entities'].length; i++) {
+                        var bus = json['entities'][i];
+                        existing_bus_index = buses.findIndex(b => b['vehicle_id'] === bus['vehicle_id']);
+                        if (existing_bus_index > -1){
+                            // Bus with that vehicle_id already in the exisitng buses list
+                            if (bus['latitude'] == buses[existing_bus_index]['latitude'] &&
+                                bus['longitude'] == buses[existing_bus_index]['longitude']) {
+                                // if the bus hasn't changed position then do not update markers
+                                bus['marker'] = buses[existing_bus_index]['marker'];
+                                bus['old_marker'] = buses[existing_bus_index]['old_marker'];
+                                bus['link'] = buses[existing_bus_index]['link'];
+                                buses.splice(existing_bus_index, 1); // remove old entry
+                            } else {
+                                if (buses[existing_bus_index]['old_marker'] != undefined) {
+                                    map.removeLayer(buses[existing_bus_index]['old_marker']);
+                                    map.removeLayer(buses[existing_bus_index]['link']);
+                                }
+                                bus['old_marker'] = buses[existing_bus_index]['marker'];
+                                bus['old_marker'].setIcon(busIconShadow);
+                                bus['marker'] = L.marker([bus["latitude"], bus["longitude"]], {icon: busIcon})
+                                    .addTo(map).bindPopup('Route: ' + (bus["route_id"] || '') + '<br>Label: ' + (bus["label"] || ''));
+                                bus['link'] = L.polyline([bus['old_marker'].getLatLng(), bus['marker'].getLatLng()],
+                                    {color: 'grey'}).addTo(map);
+                                buses.splice(existing_bus_index, 1); // remove old entry
+                            }
+                        } else {
+                            // New bus, not present on the existing buses array, create a marker for it
+                            bus['marker'] = L.marker([bus["latitude"], bus["longitude"]], {icon: busIcon})
+                                .addTo(map).bindPopup('Route: ' + (bus["route_id"] || '') + '<br>Label: ' + (bus["label"] || ''));
                         }
+                        buses.push(bus); // Update the entry with the last one
                     }
                 }
             });
@@ -66,7 +92,7 @@
 
         function retrieve_busdata_repeat() {
             retrieve_busdata();
-            setTimeout(retrieve_busdata_repeat, 15000);
+            setTimeout(retrieve_busdata_repeat, 10000);
         }
 
         $(document).ready(function() {
