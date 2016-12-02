@@ -7,6 +7,19 @@ a img{
     border: 0px;
 }
 
+title {
+    display: inline-block;
+    text-transform: uppercase;
+    background-color: transparent !important;
+    color: #757575;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0;
+    opacity: .87;
+    text-decoration: none;
+    margin: 0 0 0 10px;
+}
+
 ::-moz-selection {
     background-color: #1cb2b5;
     color: #fff;
