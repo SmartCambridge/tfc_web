@@ -1,4 +1,5 @@
 {% extends "template.html" %}
+{% load static_new %}
 {% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
@@ -16,11 +17,28 @@
         // could use 'Area' concept here
         var map = L.map('map').setView([52.2038, 0.1207], 14);
         var mapMarkers = [];
-        var busIcon = L.icon({
-            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/RWB_Parkhaus.svg',
+        var car_park_icon = L.icon({
+            iconUrl: '{% static 'images/parking_300x300.png' %}',
+            iconSize: [30, 30]
+        });
+        var park_and_ride_icon = L.icon({
+            iconUrl: '{% static 'images/park_and_ride_300x300.png' %}',
             iconSize: [30, 30]
         });
 
+        // given a parking config record, return appropriate icon
+        function parking_icon(parking_entry)
+        {
+          switch (parking_entry["parking_type"])
+          {
+            case "park_and_ride":
+              return park_and_ride_icon;
+
+            default:
+              return car_park_icon;
+          }
+        }
+        
         // ********************************************************************************
         // *************  Parking list info provided by server ****************************
         // ********************************************************************************
@@ -35,7 +53,7 @@
                 var marker = L.marker([ parking_list[i]["latitude"],
                                         parking_list[i]["longitude"]
                                       ],
-                                      { icon: busIcon}
+                                      { icon: parking_icon(parking_list[i]) }
                              )
                         .addTo(map)
                         .bindPopup(
