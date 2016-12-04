@@ -1,0 +1,7 @@
+.leaflet-tooltip-right {
+    margin-left: 16px;
+}
+
+.leaflet-tooltip-left {
+    margin-left: -16px;
+}
