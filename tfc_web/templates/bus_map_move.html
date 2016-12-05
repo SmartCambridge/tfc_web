@@ -81,10 +81,13 @@
                         } else {
                             // New bus, not present on the existing buses array, create a marker for it
                             bus['marker'] = L.Marker.movingMarker([[bus["latitude"], bus["longitude"]], [bus["latitude"], bus["longitude"]]], [31000], {icon: busIcon});
+                            var tooltip_text = '';
                             if (bus["route"] != undefined)
-                                bus['marker'].addTo(map).bindTooltip('Route: ' + (bus["route"]["agency__name"] || '') + ' - ' + (bus["route"]["short_name"] || '') + ' - ' + (bus["route"]["long_name"] || '') +'<br>Label: ' + (bus["label"] || ''), { permanent: true, interactive: true }).start();
-                            else
-                                bus['marker'].addTo(map).bindTooltip('Label: ' + (bus["label"] || ''), { permanent: true, interactive: true }).start();
+                                tooltip_text += 'Route: ' + (bus["route"]["agency__name"] || '') + ' - ' + (bus["route"]["short_name"] || '') + ' - ' + (bus["route"]["long_name"] || '') +'<br>';
+                            if (bus["stop"] != undefined)
+                                tooltip_text += 'Next Stop: <a href="{% url 'bus-stop-template' %}'+bus["stop"]["code"]+'">' + (bus["stop"]["name"] || '') + ' - ' + (bus["stop"]["code"] || '') +'</a><br>';
+                            tooltip_text += 'Label: ' + (bus["label"] || '');
+                            bus['marker'].addTo(map).bindTooltip(tooltip_text, { permanent: true, interactive: true }).start();
                         }
                         buses.push(bus); // Update the entry with the last one
                     }

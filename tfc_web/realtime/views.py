@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
 from realtime.models import BusStop
-from vix.models import Route
+from vix.models import Route, Stop
 
 
 def index(request):
@@ -20,6 +20,10 @@ def busdata_json(request):
     bus_data = requests.get('http://smartcambridge.org/backdoor/dataserver/raw/file/monitor_json/post_data.json')
     bus_data = bus_data.json()
     for index, bus in enumerate(bus_data['entities']):
+        if 'stop_id' in bus:
+            stop = Stop.objects.filter(id=bus['stop_id'])
+            if stop:
+                bus_data['entities'][index]['stop'] = stop.values("code", "name")[0]
         if 'route_id' in bus:
             route = Route.objects.filter(id=bus['route_id'])
             if route:
