@@ -17,8 +17,22 @@ def bus_map(request):
 
 
 def busdata_json(request):
-    bus_data = requests.get('http://smartcambridge.org/backdoor/dataserver/raw/file/monitor_json/post_data.json')
-    bus_data = bus_data.json()
+    if 'north' in request.GET and 'south' in request.GET and 'east' in request.GET and 'west' in request.GET:
+        north = float(request.GET['north'])
+        south = float(request.GET['south'])
+        east = float(request.GET['east'])
+        west = float(request.GET['west'])
+        boundaries_enabled = True
+        bus_list = []
+    else:
+        boundaries_enabled = False
+
+    bus_data = requests.get('http://smartcambridge.org/backdoor/dataserver/raw/file/monitor_json/post_data.json').json()
+    if boundaries_enabled:
+        for index, bus in enumerate(bus_data['entities']):
+            if north > bus['latitude'] > south and west < bus['longitude'] < east:
+                bus_list += [bus]
+        bus_data['entities'] = bus_list
     for index, bus in enumerate(bus_data['entities']):
         if 'stop_id' in bus:
             stop = Stop.objects.filter(id=bus['stop_id'])
