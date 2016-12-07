@@ -31,6 +31,7 @@ urlpatterns = [
     # Bus Stops
     url(r'^bus/stops/$', views.bus_stops_list, name='bus-stops-list'),
     url(r'^bus/stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
+    url(r'^bus/stop/$', views.bus_stop, name='bus-stop-template'),
 
     # Zones
     url(r'^zones/$', views.zones_list, name='zones-list'),
