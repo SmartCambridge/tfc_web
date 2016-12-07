@@ -24,6 +24,13 @@ def busdata_json(request):
         west = float(request.GET['west'])
         boundaries_enabled = True
         bus_list = []
+        if 'border' in request.GET and request.GET['border'] is "true":
+            extra1 = (north - south)/2
+            north += extra1
+            south -= extra1
+            extra2 = (west - east)/2
+            west += extra2
+            east -= extra2
     else:
         boundaries_enabled = False
 
