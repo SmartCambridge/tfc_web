@@ -92,8 +92,22 @@
                         }
                         buses.push(bus); // Update the entry with the last one
                     }
+                    clean_old_buses();
                 }
             });
+        }
+
+        function clean_old_buses() {
+            var visible_buses = [];
+            for (var i = 0; i < buses.length; i++) {
+                if ((Date.now()-(buses[i]['received_timestamp']*1000) > 120000) || (!mapbounds.contains(buses[i]['marker'].getLatLng())))
+                    // After 2 minutes since the last appearance in the feed, the bus is deleted
+                    // or also if the bus have move out of the screen
+                    map.removeLayer(buses[i]['marker']);
+                else
+                    visible_buses.push(buses[i]);
+            }
+            buses = visible_buses;
         }
 
         function clean_busdata_location() {
