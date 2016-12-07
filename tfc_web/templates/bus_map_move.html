@@ -74,11 +74,15 @@
                         var bus = json['entities'][i];
                         existing_bus_index = buses.findIndex(b => b['vehicle_id'] === bus['vehicle_id']);
                         if (existing_bus_index > -1){
-                            // Bus with that vehicle_id already in the exisitng buses list
-                            bus['marker'] = buses[existing_bus_index]['marker'];
-                            bus['marker'].addLatLng([bus["latitude"], bus["longitude"]], [31000]);
-                            bus['marker'].resume();
-                            buses.splice(existing_bus_index, 1); // remove old entry
+                            // Bus with vehicle_id already in the exisitng buses list
+                            if (bus['received_timestamp'] != buses[existing_bus_index]['received_timestamp']) {
+                                // only update if the data received is new
+                                bus['marker'] = buses[existing_bus_index]['marker'];
+                                bus['marker'].addLatLng([bus["latitude"], bus["longitude"]], [31000]);
+                                bus['marker'].resume();
+                                buses.splice(existing_bus_index, 1); // remove old entry
+                                buses.push(bus); // Update the entry with the last one
+                            }
                         } else {
                             // New bus, not present on the existing buses array, create a marker for it
                             bus['marker'] = L.Marker.movingMarker([[bus["latitude"], bus["longitude"]], [bus["latitude"], bus["longitude"]]], [31000], {icon: busIcon});
@@ -89,8 +93,8 @@
                                 tooltip_text += 'Next Stop: <a href="{% url 'bus-stop-template' %}'+bus["stop"]["code"]+'">' + (bus["stop"]["name"] || '') + ' - ' + (bus["stop"]["code"] || '') +'</a><br>';
                             tooltip_text += 'Label: ' + (bus["label"] || '');
                             bus['marker'].addTo(map).bindTooltip(tooltip_text, { permanent: true, interactive: true }).start();
+                            buses.push(bus); // Update the entry with the last one
                         }
-                        buses.push(bus); // Update the entry with the last one
                     }
                     clean_old_buses();
                 }
