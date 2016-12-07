@@ -2,6 +2,11 @@ body {
     margin: 0;
 }
 
+/* Make titles BLACK for tfc_web, not mdl white-on-white */
+.mdl-layout-title {
+    color: #000;
+}
+
 /* Disable ugly boxes around images in IE10 */
 a img{
     border: 0px;

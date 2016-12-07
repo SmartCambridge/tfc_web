@@ -32,14 +32,14 @@ def parking_plot(request, parking_id):
     reader = codecs.getreader("utf-8")
     try:
         parking_json = json.load(reader(urlopen(
-            'http://tfc-app2.cl.cam.ac.uk/api/dataserver/parking/occupancy/'+parking_id+'?date='+yyyy+'-'+MM+'-'+dd
+            'http://localhost/api/dataserver/parking/occupancy/'+parking_id+'?date='+yyyy+'-'+MM+'-'+dd
         )))
     except:
         parking_json = None
 
     try:
         parking_config = json.load(reader(urlopen(
-            'http://tfc-app2.cl.cam.ac.uk/api/dataserver/parking/config/'+parking_id
+            'http://localhost/api/dataserver/parking/config/'+parking_id
         )))
     except:
         parking_config = None
@@ -63,12 +63,21 @@ def parking_map(request):
     reader = codecs.getreader("utf-8")
     try:
         parking_list = json.load(reader(urlopen(
-            'http://tfc-app2.cl.cam.ac.uk/api/dataserver/parking/list'
+            'http://localhost/api/dataserver/parking/list'
         )))
     except:
         parking_list = None
 
+    try:
+        # //debug hardcoded cam_park_rss into parking/map occupancy feed request
+        parking_feed = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/feed/now/cam_park_rss'
+        )))
+    except:
+        parking_feed = None
+
     return render(request, 'parking/parking_map.html', {
-        'config_parking_list': json.dumps(parking_list)
+        'config_parking_list': json.dumps(parking_list),
+        'config_parking_feed': json.dumps(parking_feed)
     })
 

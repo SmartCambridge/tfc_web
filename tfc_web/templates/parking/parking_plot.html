@@ -1,9 +1,20 @@
 {% extends "template.html" %}
+{% block title %}
+Parking Plot
+{% endblock %}
+{% block page_title %}
+  <span id="parking_name"></span> <span id="parking_capacity"></span>
+{% endblock %}
+{% block mobile_title %}
+Parking Plot
+{% endblock %}
+
+
 {% block head %}
 <!--
 file:   tfc_web/templates/parking/parking_plot.html (a Django template)
 author: Ian Lewis ijl20@cam.ac.uk
-date:   2016-11-28
+date:   2016-12-03
 
 This page is pre-populated with JSON data from the TFC api's for parking CONFIG and OCCUPANCY data,
 from which it will draw a parking occupancy chart for the selected day.
@@ -182,7 +193,7 @@ var CHART_Y_MAX = 1000; // FIX limit of Y axis
 function init()
 {
 
-    console.log('calling init');
+    console.log('calling init 1');
 
     // embed parking name into page
     try
@@ -198,6 +209,15 @@ function init()
     chart_day_start_ts = 0; // initially set start-time boundary of chart to distant past
 
     plot_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    var today = new Date();
+
+    // test if YYYY/MM/DD is TODAY'S DATE
+    if (today.getFullYear()==YYYY && today.getMonth()==(MM-1) && today.getDate()==DD)
+    {
+      console.log('plotting today - reloading in 6 minutes');
+      setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+    }
 
     var heading_date = document.getElementById("heading_date");
 
@@ -216,7 +236,13 @@ function init()
 
     // initialize empty data structure to hold parking occupancy messages
     try {
+        // **********************************************************************************
+        // **********  Here is where we load the parking plot data    ***********************
+        // **********************************************************************************
         var json_data = JSON.parse("{{ config_parking_data|escapejs }}");
+        // **********************************************************************************
+        // **********************************************************************************
+        // **********************************************************************************
         if (!json_data)
         {
             console.log('no parking data received');
@@ -328,7 +354,7 @@ function init_chart()
       .append("text")
       .attr("class", "label")
       .attr("transform", "rotate(-90)")
-      .attr("y", -46)
+      .attr("y", -50)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("Spaces Occupied");
@@ -462,29 +488,26 @@ function date_shift(n)
     
 {% block content %}
 <div style="height: 75vh;">
-<div id="title" style="height: 5%; width: 100%;">
-  Parking: <span id="parking_name"></span> <span id="parking_capacity"></span>
-</div>
-<div id="chart_title">
-  <h4>
-    <div class="time_shift"><a href="#" onclick="date_shift(-7)">
-        <img src="../../../static/images/chevron-left-left.png"></a>
+    <div id="chart_title">
+      <h4>
+        <div class="time_shift"><a href="#" onclick="date_shift(-7)">
+            <img src="../../../static/images/chevron-left-left.png"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(-1)">
+            <img src="../../../static/images/chevron-left.png"></a>
+        </div>
+        <div id="heading_date"></div>
+        <div class="time_shift"><a href="#" onclick="date_shift(1);">
+            <img src="../../../static/images/chevron-right.png"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(7);">
+            <img src="../../../static/images/chevron-right-right.png"></a>
+        </div>
+      </h4>
     </div>
-    <div class="time_shift"><a href="#" onclick="date_shift(-1)">
-        <img src="../../../static/images/chevron-left.png"></a>
-    </div>
-    <div id="heading_date"></div>
-    <div class="time_shift"><a href="#" onclick="date_shift(1);">
-        <img src="../../../static/images/chevron-right.png"></a>
-    </div>
-    <div class="time_shift"><a href="#" onclick="date_shift(7);">
-        <img src="../../../static/images/chevron-right-right.png"></a>
-    </div>
-  </h4>
-</div>
 
-<div class="chart" id="chart">
-</div>
+    <div class="chart" id="chart">
+    </div>
 
 </div> <!-- end content -->
     
