@@ -1,70 +1,16 @@
-{% extends "template.html" %}
-{% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script>
-        var route = "";
-        function route_change(bus_route) {
-            route = bus_route;
-            retrieve_busdata();
-        }
-    </script>
-{% endblock %}
-{% block content %}
+{% extends "map_template.html" %}
+{% block page_title %}{{ zone.name }}{% endblock %}
+{% block title %}{{ zone.name }}{% endblock %}
+
+{% block content_web %}
     <div style="height: 80vh;">
-        <div id="title" style="height: 5%; width: 100%;"></div>
         <div id="map" style="height: 90%; width: 100%;"></div>
-        <div style="height: 5%; width: 100%;">
-            {{ zone.name }}
-        </div>
     </div>
-    <script>
-        var map = L.map('map').setView([{{ zone.center.lat }}, {{ zone.center.lng }}], {{ zone.zoom }});
-        var mapMarkers = [];
-        var busIcon = L.icon({
-            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Bus-logo.svg/2000px-Bus-logo.svg.png',
-            iconSize: [30, 30]
-        });
-
-        function retrieve_busdata() {
-            $.ajax({
-                url: '{% url 'busdata-json' %}',
-                dataType: 'application/json',
-                complete: function (data) {
-                    for (var i = 0; i < mapMarkers.length; i++) {
-                        map.removeLayer(mapMarkers[i]);
-                    }
-                    mapMarkers = [];
-                    var json = JSON.parse(data.responseText);
-                    $('#title').text(new Date(json["timestamp"]*1000));
-                    for (var i = 0; i < json["entities"].length; i++) {
-                        if (route == "" || route == json["entities"][i]["route_id"]) {
-                            var marker = L.marker([json["entities"][i]["latitude"], json["entities"][i]["longitude"]], {icon: busIcon})
-                                    .addTo(map).bindPopup('Route: ' + (json["entities"][i]["route_id"] || '') + '<br>Label: ' + (json["entities"][i]["label"] || ''));
-                            mapMarkers.push(marker);
-                        }
-                    }
-                }
-            });
-        }
-
-        function retrieve_busdata_repeat() {
-            retrieve_busdata();
-            setTimeout(retrieve_busdata_repeat, 15000);
-        }
-
-        $(document).ready(function() {
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            L.polygon([
-                {% for points in zone.path %}
-                [{{ points.lat }}, {{ points.lng }}],
-                {% endfor %}
-            ]).addTo(map);
-            retrieve_busdata_repeat();
-        });
-
-    </script>
+{% endblock %}
+{% block script_lazy %}
+    L.polygon([
+        {% for points in zone.path %}
+        [{{ points.lat }}, {{ points.lng }}],
+        {% endfor %}
+    ]).addTo(map);
 {% endblock %}

@@ -16,29 +16,14 @@
 {% endblock %}
 {% block title %}Bus Map{% endblock %}
 {% block content %}
+    {% block content_web %}
     <div style="height: 80vh;">
         <div id="map" style="height: 90%; width: 100%;"></div>
-        <div style="height: 5%; width: 100%;">
-            <a onclick="javascript:route_change('');" href="#">All Buses</a>
-            <a onclick="javascript:route_change('SCCM-1');" href="#">City 1</a>
-            <a onclick="javascript:route_change('SCCM-2');" href="#">City 2</a>
-            <a onclick="javascript:route_change('SCCM-3');" href="#">City 3</a>
-            <a onclick="javascript:route_change('SCCM-4');" href="#">City 4</a>
-            <a onclick="javascript:route_change('SCCM-5');" href="#">City 5</a>
-            <a onclick="javascript:route_change('SCCM-6');" href="#">City 6</a>
-            <a onclick="javascript:route_change('SCCM-7');" href="#">City 7</a>
-            <a onclick="javascript:route_change('SCCM-8');" href="#">City 8</a>
-            <a onclick="javascript:route_change('WP-U');" href="#">Universal</a>
-            <a onclick="javascript:route_change('SCCM-PR1');" href="#">Park and Ride Red</a>
-            <a onclick="javascript:route_change('SCCM-PR2');" href="#">Park and Ride Blue</a>
-            <a onclick="javascript:route_change('SCCM-PR3');" href="#">Park and Ride Green</a>
-            <a onclick="javascript:route_change('SCCM-A');" href="#">Busway A</a>
-            <a onclick="javascript:route_change('SCCM-B');" href="#">Busway B</a>
-            <a onclick="javascript:route_change('WP-C');" href="#">Busway C</a>
-        </div>
     </div>
+    {% endblock %}
+    {% block content_script %}
     <script>
-        var map = L.map('map').setView([52.205, 0.119], 13);
+        var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var mapbounds;
         var info_map = L.control();
 
@@ -65,7 +50,7 @@
 
         function retrieve_busdata() {
             $.ajax({
-                url: '{% url 'busdata-json' %}?north='+mapbounds.getNorth()+'&east='+mapbounds.getEast()+'&south='+mapbounds.getSouth()+'&west='+mapbounds.getWest(),
+                url: '{% url 'busdata-json' %}?border=true&north='+mapbounds.getNorth()+'&east='+mapbounds.getEast()+'&south='+mapbounds.getSouth()+'&west='+mapbounds.getWest(),
                 dataType: 'application/json',
                 complete: function (data) {
                     var json = JSON.parse(data.responseText);
@@ -92,7 +77,7 @@
                             if (bus["stop"] != undefined)
                                 tooltip_text += 'Next Stop: <a href="{% url 'bus-stop-template' %}'+bus["stop"]["code"]+'">' + (bus["stop"]["name"] || '') + ' - ' + (bus["stop"]["code"] || '') +'</a><br>';
                             tooltip_text += 'Label: ' + (bus["label"] || '');
-                            bus['marker'].addTo(map).bindTooltip(tooltip_text, { permanent: true, interactive: true }).start();
+                            bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
                             buses.push(bus); // Update the entry with the last one
                         }
                     }
@@ -145,5 +130,8 @@
             retrieve_busdata();
         });
 
+        {% block script_lazy %}{% endblock %}
+
     </script>
+    {% endblock %}
 {% endblock %}

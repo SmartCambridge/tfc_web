@@ -13,7 +13,7 @@ def index(request):
 
 
 def bus_map(request):
-    return render(request, 'bus_map_move.html', {})
+    return render(request, 'routes.html', {})
 
 
 def busdata_json(request):
@@ -57,7 +57,12 @@ def bus_stops_list(request):
 
 
 def bus_stop(request, bus_stop_id):
-    return render(request, 'bus_stop.html', {'bus_stop': BusStop.objects.get(atco_code=bus_stop_id)})
+    bus_stop = BusStop.objects.get(atco_code=bus_stop_id)
+    return render(request, 'bus_stop.html', {
+        'bus_stop': bus_stop,
+        'tooltips_permanent': True,
+        'mapcenter': "[%s, %s], 16" % (bus_stop.latitude, bus_stop.longitude)
+    })
 
 
 def zones_list(request):
@@ -75,4 +80,8 @@ def zone(request, zone_id):
     zone['center'] = zone['zone.center']
     zone['zoom'] = zone['zone.zoom']
     zone['path'] = zone['zone.path']
-    return render(request, 'zone.html', {'zone': zone})
+    return render(request, 'zone.html', {
+        'zone': zone,
+        'tooltips_permanent': True,
+        'mapcenter': "[%s, %s], %s" % (zone['center']['lat'], zone['center']['lng'], zone['zoom'])
+    })

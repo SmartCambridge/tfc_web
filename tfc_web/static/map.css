@@ -1,7 +1,7 @@
-.leaflet-tooltip-right {
+.bus-tooltip.leaflet-tooltip-right {
     margin-left: 16px;
 }
 
-.leaflet-tooltip-left {
+.bus-tooltip.leaflet-tooltip-left {
     margin-left: -16px;
 }
