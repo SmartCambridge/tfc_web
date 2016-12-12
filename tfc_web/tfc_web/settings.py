@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'realtime',
     'vix',
     'parking',
+    'traffic',
 )
 
 MIDDLEWARE_CLASSES = (

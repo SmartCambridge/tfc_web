@@ -23,6 +23,9 @@ urlpatterns = [
     # Parking
     url(r'^parking/', include('tfc_web.urls_parking')),
 
+    # Traffic
+    url(r'^traffic/', include('tfc_web.urls_traffic')),
+
     # Bus movements
 
     url(r'^bus/map/$', views.bus_map, name='bus-map'),

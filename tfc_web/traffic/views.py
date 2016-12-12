@@ -7,17 +7,17 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 #############################################################################
-########   parking/  home page                        #######################
+########   traffic/  home page                        #######################
 #############################################################################
 
 def index(request):
-    return render(request, 'parking/home.html', {})
+    return render(request, 'traffic/home.html', {})
 
 #############################################################################
-########   parking/plot/<parking_id>?date=YYYY-MM-DD  #######################
+########   traffic/zone/transit_plot/<zone_id>?date=YYYY-MM-DD  #############
 #############################################################################
 
-def parking_plot(request, parking_id):
+def zone_transit_plot(request, zone_id):
 
     today = date.today().strftime('%Y-%m-%d')
     
@@ -31,53 +31,44 @@ def parking_plot(request, parking_id):
     
     reader = codecs.getreader("utf-8")
     try:
-        parking_json = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/occupancy/'+parking_id+'?date='+yyyy+'-'+MM+'-'+dd
+        transit_json = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/zone/transits/'+zone_id+'?date='+yyyy+'-'+MM+'-'+dd
         )))
     except:
-        parking_json = None
+        transit_json = None
 
     try:
-        parking_config = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/config/'+parking_id
+        zone_config = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/zone/config/'+zone_id
         )))
     except:
-        parking_config = None
+        zone_config = None
     
-    return render(request, 'parking/parking_plot.html', {
+    return render(request, 'traffic/zone_transit_plot.html', {
         'config_date':  user_date,
-        'config_parking_id': parking_id,
+        'config_zone_id': zone_id,
         'config_yyyy' : yyyy,
         'config_MM':    MM,
         'config_dd':    dd,
-        'config_parking_data': json.dumps(parking_json),
-        'config_parking_config': json.dumps(parking_config)
+        'config_zone_data': json.dumps(transit_json),
+        'config_zone_config': json.dumps(zone_config)
     })
 
 #############################################################################
-########   parking/map                                #######################
+########   traffic/zones/map                          #######################
 #############################################################################
 
-def parking_map(request):
+def zones_map(request):
 
     reader = codecs.getreader("utf-8")
     try:
-        parking_list = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/list'
+        zone_list = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/zone/list'
         )))
     except:
-        parking_list = None
+        zone_list = None
 
-    try:
-        # //debug hardcoded cam_park_rss into parking/map occupancy feed request
-        parking_feed = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/feed/now/cam_park_rss'
-        )))
-    except:
-        parking_feed = None
-
-    return render(request, 'parking/parking_map.html', {
-        'config_parking_list': json.dumps(parking_list),
-        'config_parking_feed': json.dumps(parking_feed)
+    return render(request, 'traffic/zones_map.html', {
+        'config_zone_list': json.dumps(zone_list),
     })
 
