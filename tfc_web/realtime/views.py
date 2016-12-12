@@ -28,9 +28,9 @@ def busdata_json(request):
             extra1 = (north - south)/2
             north += extra1
             south -= extra1
-            extra2 = (west - east)/2
-            west += extra2
-            east -= extra2
+            extra2 = (east - west)/2
+            west -= extra2
+            east += extra2
     else:
         boundaries_enabled = False
 
