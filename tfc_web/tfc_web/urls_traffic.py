@@ -19,5 +19,6 @@ from traffic import views
 urlpatterns = [
     url(r'^$', views.index, name='traffic_home'),
     url(r'^zones/map/$', views.zones_map, name='zones_map'),
+    url(r'^zone/map/(?P<zone_id>[-\w]+)/$', views.zone_map, name='zone_map'),
     url(r'^zone/transit_plot/(?P<zone_id>[-\w]+)/$', views.zone_transit_plot, name='zone_transit_plot')
 ]

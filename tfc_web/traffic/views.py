@@ -72,3 +72,21 @@ def zones_map(request):
         'config_zone_list': json.dumps(zone_list),
     })
 
+#############################################################################
+########   traffic/zone/map/<zone_id>                 #######################
+#############################################################################
+
+def zone_map(request, zone_id):
+
+    reader = codecs.getreader("utf-8")
+    try:
+        zone_config = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/zone/config/'+zone_id
+        )))
+    except:
+        zone_config = None
+
+    return render(request, 'traffic/zone_map.html', {
+        'config_zone_config': json.dumps(zone_config),
+    })
+

@@ -1,25 +1,20 @@
 {% extends "template.html" %}
-{% block title %}
-Parking Plot
-{% endblock %}
-{% block page_title %}
-  <span id="parking_name"></span> <span id="parking_capacity"></span>
-{% endblock %}
-{% block mobile_title %}
-Parking Plot
-{% endblock %}
+{% load static_new %}
+{% block title %}Transit Plot <span id="title_zone_name"></span>{% endblock %}
+{% block page_title %}  <span id="page_title_zone_name"></span> Journey Times</span>{% endblock %}
+{% block mobile_title %}Transit Plot <span id="mobile_title_zone_name"></span>{% endblock %}
 
 
 {% block head %}
 <!--
-file:   tfc_web/templates/parking/parking_plot.html (a Django template)
+file:   tfc_web/traffic/templates/zone_transit_plot.html (a Django template)
 author: Ian Lewis ijl20@cam.ac.uk
-date:   2016-12-03
+date:   2016-12-12
 
-This page is pre-populated with JSON data from the TFC api's for parking CONFIG and OCCUPANCY data,
-from which it will draw a parking occupancy chart for the selected day.
+This page is pre-populated with JSON data from the TFC api's for zone CONFIG and TRANSIT data,
+from which it will draw a transit time chart for the selected day.
 
-Example config data:
+Example zone config data:
 {
   "module_id": "vix",
   "module_name": "dataserver"
