@@ -1,0 +1,520 @@
+{% extends "template.html" %}
+{% block title %}
+Parking Plot
+{% endblock %}
+{% block page_title %}
+  <span id="parking_name"></span> <span id="parking_capacity"></span>
+{% endblock %}
+{% block mobile_title %}
+Parking Plot
+{% endblock %}
+
+
+{% block head %}
+<!--
+file:   tfc_web/templates/parking/parking_plot.html (a Django template)
+author: Ian Lewis ijl20@cam.ac.uk
+date:   2016-12-03
+
+This page is pre-populated with JSON data from the TFC api's for parking CONFIG and OCCUPANCY data,
+from which it will draw a parking occupancy chart for the selected day.
+
+Example config data:
+{
+  "module_id": "vix",
+  "module_name": "dataserver"
+  "request_data":
+    {
+      "latitude": 52.2038,
+      "longitude": 0.1207,
+      "capacity": 890,
+      "parking_name": "Grand Arcade",
+      "parking_id": "grand-arcade-car-park",
+      "feed_id": "cam_park_local"
+    }
+}
+
+Example occupancy data:
+{
+  "module_id": "vix",
+  "module_name": "dataserver"
+  "request_data":
+    [
+      {
+        "msg_type": "feed_car_parks",
+        "spaces_capacity": 953,
+        "module_id": "cam",
+        "spaces_occupied": 77,
+        "spaces_free": 876,
+        "filename": "1480291423_2016-11-28-00-03-43",
+        "area_id": "cam",
+        "ts": 1480291423,
+        "module_name": "feedmaker",
+        "filepath": "2016/11/28",
+        "parking_name": "Grand Arcade",
+        "parking_id": "grand-arcade-car-park",
+        "feed_id": "cam_park_local"
+      },
+      ...
+    ]
+}
+-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <!-- load the d3 library for the chart plot -->
+    <script src="/static/d3.v3.min.js" charset="utf-8"></script>
+    
+    <style>
+
+#heading_date {
+  display: inline-block;
+  width: 8em;
+}
+
+.time_shift {
+  display: inline-block;
+}
+
+/* .chart {
+    width: 600px;
+    height: 350px;
+} */
+
+.plot_svg {
+  background-color: AliceBlue;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #707070;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 400px;
+  /* height: 28px; */
+  text-align: center;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.error {
+  color: red;
+  display: inline-block;
+}
+
+.tick {
+  stroke: #222;
+}
+
+.grid {
+  stroke: #555;
+  opacity: 0.7;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.capacity_line {
+  fill: none;
+  stroke: red;
+  stroke-width: 1.5px;
+}
+
+</style>
+    
+<script type="text/javascript">
+
+//********************************************************************************
+//***********  LOAD VARS FROM SERVER    ******************************************
+//********************************************************************************
+
+var parking_id = "{{config_parking_id}}";
+
+var parking_capacity = 0; // will be populated from parking_config in init()
+
+var YYYY = {{config_yyyy}}; // Year e.g. 2016
+var MM = {{config_MM}};     // Month e.g. 07 = July
+var DD = {{config_dd}};     // day e.g. 23
+
+var parking_config = JSON.parse('{{ config_parking_config|escapejs }}');
+
+var YYYYMMDD = '{{config_yyyy}}/{{config_MM}}/{{config_dd}}';
+//********************************************************************************
+//********************************************************************************
+
+var plot_date; // date of currently displayed plot (initialized from YYYY/MM/DD)
+
+var plot_date_minus_1; // plot_date - 1 day
+var plot_date_plus_1; // plot_date + 1 day
+
+var month_of_year = new Array("spacer", "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+var day_of_week = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+
+// d3 scatterplot parameters
+var chart_svg;    // chart svg element
+var chart_width;  // width of chart in pixels
+var chart_height; // height of chart
+var chart_xScale; // d3 scale fn for x axis
+var chart_xAxis;  // x axis
+var chart_xValue; // value for x axis selected from current data object (i.e. timestamp)
+var chart_xMap;   // fn for x display value
+var chart_yScale;
+var chart_yAxis;
+var chart_yValue;
+var chart_yMap;
+//var chart_cValue; // value from current data point to determine color of circle (i.e. route_id)
+var chart_color;  // color chosen for current circle on scatterplaot
+var chart_tooltip;
+
+// time of day for scatterplot to start/end
+var CHART_START_TIME = 0; // start chart at midnight
+var CHART_END_TIME = 24;  // end chart at midnight
+
+var CHART_DOT_RADIUS = 6; // size of dots on scatterplot
+var CHART_Y_MAX = 1000; // FIX limit of Y axis
+
+// **********************************************
+// Initialize this page (called in body:onload())
+// **********************************************
+
+function init()
+{
+
+    console.log('calling init 1');
+
+    // embed parking name into page
+    try
+    {
+        document.getElementById('parking_name').innerHTML = parking_config.request_data.parking_name;
+    }
+    catch(err)
+    {
+        document.getElementById('parking_name').innerHTML = '<div class="error">Unrecognised Car Park</div>';
+        console.log('no config data received');
+    }
+
+    chart_day_start_ts = 0; // initially set start-time boundary of chart to distant past
+
+    plot_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    var today = new Date();
+
+    // test if YYYY/MM/DD is TODAY'S DATE
+    if (today.getFullYear()==YYYY && today.getMonth()==(MM-1) && today.getDate()==DD)
+    {
+      console.log('plotting today - reloading in 6 minutes');
+      setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+    }
+
+    var heading_date = document.getElementById("heading_date");
+
+    heading_date.textContent = day_of_week[plot_date.getDay()] + " " + DD + " " + month_of_year[MM] + " " + YYYY;
+
+    // get max occupancy for this car park from parking_config and adjust CHART_Y_MAX
+    try {
+          parking_capacity = parking_config.request_data.capacity;
+          console.log('Capacity of this car park is: '+parking_capacity);
+          CHART_Y_MAX = (1.2 * parking_capacity);
+          document.getElementById('parking_capacity').innerHTML = "(max "+parking_capacity+")";
+    } catch (err) {
+    }
+
+    var rita_data = new Array();
+
+    // initialize empty data structure to hold parking occupancy messages
+    try {
+        // **********************************************************************************
+        // **********  Here is where we load the parking plot data    ***********************
+        // **********************************************************************************
+        var json_data = JSON.parse("{{ config_parking_data|escapejs }}");
+        // **********************************************************************************
+        // **********************************************************************************
+        // **********************************************************************************
+        if (!json_data)
+        {
+            console.log('no parking data received');
+        }
+        else
+        {
+            rita_data = json_data.request_data;
+            console.log('rita_data.length is '+rita_data.length);
+        }
+    } catch(err) {
+        console.log('error parsing config_parking_data');
+        rita_data = new Array();
+    }
+
+    console.log('Received '+rita_data.length+' records');
+
+    // set up layout / axes of scatterplot
+    init_chart();
+
+    if (rita_data.length > 0)
+    {
+      console.log('init calling draw_chart()');
+
+      // draw chart with the data embedded by the template into rita_data
+      draw_chart(rita_data);
+    }
+}
+
+// ******************************************                                                
+// Initialize the chart to appear on the page
+// - not yet with any data
+// ******************************************
+function init_chart()
+{
+    var margin = {top: 20, right: 50, bottom: 30, left: 60};
+    chart_width = window.innerWidth * 0.8 - margin.left - margin.right;
+    chart_height = window.innerHeight * 0.5 - margin.top - margin.bottom;
+
+    // add the graph canvas to the body of the webpage
+    chart_svg = d3.select("#chart").append("svg")
+        .attr("width", chart_width + margin.left + margin.right)
+        .attr("height", chart_height + margin.top + margin.bottom)
+        .attr("class", "plot_svg")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // setup x axis
+    chart_xScale = d3.time.scale().range([0, chart_width]); // value -> display
+    chart_xAxis = d3.svg.axis().scale(chart_xScale).orient("bottom").ticks(24);
+
+    // setup y axis
+    chart_yScale = d3.scale.linear().range([chart_height, 0]); // value -> display
+    chart_yAxis = d3.svg.axis().scale(chart_yScale).orient("left").ticks(10);
+
+    // setup chart functions where d = the parking occupancy record
+    chart_xValue = function(d) { return new Date(d.ts*1000);}; // data -> value
+    chart_xMap = function(d) { return chart_xScale(chart_xValue(d));}; // data -> display
+
+    chart_yValue = function(d) { return d.spaces_occupied;}, // data -> value
+    chart_yMap = function(d) { return chart_yScale(Math.min(chart_yValue(d), CHART_Y_MAX));}; // data -> display
+
+    // setup fill color
+    //chart_cValue = function(d) { return d.route_id; },
+    chart_color = function (d) {
+        if (d.spaces_occupied > CHART_Y_MAX)
+        {
+          return 'red';
+        }
+        return 'gray';
+    };
+
+
+    // initialize x axis - will redraw when data received
+    var min_date = new Date(YYYY,MM-1,DD);
+    min_date.setHours(CHART_START_TIME);
+    min_date.setMinutes(0);
+    min_date.setSeconds(0);
+
+    var max_date = new Date(min_date);
+    max_date.setHours(CHART_END_TIME);
+
+    chart_xScale.domain([min_date, max_date]);
+    chart_yScale.domain([0, CHART_Y_MAX]);
+
+    // x-axis
+    chart_svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + chart_height + ")")
+      .call(chart_xAxis
+            .tickSize(-chart_height, 0, 0)
+            .tickFormat(d3.time.format("%H"))
+       )
+      .attr("class", "grid")
+      .append("text")
+      .attr("class", "label")
+      .attr("x", chart_width)
+      .attr("y", 26)
+      .style("text-anchor", "end")
+      .text("Time of day");
+
+    // y-axis
+    chart_svg.append("g")
+      .attr("class", "y axis")
+      .call(chart_yAxis
+            .tickSize(-chart_width, 0, 0)
+            //.tickFormat("")
+      )
+      .attr("class", "grid")
+      .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -50)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Spaces Occupied");
+
+    // parking capacity horizontal line
+    /*
+    var line = d3.svg.line()
+        .x(function(d, i) {
+          return x2(d.letter) + i; })
+          .y(function(d, i) { return y(dataSum/data.length); });
+
+    chart_svg.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+    */
+
+
+    // convert parking_capacity to pixels on the Y-axis
+    if (parking_capacity)
+    {
+        var capacity_px = chart_yMap({ spaces_occupied: parking_capacity });
+
+        chart_svg.append("svg:line")
+            .attr("x1", 0)
+            .attr("x2", chart_width)
+            .attr("y1", capacity_px)
+            .attr("y2", capacity_px)
+            .attr("class", "capacity_line");
+    }
+
+    // add the tooltip area to the webpage
+    chart_tooltip = d3.select("#chart").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
+}
+
+// ****************************************************************************
+// *********  Update the chart with occupancy data      ***********************
+// ****************************************************************************
+function draw_chart(rita_data)
+{
+    console.log('Drawing chart size='+rita_data.length);
+
+    // do nothing if no data is available
+    if (rita_data.length == 0) return;
+
+
+    /*
+     * value accessor - returns the value to encode for a given data object.
+     * scale - maps value to a visual display encoding, such as a pixel position.
+     * map function - maps from data value to display value
+     * axis - sets up axis
+     */
+
+
+      // don't want dots overlapping axis, so add in buffer to data domain
+      var min_date = d3.min(rita_data, chart_xValue);
+      min_date.setHours(CHART_START_TIME);
+      min_date.setMinutes(0);
+      min_date.setSeconds(0);
+
+      var max_date = new Date(min_date);
+      max_date.setHours(CHART_END_TIME);
+
+      chart_xScale.domain([min_date, max_date]);
+      // chart_yScale.domain([0, d3.max(rita_data, chart_yValue)+1]);
+      // debug y-scale hardcoded to CHART_Y_MAX so charts are comparable
+      chart_yScale.domain([0, CHART_Y_MAX]);
+
+      chart_svg.select(".x.axis").call(chart_xAxis);
+      chart_svg.select(".y.axis").call(chart_yAxis);
+
+      chart_svg.selectAll(".dot")
+          .remove();
+
+      // draw dots
+      chart_svg.selectAll(".dot")
+          .data(rita_data)
+          .enter().append("circle")
+          .attr("class", "dot")
+          .attr("r", CHART_DOT_RADIUS)
+          .attr("cx", chart_xMap)
+          .attr("cy", chart_yMap)
+          .style("fill", function(d) { return chart_color(d); })
+          .on("mouseover", function(d) {
+              chart_tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+              chart_tooltip.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+              chart_tooltip.html("ID: "+d.parking_id+
+                                 "<br/>Occupied "+d.spaces_occupied+
+                                 "<br/>Time:" + new Date(d.ts*1000))
+                   .style("left", (d3.event.pageX + 5) + "px")
+                   .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+              chart_tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+          });
+
+} // end draw_chart
+
+// ************************************************************************************
+// ************** Date forwards / backwards function             *********************
+// ************************************************************************************
+
+// move page to new date +n days from current date
+function date_shift(n)
+{
+    console.log('date_shift()');
+
+    new_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    new_date.setDate(new_date.getDate()+n);
+
+    new_year = new_date.getFullYear();
+    new_month = ("0" + (new_date.getMonth()+1)).slice(-2);
+    new_day = ("0" + new_date.getDate()).slice(-2);
+
+    console.log(new_year+'-'+new_month+'-'+new_day);
+    window.location.href = '?date='+new_year+'-'+new_month+'-'+new_day;
+}
+
+</script>
+{% endblock %}
+    
+{% block content %}
+<div style="height: 75vh;">
+    <div id="chart_title">
+      <h4>
+        <div class="time_shift"><a href="#" onclick="date_shift(-7)">
+            <img src="../../../static/images/chevron-left-left.png"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(-1)">
+            <img src="../../../static/images/chevron-left.png"></a>
+        </div>
+        <div id="heading_date"></div>
+        <div class="time_shift"><a href="#" onclick="date_shift(1);">
+            <img src="../../../static/images/chevron-right.png"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(7);">
+            <img src="../../../static/images/chevron-right-right.png"></a>
+        </div>
+      </h4>
+    </div>
+
+    <div class="chart" id="chart">
+    </div>
+
+</div> <!-- end content -->
+    
+<script>
+        $(document).ready(function() {
+            init();
+        });
+</script>
+
+{% endblock %}
