@@ -49,7 +49,14 @@
                 
                 points.push(point); // add point to list to use to set map bounds
             }
-            L.polygon(path).addTo(map);
+            L.polygon(path)
+                .bindPopup('<a href="{% url 'zone_map' 4179368 %}'.replace('4179368',zone['zone.id'])+'">'+
+                              zone['zone.name']+
+                              '</a><br/>'+
+                           '<a href="{% url 'zone_transit_plot' 4179368 %}'.replace('4179368',zone['zone.id'])+'">'+
+                              'Show journey times</a>'
+                          )
+                .addTo(map);
 
             // Draw zone start/finish lines
 

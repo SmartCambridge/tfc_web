@@ -50,6 +50,7 @@ def zone_transit_plot(request, zone_id):
         'config_yyyy' : yyyy,
         'config_MM':    MM,
         'config_dd':    dd,
+        'config_zone_id': zone_id,
         'config_zone_data': json.dumps(transit_json),
         'config_zone_config': json.dumps(zone_config)
     })
@@ -87,6 +88,7 @@ def zone_map(request, zone_id):
         zone_config = None
 
     return render(request, 'traffic/zone_map.html', {
-        'config_zone_config': json.dumps(zone_config),
+        'config_zone_id': zone_id,
+        'config_zone_config': json.dumps(zone_config)
     })
 

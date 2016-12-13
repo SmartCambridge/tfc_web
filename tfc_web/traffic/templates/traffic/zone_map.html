@@ -1,7 +1,8 @@
 {% extends "template.html" %}
 {% load static_new %}
-{% block page_title %}Monitored Traffic Zones{% endblock %}
-{% block title %}Traffic Zones{% endblock %}
+{% block title %}Traffic Zone{% endblock %}
+{% block page_title %}Traffic Zone <span id="page_title"></span>{% endblock %}
+{% block mobile_title %}Traffic Zone <span id="mobile_title"></span>{% endblock %}
 
 {% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
@@ -18,9 +19,13 @@
         // ********************************************************************************
         // *************  Zone config info provided by server ****************************
         // ********************************************************************************
-        
-        var zone = (JSON.parse( '{{ config_zone_config|escapejs }}' ))['request_data']['options']['config'];
-        
+
+        var zone;
+        try {
+            zone = (JSON.parse( '{{ config_zone_config|escapejs }}' ))['request_data']['options']['config'];
+        } catch (error) {
+            zone = {};
+        }
         // ********************************************************************************
         // *************  end of server zone list info         ****************************
         // ********************************************************************************
@@ -40,8 +45,15 @@
             path.push(point);   // add point to polygon for current zone
         }
 
+        var ZONE_PLOT_URL = "{% url 'zone_transit_plot' config_zone_id %}";
+        
         var poly = L.polygon(path);
-        poly.addTo(map);
+        poly
+            .bindPopup(zone['zone.name']+'<br/>'+
+                       '<a href="'+ZONE_PLOT_URL+'">Transit Plot</a>'
+                      )
+            .openPopup()
+            .addTo(map);
 
         // Draw zone start/finish lines
 
@@ -50,7 +62,8 @@
 
         var finish_index = zone['zone.finish_index'];
         var finish_line = [path[finish_index], path[finish_index+1]];
-        L.polyline(finish_line, {color: 'red'}).addTo(map);
+        L.polyline(finish_line, {color: 'red'})
+            .addTo(map);
 
         // adjust map bounds
         map.fitBounds(poly.getBounds());
