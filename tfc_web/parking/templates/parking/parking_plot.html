@@ -1,13 +1,7 @@
 {% extends "template.html" %}
-{% block title %}
-Parking Plot
-{% endblock %}
-{% block page_title %}
-  <span id="parking_name"></span> <span id="parking_capacity"></span>
-{% endblock %}
-{% block mobile_title %}
-Parking Plot
-{% endblock %}
+{% load static_new %}
+{% block page_title %}<span id="parking_name"></span> <span id="parking_capacity"></span>{% endblock %}
+{% block mobile_title %}Parking Plot{% endblock %}
 
 
 {% block head %}
@@ -16,7 +10,7 @@ file:   tfc_web/templates/parking/parking_plot.html (a Django template)
 author: Ian Lewis ijl20@cam.ac.uk
 date:   2016-12-03
 
-This page is pre-populated with JSON data from the TFC api's for parking CONFIG and OCCUPANCY data,
+This page is pre-populated with JSON data from the TFC apis for parking CONFIG and OCCUPANCY data,
 from which it will draw a parking occupancy chart for the selected day.
 
 Example config data:
@@ -63,9 +57,22 @@ Example occupancy data:
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <!-- load the d3 library for the chart plot -->
-    <script src="/static/d3.v3.min.js" charset="utf-8"></script>
+    <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
     
     <style>
+
+#page_date {
+  font-size: 22px;
+  margin: 5px 10px 10px 5px;
+  display: inline-block;
+}
+
+#content_title {
+  display: inline-block;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 5px 5px 10px 20px;
+}
 
 #heading_date {
   display: inline-block;
@@ -76,10 +83,11 @@ Example occupancy data:
   display: inline-block;
 }
 
-/* .chart {
-    width: 600px;
-    height: 350px;
-} */
+#chart {
+    width: 95vw;
+    height: calc(100vh - 250px);
+    margin: 5px 5px 5px 10px;
+}
 
 .plot_svg {
   background-color: AliceBlue;
@@ -165,8 +173,6 @@ var day_of_week = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
 
 // d3 scatterplot parameters
 var chart_svg;    // chart svg element
-var chart_width;  // width of chart in pixels
-var chart_height; // height of chart
 var chart_xScale; // d3 scale fn for x axis
 var chart_xAxis;  // x axis
 var chart_xValue; // value for x axis selected from current data object (i.e. timestamp)
@@ -192,9 +198,14 @@ var CHART_Y_MAX = 1000; // FIX limit of Y axis
 
 function init()
 {
+    document.title = "Parking Plot";
 
-    console.log('calling init 1');
-
+    // make ?noframe adjustments to content
+    if (window.location.href.includes('?noframe') || window.location.href.includes('&noframe'))
+    {
+        document.getElementById('content_title').innerHTML = parking_config.request_data.parking_name;
+        document.getElementById('chart').style.height = "calc(100vh - 80px)";
+    }
     // embed parking name into page
     try
     {
@@ -277,21 +288,32 @@ function init()
 // ******************************************
 function init_chart()
 {
-    var margin = {top: 20, right: 50, bottom: 30, left: 60};
-    chart_width = window.innerWidth * 0.8 - margin.left - margin.right;
-    chart_height = window.innerHeight * 0.5 - margin.top - margin.bottom;
+      // get the height and width of the "chart" div, and set d3 svg element to that
+      var svg_width = document.getElementById("chart").clientWidth;
+      var svg_height = document.getElementById("chart").clientHeight;
+
+      // calculate the dimensions of the actual chart within the SVG area (i.e. allowing margins for axis info)
+      var chart_width = svg_width - 110;
+      var chart_height = svg_height - 110;
+      var chart_offsetx = 60;
+      var chart_offsety = 20;
 
     // add the graph canvas to the body of the webpage
     chart_svg = d3.select("#chart").append("svg")
-        .attr("width", chart_width + margin.left + margin.right)
-        .attr("height", chart_height + margin.top + margin.bottom)
+        .attr("width", svg_width)
+        .attr("height", svg_height)
         .attr("class", "plot_svg")
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + chart_offsetx + "," + chart_offsety + ")");
 
     // setup x axis
     chart_xScale = d3.time.scale().range([0, chart_width]); // value -> display
-    chart_xAxis = d3.svg.axis().scale(chart_xScale).orient("bottom").ticks(24);
+    
+    var tick_count = 24;
+    if (chart_width < 600)
+        tick_count = 12;
+    
+    chart_xAxis = d3.svg.axis().scale(chart_xScale).orient("bottom").ticks(tick_count);
 
     // setup y axis
     chart_yScale = d3.scale.linear().range([chart_height, 0]); // value -> display
@@ -358,20 +380,6 @@ function init_chart()
       .attr("dy", ".71em")
       .style("text-anchor", "end")
       .text("Spaces Occupied");
-
-    // parking capacity horizontal line
-    /*
-    var line = d3.svg.line()
-        .x(function(d, i) {
-          return x2(d.letter) + i; })
-          .y(function(d, i) { return y(dataSum/data.length); });
-
-    chart_svg.append("path")
-        .datum(data)
-        .attr("class", "line")
-        .attr("d", line);
-    */
-
 
     // convert parking_capacity to pixels on the Y-axis
     if (parking_capacity)
@@ -460,6 +468,29 @@ function draw_chart(rita_data)
                    .style("opacity", 0);
           });
 
+      // add text for latest datapoint
+    
+      var p = rita_data[rita_data.length - 1];
+
+      chart_svg.append("svg:rect")
+          .attr('x', chart_xMap(p)+CHART_DOT_RADIUS+4)
+          .attr('y', chart_yMap(p)-27)
+          .attr('width', 140)
+          .attr('height', 36)
+          .attr('rx', 6)
+          .attr('ry', 6)
+          .style('fill', 'white')
+
+      var p_time = new Date(p.ts*1000);
+      var p_time_str = ' @ '+('0'+p_time.getHours()).slice(-2)+':'+('0'+p_time.getMinutes()).slice(-2);
+      chart_svg.append("svg:text")
+          .attr('x', chart_xMap(p))
+          .attr('y', chart_yMap(p))
+          .attr('dx', CHART_DOT_RADIUS+10)
+          .style('font-size', '22px')
+          .style('fill', '#333')
+          .text(p.spaces_occupied+p_time_str);
+    
 } // end draw_chart
 
 // ************************************************************************************
@@ -487,25 +518,29 @@ function date_shift(n)
 {% endblock %}
     
 {% block content %}
-<div style="height: 75vh;">
+<div id="content">
     <div id="chart_title">
-      <h4>
+      <div id="page_date">
         <div class="time_shift"><a href="#" onclick="date_shift(-7)">
-            <img src="../../../static/images/chevron-left-left.png"></a>
+            <img src="{% static 'images/chevron-left-left.png' %}"></a>
         </div>
         <div class="time_shift"><a href="#" onclick="date_shift(-1)">
-            <img src="../../../static/images/chevron-left.png"></a>
+            <img src="{% static 'images/chevron-left.png' %}"></a>
         </div>
         <div id="heading_date"></div>
         <div class="time_shift"><a href="#" onclick="date_shift(1);">
-            <img src="../../../static/images/chevron-right.png"></a>
+            <img src="{% static 'images/chevron-right.png' %}"></a>
         </div>
         <div class="time_shift"><a href="#" onclick="date_shift(7);">
-            <img src="../../../static/images/chevron-right-right.png"></a>
+            <img src="{% static 'images/chevron-right-right.png' %}"></a>
         </div>
-      </h4>
-    </div>
+      </div> <!-- end page_date -->
+      <!-- content_title is alternative location for page title if ?noframe is given -->
+      <div id="content_title">
+      </div>
+    </div> <!-- end chart_title -->
 
+    <!-- Actual d3 plot is embedded in this "chart" div -->
     <div class="chart" id="chart">
     </div>
 

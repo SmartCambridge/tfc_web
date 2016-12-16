@@ -22,7 +22,7 @@
                 $('.header').hide();
                 $('footer').hide();
                 $(".mdl-layout__content div").first().css("height","100vh");
-                if (map != undefined)
+                if (typeof map !== 'undefined')
                     map.invalidateSize();
             };
         });
