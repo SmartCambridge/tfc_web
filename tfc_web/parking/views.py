@@ -1,7 +1,7 @@
 import codecs
 import requests
 import json
-from datetime import date
+from datetime import date, timedelta, datetime
 from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -19,23 +19,42 @@ def index(request):
 
 def parking_plot(request, parking_id):
 
-    today = date.today().strftime('%Y-%m-%d')
-    
+    today = date.today()
+
+    # get ?date=YYYY-MM-DD if it's there, otherwise use today's date    
     user_date = request.GET.get('date')
     if not user_date:
-        user_date = today
+        q_date = today
+    else:
+        q_date = datetime.strptime(user_date, '%Y-%m-%d').date()
 
-    yyyy = user_date[0:4]
-    MM = user_date[5:7]
-    dd = user_date[8:10]
-    
-    reader = codecs.getreader("utf-8")
+    # get ?prior_days=7,14 if it's there to provide 'shadow' plot on chart
+    days_list = [0]
+
     try:
-        parking_json = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/occupancy/'+parking_id+'?date='+yyyy+'-'+MM+'-'+dd
-        )))
+        prior_days = request.GET.get('priordays')
+        if prior_days:
+            for d in prior_days.split(','):
+                days_list.append(int(d))
     except:
-        parking_json = None
+        days_list = [0]
+        
+    reader = codecs.getreader("utf-8")
+
+    parking_json = []
+
+    for days in days_list:
+        try:
+            this_date = (q_date-timedelta(days=days)).strftime('%Y-%m-%d')
+            this_YYYY = this_date[0:4]
+            this_MM   = this_date[5:7]
+            this_DD   = this_date[8:10]
+
+            parking_json.append( json.load(reader(urlopen(
+                'http://localhost/api/dataserver/parking/occupancy/'+parking_id+'?date='+this_YYYY+'-'+this_MM+'-'+this_DD
+            ))))
+        except:
+            pass
 
     try:
         parking_config = json.load(reader(urlopen(
@@ -43,13 +62,18 @@ def parking_plot(request, parking_id):
         )))
     except:
         parking_config = None
-    
+
+    user_date = q_date.strftime('%Y-%m-%d')
+    YYYY = user_date[0:4]
+    MM   = user_date[5:7]
+    DD   = user_date[8:10]
+
     return render(request, 'parking/parking_plot.html', {
         'config_date':  user_date,
         'config_parking_id': parking_id,
-        'config_yyyy' : yyyy,
+        'config_YYYY' : YYYY,
         'config_MM':    MM,
-        'config_dd':    dd,
+        'config_DD':    DD,
         'config_parking_data': json.dumps(parking_json),
         'config_parking_config': json.dumps(parking_config)
     })
