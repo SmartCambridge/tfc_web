@@ -1,0 +1,159 @@
+{% extends "template.html" %}
+{% load static_new %}
+
+{% block page_title %}
+Parking List
+{% endblock %}
+{% block mobile_title %}
+Parking List
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+{% endblock %}
+    
+{% block content %}
+    <ul id="parking_list" class='mdl-list'>
+                    <li class="mdl-list__item mdl-list__item--two-line">
+                        <a href="/web/parking/plot/grand-arcade-car-park">
+                         <span class="mdl-list__item-primary-content">
+                            <i class="material-icons mdl-list__item-avatar">directions_car</i>
+                            <span>Grand Arcade</span>
+                            <span class="mdl-list__item-sub-title">77 spaces free / 890</span>
+                        </span>
+                        </a>
+                    </li>
+    </ul>
+    <div style="height: 80vh;">
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+<script>
+
+      
+        var PARKING_PLOT_URL = "/web/parking/plot/";
+
+        var page_list = document.getElementById('parking_list');
+        
+        // could use 'Area' concept here
+        var map = L.map('map').setView([52.2038, 0.1207], 13);
+        var mapMarkers = [];
+        var car_park_icon = L.icon({
+            iconUrl: '{% static 'images/parking_30x30.png' %}',
+            iconSize: [30, 30]
+        });
+        var park_and_ride_icon = L.icon({
+            iconUrl: '{% static 'images/park_and_ride_30x30.png' %}',
+            iconSize: [30, 30]
+        });
+
+        // given a parking config record, return appropriate icon
+        function parking_icon(parking_entry)
+        {
+          switch (parking_entry["parking_type"])
+          {
+            case "park_and_ride":
+              return park_and_ride_icon;
+
+            default:
+              return car_park_icon;
+          }
+        }
+
+        // build list item and append to parking_list
+        function add_list_item(parking_name, parking_id, spaces_free, spaces_capacity)
+        {
+            //        <li class="mdl-list__item mdl-list__item--two-line">
+            //            <span class="mdl-list__item-primary-content">
+            //                <i class="material-icons mdl-list__item-avatar">directions_car</i>
+            //                <span>Grand Arcade</span>
+            //                <span class="mdl-list__item-sub-title">77 spaces free / 890</span>
+            //            </span>
+            //        </li>
+        
+            var item = document.createElement('li');
+            item.className = 'mdl-list__item mdl-list__item--two-line';
+            var span1 = document.createElement('span');
+            span1.className = 'mdl-list__item-primary-content';
+            var i = document.createElement('i');
+            i.className = 'material-icons mdl-list__item-avatar';
+            var txt1 = document.createTextNode('directions_car');
+            i.appendChild(txt1);
+            span1.appendChild(i);
+            var span2 = document.createElement('span');
+            var txt2 = document.createTextNode(parking_name);
+            span2.appendChild(txt2);
+            span1.appendChild(span2);
+            var span3 = document.createElement('span');
+            span3.className = 'mdl-list__item-sub-title';
+            var txt3 = document.createTextNode(spaces_free+' spaces free / '+spaces_capacity);
+            span3.appendChild(txt3);
+            span1.appendChild(span3);
+            item.appendChild(span1);
+            page_list.appendChild(item);
+        }
+
+        add_list_item('PArking_NAME','parking_id',77,777);
+        
+        // ********************************************************************************
+        // *************  Parking list info provided by server ****************************
+        // ********************************************************************************
+        
+        var parking_list = (JSON.parse( '{{ config_parking_list|escapejs }}' ))["request_data"]["parking_list"];
+        
+        // ********************************************************************************
+        // *************  Parking occupancy info provided by server ****************************
+        // ********************************************************************************
+        
+        var parking_feed = (JSON.parse( '{{ config_parking_feed|escapejs }}' ))["request_data"];
+        
+        // ********************************************************************************
+        // *************  end of server parking list info      ****************************
+        // ********************************************************************************
+
+        // create lookup table for occupancy data, index by parking_id
+
+        var occupancy = {};
+        for ( var i = 0; i < parking_feed.request_data.length; i++ )
+        {
+          occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
+        }
+        
+        for ( var i = 0; i < parking_list.length; i++) {
+                var parking_id = parking_list[i]['parking_id'];
+                var parking_name = parking_list[i]['parking_name'];
+                var spaces_free = occupancy[parking_id].spaces_free;
+                var capacity    = occupancy[parking_id].spaces_capacity;
+
+                add_list_item(parking_name, parking_id, spaces_free, capacity);
+                             
+                var marker = L.marker([ parking_list[i]["latitude"],
+                                        parking_list[i]["longitude"]
+                                      ],
+                                      { icon: parking_icon(parking_list[i]) }
+                             )
+                        .addTo(map)
+                        .bindTooltip(
+                             '<a href="'+PARKING_PLOT_URL+'/'+parking_id+'" >' +
+                             parking_list[i]["parking_name"] +
+                             '</a>' +
+                             '<br/>Spaces:' + occupancy[parking_id].spaces_free +'/'+
+                                 occupancy[parking_id].spaces_capacity,
+                             { direction: 'top',
+                               offset: L.point(10,-10),
+                               interactive: true,
+                               permanent: true
+                             }
+                                  ).openTooltip();
+                mapMarkers.push(marker);
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        });
+
+</script>
+{% endblock %}

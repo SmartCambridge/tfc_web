@@ -105,3 +105,30 @@ def parking_map(request):
         'config_parking_feed': json.dumps(parking_feed)
     })
 
+#############################################################################
+########   parking/list                               #######################
+#############################################################################
+
+def parking_list(request):
+
+    reader = codecs.getreader("utf-8")
+    try:
+        parking_list = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/parking/list'
+        )))
+    except:
+        parking_list = None
+
+    try:
+        # //debug hardcoded cam_park_rss into parking/map occupancy feed request
+        parking_feed = json.load(reader(urlopen(
+            'http://localhost/api/dataserver/feed/now/cam_park_rss'
+        )))
+    except:
+        parking_feed = None
+
+    return render(request, 'parking/parking_list.html', {
+        'config_parking_list': json.dumps(parking_list),
+        'config_parking_feed': json.dumps(parking_feed)
+    })
+

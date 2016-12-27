@@ -1,0 +1,173 @@
+{% extends "template.html" %}
+{% load static_new %}
+
+{% block page_title %}
+Parking List
+{% endblock %}
+{% block mobile_title %}
+Parking List
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <!-- load the d3 library for the chart plot -->
+    <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
+<style>
+  .demo-card-square.mdl-card {
+            width: 320px;
+            height: 240px;
+            float: left;
+            margin: 1rem;
+            position: relative;
+          }
+
+  .demo-card-square.mdl-card:hover {
+          box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
+        }
+
+  .demo-card-square > .mdl-card__title {
+          color: #fff;
+          background: #03a9f4;
+      }
+
+  .demo-card-square > .mdl-card__accent {
+          background: #ff9800;
+        }
+
+  .pie {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+      
+</style>
+    {% endblock %}
+    
+{% block content %}
+
+<div id='parking_cards'></div>
+
+<script>
+
+document.title = 'Parking list';
+      
+var PARKING_PLOT_URL = "/web/parking/plot/";
+
+var parking_cards = document.getElementById('parking_cards');
+        
+var     pie_width = 150,
+        pie_height = 100,
+        pie_radius = Math.min(pie_width, pie_height) / 2;
+
+var pie_color_fill = function (d,i) {
+                     return i==0 ?
+                         'rgba(200,0,0,1.0)' :
+                         'rgba(0,0,0,0)';
+                 };
+
+var pie_color_stroke = function (d,i) {
+                     return 'rgba(200,200,200,0.5)';
+                 };
+
+var pie = d3.layout.pie()
+            .sort(null);
+
+var arc = d3.svg.arc()
+        .innerRadius(pie_radius - 30)
+        .outerRadius(pie_radius - 10);
+
+function add_parking(parking_name, parking_id, spaces_free, spaces_capacity)
+{
+    //<div id="grand-arcade-car-park" class="mdl-card mdl-shadow--2dp demo-card-square">
+    //    <div id="grand-arcade-car-park_title" class="mdl-card__title mdl-card--expand">
+    //        <h2 class="mdl-card__title-text">Grand Arcade</h2>
+    //    </div>
+    //    <div id="grand-arcade-car-park_text" class="mdl-card__supporting-text">
+    //        231 spaces free / 890
+    //    </div>
+    //    <div class="mdl-card__actions mdl-card--border">
+    //        <a class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect">
+    //            View
+    //        </a>
+    //    </div>
+    //</div> <!-- end Square card -->
+
+    var card = document.createElement('div');
+    card.className = 'mdl-card mdl-shadow--2dp demo-card-square';
+    var title = document.createElement('div');
+    title.className = 'mdl-card__title mdl-card--expand';
+    title.id = parking_id+'_title';
+    var title_text = document.createElement('h2');
+    title_text.className = 'mdl-card__title-text';
+    title_text.appendChild(document.createTextNode(parking_name));
+    title.appendChild(title_text);
+    card.appendChild(title);
+    var supporting_text = document.createElement('div');
+    supporting_text.className = 'mdl-card__supporting-text';
+    supporting_text.appendChild(document.createTextNode(spaces_free+' spaces free / '+spaces_capacity));
+    card.appendChild(supporting_text);
+    var actions = document.createElement('div');
+    actions.className = 'mdl-card__actions mdl-card--border';
+    var button = document.createElement('a');
+    button.className = 'mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect';
+    button.appendChild(document.createTextNode('View'));
+    button.href = PARKING_PLOT_URL+parking_id+'?priordays=1,7';
+    actions.appendChild(button);
+    card.appendChild(actions);
+
+    parking_cards.appendChild(card);
+    
+    var svg = d3.select('#'+parking_id+'_title')
+        .insert('svg')
+        .attr('class','pie')
+        .attr("width", pie_width)
+        .attr("height", pie_height)
+        .append("g")
+        .attr("transform", "translate(" + pie_width / 2 + "," + pie_height / 2 + ")");
+
+    var path = svg.selectAll("path")
+        .data(pie([spaces_capacity-spaces_free, spaces_free]))
+        .enter().append("path")
+        .attr("fill", pie_color_fill)
+        .attr("stroke", pie_color_stroke)
+        .attr("d", arc);
+}
+        
+        // ********************************************************************************
+        // *************  Parking list info provided by server ****************************
+        // ********************************************************************************
+        
+        var parking_list = (JSON.parse( '{{ config_parking_list|escapejs }}' ))["request_data"]["parking_list"];
+        
+        // ********************************************************************************
+        // *************  Parking occupancy info provided by server ****************************
+        // ********************************************************************************
+        
+        var parking_feed = (JSON.parse( '{{ config_parking_feed|escapejs }}' ))["request_data"];
+        
+        // ********************************************************************************
+        // *************  end of server parking list info      ****************************
+        // ********************************************************************************
+
+        // create lookup table for occupancy data, index by parking_id
+
+        var occupancy = {};
+        for ( var i = 0; i < parking_feed.request_data.length; i++ )
+        {
+          occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
+        }
+        
+        for ( var i = 0; i < parking_list.length; i++) {
+                var parking_id = parking_list[i]['parking_id'];
+                var parking_name = parking_list[i]['parking_name'];
+                var spaces_free = occupancy[parking_id].spaces_free;
+                var capacity    = occupancy[parking_id].spaces_capacity;
+
+                add_parking(parking_name, parking_id, spaces_free, capacity);
+                             
+        }
+
+</script>
+{% endblock %}
