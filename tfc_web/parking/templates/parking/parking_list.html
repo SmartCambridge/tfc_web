@@ -61,14 +61,24 @@ var     pie_width = 150,
         pie_height = 100,
         pie_radius = Math.min(pie_width, pie_height) / 2;
 
-var pie_color_fill = function (d,i) {
-                     return i==0 ?
-                         'rgba(200,0,0,1.0)' :
-                         'rgba(0,0,0,0)';
-                 };
+var pie_color_fill = function (spaces_capacity, spaces_free, i) {
+                         if (i==0) // spaces_occupied
+                         {
+                             console.log(spaces_capacity, spaces_free, i)
+                             // nearly full = red, otherwise green
+                             if (spaces_free / spaces_capacity < 0.2)
+                             {
+                                 return '#d62728'; // red
+                             } else {
+                                 return '#2ca02c'; // green
+                             }
+                         } else { // spaces_free
+                             return 'rgba(0,0,0,0)';
+                         }
+                      };
 
 var pie_color_stroke = function (d,i) {
-                     return 'rgba(200,200,200,0.5)';
+                     return 'rgba(100,100,100,1.0)';
                  };
 
 var pie = d3.layout.pie()
@@ -130,7 +140,7 @@ function add_parking(parking_name, parking_id, spaces_free, spaces_capacity)
     var path = svg.selectAll("path")
         .data(pie([spaces_capacity-spaces_free, spaces_free]))
         .enter().append("path")
-        .attr("fill", pie_color_fill)
+        .attr("fill", function (d,i) { return pie_color_fill(spaces_capacity, spaces_free, i)})
         .attr("stroke", pie_color_stroke)
         .attr("d", arc);
 }
