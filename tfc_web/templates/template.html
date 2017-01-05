@@ -18,7 +18,7 @@
 
     <script>
         $(document).ready(function() {
-            if (window.location.search.includes("noframe")) {
+            if (window.location.search.indexOf("noframe") >= 0) {
                 $('.header').hide();
                 $('footer').hide();
                 $(".mdl-layout__content div").first().css("height","100vh");

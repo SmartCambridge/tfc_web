@@ -206,7 +206,7 @@ function init()
     document.title = 'Transit Plot';
 
     // make ?noframe adjustments to content
-    if (window.location.href.includes('?noframe') || window.location.href.includes('&noframe'))
+    if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0)
     {
         document.getElementById('content_title').innerHTML = zone['zone.name'];
         document.getElementById('chart').style.height = "calc(100vh - 80px)";
