@@ -20,6 +20,11 @@ Assuming that's ok, install pip
 sudo apt install -y python3-pip
 python3 -m pip install --upgrade pip
 ```
+Check pip version with
+```
+python3 -m pip --version
+```
+
 Install virtualenv:
 ```
 sudo apt install -y python3-venv
@@ -38,16 +43,9 @@ Get the tfc_web source
 (tfc_web_venv):# git clone https://github.com/ijl20/tfc_web.git
 ```
 
-### Set up nginx for Django app on port 8000
-
-Copy nginx conf file and restart nginx:
+### Install gunicorn
 ```
-sudo cp tfc_web/config/nginx/includes/tfc_web_port_80.conf /etc/nginx/includes
-sudo service nginx restart
-```
-Install uWSGI
-```
-python3 -m pip install uwsgi
+python3 -m pip install gunicorn
 ```
 
 ### Set up Django and tfc_web application
@@ -60,20 +58,34 @@ Install Django:
 ```
 python3 -m pip install -r requirements.txt
 ```
+### Test basic nginx/ gunicorn / python web access with:
+```
+gunicorn --bind localhost:8099 tfc_web.echo
+```
+And with browser visit:
+```
+http://localhost/test/
+```
+You should see "Hello World"
 
-Complete application installation:
+### Complete application installation:
 ```
 ./manage.py migrate
 ```
 
-Start application server:
-```
-./manage.py runserver
-```
 ### Collect static files for Django
 ```
 ./manage.py collectstatic
 
+```
+
+### Run test server
+```
+gunicorn --reload --log-level debug tfc_web.wsgi
+```
+Test with access to:
+```
+http://localhost/web
 ```
 
 ### Periodically update route/timetable data
@@ -87,6 +99,9 @@ You will need as well to set up a cronjob that executes the following command we
 ## Dependencies
 
 This project uses:
+- [Python3](https://www.python.org/)
+- [Django](https://www.djangoproject.com/)
+- [gunicorn](http://gunicorn.org/)
 - [Leaflet](http://leafletjs.com/)
 - [Leaflet Moving Marker](https://github.com/ewoken/Leaflet.MovingMarker)
 - [Material Design Lite](https://getmdl.io/)
