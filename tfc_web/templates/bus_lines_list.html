@@ -1,0 +1,6 @@
+{% extends "template.html" %}
+{% block content %}
+    {% for bus_line in bus_lines %}
+        <a href="{% url 'bus-line' bus_line.id %}">{{ bus_line.line_name }} - {{ bus_line.description }}<br></a>
+    {% endfor %}
+{% endblock %}

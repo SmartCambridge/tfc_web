@@ -4,7 +4,7 @@ import json
 from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
-from realtime.models import BusStop
+from realtime.models import BusStop, BusLine, BusRoute
 from vix.models import Route, Stop
 
 
@@ -50,6 +50,18 @@ def busdata_json(request):
             if route:
                 bus_data['entities'][index]['route'] = route.values("long_name", "short_name", "agency__name")[0]
     return JsonResponse(bus_data)
+
+
+def bus_lines_list(request):
+    return render(request, 'bus_lines_list.html', {'bus_lines': BusLine.objects.all()})
+
+
+def bus_line(request, bus_line_id):
+    return render(request, 'bus_line.html', {'bus_line': BusLine.objects.get(id=bus_line_id)})
+
+
+def bus_route_map(request, bus_route_id):
+    return render(request, 'bus_route_map.html', {'bus_route': BusRoute.objects.get(id=bus_route_id)})
 
 
 def bus_stops_list(request):
