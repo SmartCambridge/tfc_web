@@ -1,4 +1,4 @@
-"""tfc_web URL Configuration
+"""tfc_web URL Configuration for Parking
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.8/topics/http/urls/
@@ -12,25 +12,18 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include, url
-from django.contrib import admin
+from django.conf.urls import url
 from realtime import views
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', views.index, name='home'),
+    url(r'^$', views.index, name='bus-home'),
 
-    # Buses
-    url(r'^bus/', include('tfc_web.urls_bus')),
+    # Bus movements
+    url(r'^map/$', views.bus_map, name='bus-map'),
+    url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
 
-    # Parking
-    url(r'^parking/', include('tfc_web.urls_parking')),
-
-    # Traffic
-    url(r'^traffic/', include('tfc_web.urls_traffic')),
-
-    # Zones
-    url(r'^zones/$', views.zones_list, name='zones-list'),
-    url(r'^zone/(?P<zone_id>\w+)/$', views.zone, name='zone'),
-
+    # Bus Stops
+    url(r'^stops/$', views.bus_stops_list, name='bus-stops-list'),
+    url(r'^stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
+    url(r'^stop/$', views.bus_stop, name='bus-stop-template'),
 ]
