@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
 class BusStop(models.Model):
@@ -45,3 +46,89 @@ class BusStop(models.Model):
     revision_number = models.IntegerField()
     modification = models.CharField(max_length=3)
     status = models.CharField(max_length=3)
+
+    def get_coordinates(self):
+        return [self.latitude, self.longitude]
+
+
+class BusOperator(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    code = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255)
+    trading_name = models.CharField(max_length=255)
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return self.trading_name
+
+
+class BusLine(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    line_name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    operator = models.ForeignKey(BusOperator, related_name="lines")
+    standard_origin = models.CharField(max_length=255)
+    standard_destination = models.CharField(max_length=255)
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s (%s)" % (self.line_name, self.description)
+
+
+class BusRoute(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    description = models.CharField(max_length=255)
+    line = models.ForeignKey(BusLine, related_name='routes')
+    stops_list = models.TextField()
+
+    def get_stops_list(self):
+        bus_stops = []
+        for stop in self.stops_list.split(','):
+            bus_stops.append(BusStop.objects.get(atco_code=stop))
+        return bus_stops
+
+    def get_route_coordinates(self):
+        bus_stops = []
+        for stop in self.stops_list.split(','):
+            bus_stops.append(BusStop.objects.get(atco_code=stop).get_coordinates())
+        return bus_stops
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s - %s" % (self.line, self.description)
+
+
+class BusJourneyPatternSection(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    line = models.ForeignKey(BusLine, related_name='journey_sections')
+    stops_list = models.TextField()
+
+    def get_stops_list(self):
+        bus_stops = []
+        for stop in self.stops_list.split(','):
+            bus_stops.append(BusStop.objects.get(atco_code=stop))
+        return bus_stops
+
+    def get_journey_coordinates(self):
+        bus_stops = []
+        for stop in self.stops_list.split(','):
+            bus_stops.append(BusStop.objects.get(atco_code=stop).get_coordinates())
+        return bus_stops
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s - %s" % (self.line, self.id)
+
+
+class BusJourneyPattern(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    route = models.ForeignKey(BusRoute, related_name='journey_patterns')
+    direction = models.CharField(max_length=100)
+    section = models.ForeignKey(BusJourneyPatternSection, related_name='journey_patterns')
+
+
+class BusJourney(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    line = models.ForeignKey(BusLine, related_name='journeys')
+    pattern = models.ForeignKey(BusJourneyPattern, related_name='journeys')
+    departure_time = models.CharField(max_length=20)
