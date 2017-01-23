@@ -4,7 +4,7 @@ import json
 from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
-from realtime.models import BusStop, BusLine, BusRoute
+from realtime.models import Stop, Line, Route, VehicleJourney
 from vix.models import Route, Stop
 
 
@@ -53,23 +53,23 @@ def busdata_json(request):
 
 
 def bus_lines_list(request):
-    return render(request, 'bus_lines_list.html', {'bus_lines': BusLine.objects.all()})
+    return render(request, 'bus_lines_list.html', {'bus_lines': Line.objects.all()})
 
 
 def bus_line(request, bus_line_id):
-    return render(request, 'bus_line.html', {'bus_line': BusLine.objects.get(id=bus_line_id)})
+    return render(request, 'bus_line.html', {'bus_line': Line.objects.get(id=bus_line_id)})
 
 
 def bus_route_map(request, bus_route_id):
-    return render(request, 'bus_route_map.html', {'bus_route': BusRoute.objects.get(id=bus_route_id)})
+    return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
 
 
 def bus_stops_list(request):
-    return render(request, 'bus_stops_list.html', {'bus_stops': BusStop.objects.all()})
+    return render(request, 'bus_stops_list.html', {'bus_stops': Stop.objects.all()})
 
 
 def bus_stop(request, bus_stop_id):
-    bus_stop = BusStop.objects.get(atco_code=bus_stop_id)
+    bus_stop = Stop.objects.get(atco_code=bus_stop_id)
     return render(request, 'bus_stop.html', {
         'bus_stop': bus_stop,
         'tooltips_permanent': True,

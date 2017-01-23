@@ -1,9 +1,10 @@
+import datetime
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
 
-class BusStop(models.Model):
-    atco_code = models.CharField(max_length=12)
+class Stop(models.Model):
+    atco_code = models.CharField(max_length=12, unique=True)
     naptan_code = models.CharField(max_length=8)
     plate_code = models.CharField(max_length=10)
     cleardown_code = models.CharField(max_length=10)
@@ -51,7 +52,7 @@ class BusStop(models.Model):
         return [self.latitude, self.longitude]
 
 
-class BusOperator(models.Model):
+class Operator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     code = models.CharField(max_length=255)
     short_name = models.CharField(max_length=255)
@@ -62,11 +63,11 @@ class BusOperator(models.Model):
         return self.trading_name
 
 
-class BusLine(models.Model):
+class Line(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     line_name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    operator = models.ForeignKey(BusOperator, related_name="lines")
+    operator = models.ForeignKey(Operator, related_name="lines")
     standard_origin = models.CharField(max_length=255)
     standard_destination = models.CharField(max_length=255)
 
@@ -75,22 +76,22 @@ class BusLine(models.Model):
         return "%s (%s)" % (self.line_name, self.description)
 
 
-class BusRoute(models.Model):
+class Route(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
     description = models.CharField(max_length=255)
-    line = models.ForeignKey(BusLine, related_name='routes')
+    line = models.ForeignKey(Line, related_name='routes')
     stops_list = models.TextField()
 
     def get_stops_list(self):
         bus_stops = []
         for stop in self.stops_list.split(','):
-            bus_stops.append(BusStop.objects.get(atco_code=stop))
+            bus_stops.append(Stop.objects.get(atco_code=stop))
         return bus_stops
 
     def get_route_coordinates(self):
         bus_stops = []
         for stop in self.stops_list.split(','):
-            bus_stops.append(BusStop.objects.get(atco_code=stop).get_coordinates())
+            bus_stops.append(Stop.objects.get(atco_code=stop).get_coordinates())
         return bus_stops
 
     @python_2_unicode_compatible
@@ -98,37 +99,85 @@ class BusRoute(models.Model):
         return "%s - %s" % (self.line, self.description)
 
 
-class BusJourneyPatternSection(models.Model):
+class JourneyPatternSection(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
-    line = models.ForeignKey(BusLine, related_name='journey_sections')
-    stops_list = models.TextField()
 
     def get_stops_list(self):
         bus_stops = []
-        for stop in self.stops_list.split(','):
-            bus_stops.append(BusStop.objects.get(atco_code=stop))
-        return bus_stops
-
-    def get_journey_coordinates(self):
-        bus_stops = []
-        for stop in self.stops_list.split(','):
-            bus_stops.append(BusStop.objects.get(atco_code=stop).get_coordinates())
+        for timing_link in self.timing_link.order_by('stop_from_timing_status'):
+            bus_stops.append(timing_link.stop_from)
         return bus_stops
 
     @python_2_unicode_compatible
     def __str__(self):
-        return "%s - %s" % (self.line, self.id)
+        return "%s" % (self.id)
 
 
-class BusJourneyPattern(models.Model):
+class JourneyPatternTimingLink(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
-    route = models.ForeignKey(BusRoute, related_name='journey_patterns')
+    stop_from = models.ForeignKey(Stop, to_field='atco_code', related_name='departure_journeys')
+    stop_from_timing_status = models.CharField(max_length=3)
+    stop_from_sequence_number = models.IntegerField()
+    stop_to = models.ForeignKey(Stop, to_field='atco_code', related_name='arrival_journeys')
+    stop_to_timing_status = models.CharField(max_length=3)
+    stop_to_sequence_number = models.IntegerField()
+    run_time = models.DurationField()
+    wait_time = models.DurationField(null=True, blank=True)
+    journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_link')
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s - %s (%s)" % (self.stop_from, self.stop_to, self.runtime)
+
+
+class JourneyPattern(models.Model):
+    id = models.CharField(max_length=255, primary_key=True)
+    route = models.ForeignKey(Route, related_name='journey_patterns')
     direction = models.CharField(max_length=100)
-    section = models.ForeignKey(BusJourneyPatternSection, related_name='journey_patterns')
+    section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns')
+
+    def departure_times(self):
+        return self.journeys.order_by("departure_time").values_list("departure_time", flat=True)
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s - %s" % (self.section, self.route)
 
 
-class BusJourney(models.Model):
+class VehicleJourney(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
-    line = models.ForeignKey(BusLine, related_name='journeys')
-    pattern = models.ForeignKey(BusJourneyPattern, related_name='journeys')
+    journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
     departure_time = models.CharField(max_length=20)
+    days_of_week = models.CharField(max_length=100, null=True)
+
+    def get_timetable(self):
+        timetable = []
+        departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
+        timing_links = self.journey_pattern.section.timing_link.order_by('stop_from_timing_status')
+        for timing_link in timing_links:
+            if not timetable:
+                timetable.append({'time': departure_time.time(), 'stop': timing_link.stop_from})
+                departure_time += timing_link.run_time
+                if timing_link.wait_time:
+                    departure_time += timing_link.wait_time
+            else:
+                timetable.append({'time': departure_time.time(), 'stop': timing_link.stop_from})
+                departure_time += timing_link.run_time
+                if timing_link.wait_time:
+                    departure_time += timing_link.wait_time
+        timetable.append({'time': departure_time.time(), 'stop': timing_links.last().stop_to})
+        return timetable
+
+    # def get_journey_coordinates(self):
+    #     bus_stops = []
+    #     self.pattern.section.
+    #     for stop in self.stops_list.split(','):
+    #         bus_stops.append(BusStop.objects.get(atco_code=stop).get_coordinates())
+    #     return bus_stops
+
+    def get_stops_list(self):
+        return self.journey_pattern.section.get_stops_list()
+
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s - %s" % (self.journey_pattern.route, self.departure_time)

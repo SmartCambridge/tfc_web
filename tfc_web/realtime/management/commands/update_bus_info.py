@@ -21,7 +21,7 @@ class Command(NoArgsCommand):
 
                     # Operator
                     operator = content['TransXChange']['Operators']['Operator']
-                    bus_operator, created = BusOperator.objects.update_or_create(id=operator['@id'], defaults={
+                    bus_operator, created = Operator.objects.update_or_create(id=operator['@id'], defaults={
                         'code': operator['OperatorCode'],
                         'short_name': operator['OperatorShortName'],
                         'trading_name': operator['TradingName']
@@ -29,7 +29,7 @@ class Command(NoArgsCommand):
 
                     # Service / Line
                     service = content['TransXChange']['Services']['Service']
-                    bus_line, created = BusLine.objects.update_or_create(id=service['ServiceCode'], defaults={
+                    bus_line, created = Line.objects.update_or_create(id=service['ServiceCode'], defaults={
                         'line_name': service['Lines']['Line']['LineName'],
                         'description': service['Description'],
                         'operator': bus_operator,

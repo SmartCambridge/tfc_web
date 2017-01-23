@@ -2,7 +2,7 @@ import csv
 import zipfile
 from io import BytesIO, TextIOWrapper
 from urllib.request import urlopen
-from realtime.models import BusStop
+from realtime.models import Stop
 
 
 def update_bus_stops_from_api():
@@ -14,10 +14,10 @@ def update_bus_stops_from_api():
     csv_reader = csv.DictReader(TextIOWrapper(BytesIO(stops_csv_file)))
 
     # Emtpy all table content to put the new data
-    BusStop.objects.all().delete()
+    Stop.objects.all().delete()
 
     for csv_row in csv_reader:
-        bus_stop = BusStop()
+        bus_stop = Stop()
         bus_stop.atco_code = csv_row['ATCOCode']
         bus_stop.naptan_code = csv_row['NaptanCode']
         bus_stop.plate_code = csv_row['PlateCode']

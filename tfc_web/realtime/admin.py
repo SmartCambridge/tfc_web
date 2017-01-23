@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from realtime.models import BusLine, BusStop, BusOperator, BusRoute, BusJourney, BusJourneyPatternSection, \
-    BusJourneyPattern
+from realtime.models import Line, Stop, Operator, Route, VehicleJourney, JourneyPatternSection, \
+    JourneyPattern
 
 
-admin.site.register(BusRoute, ModelAdmin)
-admin.site.register(BusOperator, ModelAdmin)
-admin.site.register(BusLine, ModelAdmin)
-admin.site.register(BusStop, ModelAdmin)
-admin.site.register(BusJourneyPatternSection, ModelAdmin)
-admin.site.register(BusJourneyPattern, ModelAdmin)
-admin.site.register(BusJourney, ModelAdmin)
+admin.site.register(Route, ModelAdmin)
+admin.site.register(Operator, ModelAdmin)
+admin.site.register(Line, ModelAdmin)
+admin.site.register(Stop, ModelAdmin)
+admin.site.register(JourneyPatternSection, ModelAdmin)
+admin.site.register(JourneyPattern, ModelAdmin)
+admin.site.register(VehicleJourney, ModelAdmin)
