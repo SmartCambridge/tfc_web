@@ -1,6 +1,6 @@
 def application(environ, start_response):
     status = '200 OK'
-    output = b'Hello World!'
+    output = b'Successful return from https: /test/'
 
     response_headers = [
                         ('Content-Length', str(len(output)))]
