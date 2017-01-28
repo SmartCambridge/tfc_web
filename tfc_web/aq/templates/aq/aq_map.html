@@ -1,0 +1,106 @@
+{% extends "template.html" %}
+{% load static_new %}
+
+{% block page_title %}
+AQ Sensor Map
+{% endblock %}
+{% block mobile_title %}
+AQ Map
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+{% endblock %}
+    
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+    <script>
+
+document.title = 'AQ map';
+      
+var AQ_PLOT_URL = "/web/aq/plot/";
+        
+// could use 'Area' concept here
+var map = L.map('map').setView([52.2038, 0.1207], 13);
+var mapMarkers = [];
+var car_park_icon = L.icon({
+    iconUrl: '{% static 'images/parking_30x30.png' %}',
+    iconSize: [30, 30]
+});
+var park_and_ride_icon = L.icon({
+    iconUrl: '{% static 'images/park_and_ride_30x30.png' %}',
+    iconSize: [30, 30]
+});
+
+// given a station config record, return appropriate icon
+function station_icon(station_config)
+{
+  switch (station_config["SensorTypes"].length)
+  {
+    case 0:
+      return park_and_ride_icon;
+
+    default:
+      return car_park_icon;
+  }
+}
+
+function add_station(station_config)
+{
+    var station_id = station_config['StationID'];
+    var marker = L.marker([ station_config["Latitude"],
+                            station_config["Longitude"]
+                          ],
+                          { icon: station_icon(station_config) }
+                 )
+            .addTo(map)
+            .bindTooltip(
+                 '<a href="'+AQ_PLOT_URL+'/'+station_id+'" >' +
+                 station_config["Name"] +
+                 '</a>',
+                 { direction: 'top',
+                   offset: L.point(10,-10),
+                   interactive: true,
+                   permanent: true
+                 }
+                      ).openTooltip();
+    mapMarkers.push(marker);
+}
+
+// ********************************************************************************
+// *************  Sensor station list info provided by server *********************
+// ********************************************************************************
+// {
+//    "Longitude": 0.0821,
+//    "Description": "North West Cambridge near Motorway",
+//    "Name": "NWC-M11",
+//    "StationID": "S-1134",
+//    "Latitude": 52.22,
+//    "SensorTypes": ["CO", "NO", "NO2", "O3", "SO2", "Temperature", "Humidity",
+//                    "Pressure", "PM1", "PM2_5", "PM10", "TSP"],
+//    "FeedID": "cam_aq"
+// },
+    
+var aq_list = (JSON.parse( '{{ config_aq_list|escapejs }}' ))["request_data"]["aq_list"];
+
+// ********************************************************************************
+// *************  end of server json info embed        ****************************
+// ********************************************************************************
+
+// Now iterate through all stations in config list, adding card to page for each
+for ( var i = 0; i < aq_list.length; i++) {
+        add_station(aq_list[i]);
+}
+
+$(document).ready(function() {
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+});
+
+</script>
+{% endblock %}

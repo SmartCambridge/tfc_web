@@ -89,7 +89,7 @@ def aq_map(request):
     reader = codecs.getreader("utf-8")
     try:
         aq_list = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/aq/list'
+            API_URL+'dataserver/aq/list'
         )))
     except:
         aq_list = None
