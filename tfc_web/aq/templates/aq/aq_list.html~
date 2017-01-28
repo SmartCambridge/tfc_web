@@ -1,0 +1,229 @@
+{% extends "template.html" %}
+{% load static_new %}
+
+{% block page_title %}
+Air Quality List
+{% endblock %}
+{% block mobile_title %}
+AQ List
+{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <!-- load the d3 library for the chart plot -->
+    <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
+<style>
+  .demo-card-square.mdl-card {
+            width: 320px;
+            height: 240px;
+            float: left;
+            margin: 1rem;
+            position: relative;
+          }
+
+  .demo-card-square.mdl-card:hover {
+          box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
+        }
+
+  .demo-card-square > .mdl-card__title {
+          color: #fff;
+          background: #03a9f4;
+      }
+
+  .demo-card-square > .mdl-card__accent {
+          background: #ff9800;
+        }
+
+  .pie {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+    }
+
+/* MDL BUTTON FOR SENSOR TYPES ON CARD */
+.sensor-button {
+    padding: 3px;
+    min-width: 10px;
+    line-height: 20px;
+    height: 20px;
+    margin: 2px;
+    }
+
+</style>
+    {% endblock %}
+    
+{% block content %}
+<!-- PAGE CONTENT IS JUST THIS DIV TO HOLD CARDS -->
+<div id='cards'></div>
+<!-- END OF PAGE HTML CONTENT -->
+
+<script>
+
+document.title = 'AQ list';
+      
+var AQ_PLOT_URL = "/web/aq/plot/";
+
+var cards = document.getElementById('cards');
+        
+var     pie_width = 150,
+        pie_height = 100,
+        pie_radius = Math.min(pie_width, pie_height) / 2;
+
+var pie_color_fill = function (spaces_capacity, spaces_free, i) {
+                         if (i==0) // spaces_occupied
+                         {
+                             console.log(spaces_capacity, spaces_free, i)
+                             // nearly full = red, otherwise green
+                             if (spaces_free / spaces_capacity < 0.2)
+                             {
+                                 return '#d62728'; // red
+                             } else {
+                                 return '#2ca02c'; // green
+                             }
+                         } else { // spaces_free
+                             return 'rgba(0,0,0,0)';
+                         }
+                      };
+
+var pie_color_stroke = function (d,i) {
+                     return 'rgba(100,100,100,1.0)';
+                 };
+
+var pie = d3.layout.pie()
+            .sort(null);
+
+var arc = d3.svg.arc()
+        .innerRadius(pie_radius - 30)
+        .outerRadius(pie_radius - 10);
+
+function add_station(station_config)
+{
+    //<div id="grand-arcade-car-park" class="mdl-card mdl-shadow--2dp demo-card-square">
+    //    <div id="grand-arcade-car-park_title" class="mdl-card__title mdl-card--expand">
+    //        <h2 class="mdl-card__title-text">Grand Arcade</h2>
+    //    </div>
+    //    <div id="grand-arcade-car-park_text" class="mdl-card__supporting-text">
+    //        231 spaces free / 890
+    //    </div>
+    //    <div class="mdl-card__actions mdl-card--border">
+    //        <a class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect">
+    //            View
+    //        </a>
+    //    </div>
+    //</div> <!-- end Square card -->
+
+    // create card div
+    var card = document.createElement('div');
+    card.className = 'mdl-card mdl-shadow--2dp demo-card-square';
+
+    var station_id = station_config['StationID'];                                                                 
+                                                                 
+    // create card__title div
+    var title = document.createElement('div');
+    title.className = 'mdl-card__title mdl-card--expand';
+    title.id = station_id+'_title';
+    var title_text = document.createElement('h2');
+    title_text.className = 'mdl-card__title-text';
+    title_text.appendChild(document.createTextNode(station_config['Name']));
+    title.appendChild(title_text);
+    card.appendChild(title);
+
+    // create card__supporting-text div
+    var supporting_text = document.createElement('div');
+    supporting_text.className = 'mdl-card__supporting-text';
+    // Note in some feeds it is possible spaces_occupied > spaces_capacity
+    // so here we ensure spaces_free is displayed as 0 rather than negative
+    supporting_text.appendChild(document.createTextNode(station_config['Description']));
+    card.appendChild(supporting_text);
+    
+    // create card__actions div
+    var actions = document.createElement('div');
+    actions.className = 'mdl-card__actions mdl-card--border';
+    // add button for each sensor type at this station
+    var sensor_types = station_config['SensorTypes'];
+    for ( var i = 0; i < sensor_types.length; i++) {
+        add_button(actions, station_id, sensor_types[i]);
+    }
+    card.appendChild(actions);
+
+    // add card to page
+    cards.appendChild(card);
+
+    /*
+    // ************************************
+    // add donut chart to this card on page
+    // ************************************
+    var svg = d3.select('#'+parking_id+'_title')
+        .insert('svg')
+        .attr('class','pie')
+        .attr("width", pie_width)
+        .attr("height", pie_height)
+        .append("g")
+        .attr("transform", "translate(" + pie_width / 2 + "," + pie_height / 2 + ")");
+
+    var path = svg.selectAll("path")
+        .data(pie([spaces_capacity-spaces_free, spaces_free]))
+        .enter().append("path")
+        .attr("fill", function (d,i) { return pie_color_fill(spaces_capacity, spaces_free, i)})
+        .attr("stroke", pie_color_stroke)
+        .attr("d", arc);
+    // ************************************
+    // ************************************
+    */
+}
+
+// Add a button for this SensorType (from station config) to the station card
+function add_button(el, station_id, sensor_type)
+{
+    var button = document.createElement('a');
+    button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent sensor-button';
+    button.appendChild(document.createTextNode(sensor_type));
+    button.href = AQ_PLOT_URL+station_id+'?sensor_type='+sensor_type+'&priordays=1,7';
+    el.appendChild(button);
+}    
+// ********************************************************************************
+// *************  Sensor station list info provided by server *********************
+// ********************************************************************************
+// {
+//    "Longitude": 0.0821,
+//    "Description": "North West Cambridge near Motorway",
+//    "Name": "NWC-M11",
+//    "StationID": "S-1134",
+//    "Latitude": 52.22,
+//    "SensorTypes": ["CO", "NO", "NO2", "O3", "SO2", "Temperature", "Humidity",
+//                    "Pressure", "PM1", "PM2_5", "PM10", "TSP"],
+//    "FeedID": "cam_aq"
+// },
+    
+var aq_list = (JSON.parse( '{{ config_aq_list|escapejs }}' ))["request_data"]["aq_list"];
+
+// ********************************************************************************
+// *************  DEBUG PLACEHOLDER Parking occupancy info provided by server *****
+// ********************************************************************************
+
+//var parking_feed = (JSON.parse( '{{ config_parking_feed|escapejs }}' ))["request_data"];
+
+// ********************************************************************************
+// *************  end of server json info embed        ****************************
+// ********************************************************************************
+
+// Create 'occupancy' dictionary parking_id -> occupancy record
+//var occupancy = {};
+//for ( var i = 0; i < parking_feed.request_data.length; i++ )
+//{
+//  occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
+//}
+
+// Now iterate through all stations in config list, adding card to page for each
+for ( var i = 0; i < aq_list.length; i++) {
+        add_station(aq_list[i]);
+
+// finally, set the page to refresh in 6 mins...
+setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+
+}
+
+</script>
+{% endblock %}
