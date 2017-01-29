@@ -20,5 +20,5 @@ urlpatterns = [
     url(r'^$', views.index, name='aq_home'),
     url(r'^map/$', views.aq_map, name='aq_map'),
     url(r'^list/$', views.aq_list, name='aq_list'),
-    url(r'^plot/(?P<StationID>[-\w]+)/(?P<SensorType>[-\w]+)/$', views.aq_plot, name='aq_plot')
+    url(r'^plot/(?P<station_id>[-\w]+)', views.aq_plot, name='aq_plot')
 ]

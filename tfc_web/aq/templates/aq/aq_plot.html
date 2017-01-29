@@ -1,0 +1,522 @@
+{% extends "template.html" %}
+{% load static_new %}
+{% block page_title %}<span id="station_name"></span>{% endblock %}
+{% block mobile_title %}Station Plot{% endblock %}
+
+
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <!-- load the d3 library for the chart plot -->
+    <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
+    
+    <style>
+
+#page_date {
+  font-size: 22px;
+  margin: 5px 10px 10px 5px;
+  display: inline-block;
+}
+
+#content_title {
+  display: inline-block;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 5px 5px 10px 20px;
+}
+
+#heading_date {
+  display: inline-block;
+  width: 8em;
+}
+
+.time_shift {
+  display: inline-block;
+}
+
+#chart {
+    width: 95vw;
+    height: calc(100vh - 250px);
+    margin: 5px 5px 5px 10px;
+}
+
+.plot_svg {
+  background-color: AliceBlue;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #707070;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 400px;
+  /* height: 28px; */
+  text-align: center;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.error {
+  color: red;
+  display: inline-block;
+}
+
+.tick {
+  stroke: #222;
+}
+
+.grid {
+  stroke: #555;
+  opacity: 0.7;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.capacity_line {
+  fill: none;
+  stroke: red;
+  stroke-width: 1.5px;
+}
+
+</style>
+    
+<script type="text/javascript">
+
+//********************************************************************************
+//***********  LOAD VARS FROM SERVER    ******************************************
+//********************************************************************************
+
+var station_id = "{{config_station_id}}";
+
+var YYYY = {{config_YYYY}}; // Year e.g. 2016
+var MM = {{config_MM}};     // Month e.g. 07 = July
+var DD = {{config_DD}};     // day e.g. 23
+
+var station_config = JSON.parse('{{ config_station_config|escapejs }}');
+
+var YYYYMMDD = '{{config_YYYY}}/{{config_MM}}/{{config_DD}}';
+//********************************************************************************
+//********************************************************************************
+
+var plot_date; // date of currently displayed plot (initialized from YYYY/MM/DD)
+
+var plot_date_ms_start; // timestamp (ms) for start of plot date
+var plot_date_ms_end;   // plot_date_ms_start + 24 hours (in ms)
+
+var plot_date_is_today; // boolean confirming user selected date is TODAY
+
+var plot_date_minus_1; // plot_date - 1 day
+var plot_date_plus_1; // plot_date + 1 day
+
+var month_of_year = new Array("spacer", "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+var day_of_week = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+
+// d3 scatterplot parameters
+var chart_g;      // chart svg "g" (group) element that contains actual plot
+var chart_xScale; // d3 scale fn for x axis
+var chart_xAxis;  // x axis
+var chart_xValue; // value for x axis selected from current data object (i.e. timestamp)
+var chart_xMap;   // fn for x display value
+var chart_yScale;
+var chart_yAxis;
+var chart_yValue;
+var chart_yMap;
+
+var chart_color_fill;  // function to return fill color for current circle on scatterplot
+var chart_color_stroke;  // function to return stroke color for current circle on scatterplot
+
+var chart_tooltip;
+
+// time of day for scatterplot to start/end
+var CHART_START_TIME = 0; // start chart at midnight
+var CHART_END_TIME = 24;  // end chart at midnight
+
+var CHART_DOT_RADIUS = 6; // size of dots on scatterplot
+var CHART_Y_MAX = 1000; // FIX limit of Y axis
+
+// **********************************************
+// Initialize this page (called in body:onload())
+// **********************************************
+
+function init()
+{
+    // ******************************************************
+    // **********   TITLE  **********************************
+    // ******************************************************
+    document.title = station_id+' AQ Plot';
+
+    // make ?noframe adjustments to content
+    if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0 )
+    {
+        document.getElementById('content_title').innerHTML = station_config.request_data.Name;
+        document.getElementById('chart').style.height = "calc(100vh - 80px)";
+    }
+    // embed station name into page
+    try
+    {
+        document.getElementById('station_name').innerHTML = station_config.request_data.Name;
+    }
+    catch(err)
+    {
+        document.getElementById('station_name').innerHTML = '<div class="error">Unrecognised AQ Station</div>';
+        console.log('no config data received');
+    }
+
+    // ******************************************************
+    // **********   DATE   **********************************
+    // ******************************************************
+    // Set javascript Date for the requested plot date, and check if TODAY to trigger auto refresh
+    
+    plot_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    // calculate timestamps bounding the day
+    plot_date_ms_start = plot_date.getTime(); // i.e. millisecond timestamp on plot_date 00:00:00
+    plot_date_ms_end = plot_date_ms_start + 1000 * 60 * 60 * 24; // ms timestamp same day 24:00:00
+    
+    plot_date_is_today = false; // will set to true below if correct
+    
+    var date_today = new Date();
+
+    // test if YYYY/MM/DD is TODAY'S DATE
+    if (date_today.getFullYear()==YYYY && date_today.getMonth()==(MM-1) && date_today.getDate()==DD)
+    {
+      console.log('plotting today - reloading in 6 minutes');
+      plot_date_is_today = true;
+      setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+    }
+
+    var heading_date = document.getElementById("heading_date");
+
+    heading_date.textContent = day_of_week[plot_date.getDay()] + " " + DD + " " + month_of_year[MM] + " " + YYYY;
+
+    // ******************************************************
+    // **********   CHART INIT AND DRAW *********************
+    // ******************************************************
+    
+    // set up layout / axes of scatterplot
+    init_chart();
+
+    var sensor_data = new Array();
+
+    // Initialize data structure to hold sensor reading messages inserted by server
+    // And call draw_chart for each day's data
+    try {
+        // **********************************************************************************
+        // **********  Here is where we load the sensor plot data     ***********************
+        // **********************************************************************************
+        var json_data = JSON.parse("{{ config_sensor_data|escapejs }}");
+        // **********************************************************************************
+        // **********************************************************************************
+        // **********************************************************************************
+        if (!json_data)
+        {
+            console.log('no sensor data received');
+        }
+        else
+        {
+            console.log('Rendering '+json_data.length+' days of data');
+
+            // note we draw requested day's data last so it is on top...
+            for (i=json_data.length-1;i>=0;i--)
+            {
+                sensor_data = json_data[i].request_data.Readings;
+                console.log('Day '+i+': Received '+sensor_data.length+' records');
+
+                if (sensor_data.length > 0)
+                {
+                  console.log('Day '+i+': init calling draw_chart()');
+
+                  // draw chart with the data embedded by the template into sensor_data
+                  draw_chart(sensor_data, i, plot_date_ms_start, plot_date_ms_end);
+                }
+                console.log('Day '+i+': sensor_data.length is '+sensor_data.length);
+            }
+        }
+    } catch(err) {
+        console.log('error parsing config_sensor_data '+err);
+        sensor_data = new Array();
+    }
+
+}
+
+// ******************************************                                                
+// Initialize the chart to appear on the page
+// - not yet with any data
+// ******************************************
+function init_chart()
+{
+      // get the height and width of the "chart" div, and set d3 svg element to that
+      var svg_width = document.getElementById("chart").clientWidth;
+      var svg_height = document.getElementById("chart").clientHeight;
+
+      // calculate the dimensions of the actual chart within the SVG area (i.e. allowing margins for axis info)
+      var chart_width = svg_width - 110;
+      var chart_height = svg_height - 110;
+      var chart_offsetx = 60;
+      var chart_offsety = 20;
+
+    // add the graph canvas to the body of the webpage
+    chart_g = d3.select("#chart").append("svg")
+        .attr("width", svg_width)
+        .attr("height", svg_height)
+        .attr("class", "plot_svg")
+        .append("g")
+        .attr("transform", "translate(" + chart_offsetx + "," + chart_offsety + ")");
+
+    // setup x axis
+    chart_xScale = d3.time.scale().range([0, chart_width]); // value -> display
+
+    // choose preferred x-axis tick count based on chart width, i.e. reduce for narrow screen
+    var tick_count = 24;
+    if (chart_width < 600)
+        {
+            tick_count = 12;
+        }
+    
+    chart_xAxis = d3.svg.axis().scale(chart_xScale).orient("bottom").ticks(tick_count);
+
+    // setup y axis
+    chart_yScale = d3.scale.linear().range([chart_height, 0]); // value -> display
+    chart_yAxis = d3.svg.axis().scale(chart_yScale).orient("left").ticks(10);
+
+    // setup chart functions where d = the sensor data record
+
+    // The x-value is the timestamp of the sensor data record, converted to a javascript data
+    // EXCEPT for plots other than 'index=0' the DATE will be rebased to the date of the user query
+    // so that the plots align on the x-axis
+    chart_xValue = function(d) {
+          var x_value = new Date(plot_date);
+          var t = new Date(d[0]);
+          x_value.setHours(t.getHours());
+          x_value.setMinutes(t.getMinutes());
+          x_value.setSeconds(t.getSeconds());
+          return x_value;
+        }; // data -> value
+      
+    chart_xMap = function(d) { return chart_xScale(chart_xValue(d));}; // data -> display
+
+    chart_yValue = function(d) { return d[1];}, // data -> value
+    chart_yMap = function(d) { return chart_yScale(Math.min(chart_yValue(d), CHART_Y_MAX));}; // data -> display
+
+    // Returns correct 'plot point' color for point d, for plot #index (where index=0 is the user date)
+    // index>0 is for overlay plots where user has specified ?priordays=X,Y,Z
+    chart_color_fill = function (d, index) {
+        if (chart_yValue(d) > CHART_Y_MAX)
+        {
+          return index==0 ? 'red' : 'rgba(255,128,128,0.5)';
+        }
+        var g = 250-Math.floor(128 / (index+1)); // grayscale value for given index, starting with 0->128
+        return 'rgba('+g+','+g+','+g+',1.0)';
+    };
+
+    chart_color_stroke = function (d, index) {
+        if (chart_yValue(d) > CHART_Y_MAX)
+        {
+          return 'red';
+        }
+        return index == 0 ? '#111' : '#ddd';
+    };
+
+    // initialize x axis - will redraw when data received
+    var min_date = new Date(YYYY,MM-1,DD);
+    min_date.setHours(CHART_START_TIME);
+    min_date.setMinutes(0);
+    min_date.setSeconds(0);
+
+    var max_date = new Date(min_date);
+    max_date.setHours(CHART_END_TIME);
+
+    chart_xScale.domain([min_date, max_date]);
+    chart_yScale.domain([0, CHART_Y_MAX]);
+
+    // draw x-axis
+    chart_g.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + chart_height + ")")
+      .call(chart_xAxis
+            .tickSize(-chart_height, 0, 0)
+            .tickFormat(d3.time.format("%H"))
+       )
+      .attr("class", "grid")
+      .append("text")
+      .attr("class", "label")
+      .attr("x", chart_width)
+      .attr("y", 26)
+      .style("text-anchor", "end")
+      .text("Time of day");
+
+    // draw y-axis
+    chart_g.append("g")
+      .attr("class", "y axis")
+      .call(chart_yAxis
+            .tickSize(-chart_width, 0, 0)
+            //.tickFormat("")
+      )
+      .attr("class", "grid")
+      .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -50)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Spaces Occupied");
+
+    // add the tooltip area to the webpage
+    chart_tooltip = d3.select("#chart").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
+}
+
+// ****************************************************************************
+// *********  Plot the sensor data on the chart         ***********************
+// ****************************************************************************
+
+// sensor_data contains the occupancy data records
+// index is the 'number' of the dataset, where '0' is the user-specified date
+// and other index values give data for the prior days requested for comparison.
+// ts_min and ts_max are the timestamp bounds for this chart so data can be filtered
+
+function draw_chart(sensor_data, index, ts_min, ts_max)
+{
+    console.log('Day '+index+': Drawing chart size='+sensor_data.length);
+
+      var radius = index==0 ? CHART_DOT_RADIUS : Math.floor(CHART_DOT_RADIUS * Math.pow(1/index,0.4));
+    
+      // draw dots
+      chart_g.selectAll(".foo") // this will ALWAYS produce an empty selection
+          .data(sensor_data)
+          .enter()
+          .append("circle")
+          .filter( function(d) { return (d[0] >= ts_min) && (d[0] <= ts_max) ; })
+          .attr("class", "dot")
+          .attr("r", radius)
+          .attr("cx", chart_xMap)
+          .attr("cy", chart_yMap)
+          .style("fill", function(d) { return chart_color_fill(d, index); })
+          .style("stroke", function(d) { return chart_color_stroke(d, index); })
+          .on("mouseover", function(d) {
+              chart_tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+              chart_tooltip.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+              chart_tooltip.html("ID: "+station_id+
+                                 "<br/>Reading "+d[1]+
+                                 "<br/>Time:" + new Date(d[0]))
+                   .style("left", (d3.event.pageX + 5) + "px")
+                   .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+              chart_tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+          });
+
+      // The data for the user specified date (as opposed to '?priordays=x,y,z') are stored
+      // in the json_data array at element "0". So if plot_date is TODAY and we're being asked to render the plot
+      // for the user date then we should add the on-chart label showing current sensor reading and time.
+      if (index==0 && plot_date_is_today)
+      {
+          // add text for latest datapoint
+
+          var p = sensor_data[sensor_data.length - 1];
+
+          chart_g.append("svg:rect")
+              .attr('x', chart_xMap(p)+CHART_DOT_RADIUS+4)
+              .attr('y', chart_yMap(p)-27)
+              .attr('width', 140)
+              .attr('height', 36)
+              .attr('rx', 6)
+              .attr('ry', 6)
+              .style('fill', 'white')
+              .style('fill-opacity', 0.5)
+
+          var p_time = new Date(p[0]);
+          var p_time_str = ' @ '+('0'+p_time.getHours()).slice(-2)+':'+('0'+p_time.getMinutes()).slice(-2);
+          chart_g.append("svg:text")
+              .attr('x', chart_xMap(p))
+              .attr('y', chart_yMap(p))
+              .attr('dx', CHART_DOT_RADIUS+10)
+              .style('font-size', '22px')
+              .style('fill', '#333')
+              .text(p.spaces_occupied+p_time_str);
+      }
+} // end draw_chart
+
+// ************************************************************************************
+// ************** Date forwards / backwards function             *********************
+// ************************************************************************************
+
+// move page to new date +n days from current date
+function date_shift(n)
+{
+    console.log('date_shift()');
+
+    new_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    new_date.setDate(new_date.getDate()+n);
+
+    new_year = new_date.getFullYear();
+    new_month = ("0" + (new_date.getMonth()+1)).slice(-2);
+    new_day = ("0" + new_date.getDate()).slice(-2);
+
+    console.log(new_year+'-'+new_month+'-'+new_day);
+    window.location.href = '?date='+new_year+'-'+new_month+'-'+new_day;
+}
+
+</script>
+{% endblock %}
+    
+{% block content %}
+<div id="content">
+    <div id="chart_title">
+      <div id="page_date">
+        <div class="time_shift"><a href="#" onclick="date_shift(-7)">
+            <img src="{% static 'images/chevron-left-left.png' %}"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(-1)">
+            <img src="{% static 'images/chevron-left.png' %}"></a>
+        </div>
+        <div id="heading_date"></div>
+        <div class="time_shift"><a href="#" onclick="date_shift(1);">
+            <img src="{% static 'images/chevron-right.png' %}"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(7);">
+            <img src="{% static 'images/chevron-right-right.png' %}"></a>
+        </div>
+      </div> <!-- end page_date -->
+      <!-- content_title is alternative location for page title if ?noframe is given -->
+      <div id="content_title">
+      </div>
+    </div> <!-- end chart_title -->
+
+    <!-- Actual d3 plot is embedded in this "chart" div -->
+    <div class="chart" id="chart">
+    </div>
+
+</div> <!-- end content -->
+    
+<script>
+        $(document).ready(function() {
+            init();
+        });
+</script>
+
+{% endblock %}
