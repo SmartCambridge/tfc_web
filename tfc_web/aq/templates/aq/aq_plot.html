@@ -477,9 +477,31 @@ function date_shift(n)
     new_month = ("0" + (new_date.getMonth()+1)).slice(-2);
     new_day = ("0" + new_date.getDate()).slice(-2);
 
-    console.log(new_year+'-'+new_month+'-'+new_day);
-    window.location.href = '?date='+new_year+'-'+new_month+'-'+new_day;
+    date_qs = 'date='+new_year+'-'+new_month+'-'+new_day;
+
+    // splice the new 'date=YYYY-MM-DD' into the current querystring
+    var re = new RegExp("([?|&])date=.*?(&|$)","i");
+    if (location.search.match(re))
+    {
+        new_qs = location.search.replace(re,'$1' + date_qs + '$2');
+    }
+    else if (location.search == '')
+    {
+        new_qs = '?'+date_qs;
+    }
+    else
+    {
+        new_qs = location.search + '&' + date_qs;
+    }
+    window.location.href = new_qs;
 }
+
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
 
 </script>
 {% endblock %}

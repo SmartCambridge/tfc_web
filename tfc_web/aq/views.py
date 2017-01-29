@@ -38,7 +38,7 @@ def aq_plot(request, station_id):
         sensor_api_string = '&sensor_type='+sensor_type
 
     feed_id = request.GET.get('feed_id')
-    if not sensor_type:
+    if not feed_id:
         feed_api_string = ''
     else:
         feed_api_string = '&feed_id='+feed_id
