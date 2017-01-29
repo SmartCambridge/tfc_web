@@ -1,20 +1,41 @@
+import zipfile
+import re
 import xmltodict
-from os import listdir
+from datetime import timedelta
 from django.core.management.base import NoArgsCommand
-from os.path import isfile, join
-from realtime.models import BusLine, BusOperator, BusRoute, BusJourney, BusJourneyPatternSection, BusJourneyPattern
+from realtime.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
+    JourneyPatternTimingLink
+
+xml_timedelta_regex = re.compile('(?P<sign>-?)P(?:(?P<years>\d+)Y)?(?:(?P<months>\d+)M)?(?:(?P<days>\d+)D)?'
+                                 '(?:T(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+[.]‌​?\d*)S)?)?')
+
+def xml_timedelta_to_python(xml_timedelta):
+    # Fetch the match groups with default value of 0 (not None)
+    duration = xml_timedelta_regex.match(xml_timedelta).groupdict(0)
+
+    # Create the timedelta object from extracted groups
+    delta = timedelta(days=int(duration['days']) + (int(duration['months']) * 30) + (int(duration['years']) * 365),
+                      hours=int(duration['hours']),
+                      minutes=int(duration['minutes']),
+                      seconds=int(duration['seconds']))
+
+    if duration['sign'] == "-":
+        delta *= -1
+
+    return delta
 
 
 class Command(NoArgsCommand):
-    help = "Updates bus data from XML files from TravelLine website"
+    help = "Updates bus data from zip file containing the XML files from TravelLine website"
 
     def add_arguments(self, parser):
-        parser.add_argument('xml_folder_path')
+        parser.add_argument('zip_file_path')
 
     def handle(self, *args, **options):
-        for file in listdir(options['xml_folder_path']):
-            if isfile(join(options['xml_folder_path'], file)) and file.endswith('.xml'):
-                xml_file = open(join(options['xml_folder_path'], file), 'rb')
+        traveline_zip_file = zipfile.ZipFile(options['zip_file_path'])
+        files_list = traveline_zip_file.namelist()
+        for filename in files_list:
+            with traveline_zip_file.open(filename) as xml_file:
                 content = xmltodict.parse(xml_file)
 
                 if content['TransXChange']['Services']['Service']['Mode'] == "bus":
@@ -55,7 +76,7 @@ class Command(NoArgsCommand):
                         else:
                             stops.append(route['RouteLink']['From']['StopPointRef'])
                             stops.append(route['RouteLink']['To']['StopPointRef'])
-                        BusRoute.objects.update_or_create(id=routes_desc[route_id]['@id'], line=bus_line, defaults={
+                        Route.objects.update_or_create(id=routes_desc[route_id]['@id'], line=bus_line, defaults={
                             'stops_list': ','.join(stops),
                             'description': routes_desc[route_id]['Description']
                         })
@@ -66,18 +87,25 @@ class Command(NoArgsCommand):
                     if journey_pattern_sections.__class__ is not list:
                         journey_pattern_sections = list([journey_pattern_sections])
                     for journey_pattern_section in journey_pattern_sections:
-                        stops = []
-                        if journey_pattern_section['JourneyPatternTimingLink'].__class__ is list:
-                            for stop in journey_pattern_section['JourneyPatternTimingLink']:
-                                # TODO check if To from next item and From from current are the same
-                                stops.append(stop['From']['StopPointRef'])
-                            stops.append(journey_pattern_section['JourneyPatternTimingLink'][-1]['To']['StopPointRef'])
-                        else:
-                            stops.append(journey_pattern_section['JourneyPatternTimingLink']['From']['StopPointRef'])
-                            stops.append(journey_pattern_section['JourneyPatternTimingLink']['To']['StopPointRef'])
-                        BusJourneyPatternSection.objects.update_or_create(id=journey_pattern_section['@id'],
-                                                                          line=bus_line,
-                                                                          defaults={'stops_list': ','.join(stops)})
+                        JourneyPatternSection.objects.update_or_create(id=journey_pattern_section['@id'])
+                        journey_pattern_timing_links = journey_pattern_section['JourneyPatternTimingLink']
+                        if journey_pattern_timing_links.__class__ is not list:
+                            journey_pattern_timing_links = list([journey_pattern_timing_links])
+                        for journey_pattern_timing_link in journey_pattern_timing_links:
+                            wait_time = xml_timedelta_to_python(journey_pattern_timing_link['To']['WaitTime']) \
+                                if 'WaitTime' in journey_pattern_timing_link['To'] else None
+                            JourneyPatternTimingLink.objects.update_or_create(id=journey_pattern_timing_link['@id'],
+                                                                              defaults={
+                                                                                  'stop_from_id': journey_pattern_timing_link['From']['StopPointRef'],
+                                                                                  'stop_to_id': journey_pattern_timing_link['To']['StopPointRef'],
+                                                                                  'stop_from_timing_status': journey_pattern_timing_link['From']['TimingStatus'],
+                                                                                  'stop_to_timing_status': journey_pattern_timing_link['To']['TimingStatus'],
+                                                                                  'stop_from_sequence_number': journey_pattern_timing_link['From']['@SequenceNumber'],
+                                                                                  'stop_to_sequence_number': journey_pattern_timing_link['To']['@SequenceNumber'],
+                                                                                  'run_time': xml_timedelta_to_python(journey_pattern_timing_link['RunTime']),
+                                                                                  'wait_time': wait_time,
+                                                                                  'journey_pattern_section_id': journey_pattern_section['@id']
+                                                                              })
 
                     # Journey Pattern
                     journey_patterns = \
@@ -85,22 +113,26 @@ class Command(NoArgsCommand):
                     if journey_patterns.__class__ is not list:
                         journey_patterns = list([journey_patterns])
                     for journey_pattern in journey_patterns:
-                        BusJourneyPattern.objects.update_or_create(id=journey_pattern['@id'],
-                                                                   defaults=
-                                                                   {'direction': journey_pattern['Direction'],
-                                                                    'route': BusRoute.objects.get
-                                                                    (id=journey_pattern['RouteRef']),
-                                                                    'section': BusJourneyPatternSection.objects.get
-                                                                    (id=journey_pattern['JourneyPatternSectionRefs'])})
+                        JourneyPattern.objects.update_or_create(id=journey_pattern['@id'],
+                                                                defaults=
+                                                                {'direction': journey_pattern['Direction'],
+                                                                 'route': Route.objects.get
+                                                                 (id=journey_pattern['RouteRef']),
+                                                                 'section': JourneyPatternSection.objects.get
+                                                                 (id=journey_pattern['JourneyPatternSectionRefs'])})
 
                     # Journey
                     journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
                     if journeys.__class__ is not list:
                         journeys = list([journeys])
                     for journey in journeys:
-                        BusJourney.objects.update_or_create(id=journey['PrivateCode'], line=bus_line, defaults={
-                            'pattern': BusJourneyPattern.objects.get(id=journey['JourneyPatternRef']),
+                        # try:
+                        VehicleJourney.objects.update_or_create(id=journey['PrivateCode'], defaults={
+                            'journey_pattern': JourneyPattern.objects.get(id=journey['JourneyPatternRef']),
                             'departure_time': journey['DepartureTime'],
+                            # 'days_of_week': list(journey['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())[0]
                         })
+                        # except:
+                        #     print(journey)
 
                 xml_file.close()
