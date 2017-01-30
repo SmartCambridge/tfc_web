@@ -87,6 +87,7 @@ def aq_plot(request, station_id):
     return render(request, 'aq/aq_plot.html', {
         'config_date':  user_date,
         'config_station_id': station_id,
+        'config_sensor_type': sensor_type,
         'config_YYYY' : YYYY,
         'config_MM':    MM,
         'config_DD':    DD,

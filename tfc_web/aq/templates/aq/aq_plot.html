@@ -93,15 +93,26 @@
   stroke-width: 1.5px;
 }
 
+/* MDL BUTTON FOR SENSOR TYPES ON CARD */
+.plot-sensor-button {
+    padding: 3px;
+    margin: 2px;
+    }
+
 </style>
     
 <script type="text/javascript">
+
+var AQ_PLOT_URL = "/web/aq/plot/";
+var AQ_MAP_URL = "/web/aq/map";
+var AQ_LIST_URL = "/web/aq/list";
 
 //********************************************************************************
 //***********  LOAD VARS FROM SERVER    ******************************************
 //********************************************************************************
 
-var station_id = "{{config_station_id}}";
+var STATION_ID = "{{config_station_id}}";
+var SENSOR_TYPE = "{{config_sensor_type}}";
 
 var YYYY = {{config_YYYY}}; // Year e.g. 2016
 var MM = {{config_MM}};     // Month e.g. 07 = July
@@ -147,7 +158,8 @@ var CHART_START_TIME = 0; // start chart at midnight
 var CHART_END_TIME = 24;  // end chart at midnight
 
 var CHART_DOT_RADIUS = 6; // size of dots on scatterplot
-var CHART_Y_MAX = 1000; // FIX limit of Y axis
+var CHART_Y_MAX = 1000; // FIX limits of Y axis, will adjust based on sensor_type
+var CHART_Y_MIN = 0;
 
 // **********************************************
 // Initialize this page (called in body:onload())
@@ -158,18 +170,37 @@ function init()
     // ******************************************************
     // **********   TITLE  **********************************
     // ******************************************************
-    document.title = station_id+' AQ Plot';
+    document.title = STATION_ID+' AQ Plot';
 
     // make ?noframe adjustments to content
     if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0 )
     {
-        document.getElementById('content_title').innerHTML = station_config.request_data.Name;
+        // ******************************************************
+        // ********** NOFRAME MODE        ***********************
+        // ******************************************************
+        document.getElementById('content_title').innerHTML = station_config.request_data.Name + ' - ' +SENSOR_TYPE;
         document.getElementById('chart').style.height = "calc(100vh - 80px)";
+    } else
+    {
+        // ******************************************************
+        // ********** ONLY IN FRAME MODE ADD SENSOR BUTTONS  ****
+        // ******************************************************
+
+        var buttons_el = document.getElementById("page_buttons");
+
+        add_breadcrumb(buttons_el, 'MAP', AQ_MAP_URL);
+        add_breadcrumb(buttons_el, 'LIST', AQ_LIST_URL);
+
+        var sensor_types = station_config.request_data.SensorTypes;
+        for ( var i=0; i<sensor_types.length; i++ )
+        {
+            add_button(buttons_el, STATION_ID, sensor_types[i]);
+        }
     }
     // embed station name into page
     try
     {
-        document.getElementById('station_name').innerHTML = station_config.request_data.Name;
+        document.getElementById('station_name').innerHTML = station_config.request_data.Name +' - '+SENSOR_TYPE;
     }
     catch(err)
     {
@@ -254,13 +285,65 @@ function init()
 
 }
 
+// *****************************************************************************************
+// *******  Add a button for this SensorType (from station config) to the station card  ****
+// *****************************************************************************************
+
+function add_button(el, STATION_ID, sensor_type)
+{
+    var button = document.createElement('a');
+    button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent plot-sensor-button';
+    button.appendChild(document.createTextNode(sensor_type));
+    button.href = url_replace(location.search, 'sensor_type', sensor_type);
+    //AQ_PLOT_URL+STATION_ID+'?sensor_type='+sensor_type+'&priordays=1,7';
+    el.appendChild(button);
+}    
+
+function add_breadcrumb(el, text, url)
+{
+    var button = document.createElement('a');
+    button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--colored plot-sensor-button';
+    button.appendChild(document.createTextNode(text));
+    button.href = url;
+    el.appendChild(button);
+}    
+
+// *****************************************************************************************
+// *******  Function to map sensor_type -> Y units & scale max
+// *****************************************************************************************
+
+function plot_scale(sensor_type)
+{
+    switch (sensor_type)
+    {
+        case 'CO' : return { 'units': 'Units', 'max': 1600, 'min': 0 };
+        case 'NO':  return { 'units': 'Units', 'max': 400, 'min': 0 };
+        case 'NO2': return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'O3':  return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'SO2': return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'Temperature': return { 'units': 'Degrees C', 'max': 50, 'min': -50 };
+        case 'Humidity':    return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'Pressure':    return { 'units': 'Units', 'max': 1050, 'min': 970 };
+        case 'PM1':   return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'PM2_5': return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'PM10':  return { 'units': 'Units', 'max': 100, 'min': 0 };
+        case 'TSP':   return { 'units': 'Units', 'max': 400, 'min': 0 };
+        default:
+            break;
+    }
+    return { 'units': 'Units', 'max': 1000, 'min': 0 };
+}
+    
 // ******************************************                                                
 // Initialize the chart to appear on the page
 // - not yet with any data
 // ******************************************
 function init_chart()
 {
-      // get the height and width of the "chart" div, and set d3 svg element to that
+    CHART_Y_MAX = plot_scale(SENSOR_TYPE).max;
+    CHART_Y_MIN = plot_scale(SENSOR_TYPE).min;
+    
+    // get the height and width of the "chart" div, and set d3 svg element to that
       var svg_width = document.getElementById("chart").clientWidth;
       var svg_height = document.getElementById("chart").clientHeight;
 
@@ -342,7 +425,7 @@ function init_chart()
     max_date.setHours(CHART_END_TIME);
 
     chart_xScale.domain([min_date, max_date]);
-    chart_yScale.domain([0, CHART_Y_MAX]);
+    chart_yScale.domain([CHART_Y_MIN, CHART_Y_MAX]);
 
     // draw x-axis
     chart_g.append("g")
@@ -374,7 +457,7 @@ function init_chart()
       .attr("y", -50)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Spaces Occupied");
+      .text(plot_scale(SENSOR_TYPE).units);
 
     // add the tooltip area to the webpage
     chart_tooltip = d3.select("#chart").append("div")
@@ -403,7 +486,7 @@ function draw_chart(sensor_data, index, ts_min, ts_max)
           .data(sensor_data)
           .enter()
           .append("circle")
-          .filter( function(d) { return (d[0] >= ts_min) && (d[0] <= ts_max) ; })
+          .filter( function(d) { return (d[0] >= ts_min) && (d[0] < ts_max) ; })
           .attr("class", "dot")
           .attr("r", radius)
           .attr("cx", chart_xMap)
@@ -417,7 +500,7 @@ function draw_chart(sensor_data, index, ts_min, ts_max)
               chart_tooltip.transition()
                    .duration(200)
                    .style("opacity", .9);
-              chart_tooltip.html("ID: "+station_id+
+              chart_tooltip.html("ID: "+STATION_ID+
                                  "<br/>Reading "+d[1]+
                                  "<br/>Time:" + new Date(d[0]))
                    .style("left", (d3.event.pageX + 5) + "px")
@@ -456,7 +539,7 @@ function draw_chart(sensor_data, index, ts_min, ts_max)
               .attr('dx', CHART_DOT_RADIUS+10)
               .style('font-size', '22px')
               .style('fill', '#333')
-              .text(p.spaces_occupied+p_time_str);
+              .text(p[1]+p_time_str);
       }
 } // end draw_chart
 
@@ -477,37 +560,36 @@ function date_shift(n)
     new_month = ("0" + (new_date.getMonth()+1)).slice(-2);
     new_day = ("0" + new_date.getDate()).slice(-2);
 
-    date_qs = 'date='+new_year+'-'+new_month+'-'+new_day;
+    date_qs = new_year+'-'+new_month+'-'+new_day;
 
     // splice the new 'date=YYYY-MM-DD' into the current querystring
-    var re = new RegExp("([?|&])date=.*?(&|$)","i");
+    window.location.href = url_replace(location.search, 'date', date_qs);
+}
+
+function url_replace(url, key, value)
+{
+    var re = new RegExp("([?|&])"+key+"=.*?(&|$)","i");
     if (location.search.match(re))
     {
-        new_qs = location.search.replace(re,'$1' + date_qs + '$2');
+        return location.search.replace(re,'$1' + key + "=" + value + '$2');
     }
     else if (location.search == '')
     {
-        new_qs = '?'+date_qs;
+        return '?'+key+"="+value;
     }
     else
     {
-        new_qs = location.search + '&' + date_qs;
+        return location.search + '&' + key + "=" + value;
     }
-    window.location.href = new_qs;
 }
-
-function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-};
 
 </script>
 {% endblock %}
     
 {% block content %}
 <div id="content">
+    <div id="page_buttons">
+    </div>
     <div id="chart_title">
       <div id="page_date">
         <div class="time_shift"><a href="#" onclick="date_shift(-7)">

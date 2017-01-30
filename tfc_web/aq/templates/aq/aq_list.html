@@ -185,7 +185,7 @@ function add_button(el, station_id, sensor_type)
     var button = document.createElement('a');
     button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent sensor-button';
     button.appendChild(document.createTextNode(sensor_type));
-    button.href = AQ_PLOT_URL+station_id+'?sensor_type='+sensor_type+'&priordays=1,7';
+    button.href = AQ_PLOT_URL+station_id+'?sensor_type='+sensor_type;
     el.appendChild(button);
 }    
 // ********************************************************************************
@@ -226,7 +226,7 @@ for ( var i = 0; i < aq_list.length; i++) {
         add_station(aq_list[i]);
 
 // finally, set the page to refresh in 6 mins...
-setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+//setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
 
 }
 
