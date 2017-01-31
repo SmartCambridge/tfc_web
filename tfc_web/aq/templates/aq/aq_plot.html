@@ -26,6 +26,13 @@
   margin: 5px 5px 10px 20px;
 }
 
+#chart_message {
+    display: inline-block;
+    font-size: 22px;
+    color: red;
+    font-weight: bold;
+}
+
 #heading_date {
   display: inline-block;
   width: 8em;
@@ -118,9 +125,18 @@ var YYYY = {{config_YYYY}}; // Year e.g. 2016
 var MM = {{config_MM}};     // Month e.g. 07 = July
 var DD = {{config_DD}};     // day e.g. 23
 
-var station_config = JSON.parse('{{ config_station_config|escapejs }}');
+var STATION_CONFIG = JSON.parse('{{ config_station_config|escapejs }}');
 
 var YYYYMMDD = '{{config_YYYY}}/{{config_MM}}/{{config_DD}}';
+
+// **********************************************************************************
+// **********  Here is where we load the sensor plot data     ***********************
+// **********************************************************************************
+var SENSOR_DATA = JSON.parse("{{ config_sensor_data|escapejs }}");
+// **********************************************************************************
+// **********************************************************************************
+// **********************************************************************************
+
 //********************************************************************************
 //********************************************************************************
 
@@ -178,7 +194,7 @@ function init()
         // ******************************************************
         // ********** NOFRAME MODE        ***********************
         // ******************************************************
-        document.getElementById('content_title').innerHTML = station_config.request_data.Name + ' - ' +SENSOR_TYPE;
+        document.getElementById('content_title').innerHTML = STATION_CONFIG.request_data.Name + ' - ' +SENSOR_TYPE;
         document.getElementById('chart').style.height = "calc(100vh - 80px)";
     } else
     {
@@ -191,7 +207,7 @@ function init()
         add_breadcrumb(buttons_el, 'MAP', AQ_MAP_URL);
         add_breadcrumb(buttons_el, 'LIST', AQ_LIST_URL);
 
-        var sensor_types = station_config.request_data.SensorTypes;
+        var sensor_types = STATION_CONFIG.request_data.SensorTypes;
         for ( var i=0; i<sensor_types.length; i++ )
         {
             add_button(buttons_el, STATION_ID, sensor_types[i]);
@@ -200,7 +216,7 @@ function init()
     // embed station name into page
     try
     {
-        document.getElementById('station_name').innerHTML = station_config.request_data.Name +' - '+SENSOR_TYPE;
+        document.getElementById('station_name').innerHTML = STATION_CONFIG.request_data.Name +' - '+SENSOR_TYPE;
     }
     catch(err)
     {
@@ -218,6 +234,14 @@ function init()
     // calculate timestamps bounding the day
     plot_date_ms_start = plot_date.getTime(); // i.e. millisecond timestamp on plot_date 00:00:00
     plot_date_ms_end = plot_date_ms_start + 1000 * 60 * 60 * 24; // ms timestamp same day 24:00:00
+
+    // Display warning if data for requested day is not available
+    var chart_message = document.getElementById('chart_message');
+
+    if (SENSOR_DATA.length==0 || last_record()[0] < plot_date_ms_start)
+    {
+        chart_message.appendChild(document.createTextNode('No data available for this date.'));
+    }
     
     plot_date_is_today = false; // will set to true below if correct
     
@@ -242,47 +266,60 @@ function init()
     // set up layout / axes of scatterplot
     init_chart();
 
-    var sensor_data = new Array();
+    var sensor_readings = new Array();
 
     // Initialize data structure to hold sensor reading messages inserted by server
     // And call draw_chart for each day's data
     try {
-        // **********************************************************************************
-        // **********  Here is where we load the sensor plot data     ***********************
-        // **********************************************************************************
-        var json_data = JSON.parse("{{ config_sensor_data|escapejs }}");
-        // **********************************************************************************
-        // **********************************************************************************
-        // **********************************************************************************
-        if (!json_data)
+        if (!SENSOR_DATA)
         {
             console.log('no sensor data received');
         }
         else
         {
-            console.log('Rendering '+json_data.length+' days of data');
+            console.log('Rendering '+SENSOR_DATA.length+' days of data');
 
             // note we draw requested day's data last so it is on top...
-            for (i=json_data.length-1;i>=0;i--)
+            for (i=SENSOR_DATA.length-1;i>=0;i--)
             {
-                sensor_data = json_data[i].request_data.Readings;
-                console.log('Day '+i+': Received '+sensor_data.length+' records');
+                sensor_readings = SENSOR_DATA[i].request_data.Readings;
+                console.log('Day '+i+': Received '+sensor_readings.length+' records');
 
-                if (sensor_data.length > 0)
+                if (sensor_readings.length > 0)
                 {
                   console.log('Day '+i+': init calling draw_chart()');
 
                   // draw chart with the data embedded by the template into sensor_data
-                  draw_chart(sensor_data, i, plot_date_ms_start, plot_date_ms_end);
+                  draw_chart(sensor_readings, i, plot_date_ms_start, plot_date_ms_end);
                 }
-                console.log('Day '+i+': sensor_data.length is '+sensor_data.length);
+                console.log('Day '+i+': sensor_data.length is '+sensor_readings.length);
             }
         }
     } catch(err) {
         console.log('error parsing config_sensor_data '+err);
-        sensor_data = new Array();
+        SENSOR_DATA = new Array();
     }
 
+}
+
+// *****************************************************************************************
+// *********  Calculate last timestamp of received sensor data (or 0 if no data  ***********
+// *****************************************************************************************
+
+function last_record()
+{
+    if (SENSOR_DATA.length==0 ||
+        !SENSOR_DATA[0].hasOwnProperty('request_data') ||
+        !SENSOR_DATA[0].request_data.hasOwnProperty('Readings'))
+    {
+        return [0,0];
+    }
+    var l = SENSOR_DATA[0].request_data.Readings.length;
+    if (l == 0)
+    {
+        return [0,0];
+    }
+    return SENSOR_DATA[0].request_data.Readings[l-1];
 }
 
 // *****************************************************************************************
@@ -349,14 +386,14 @@ function init_chart()
     CHART_Y_MIN = plot_scale(SENSOR_TYPE).min;
     
     // get the height and width of the "chart" div, and set d3 svg element to that
-      var svg_width = document.getElementById("chart").clientWidth;
-      var svg_height = document.getElementById("chart").clientHeight;
+    var svg_width = document.getElementById("chart").clientWidth;
+    var svg_height = document.getElementById("chart").clientHeight;
 
-      // calculate the dimensions of the actual chart within the SVG area (i.e. allowing margins for axis info)
-      var chart_width = svg_width - 110;
-      var chart_height = svg_height - 110;
-      var chart_offsetx = 60;
-      var chart_offsety = 20;
+    // calculate the dimensions of the actual chart within the SVG area (i.e. allowing margins for axis info)
+    var chart_width = svg_width - 110;
+    var chart_height = svg_height - 110;
+    var chart_offsetx = 60;
+    var chart_offsety = 20;
 
     // add the graph canvas to the body of the webpage
     chart_g = d3.select("#chart").append("svg")
@@ -524,7 +561,7 @@ function draw_chart(sensor_data, index, ts_min, ts_max)
       {
           // add text for latest datapoint
 
-          var p = sensor_data[sensor_data.length - 1];
+          var p = last_record();
 
           chart_g.append("svg:rect")
               .attr('x', chart_xMap(p)+CHART_DOT_RADIUS+4)
@@ -613,6 +650,9 @@ function url_replace(url, key, value)
       </div> <!-- end page_date -->
       <!-- content_title is alternative location for page title if ?noframe is given -->
       <div id="content_title">
+      </div>
+      <!-- chart_message is designed to hold messages such as "no data for this date" -->
+      <div id="chart_message">
       </div>
     </div> <!-- end chart_title -->
 
