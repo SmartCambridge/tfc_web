@@ -289,13 +289,18 @@ function init()
 // *******  Add a button for this SensorType (from station config) to the station card  ****
 // *****************************************************************************************
 
-function add_button(el, STATION_ID, sensor_type)
+function add_button(el, STATION_ID, button_sensor_type)
 {
     var button = document.createElement('a');
-    button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent plot-sensor-button';
-    button.appendChild(document.createTextNode(sensor_type));
-    button.href = url_replace(location.search, 'sensor_type', sensor_type);
-    //AQ_PLOT_URL+STATION_ID+'?sensor_type='+sensor_type+'&priordays=1,7';
+    var button_style = 'mdl-button mdl-js-button mdl-button--raised mdl-button--colored plot-sensor-button';
+    if (button_sensor_type==SENSOR_TYPE)
+    {
+        button_style = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent plot-sensor-button';
+    }
+    button.className = button_style;
+    button.appendChild(document.createTextNode(button_sensor_type));
+    button.href = url_replace(location.search, 'sensor_type', button_sensor_type);
+    //AQ_PLOT_URL+STATION_ID+'?sensor_type='+button_sensor_type+'&priordays=1,7';
     el.appendChild(button);
 }    
 

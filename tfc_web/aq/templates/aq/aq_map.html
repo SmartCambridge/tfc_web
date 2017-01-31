@@ -52,6 +52,7 @@ function station_icon(station_config)
 function add_station(station_config)
 {
     var station_id = station_config['StationID'];
+    
     var marker = L.marker([ station_config["Latitude"],
                             station_config["Longitude"]
                           ],
@@ -59,7 +60,7 @@ function add_station(station_config)
                  )
             .addTo(map)
             .bindTooltip(
-                 '<a href="'+AQ_PLOT_URL+'/'+station_id+'" >' +
+                 '<a href="'+AQ_PLOT_URL+station_id+'?sensor_type='+station_config['SensorTypes'][0]+'" >' +
                  station_config["Name"] +
                  '</a>',
                  { direction: 'top',
