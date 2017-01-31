@@ -10,7 +10,7 @@ class Stop(models.Model):
     cleardown_code = models.CharField(max_length=10)
     common_name = models.CharField(max_length=64)
     common_name_lang = models.CharField(max_length=2)
-    short_common_name = models.CharField(max_length=21)
+    short_common_name = models.CharField(max_length=64)
     short_common_name_lang = models.CharField(max_length=2)
     landmark = models.CharField(max_length=64)
     landmark_lang = models.CharField(max_length=2)
