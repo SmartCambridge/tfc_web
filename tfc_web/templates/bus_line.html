@@ -10,6 +10,7 @@
                 <a href="{% url 'bus-stop' stop.atco_code %}">{{ stop.common_name }}</a> -
             {% endfor %}
             <h5><a href="{% url 'bus-route-map' route.id %}">View in Map</a></h5>
+            <h6><a href="{% url 'bus-route-timetable' route.id %}">View Timetable</a></h6>
         </p>
     {% endfor %}
 {% endblock %}

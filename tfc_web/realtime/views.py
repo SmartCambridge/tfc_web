@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
 from realtime.models import Stop, Line, Route, VehicleJourney
-from vix.models import Route, Stop
+from vix.models import Route as VixRoute, Stop as VixStop
 
 
 def index(request):
@@ -42,11 +42,11 @@ def busdata_json(request):
         bus_data['entities'] = bus_list
     for index, bus in enumerate(bus_data['entities']):
         if 'stop_id' in bus:
-            stop = Stop.objects.filter(id=bus['stop_id'])
+            stop = VixStop.objects.filter(id=bus['stop_id'])
             if stop:
                 bus_data['entities'][index]['stop'] = stop.values("code", "name")[0]
         if 'route_id' in bus:
-            route = Route.objects.filter(id=bus['route_id'])
+            route = VixRoute.objects.filter(id=bus['route_id'])
             if route:
                 bus_data['entities'][index]['route'] = route.values("long_name", "short_name", "agency__name")[0]
     return JsonResponse(bus_data)
@@ -75,6 +75,12 @@ def bus_stop(request, bus_stop_id):
         'tooltips_permanent': True,
         'mapcenter': "[%s, %s], 16" % (bus_stop.latitude, bus_stop.longitude)
     })
+
+
+def bus_route_timetable(request, bus_route_id):
+    bus_route = Route.objects.get(id=bus_route_id)
+    journeys = VehicleJourney.objects.filter(journey_pattern__route=bus_route).order_by('departure_time')
+    return render(request, 'bus_route_timetable.html', {'bus_route': bus_route, 'journeys': journeys})
 
 
 def zones_list(request):

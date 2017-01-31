@@ -1,0 +1,30 @@
+{% extends "template.html" %}
+{% block content %}
+    <h1>{{ bus_route.line.line_name }}</h1>
+    <h2>{{ bus_route.description }}</h2>
+    <table style="font-size: 10px; margin-left: 20px; margin-right: 20px; table-layout: fixed;">
+        <thead>
+            <tr>
+                {% for timetable in journeys.0.get_timetable %}
+                    <td>{{ timetable.stop.common_name }}</td>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for journey in journeys %}
+                <tr>
+                    {% for timetable in journey.get_timetable %}
+                        <td>{{ timetable.time }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% for journey in journeys %}
+        <p>
+            {% for timetable in journey.get_timetable %}
+                {{ timetable.time }} - {{ timetable.stop.common_name }}<br>
+            {% endfor %}
+        </p>
+    {% endfor %}
+{% endblock %}

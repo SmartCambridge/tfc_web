@@ -33,4 +33,8 @@ urlpatterns = [
 
     # Bus Routes
     url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
+
+    # Bus Timetable
+    url(r'^timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
+
 ]
