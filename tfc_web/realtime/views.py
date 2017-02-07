@@ -4,7 +4,7 @@ import json
 from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
-from realtime.models import Stop, Line, Route, VehicleJourney
+from realtime.models import Stop, Line, Route, VehicleJourney, JourneyPatternTimingLink, JourneyPatternSection
 from vix.models import Route as VixRoute, Stop as VixStop
 
 
@@ -62,6 +62,10 @@ def bus_line(request, bus_line_id):
 
 def bus_route_map(request, bus_route_id):
     return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
+
+
+def bus_route_timetable_map(request, journey_id):
+    return render(request, 'bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
 
 def bus_stops_list(request):

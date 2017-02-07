@@ -71,6 +71,14 @@ class Line(models.Model):
     standard_origin = models.CharField(max_length=255)
     standard_destination = models.CharField(max_length=255)
 
+    def get_all_vehicle_journeys(self):
+        journeys = []
+        for route in self.routes.all():
+            for jp in route.journey_patterns.all():
+                for journey in jp.journeys.all():
+                    journeys.append(journey)
+        return journeys
+
     @python_2_unicode_compatible
     def __str__(self):
         return "%s (%s)" % (self.line_name, self.description)
@@ -104,8 +112,10 @@ class JourneyPatternSection(models.Model):
 
     def get_stops_list(self):
         bus_stops = []
-        for timing_link in self.timing_link.order_by('stop_from_timing_status'):
+        timing_links = self.timing_link.order_by('stop_from_sequence_number')
+        for timing_link in timing_links:
             bus_stops.append(timing_link.stop_from)
+        bus_stops.append(timing_links.last().stop_to)
         return bus_stops
 
     @python_2_unicode_compatible
@@ -123,7 +133,7 @@ class JourneyPatternTimingLink(models.Model):
     stop_to_sequence_number = models.IntegerField()
     run_time = models.DurationField()
     wait_time = models.DurationField(null=True, blank=True)
-    journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_link')
+    journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_links')
 
     @python_2_unicode_compatible
     def __str__(self):
@@ -153,27 +163,28 @@ class VehicleJourney(models.Model):
     def get_timetable(self):
         timetable = []
         departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
-        timing_links = self.journey_pattern.section.timing_link.order_by('stop_from_timing_status')
+        timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
-            if not timetable:
-                timetable.append({'time': departure_time.time(), 'stop': timing_link.stop_from})
-                departure_time += timing_link.run_time
-                if timing_link.wait_time:
-                    departure_time += timing_link.wait_time
-            else:
-                timetable.append({'time': departure_time.time(), 'stop': timing_link.stop_from})
-                departure_time += timing_link.run_time
-                if timing_link.wait_time:
-                    departure_time += timing_link.wait_time
+            timetable.append({'time': departure_time.time(), 'stop': timing_link.stop_from})
+            departure_time += timing_link.run_time
+            if timing_link.wait_time:
+                departure_time += timing_link.wait_time
         timetable.append({'time': departure_time.time(), 'stop': timing_links.last().stop_to})
         return timetable
 
-    # def get_journey_coordinates(self):
-    #     bus_stops = []
-    #     self.pattern.section.
-    #     for stop in self.stops_list.split(','):
-    #         bus_stops.append(BusStop.objects.get(atco_code=stop).get_coordinates())
-    #     return bus_stops
+    def get_timetable_stops(self):
+        timetable = []
+        departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
+        timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
+        for timing_link in timing_links:
+            timetable.append({'time': departure_time.time(), 'latitude': timing_link.stop_from.latitude,
+                              'longitude': timing_link.stop_from.longitude})
+            departure_time += timing_link.run_time
+            if timing_link.wait_time:
+                departure_time += timing_link.wait_time
+        timetable.append({'time': departure_time.time(), 'latitude': timing_links.last().stop_to.latitude,
+                          'longitude': timing_links.last().stop_to.longitude})
+        return timetable
 
     def get_stops_list(self):
         return self.journey_pattern.section.get_stops_list()

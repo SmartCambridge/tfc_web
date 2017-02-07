@@ -13,4 +13,9 @@
             <h6><a href="{% url 'bus-route-timetable' route.id %}">View Timetable</a></h6>
         </p>
     {% endfor %}
+    <p>
+    {% for journey in bus_line.get_all_vehicle_journeys %}
+        <a href="{% url 'bus-route-timetable-map' journey.id %}">{{ journey }}</a><br>
+    {% endfor %}
+    </p>
 {% endblock %}
