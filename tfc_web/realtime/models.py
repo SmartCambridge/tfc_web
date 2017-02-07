@@ -115,10 +115,10 @@ class JourneyPatternSection(models.Model):
 
 class JourneyPatternTimingLink(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
-    stop_from = models.ForeignKey(Stop, to_field='atco_code', related_name='departure_journeys')
+    stop_from = models.ForeignKey(Stop, to_field='atco_code', related_name='departure_journeys', db_constraint=False)
     stop_from_timing_status = models.CharField(max_length=3)
     stop_from_sequence_number = models.IntegerField()
-    stop_to = models.ForeignKey(Stop, to_field='atco_code', related_name='arrival_journeys')
+    stop_to = models.ForeignKey(Stop, to_field='atco_code', related_name='arrival_journeys', db_constraint=False)
     stop_to_timing_status = models.CharField(max_length=3)
     stop_to_sequence_number = models.IntegerField()
     run_time = models.DurationField()
