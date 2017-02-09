@@ -53,7 +53,7 @@ def busdata_json(request):
 
 
 def bus_lines_list(request):
-    return render(request, 'bus_lines_list.html', {'bus_lines': Line.objects.all()})
+    return render(request, 'bus_lines_list.html', {'bus_lines': Line.objects.all().order_by('line_name')})
 
 
 def bus_line(request, bus_line_id):

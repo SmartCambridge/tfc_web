@@ -1,30 +1,29 @@
 {% extends "template.html" %}
 {% block content %}
-    <h1>{{ bus_route.line.line_name }}</h1>
-    <h2>{{ bus_route.description }}</h2>
-    <table style="font-size: 10px; margin-left: 20px; margin-right: 20px; table-layout: fixed;">
-        <thead>
+{#    <div class="mdl-components__page mdl-grid is-active">#}
+{#    <div class="mdl-cell mdl-cell--12-col">#}
+        <h1>{{ bus_route.line.line_name }}</h1>
+        <h2>{{ bus_route.description }}</h2>
+
+        <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="overflow-x: scroll;">
+          <thead>
             <tr>
+                <th class="mdl-data-table__cell--non-numeric"></th>
                 {% for timetable in journeys.0.get_timetable %}
-                    <td>{{ timetable.stop.common_name }}</td>
+                    <th class="mdl-data-table__cell--non-numeric">{{ timetable.stop.common_name }}</th>
                 {% endfor %}
             </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
             {% for journey in journeys %}
                 <tr>
+                    <td><a href="{% url 'bus-route-timetable-map' journey.id %}">View in Map</a></td>
                     {% for timetable in journey.get_timetable %}
-                        <td>{{ timetable.time }}</td>
+                        <td class="mdl-data-table__cell--non-numeric">{{ timetable.time }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}
-        </tbody>
-    </table>
-    {% for journey in journeys %}
-        <p>
-            {% for timetable in journey.get_timetable %}
-                {{ timetable.time }} - {{ timetable.stop.common_name }}<br>
-            {% endfor %}
-        </p>
-    {% endfor %}
+          </tbody>
+        </table>
+{#    </div></div>#}
 {% endblock %}
