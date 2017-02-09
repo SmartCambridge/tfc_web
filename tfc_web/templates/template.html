@@ -1,114 +1,115 @@
 {% load static_new %}
 <!doctype html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="smartCambridge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="smartCambridge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+        <title>{% block title %}{% endblock %}</title>
 
-    <link rel="stylesheet" href="{% static 'mdl/material.min.css' %}">
-    <script src="{% static 'mdl/material.min.js' %}"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="{% static 'mdl/material.min.css' %}">
+        <script src="{% static 'mdl/material.min.js' %}"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        <script src="{% static 'js/functions.js' %}"></script>
 
-    {% block head %}{% endblock %}
+        {% block head %}{% endblock %}
 
-    <script>
-        $(document).ready(function() {
-            if (window.location.search.indexOf("noframe") >= 0) {
-                $('.header').hide();
-                $('footer').hide();
-                $(".mdl-layout__content div").first().css("height","100vh");
-                if (typeof map !== 'undefined')
-                    map.invalidateSize();
-            };
-        });
-    </script>
-</head>
-<body>
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    <div class="header mdl-layout__header mdl-layout__header--waterfall">
-        <div class="mdl-layout__header-row">
-            <span class="title mdl-layout-title">
-               <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
-              {% block page_title %}{% endblock %}
-            </span>
-            <!-- Add spacer, to align navigation to the right in desktop -->
-            <div class="mdl-layout-spacer"></div>
-            <div class="search-box mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
-                <label class="mdl-button mdl-js-button mdl-button--icon" for="search-field">
-                    <i class="material-icons">search</i>
-                </label>
-                <div class="mdl-textfield__expandable-holder">
-                    <input class="mdl-textfield__input" type="text" id="search-field">
+        <script>
+            $(document).ready(function() {
+                if (window.location.search.indexOf("noframe") >= 0) {
+                    $('.header').hide();
+                    $('footer').hide();
+                    $(".mdl-layout__content div").first().css("height","100vh");
+                    if (typeof map !== 'undefined')
+                        map.invalidateSize();
+                };
+            });
+        </script>
+    </head>
+    <body>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <div class="header mdl-layout__header mdl-layout__header--waterfall">
+                <div class="mdl-layout__header-row">
+                    <span class="title mdl-layout-title">
+                       <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
+                      {% block page_title %}{% endblock %}
+                    </span>
+                    <!-- Add spacer, to align navigation to the right in desktop -->
+                    <div class="mdl-layout-spacer"></div>
+                    <div class="search-box mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
+                        <label class="mdl-button mdl-js-button mdl-button--icon" for="search-field">
+                            <i class="material-icons">search</i>
+                        </label>
+                        <div class="mdl-textfield__expandable-holder">
+                            <input class="mdl-textfield__input" type="text" id="search-field">
+                        </div>
+                    </div>
+                    <!-- Navigation -->
+                    <div class="navigation-container">
+                        <nav class="navigation mdl-navigation">
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'bus-map' %}">Bus</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'zones-list' %}">Zones</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'parking_home' %}">Parking</a>
+                        </nav>
+                    </div>
+                    <span class="mobile-title mdl-layout-title">
+                        <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
+                        {% block mobile_title %}{% endblock %}
+                    </span>
+                    <button class="more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="more-button">
+                        <i class="material-icons">more_vert</i>
+                    </button>
+                    <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
+                        <li class="mdl-menu__item">Bus</li>
+                        <li class="mdl-menu__item">Zones</li>
+                    </ul>
                 </div>
             </div>
-            <!-- Navigation -->
-            <div class="navigation-container">
-                <nav class="navigation mdl-navigation">
-                    <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'bus-map' %}">Bus</a>
-                    <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'zones-list' %}">Zones</a>
-                    <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'parking_home' %}">Parking</a>
+
+
+            <div class="drawer mdl-layout__drawer">
+                <span class="mdl-layout-title">
+                    <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
+                </span>
+                <nav class="mdl-navigation">
+                    <a class="mdl-navigation__link" href="">About</a>
+                    <div class="drawer-separator"></div>
+                    <span class="mdl-navigation__link" href="">Buses</span>
+                    <a class="mdl-navigation__link" href="{% url 'bus-map' %}">Bus Map</a>
+                    <a class="mdl-navigation__link" href="{% url 'bus-stops-list' %}">Bus Stops</a>
+                    <div class="drawer-separator"></div>
+                    <span class="mdl-navigation__link" href="">Zones</span>
+                    <a class="mdl-navigation__link" href="{% url 'zones-list' %}">Zone list</a>
                 </nav>
             </div>
-            <span class="mobile-title mdl-layout-title">
-                <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
-                {% block mobile_title %}{% endblock %}
-            </span>
-            <button class="more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="more-button">
-                <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
-                <li class="mdl-menu__item">Bus</li>
-                <li class="mdl-menu__item">Zones</li>
-            </ul>
+
+
+            <div class="mdl-layout__content">
+                {% block content %}{% endblock %}
+                <footer class="mdl-mega-footer">
+                    <div class="mdl-mega-footer--top-section">
+                        <p class="mdl-typography--font-light">Smart Cambridge - Greater Cambridge City Deal</p>
+                    </div>
+
+                    <div class="mdl-mega-footer--middle-section">
+                    </div>
+
+                    <div class="mdl-mega-footer--bottom-section">
+                        <a class="aqua-link aqua-link-menu mdl-typography--font-light" id="version-dropdown">
+                            Menu
+                            <i class="material-icons">arrow_drop_up</i>
+                        </a>
+                        <ul class="mdl-menu mdl-js-menu mdl-menu--top-left mdl-js-ripple-effect" for="version-dropdown">
+                            <li class="mdl-menu__item">Bus</li>
+                            <li class="mdl-menu__item">Zones</li>
+                        </ul>
+                        <a class="aqua-link mdl-typography--font-light" href="">Privacy Policy</a>
+                    </div>
+                </footer>
+            </div>
         </div>
-    </div>
-
-
-    <div class="drawer mdl-layout__drawer">
-        <span class="mdl-layout-title">
-            <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
-        </span>
-        <nav class="mdl-navigation">
-            <a class="mdl-navigation__link" href="">About</a>
-            <div class="drawer-separator"></div>
-            <span class="mdl-navigation__link" href="">Buses</span>
-            <a class="mdl-navigation__link" href="{% url 'bus-map' %}">Bus Map</a>
-            <a class="mdl-navigation__link" href="{% url 'bus-stops-list' %}">Bus Stops</a>
-            <div class="drawer-separator"></div>
-            <span class="mdl-navigation__link" href="">Zones</span>
-            <a class="mdl-navigation__link" href="{% url 'zones-list' %}">Zone list</a>
-        </nav>
-    </div>
-
-
-    <div class="mdl-layout__content">
-        {% block content %}{% endblock %}
-        <footer class="mdl-mega-footer">
-            <div class="mdl-mega-footer--top-section">
-                <p class="mdl-typography--font-light">Smart Cambridge - Greater Cambridge City Deal</p>
-            </div>
-
-            <div class="mdl-mega-footer--middle-section">
-            </div>
-
-            <div class="mdl-mega-footer--bottom-section">
-                <a class="aqua-link aqua-link-menu mdl-typography--font-light" id="version-dropdown">
-                    Menu
-                    <i class="material-icons">arrow_drop_up</i>
-                </a>
-                <ul class="mdl-menu mdl-js-menu mdl-menu--top-left mdl-js-ripple-effect" for="version-dropdown">
-                    <li class="mdl-menu__item">Bus</li>
-                    <li class="mdl-menu__item">Zones</li>
-                </ul>
-                <a class="aqua-link mdl-typography--font-light" href="">Privacy Policy</a>
-            </div>
-        </footer>
-    </div>
-</div>
-</body>
+    </body>
 </html>

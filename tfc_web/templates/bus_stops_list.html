@@ -1,6 +1,23 @@
 {% extends "template.html" %}
+{% load static_new %}
 {% block content %}
+    <ul id="bus-stop-list" class='mdl-list'>
+        <span class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="bus-stop-search-box" onkeyup="searchFunction('bus-stop-search-box', 'bus-stop-list')">
+                <label class="mdl-textfield__label">Search a bus stop...</label>
+            </div>
+        </span>
     {% for bus_stop in bus_stops %}
-        <a href="{% url 'bus-stop' bus_stop.atco_code %}">{{ bus_stop.atco_code }} - {{ bus_stop.common_name }} - {{ bus_stop.street }} - {{ bus_stop.locality_name }}<br></a>
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+                <i class="mdl-list__item-avatar">
+                    <img src="{% static 'images/bus-stop-icon.svg' %}" style="width: 70px; margin-left: -16px; margin-top: -19px;">
+                </i>
+            <span>
+                <a href="{% url 'bus-stop' bus_stop.atco_code %}">{{ bus_stop.atco_code }} - {{ bus_stop.common_name }} - {{ bus_stop.street }} - {{ bus_stop.locality_name }}</a></span>
+            </span>
+        </li>
     {% endfor %}
+    </ul>
 {% endblock %}
