@@ -1,9 +1,7 @@
 import codecs
-import requests
 import json
 from datetime import date, timedelta, datetime
 from urllib.request import urlopen
-from django.http import JsonResponse
 from django.shortcuts import render
 
 #############################################################################
