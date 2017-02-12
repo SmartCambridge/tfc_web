@@ -15,6 +15,7 @@ Including another URLconf
 from django.conf.urls import url
 from transport import views
 
+
 urlpatterns = [
     url(r'^$', views.index, name='bus-home'),
 
@@ -37,5 +38,4 @@ urlpatterns = [
     # Bus Timetable
     url(r'^timetable/map/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
     url(r'^timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
-
 ]

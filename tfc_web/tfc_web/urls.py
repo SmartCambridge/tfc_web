@@ -16,6 +16,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from transport import views
 
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='home'),
@@ -24,10 +25,10 @@ urlpatterns = [
     url(r'^transport/', include('transport.urls')),
 
     # Parking
-    url(r'^parking/', include('tfc_web.urls_parking')),
+    url(r'^parking/', include('parking.urls')),
 
     # Traffic
-    url(r'^traffic/', include('tfc_web.urls_traffic')),
+    url(r'^traffic/', include('traffic.urls')),
 
     # Zones
     url(r'^zones/$', views.zones_list, name='zones-list'),
