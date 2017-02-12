@@ -11,7 +11,7 @@
                 <tr>
                     <th class="mdl-data-table__cell--non-numeric"></th>
                     {% for timetable in journeys.0.get_timetable %}
-                        <th class="mdl-data-table__cell--non-numeric">{{ timetable.stop.common_name }}</th>
+                        <th class="mdl-data-table__cell--non-numeric">{{ timetable.stop }}</th>
                     {% endfor %}
                 </tr>
               </thead>

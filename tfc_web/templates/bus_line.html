@@ -7,7 +7,7 @@
         <p>
             <h4>{{ route.description }}</h4>
             {% for stop in route.get_stops_list %}
-                <a href="{% url 'bus-stop' stop.atco_code %}">{{ stop.common_name }}</a> -
+                <a href="{% url 'bus-stop' stop.atco_code %}">{{ stop }}</a> -
             {% endfor %}
             <h5><a href="{% url 'bus-route-map' route.id %}">View in Map</a></h5>
             <h6><a href="{% url 'bus-route-timetable' route.id %}">View Timetable</a></h6>

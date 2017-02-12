@@ -15,7 +15,7 @@
                     <img src="{% static 'images/bus-stop-icon.svg' %}" style="width: 70px; margin-left: -16px; margin-top: -19px;">
                 </i>
             <span>
-                <a href="{% url 'bus-stop' bus_stop.atco_code %}">{{ bus_stop.atco_code }} - {{ bus_stop.common_name }} - {{ bus_stop.street }} - {{ bus_stop.locality_name }}</a></span>
+                <a href="{% url 'bus-stop' bus_stop.atco_code %}">{{ bus_stop.atco_code }} - {{ bus_stop }}</a></span>
             </span>
         </li>
     {% endfor %}

@@ -51,6 +51,10 @@ class Stop(models.Model):
     def get_coordinates(self):
         return [self.latitude, self.longitude]
 
+    @python_2_unicode_compatible
+    def __str__(self):
+        return "%s, %s %s" % (self.locality_name, self.indicator, self.common_name)
+
 
 class Operator(models.Model):
     id = models.CharField(max_length=255, primary_key=True)
