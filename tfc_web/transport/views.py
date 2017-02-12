@@ -4,12 +4,8 @@ import json
 from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
-from transport.models import Stop, Line, Route, VehicleJourney, JourneyPatternTimingLink, JourneyPatternSection
+from transport.models import Stop, Line, Route, VehicleJourney
 from vix.models import Route as VixRoute, Stop as VixStop
-
-
-def index(request):
-    return render(request, 'home.html', {})
 
 
 def bus_map(request):
