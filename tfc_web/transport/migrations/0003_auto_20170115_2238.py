@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('realtime', '0002_auto_20161113_1550'),
+        ('transport', '0002_auto_20161113_1550'),
     ]
 
     operations = [
@@ -57,37 +57,37 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(serialize=False, primary_key=True, max_length=255)),
                 ('description', models.CharField(max_length=255)),
                 ('stops_list', models.TextField()),
-                ('line', models.ForeignKey(related_name='routes', to='realtime.BusLine')),
+                ('line', models.ForeignKey(related_name='routes', to='transport.BusLine')),
             ],
         ),
         migrations.AddField(
             model_name='busline',
             name='operator',
-            field=models.ForeignKey(related_name='lines', to='realtime.BusOperator'),
+            field=models.ForeignKey(related_name='lines', to='transport.BusOperator'),
         ),
         migrations.AddField(
             model_name='busjourneypatternsection',
             name='line',
-            field=models.ForeignKey(related_name='journey_sections', to='realtime.BusLine'),
+            field=models.ForeignKey(related_name='journey_sections', to='transport.BusLine'),
         ),
         migrations.AddField(
             model_name='busjourneypattern',
             name='route',
-            field=models.ForeignKey(related_name='journey_patterns', to='realtime.BusRoute'),
+            field=models.ForeignKey(related_name='journey_patterns', to='transport.BusRoute'),
         ),
         migrations.AddField(
             model_name='busjourneypattern',
             name='section',
-            field=models.ForeignKey(related_name='journey_patterns', to='realtime.BusJourneyPatternSection'),
+            field=models.ForeignKey(related_name='journey_patterns', to='transport.BusJourneyPatternSection'),
         ),
         migrations.AddField(
             model_name='busjourney',
             name='line',
-            field=models.ForeignKey(related_name='journeys', to='realtime.BusLine'),
+            field=models.ForeignKey(related_name='journeys', to='transport.BusLine'),
         ),
         migrations.AddField(
             model_name='busjourney',
             name='pattern',
-            field=models.ForeignKey(related_name='journeys', to='realtime.BusJourneyPattern'),
+            field=models.ForeignKey(related_name='journeys', to='transport.BusJourneyPattern'),
         ),
     ]

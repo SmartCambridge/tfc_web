@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from realtime.models import Line, Stop, Operator, Route, VehicleJourney, JourneyPatternSection, \
+from transport.models import Line, Stop, Operator, Route, VehicleJourney, JourneyPatternSection, \
     JourneyPattern
 
 

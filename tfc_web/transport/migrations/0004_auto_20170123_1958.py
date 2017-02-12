@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('realtime', '0003_auto_20170115_2238'),
+        ('transport', '0003_auto_20170115_2238'),
     ]
 
     operations = [
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('stop_to_sequence_number', models.IntegerField()),
                 ('run_time', models.DurationField()),
                 ('wait_time', models.DurationField(blank=True, null=True)),
-                ('journey_pattern_section', models.ForeignKey(to='realtime.JourneyPatternSection', related_name='timing_link')),
+                ('journey_pattern_section', models.ForeignKey(to='transport.JourneyPatternSection', related_name='timing_link')),
             ],
         ),
         migrations.CreateModel(
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=255, serialize=False, primary_key=True)),
                 ('description', models.CharField(max_length=255)),
                 ('stops_list', models.TextField()),
-                ('line', models.ForeignKey(to='realtime.Line', related_name='routes')),
+                ('line', models.ForeignKey(to='transport.Line', related_name='routes')),
             ],
         ),
         migrations.CreateModel(
@@ -111,7 +111,7 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=255, serialize=False, primary_key=True)),
                 ('departure_time', models.CharField(max_length=20)),
                 ('days_of_week', models.CharField(null=True, max_length=100)),
-                ('journey_pattern', models.ForeignKey(to='realtime.JourneyPattern', related_name='journeys')),
+                ('journey_pattern', models.ForeignKey(to='transport.JourneyPattern', related_name='journeys')),
             ],
         ),
         migrations.RenameModel(
@@ -167,26 +167,26 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='line',
             name='operator',
-            field=models.ForeignKey(to='realtime.Operator', related_name='lines'),
+            field=models.ForeignKey(to='transport.Operator', related_name='lines'),
         ),
         migrations.AddField(
             model_name='journeypatterntiminglink',
             name='stop_from',
-            field=models.ForeignKey(related_name='departure_journeys', to_field='atco_code', to='realtime.Stop'),
+            field=models.ForeignKey(related_name='departure_journeys', to_field='atco_code', to='transport.Stop'),
         ),
         migrations.AddField(
             model_name='journeypatterntiminglink',
             name='stop_to',
-            field=models.ForeignKey(related_name='arrival_journeys', to_field='atco_code', to='realtime.Stop'),
+            field=models.ForeignKey(related_name='arrival_journeys', to_field='atco_code', to='transport.Stop'),
         ),
         migrations.AddField(
             model_name='journeypattern',
             name='route',
-            field=models.ForeignKey(to='realtime.Route', related_name='journey_patterns'),
+            field=models.ForeignKey(to='transport.Route', related_name='journey_patterns'),
         ),
         migrations.AddField(
             model_name='journeypattern',
             name='section',
-            field=models.ForeignKey(to='realtime.JourneyPatternSection', related_name='journey_patterns'),
+            field=models.ForeignKey(to='transport.JourneyPatternSection', related_name='journey_patterns'),
         ),
     ]

@@ -2,7 +2,7 @@ import csv
 import zipfile
 from io import BytesIO, TextIOWrapper
 from urllib.request import urlopen
-from realtime.models import Stop
+from transport.models import Stop
 
 
 def update_bus_stops_from_api():

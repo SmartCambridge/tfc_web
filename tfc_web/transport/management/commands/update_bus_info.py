@@ -3,7 +3,7 @@ import re
 import xmltodict
 from datetime import timedelta
 from django.core.management.base import NoArgsCommand
-from realtime.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
+from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
     JourneyPatternTimingLink
 
 xml_timedelta_regex = re.compile('(?P<sign>-?)P(?:(?P<years>\d+)Y)?(?:(?P<months>\d+)M)?(?:(?P<days>\d+)D)?'

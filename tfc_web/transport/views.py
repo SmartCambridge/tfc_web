@@ -4,7 +4,7 @@ import json
 from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
-from realtime.models import Stop, Line, Route, VehicleJourney, JourneyPatternTimingLink, JourneyPatternSection
+from transport.models import Stop, Line, Route, VehicleJourney, JourneyPatternTimingLink, JourneyPatternSection
 from vix.models import Route as VixRoute, Stop as VixStop
 
 
