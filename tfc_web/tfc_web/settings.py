@@ -43,7 +43,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'realtime',
+    'transport',
     'vix',
     'parking',
     'traffic',
@@ -112,9 +112,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
-
-STATIC_URL_PREFIX = '/web'
+STATIC_URL = '/static_web/'
 
 STATICFILES_DIRS = [
     "static",
@@ -124,6 +122,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+API_ENDPOINT = 'http://localhost'
 
 # Web proxy
 

@@ -13,10 +13,12 @@ Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from realtime import views
+from django.views.generic import TemplateView
+from transport import views
+
 
 urlpatterns = [
-    url(r'^$', views.index, name='bus-home'),
+    url(r'^$', TemplateView.as_view(template_name="home.html"), name='bus-home'),
 
     # Bus movements
     url(r'^map/$', views.bus_map, name='bus-map'),
@@ -33,4 +35,8 @@ urlpatterns = [
 
     # Bus Routes
     url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
+
+    # Bus Timetable
+    url(r'^timetable/map/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
+    url(r'^timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
 ]

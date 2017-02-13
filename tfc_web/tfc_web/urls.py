@@ -14,26 +14,27 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from realtime import views
+from django.views.generic import TemplateView
+from transport import views
+
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', views.index, name='home'),
+    url(r'^$', TemplateView.as_view(template_name="index.html"), name='home'),
 
-    # Buses
-    url(r'^bus/', include('tfc_web.urls_bus')),
+    # Transport (Buses and others)
+    url(r'^transport/', include('transport.urls')),
 
     # Parking
-    url(r'^parking/', include('tfc_web.urls_parking')),
+    url(r'^parking/', include('parking.urls')),
 
     # Traffic
-    url(r'^traffic/', include('tfc_web.urls_traffic')),
+    url(r'^traffic/', include('traffic.urls')),
 
     # Air Quality
-    url(r'^aq/', include('tfc_web.urls_aq')),
+    url(r'^aq/', include('aq.urls')),
 
     # Zones
     url(r'^zones/$', views.zones_list, name='zones-list'),
     url(r'^zone/(?P<zone_id>\w+)/$', views.zone, name='zone'),
-
 ]

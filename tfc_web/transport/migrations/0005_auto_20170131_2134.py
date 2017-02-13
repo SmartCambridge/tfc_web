@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('realtime', '0001_initial'),
+        ('transport', '0004_auto_20170123_1958'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='busstop',
-            name='default_wait_time',
-            field=models.IntegerField(blank=True, null=True),
+            model_name='stop',
+            name='short_common_name',
+            field=models.CharField(max_length=64),
         ),
     ]

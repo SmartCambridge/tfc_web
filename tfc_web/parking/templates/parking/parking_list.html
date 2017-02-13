@@ -1,201 +1,202 @@
 {% extends "template.html" %}
-{% load static_new %}
+{% load static %}
 
 {% block page_title %}
-Parking List
+    Parking List
 {% endblock %}
 {% block mobile_title %}
-Parking List
+    Parking List
 {% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <!-- load the d3 library for the chart plot -->
     <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
-<style>
-  .demo-card-square.mdl-card {
+    <style>
+        .demo-card-square.mdl-card {
             width: 320px;
             height: 240px;
             float: left;
             margin: 1rem;
             position: relative;
-          }
-
-  .demo-card-square.mdl-card:hover {
-          box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
         }
 
-  .demo-card-square > .mdl-card__title {
-          color: #fff;
-          background: #03a9f4;
-      }
-
-  .demo-card-square > .mdl-card__accent {
-          background: #ff9800;
+        .demo-card-square.mdl-card:hover {
+            box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
         }
 
-  .pie {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-    }
-      
-</style>
-    {% endblock %}
-    
+        .demo-card-square > .mdl-card__title {
+            color: #fff;
+            background: #03a9f4;
+        }
+
+        .demo-card-square > .mdl-card__accent {
+            background: #ff9800;
+        }
+
+        .pie {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+
+    </style>
+{% endblock %}
+
 {% block content %}
-<!-- PAGE CONTENT IS JUST THIS DIV TO HOLD CARDS -->
-<div id='parking_cards'></div>
+    <!-- PAGE CONTENT IS JUST THIS DIV TO HOLD CARDS -->
+    <div id='parking_cards'></div>
 
-<script>
+    <script>
 
-document.title = 'Parking list';
-      
-var PARKING_PLOT_URL = "/web/parking/plot/";
+        document.title = 'Parking list';
 
-var parking_cards = document.getElementById('parking_cards');
-        
-var     pie_width = 150,
-        pie_height = 100,
-        pie_radius = Math.min(pie_width, pie_height) / 2;
+        var PARKING_PLOT_URL = "/web/parking/plot/";
 
-var pie_color_fill = function (spaces_capacity, spaces_free, i) {
-                         if (i==0) // spaces_occupied
-                         {
-                             console.log(spaces_capacity, spaces_free, i)
-                             // nearly full = red, otherwise green
-                             if (spaces_free / spaces_capacity < 0.2)
-                             {
-                                 return '#d62728'; // red
-                             } else {
-                                 return '#2ca02c'; // green
-                             }
-                         } else { // spaces_free
-                             return 'rgba(0,0,0,0)';
-                         }
-                      };
+        var parking_cards = document.getElementById('parking_cards');
 
-var pie_color_stroke = function (d,i) {
-                     return 'rgba(100,100,100,1.0)';
-                 };
+        var pie_width = 150,
+            pie_height = 100,
+            pie_radius = Math.min(pie_width, pie_height) / 2;
 
-var pie = d3.layout.pie()
+        var pie_color_fill = function (spaces_capacity, spaces_free, i) {
+            if (i == 0) // spaces_occupied
+            {
+                console.log(spaces_capacity, spaces_free, i)
+                // nearly full = red, otherwise green
+                if (spaces_free / spaces_capacity < 0.2) {
+                    return '#d62728'; // red
+                } else {
+                    return '#2ca02c'; // green
+                }
+            } else { // spaces_free
+                return 'rgba(0,0,0,0)';
+            }
+        };
+
+        var pie_color_stroke = function (d, i) {
+            return 'rgba(100,100,100,1.0)';
+        };
+
+        var pie = d3.layout.pie()
             .sort(null);
 
-var arc = d3.svg.arc()
-        .innerRadius(pie_radius - 30)
-        .outerRadius(pie_radius - 10);
+        var arc = d3.svg.arc()
+            .innerRadius(pie_radius - 30)
+            .outerRadius(pie_radius - 10);
 
-function add_parking(parking_name, parking_id, spaces_free, spaces_capacity)
-{
-    //<div id="grand-arcade-car-park" class="mdl-card mdl-shadow--2dp demo-card-square">
-    //    <div id="grand-arcade-car-park_title" class="mdl-card__title mdl-card--expand">
-    //        <h2 class="mdl-card__title-text">Grand Arcade</h2>
-    //    </div>
-    //    <div id="grand-arcade-car-park_text" class="mdl-card__supporting-text">
-    //        231 spaces free / 890
-    //    </div>
-    //    <div class="mdl-card__actions mdl-card--border">
-    //        <a class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect">
-    //            View
-    //        </a>
-    //    </div>
-    //</div> <!-- end Square card -->
+        function add_parking(parking_name, parking_id, spaces_free, spaces_capacity) {
+            //<div id="grand-arcade-car-park" class="mdl-card mdl-shadow--2dp demo-card-square">
+            //    <div id="grand-arcade-car-park_title" class="mdl-card__title mdl-card--expand">
+            //        <h2 class="mdl-card__title-text">Grand Arcade</h2>
+            //    </div>
+            //    <div id="grand-arcade-car-park_text" class="mdl-card__supporting-text">
+            //        231 spaces free / 890
+            //    </div>
+            //    <div class="mdl-card__actions mdl-card--border">
+            //        <a class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect">
+            //            View
+            //        </a>
+            //    </div>
+            //</div>
+            <!-- end Square card -->
 
-    // create card div
-    var card = document.createElement('div');
-    card.className = 'mdl-card mdl-shadow--2dp demo-card-square';
-                                                                 
-    // create card__title div
-    var title = document.createElement('div');
-    title.className = 'mdl-card__title mdl-card--expand';
-    title.id = parking_id+'_title';
-    var title_text = document.createElement('h2');
-    title_text.className = 'mdl-card__title-text';
-    title_text.appendChild(document.createTextNode(parking_name));
-    title.appendChild(title_text);
-    card.appendChild(title);
+            // create card div
+            var card = document.createElement('div');
+            card.className = 'mdl-card mdl-shadow--2dp demo-card-square';
 
-    // create card__supporting-text div
-    var supporting_text = document.createElement('div');
-    supporting_text.className = 'mdl-card__supporting-text';
-    // Note in some feeds it is possible spaces_occupied > spaces_capacity
-    // so here we ensure spaces_free is displayed as 0 rather than negative
-    supporting_text.appendChild(document.createTextNode((spaces_free > 0 ? spaces_free : 0)+' spaces free / '+spaces_capacity));
-    card.appendChild(supporting_text);
+            // create card__title div
+            var title = document.createElement('div');
+            title.className = 'mdl-card__title mdl-card--expand';
+            title.id = parking_id + '_title';
+            var title_text = document.createElement('h2');
+            title_text.className = 'mdl-card__title-text';
+            title_text.appendChild(document.createTextNode(parking_name));
+            title.appendChild(title_text);
+            card.appendChild(title);
 
-    // create card__actions div
-    var actions = document.createElement('div');
-    actions.className = 'mdl-card__actions mdl-card--border';
-    var button = document.createElement('a');
-    button.className = 'mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect';
-    button.appendChild(document.createTextNode('View'));
-    button.href = PARKING_PLOT_URL+parking_id+'?priordays=1,7';
-    actions.appendChild(button);
-    card.appendChild(actions);
+            // create card__supporting-text div
+            var supporting_text = document.createElement('div');
+            supporting_text.className = 'mdl-card__supporting-text';
+            // Note in some feeds it is possible spaces_occupied > spaces_capacity
+            // so here we ensure spaces_free is displayed as 0 rather than negative
+            supporting_text.appendChild(document.createTextNode((spaces_free > 0 ? spaces_free : 0) + ' spaces free / ' + spaces_capacity));
+            card.appendChild(supporting_text);
 
-    // add card to page
-    parking_cards.appendChild(card);
+            // create card__actions div
+            var actions = document.createElement('div');
+            actions.className = 'mdl-card__actions mdl-card--border';
+            var button = document.createElement('a');
+            button.className = 'aqua-link mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect';
+            button.appendChild(document.createTextNode('View'));
+            button.href = PARKING_PLOT_URL + parking_id + '?priordays=1,7';
+            actions.appendChild(button);
+            card.appendChild(actions);
 
-    // ************************************
-    // add donut chart to this card on page
-    // ************************************
-    var svg = d3.select('#'+parking_id+'_title')
-        .insert('svg')
-        .attr('class','pie')
-        .attr("width", pie_width)
-        .attr("height", pie_height)
-        .append("g")
-        .attr("transform", "translate(" + pie_width / 2 + "," + pie_height / 2 + ")");
+            // add card to page
+            parking_cards.appendChild(card);
 
-    var path = svg.selectAll("path")
-        .data(pie([spaces_capacity-spaces_free, spaces_free]))
-        .enter().append("path")
-        .attr("fill", function (d,i) { return pie_color_fill(spaces_capacity, spaces_free, i)})
-        .attr("stroke", pie_color_stroke)
-        .attr("d", arc);
-    // ************************************
-    // ************************************
-}
-        
-// ********************************************************************************
-// *************  Parking list info provided by server ****************************
-// ********************************************************************************
+            // ************************************
+            // add donut chart to this card on page
+            // ************************************
+            var svg = d3.select('#' + parking_id + '_title')
+                .insert('svg')
+                .attr('class', 'pie')
+                .attr("width", pie_width)
+                .attr("height", pie_height)
+                .append("g")
+                .attr("transform", "translate(" + pie_width / 2 + "," + pie_height / 2 + ")");
 
-var parking_list = (JSON.parse( '{{ config_parking_list|escapejs }}' ))["request_data"]["parking_list"];
+            var path = svg.selectAll("path")
+                .data(pie([spaces_capacity - spaces_free, spaces_free]))
+                .enter().append("path")
+                .attr("fill", function (d, i) {
+                    return pie_color_fill(spaces_capacity, spaces_free, i)
+                })
+                .attr("stroke", pie_color_stroke)
+                .attr("d", arc);
+            // ************************************
+            // ************************************
+        }
 
-// ********************************************************************************
-// *************  Parking occupancy info provided by server ****************************
-// ********************************************************************************
+        // ********************************************************************************
+        // *************  Parking list info provided by server ****************************
+        // ********************************************************************************
 
-var parking_feed = (JSON.parse( '{{ config_parking_feed|escapejs }}' ))["request_data"];
+        var parking_list = (JSON.parse('{{ config_parking_list|escapejs }}'))["request_data"]["parking_list"];
 
-// ********************************************************************************
-// *************  end of server parking list info      ****************************
-// ********************************************************************************
+        // ********************************************************************************
+        // *************  Parking occupancy info provided by server ****************************
+        // ********************************************************************************
 
-// Create 'occupancy' dictionary parking_id -> occupancy record
-var occupancy = {};
-for ( var i = 0; i < parking_feed.request_data.length; i++ )
-{
-  occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
-}
+        var parking_feed = (JSON.parse('{{ config_parking_feed|escapejs }}'))["request_data"];
 
-// Now iterate through all car parks in config list, adding card to page for each
-for ( var i = 0; i < parking_list.length; i++) {
-        var parking_id = parking_list[i]['parking_id'];
-        var parking_name = parking_list[i]['parking_name'];
-        var spaces_free = occupancy[parking_id].spaces_free;
-        var capacity    = occupancy[parking_id].spaces_capacity;
+        // ********************************************************************************
+        // *************  end of server parking list info      ****************************
+        // ********************************************************************************
 
-        add_parking(parking_name, parking_id, spaces_free, capacity);
+        // Create 'occupancy' dictionary parking_id -> occupancy record
+        var occupancy = {};
+        for (var i = 0; i < parking_feed.request_data.length; i++) {
+            occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
+        }
 
-// finally, set the page to refresh in 6 mins...
-setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+        // Now iterate through all car parks in config list, adding card to page for each
+        for (var i = 0; i < parking_list.length; i++) {
+            var parking_id = parking_list[i]['parking_id'];
+            var parking_name = parking_list[i]['parking_name'];
+            var spaces_free = occupancy[parking_id].spaces_free;
+            var capacity = occupancy[parking_id].spaces_capacity;
 
-}
+            add_parking(parking_name, parking_id, spaces_free, capacity);
 
-</script>
+            // finally, set the page to refresh in 6 mins...
+            setTimeout(function () {
+                location.reload();
+            }, 6 * 60 * 1000);
+
+        }
+
+    </script>
 {% endblock %}

@@ -1,9 +1,8 @@
 {% extends "template.html" %}
-{% load static_new %}
+{% load static %}
 {% block head %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script>
         var route = "";
         function route_change(bus_route) {

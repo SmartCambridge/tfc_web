@@ -4,6 +4,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*~
 
 # C extensions
 *.so
@@ -93,4 +94,5 @@ ENV/
 .idea
 .DS_Store
 *.sqlite3
->>>>>>> tfc_web_amc/master
+secrets.py
+

@@ -1,17 +1,10 @@
 import codecs
-import requests
 import json
 from datetime import date
 from urllib.request import urlopen
-from django.http import JsonResponse
+from django.conf import settings
 from django.shortcuts import render
 
-#############################################################################
-########   traffic/  home page                        #######################
-#############################################################################
-
-def index(request):
-    return render(request, 'traffic/home.html', {})
 
 #############################################################################
 ########   traffic/zone/transit_plot/<zone_id>?date=YYYY-MM-DD  #############
@@ -32,14 +25,14 @@ def zone_transit_plot(request, zone_id):
     reader = codecs.getreader("utf-8")
     try:
         transit_json = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/zone/transits/'+zone_id+'?date='+yyyy+'-'+MM+'-'+dd
+            settings.API_ENDPOINT+'/api/dataserver/zone/transits/'+zone_id+'?date='+yyyy+'-'+MM+'-'+dd
         )))
     except:
         transit_json = None
 
     try:
         zone_config = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/zone/config/'+zone_id
+            settings.API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
         )))
     except:
         zone_config = None
@@ -55,6 +48,7 @@ def zone_transit_plot(request, zone_id):
         'config_zone_config': json.dumps(zone_config)
     })
 
+
 #############################################################################
 ########   traffic/zones/map                          #######################
 #############################################################################
@@ -64,7 +58,7 @@ def zones_map(request):
     reader = codecs.getreader("utf-8")
     try:
         zone_list = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/zone/list'
+            settings.API_ENDPOINT+'/api/dataserver/zone/list'
         )))
     except:
         zone_list = None
@@ -72,6 +66,7 @@ def zones_map(request):
     return render(request, 'traffic/zones_map.html', {
         'config_zone_list': json.dumps(zone_list),
     })
+
 
 #############################################################################
 ########   traffic/zone/map/<zone_id>                 #######################
@@ -82,7 +77,7 @@ def zone_map(request, zone_id):
     reader = codecs.getreader("utf-8")
     try:
         zone_config = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/zone/config/'+zone_id
+            settings.API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
         )))
     except:
         zone_config = None
@@ -91,4 +86,3 @@ def zone_map(request, zone_id):
         'config_zone_id': zone_id,
         'config_zone_config': json.dumps(zone_config)
     })
-

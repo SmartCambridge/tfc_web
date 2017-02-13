@@ -1,8 +1,8 @@
 {% extends "template.html" %}
-{% load static_new %}
+{% load static %}
 {% block content %}
         <div class="cards-section">
-            <div class="cards-section-title mdl-typography--display-1-color-contrast">Options</div>
+            <div class="cards-section-title mdl-typography--display-1-color-contrast">Bus information</div>
             <div class="card-container mdl-grid">
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
@@ -69,7 +69,7 @@
                         <span class="mdl-typography--font-light mdl-typography--subhead">Explore bus line information</span>
                     </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'bus-lines-list' %}">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
