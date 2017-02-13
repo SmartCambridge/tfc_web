@@ -3,13 +3,8 @@ import json
 from datetime import date, timedelta, datetime
 from urllib.request import urlopen
 from django.shortcuts import render
+from tfc_web.settings import API_ENDPOINT
 
-#############################################################################
-########   parking/  home page                        #######################
-#############################################################################
-
-def index(request):
-    return render(request, 'parking/home.html', {})
 
 #############################################################################
 ########   parking/plot/<parking_id>?date=YYYY-MM-DD  #######################
@@ -49,14 +44,14 @@ def parking_plot(request, parking_id):
             this_DD   = this_date[8:10]
 
             parking_json.append( json.load(reader(urlopen(
-                'http://localhost/api/dataserver/parking/occupancy/'+parking_id+'?date='+this_YYYY+'-'+this_MM+'-'+this_DD
+                API_ENDPOINT+'/api/dataserver/parking/occupancy/'+parking_id+'?date='+this_YYYY+'-'+this_MM+'-'+this_DD
             ))))
         except:
             pass
 
     try:
         parking_config = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/config/'+parking_id
+            API_ENDPOINT+'/api/dataserver/parking/config/'+parking_id
         )))
     except:
         parking_config = None
@@ -76,6 +71,7 @@ def parking_plot(request, parking_id):
         'config_parking_config': json.dumps(parking_config)
     })
 
+
 #############################################################################
 ########   parking/map                                #######################
 #############################################################################
@@ -85,7 +81,7 @@ def parking_map(request):
     reader = codecs.getreader("utf-8")
     try:
         parking_list = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/list'
+            API_ENDPOINT+'/api/dataserver/parking/list'
         )))
     except:
         parking_list = None
@@ -93,7 +89,7 @@ def parking_map(request):
     try:
         # //debug hardcoded cam_park_rss into parking/map occupancy feed request
         parking_feed = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/feed/now/cam_park_rss'
+            API_ENDPOINT+'/api/dataserver/feed/now/cam_park_rss'
         )))
     except:
         parking_feed = None
@@ -102,6 +98,7 @@ def parking_map(request):
         'config_parking_list': json.dumps(parking_list),
         'config_parking_feed': json.dumps(parking_feed)
     })
+
 
 #############################################################################
 ########   parking/list                               #######################
@@ -112,7 +109,7 @@ def parking_list(request):
     reader = codecs.getreader("utf-8")
     try:
         parking_list = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/parking/list'
+            API_ENDPOINT+'/api/dataserver/parking/list'
         )))
     except:
         parking_list = None
@@ -120,7 +117,7 @@ def parking_list(request):
     try:
         # //debug hardcoded cam_park_rss into parking/map occupancy feed request
         parking_feed = json.load(reader(urlopen(
-            'http://localhost/api/dataserver/feed/now/cam_park_rss'
+            API_ENDPOINT+'/api/dataserver/feed/now/cam_park_rss'
         )))
     except:
         parking_feed = None
@@ -129,4 +126,3 @@ def parking_list(request):
         'config_parking_list': json.dumps(parking_list),
         'config_parking_feed': json.dumps(parking_feed)
     })
-

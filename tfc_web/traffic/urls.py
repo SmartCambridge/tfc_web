@@ -13,11 +13,12 @@ Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
+from django.views.generic import TemplateView
 from traffic import views
 
 
 urlpatterns = [
-    url(r'^$', views.index, name='traffic_home'),
+    url(r'^$', TemplateView.as_view(template_name='traffic/home.html'), name='traffic_home'),
     url(r'^zones/map/$', views.zones_map, name='zones_map'),
     url(r'^zone/map/(?P<zone_id>[-\w]+)/$', views.zone_map, name='zone_map'),
     url(r'^zone/plot/transit/(?P<zone_id>[-\w]+)/$', views.zone_transit_plot, name='zone_transit_plot')

@@ -36,7 +36,7 @@
             <div class="header mdl-layout__header mdl-layout__header--waterfall">
                 <div class="mdl-layout__header-row">
                     <span class="title mdl-layout-title">
-                       <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
+                        <a href="{% url 'home' %}"><img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}"></a>
                       {% block page_title %}{% endblock %}
                     </span>
                     <!-- Add spacer, to align navigation to the right in desktop -->
@@ -52,8 +52,8 @@
                     <!-- Navigation -->
                     <div class="navigation-container">
                         <nav class="navigation mdl-navigation">
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'bus-map' %}">Bus</a>
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'zones-list' %}">Zones</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'bus-home' %}">Bus</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'traffic_home' %}">Traffic</a>
                             <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'parking_home' %}">Parking</a>
                         </nav>
                     </div>
