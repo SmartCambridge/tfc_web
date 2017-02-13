@@ -1,19 +1,13 @@
 import codecs
-import requests
 import json
 from datetime import date, timedelta, datetime
 from urllib.request import urlopen
-from django.http import JsonResponse
+from django.conf import settings
 from django.shortcuts import render
 
-API_URL = 'http://localhost/test/api/'
 
-#############################################################################
-########   AQ HOMEPAGE                                #######################
-#############################################################################
+API_URL = settings.API_ENDPOINT+'/test/api/'
 
-def index(request):
-    return render(request, 'aq/home.html', {})
 
 #####################################################################################
 ########   AQ PLOT                                                                  #
@@ -95,6 +89,7 @@ def aq_plot(request, station_id):
         'config_station_config': json.dumps(station_config)
     })
 
+
 #############################################################################
 ########        AQ MAP                                #######################
 #############################################################################
@@ -113,6 +108,7 @@ def aq_map(request):
         'config_aq_list': json.dumps(aq_list)
 
     })
+
 
 #############################################################################
 ########        aq/list                               #######################
