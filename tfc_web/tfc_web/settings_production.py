@@ -11,3 +11,5 @@ DATABASES = {
         'PORT': '',
     }
 }
+
+API_ENDPOINT = 'http://smartcambridge.org'
