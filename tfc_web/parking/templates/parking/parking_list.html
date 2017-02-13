@@ -52,8 +52,6 @@
 
         document.title = 'Parking list';
 
-        var PARKING_PLOT_URL = "/web/parking/plot/";
-
         var parking_cards = document.getElementById('parking_cards');
 
         var pie_width = 150,
@@ -130,7 +128,7 @@
             var button = document.createElement('a');
             button.className = 'aqua-link mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect';
             button.appendChild(document.createTextNode('View'));
-            button.href = PARKING_PLOT_URL + parking_id + '?priordays=1,7';
+            button.href = "{% url 'parking_plot' parking_id='Q4179568' %}".replace('Q4179568',parking_id) + '?priordays=1,7';
             actions.appendChild(button);
             card.appendChild(actions);
 

@@ -62,8 +62,6 @@ AQ List
 
 document.title = 'AQ list';
       
-var AQ_PLOT_URL = "/web/aq/plot/";
-
 var cards = document.getElementById('cards');
         
 var     pie_width = 150,
@@ -184,9 +182,11 @@ function add_button(el, station_id, sensor_type)
     var button = document.createElement('a');
     button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent sensor-button';
     button.appendChild(document.createTextNode(sensor_type));
-    button.href = AQ_PLOT_URL+station_id+'?sensor_type='+sensor_type;
+    //button.href = AQ_PLOT_URL+station_id+'?sensor_type='+sensor_type;
+    button.href = "{% url 'aq_plot' station_id='Q4179568' %}".replace('Q4179568',station_id) + '?sensor_type='+sensor_type;
     el.appendChild(button);
-}    
+}
+                         
 // ********************************************************************************
 // *************  Sensor station list info provided by server *********************
 // ********************************************************************************

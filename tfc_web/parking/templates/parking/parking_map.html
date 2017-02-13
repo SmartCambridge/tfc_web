@@ -22,8 +22,6 @@ Parking Map
     </div>
     <script>
 
-        var PARKING_PLOT_URL = "/web/parking/plot/";
-        
         // could use 'Area' concept here
         var map = L.map('map').setView([52.2038, 0.1207], 13);
         var mapMarkers = [];
@@ -82,7 +80,7 @@ Parking Map
                              )
                         .addTo(map)
                         .bindTooltip(
-                             '<a href="'+PARKING_PLOT_URL+'/'+parking_id+'" >' +
+                             '<a href="{% url 'parking_plot' parking_id='Q4179568' %}'.replace('Q4179568',parking_id) + '?priordays=1,7">' +
                              parking_list[i]["parking_name"] +
                              '</a>' +
                              '<br/>Spaces:' + occupancy[parking_id].spaces_free +'/'+

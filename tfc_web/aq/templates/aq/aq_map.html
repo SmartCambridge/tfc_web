@@ -21,8 +21,6 @@ AQ Map
 
 document.title = 'AQ map';
       
-var AQ_PLOT_URL = "/web/aq/plot/";
-        
 // could use 'Area' concept here
 var map = L.map('map').setView([52.2038, 0.1207], 13);
 var mapMarkers = [];
@@ -59,7 +57,8 @@ function add_station(station_config)
                  )
             .addTo(map)
             .bindTooltip(
-                 '<a href="'+AQ_PLOT_URL+station_id+'?sensor_type='+station_config['SensorTypes'][0]+'" >' +
+                 '<a href="{% url 'aq_plot' station_id='Q4179568' %}'.replace('Q4179568',station_id) +
+                           '?sensor_type='+station_config['SensorTypes'][0]+'" >' +
                  station_config["Name"] +
                  '</a>',
                  { direction: 'top',
