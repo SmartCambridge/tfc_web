@@ -6,7 +6,8 @@ from django.conf import settings
 from django.shortcuts import render
 
 
-API_URL = settings.API_ENDPOINT+'/test/api/'
+# test on port 8099 with API_URL = 'http://localhost/test/api/'
+API_URL = settings.API_ENDPOINT+'/api/'
 
 
 #####################################################################################
