@@ -31,6 +31,9 @@ urlpatterns = [
     # Traffic
     url(r'^traffic/', include('traffic.urls')),
 
+    # Air Quality
+    url(r'^aq/', include('tfc_web.urls_aq')),
+
     # Zones
     url(r'^zones/$', views.zones_list, name='zones-list'),
     url(r'^zone/(?P<zone_id>\w+)/$', views.zone, name='zone'),
