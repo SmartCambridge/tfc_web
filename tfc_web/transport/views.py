@@ -2,9 +2,9 @@ import codecs
 import requests
 import json
 from urllib.request import urlopen
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
-from tfc_web.settings import API_ENDPOINT
 from transport.models import Stop, Line, Route, VehicleJourney
 from vix.models import Route as VixRoute, Stop as VixStop
 
@@ -31,7 +31,7 @@ def busdata_json(request):
     else:
         boundaries_enabled = False
 
-    bus_data = requests.get(API_ENDPOINT+'/backdoor/dataserver/raw/file/monitor_json/post_data.json').json()
+    bus_data = requests.get(settings.API_ENDPOINT+'/backdoor/dataserver/raw/file/monitor_json/post_data.json').json()
     if boundaries_enabled:
         for index, bus in enumerate(bus_data['entities']):
             if north > bus['latitude'] > south and west < bus['longitude'] < east:
@@ -87,14 +87,14 @@ def bus_route_timetable(request, bus_route_id):
 def zones_list(request):
     reader = codecs.getreader("utf-8")
     zones = json.load(reader(urlopen(
-        API_ENDPOINT+'/api/dataserver/zone/list')))['request_data']['zone_list']
+        settings.API_ENDPOINT+'/api/dataserver/zone/list')))['request_data']['zone_list']
     return render(request, 'zones.html', {'zones': zones})
 
 
 def zone(request, zone_id):
     reader = codecs.getreader("utf-8")
     zone = json.load(reader(urlopen(
-        API_ENDPOINT+'/api/dataserver/zone/config/%s' % zone_id)))['request_data']['options']['config']
+        settings.API_ENDPOINT+'/api/dataserver/zone/config/%s' % zone_id)))['request_data']['options']['config']
     zone['name'] = zone['zone.name']
     zone['center'] = zone['zone.center']
     zone['zoom'] = zone['zone.zoom']

@@ -2,8 +2,9 @@ import codecs
 import json
 from datetime import date
 from urllib.request import urlopen
+from django.conf import settings
 from django.shortcuts import render
-from tfc_web.settings import API_ENDPOINT
+
 
 #############################################################################
 ########   traffic/zone/transit_plot/<zone_id>?date=YYYY-MM-DD  #############
@@ -24,14 +25,14 @@ def zone_transit_plot(request, zone_id):
     reader = codecs.getreader("utf-8")
     try:
         transit_json = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/zone/transits/'+zone_id+'?date='+yyyy+'-'+MM+'-'+dd
+            settings.API_ENDPOINT+'/api/dataserver/zone/transits/'+zone_id+'?date='+yyyy+'-'+MM+'-'+dd
         )))
     except:
         transit_json = None
 
     try:
         zone_config = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
+            settings.API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
         )))
     except:
         zone_config = None
@@ -57,7 +58,7 @@ def zones_map(request):
     reader = codecs.getreader("utf-8")
     try:
         zone_list = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/zone/list'
+            settings.API_ENDPOINT+'/api/dataserver/zone/list'
         )))
     except:
         zone_list = None
@@ -76,7 +77,7 @@ def zone_map(request, zone_id):
     reader = codecs.getreader("utf-8")
     try:
         zone_config = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
+            settings.API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
         )))
     except:
         zone_config = None

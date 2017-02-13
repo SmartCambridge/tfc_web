@@ -2,8 +2,8 @@ import codecs
 import json
 from datetime import date, timedelta, datetime
 from urllib.request import urlopen
+from django.conf import settings
 from django.shortcuts import render
-from tfc_web.settings import API_ENDPOINT
 
 
 #############################################################################
@@ -44,14 +44,14 @@ def parking_plot(request, parking_id):
             this_DD   = this_date[8:10]
 
             parking_json.append( json.load(reader(urlopen(
-                API_ENDPOINT+'/api/dataserver/parking/occupancy/'+parking_id+'?date='+this_YYYY+'-'+this_MM+'-'+this_DD
+                settings.API_ENDPOINT+'/api/dataserver/parking/occupancy/'+parking_id+'?date='+this_YYYY+'-'+this_MM+'-'+this_DD
             ))))
         except:
             pass
 
     try:
         parking_config = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/parking/config/'+parking_id
+            settings.API_ENDPOINT+'/api/dataserver/parking/config/'+parking_id
         )))
     except:
         parking_config = None
@@ -81,7 +81,7 @@ def parking_map(request):
     reader = codecs.getreader("utf-8")
     try:
         parking_list = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/parking/list'
+            settings.API_ENDPOINT+'/api/dataserver/parking/list'
         )))
     except:
         parking_list = None
@@ -89,7 +89,7 @@ def parking_map(request):
     try:
         # //debug hardcoded cam_park_rss into parking/map occupancy feed request
         parking_feed = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/feed/now/cam_park_rss'
+            settings.API_ENDPOINT+'/api/dataserver/feed/now/cam_park_rss'
         )))
     except:
         parking_feed = None
@@ -109,7 +109,7 @@ def parking_list(request):
     reader = codecs.getreader("utf-8")
     try:
         parking_list = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/parking/list'
+            settings.API_ENDPOINT+'/api/dataserver/parking/list'
         )))
     except:
         parking_list = None
@@ -117,7 +117,7 @@ def parking_list(request):
     try:
         # //debug hardcoded cam_park_rss into parking/map occupancy feed request
         parking_feed = json.load(reader(urlopen(
-            API_ENDPOINT+'/api/dataserver/feed/now/cam_park_rss'
+            settings.API_ENDPOINT+'/api/dataserver/feed/now/cam_park_rss'
         )))
     except:
         parking_feed = None
