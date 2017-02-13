@@ -6,7 +6,8 @@ from urllib.request import urlopen
 from django.http import JsonResponse
 from django.shortcuts import render
 
-API_URL = 'http://localhost/test/api/'
+# test on port 8099 with API_URL = 'http://localhost/test/api/'
+API_URL = 'http://localhost/api/'
 
 #############################################################################
 ########   AQ HOMEPAGE                                #######################
