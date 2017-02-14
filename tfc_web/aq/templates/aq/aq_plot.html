@@ -109,9 +109,8 @@
     
 <script type="text/javascript">
 
-var AQ_PLOT_URL = "/web/aq/plot/";
-var AQ_MAP_URL = "/web/aq/map";
-var AQ_LIST_URL = "/web/aq/list";
+var AQ_MAP_URL = "{% url 'aq_map' %}";
+var AQ_LIST_URL = "{% url 'aq_list' %}";
 
 //********************************************************************************
 //***********  LOAD VARS FROM SERVER    ******************************************
@@ -336,7 +335,7 @@ function add_button(el, STATION_ID, button_sensor_type)
     button.className = button_style;
     button.appendChild(document.createTextNode(button_sensor_type));
     button.href = url_replace(location.search, 'sensor_type', button_sensor_type);
-    //AQ_PLOT_URL+STATION_ID+'?sensor_type='+button_sensor_type+'&priordays=1,7';
+
     el.appendChild(button);
 }    
 
