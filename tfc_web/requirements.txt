@@ -2,3 +2,5 @@ Django>=1.8,<1.9
 requests
 whitenoise
 xmltodict
+psycopg2
+gunicorn
