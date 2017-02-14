@@ -35,9 +35,9 @@
         <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
             <div class="header mdl-layout__header mdl-layout__header--waterfall">
                 <div class="mdl-layout__header-row">
-                    <span class="title mdl-layout-title">
-                        <a href="{% url 'home' %}"><img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}"></a>
-                      {% block page_title %}{% endblock %}
+                    <span class="title mdl-layout-title" style="display: inline-block;">
+                        <a href="{% url 'home' %}" class="shared-block-inline"><img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}"></a>
+                        <p class="mdl-typography--headline shared-block-inline">{% block page_title %}{% endblock %}</p>
                     </span>
                     <!-- Add spacer, to align navigation to the right in desktop -->
                     <div class="mdl-layout-spacer"></div>
@@ -62,7 +62,7 @@
                     </div>....
                     <span class="mobile-title mdl-layout-title">
                         <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
-                        {% block mobile_title %}{% endblock %}
+                        <p class="mdl-typography--headline shared-block-inline">{% block mobile_title %}{% endblock %}</p>
                     </span>
 {#                    <!-- Extra right menu -->#}
 {#                    <button class="more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="more-button">#}

@@ -9,44 +9,15 @@
 {% endblock %}
 
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <!-- load the d3 library for the chart plot -->
     <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
-    <style>
-        .demo-card-square.mdl-card {
-            width: 320px;
-            height: 240px;
-            float: left;
-            margin: 1rem;
-            position: relative;
-        }
-
-        .demo-card-square.mdl-card:hover {
-            box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
-        }
-
-        .demo-card-square > .mdl-card__title {
-            color: #fff;
-            background: #03a9f4;
-        }
-
-        .demo-card-square > .mdl-card__accent {
-            background: #ff9800;
-        }
-
-        .pie {
-            position: absolute;
-            top: 0px;
-            left: 0px;
-        }
-
-    </style>
 {% endblock %}
 
 {% block content %}
     <!-- PAGE CONTENT IS JUST THIS DIV TO HOLD CARDS -->
-    <div id='parking_cards'></div>
+    <div class="cards-section">
+        <div id="parking_cards" class="card-list-container mdl-grid"></div>
+    </div>
 
     <script>
 
@@ -54,7 +25,7 @@
 
         var parking_cards = document.getElementById('parking_cards');
 
-        var pie_width = 150,
+        var pie_width = 100,
             pie_height = 100,
             pie_radius = Math.min(pie_width, pie_height) / 2;
 
@@ -102,14 +73,14 @@
 
             // create card div
             var card = document.createElement('div');
-            card.className = 'mdl-card mdl-shadow--2dp demo-card-square';
+            card.className = 'mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp list-card-square';
 
             // create card__title div
             var title = document.createElement('div');
             title.className = 'mdl-card__title mdl-card--expand';
             title.id = parking_id + '_title';
             var title_text = document.createElement('h2');
-            title_text.className = 'mdl-card__title-text';
+            title_text.className = 'mdl-card__title-text mdl-card__title-text-half';
             title_text.appendChild(document.createTextNode(parking_name));
             title.appendChild(title_text);
             card.appendChild(title);
@@ -127,8 +98,8 @@
             actions.className = 'mdl-card__actions mdl-card--border';
             var button = document.createElement('a');
             button.className = 'aqua-link mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect';
-            button.appendChild(document.createTextNode('View'));
-            button.href = "{% url 'parking_plot' parking_id='Q4179568' %}".replace('Q4179568',parking_id) + '?priordays=1,7';
+            button.innerHTML = 'View <i class="material-icons">chevron_right</i>';
+            button.href = "{% url 'parking_plot' parking_id='Q4179568' %}".replace('Q4179568', parking_id) + '?priordays=1,7';
             actions.appendChild(button);
             card.appendChild(actions);
 
@@ -139,6 +110,8 @@
             // add donut chart to this card on page
             // ************************************
             var svg = d3.select('#' + parking_id + '_title')
+                .insert('div')
+                .attr('class', 'pie')
                 .insert('svg')
                 .attr('class', 'pie')
                 .attr("width", pie_width)
