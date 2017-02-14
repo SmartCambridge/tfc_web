@@ -257,7 +257,7 @@ title {
 }
 
 .sensor-button {
-    background-color: #01b2b6;
+    background-color: #01b2b6 !important;
     padding: 3px;
     min-width: 10px;
     line-height: 20px;
