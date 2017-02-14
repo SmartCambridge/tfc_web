@@ -1,28 +1,29 @@
 {% extends "template.html" %}
 {% load static %}
 {% block content %}
-        <div class="header">
-            <img class="left_logo" src="images/logo_sc_112.png">
-            <a href="http://www.gccitydeal.co.uk/citydeal/smart"><img class="right_logo" src="images/logo_gccd_112.png"></a>
-        </div>
-
-        <div>
-            <p>The Smart Cambridge team is working together with a wide range of technology businesses to
-            provide a 'digital' platform to support the transport infrastructure investments
-            taking place in our region. This work is supported by the Connecting Cambridgeshire
-            and Greater Cambridge City Deal partnerships, and this website is where the technology
-            will emerge.</p>
-            <p>
-                More information about the Smart Cambridge programme can be found on
-                <a href="http://www.connectingcambridgeshire.co.uk/smartcamb/">the Connecting Cambridgeshire website</a>.
-            </p>
+        <div class="presentation-band">
+            <div class="presentation-band-text">
+                <div class="mdl-typography--display-2 mdl-typography--font-thin">Smart Cambridge</div>
+                <p class="mdl-typography--subhead mdl-typography--font-thin">
+                    The Smart Cambridge team is working together with a wide range of technology businesses to
+                    provide a 'digital' platform to support the transport infrastructure investments
+                    taking place in our region. This work is supported by the Connecting Cambridgeshire
+                    and Greater Cambridge City Deal partnerships, and this website is where the technology
+                    will emerge.
+                </p>
+                <p>
+                <a class="mdl-typography--font-regular mdl-typography--text-uppercase aqua-alt-link" href="http://www.connectingcambridgeshire.co.uk/smartcamb/">
+                    Visit Connecting Cambridgeshire website for more information&nbsp;<i class="material-icons">chevron_right</i>
+                </a>
+                </p>
+            </div>
         </div>
 
         <div class="cards-section">
             <div class="card-container mdl-grid">
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
-                        <img src="/images/photos/trumpington_pr2.jpg">
+                        <img src="{% static 'images/home/buses.jpg' %}">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Buses</h4>
@@ -39,7 +40,7 @@
                 </div>
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
-                        <img src="/images/photos/traffic.jpg">
+                        <img src="{% static 'images/home/traffic.jpg' %}">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Traffic</h4>
@@ -57,7 +58,7 @@
 
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
-                        <img src="/images/photos/miltonparkandride.jpg">
+                        <img src="{% static 'images/home/parking.jpg' %}">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Car Parking</h4>
@@ -75,7 +76,7 @@
 
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
-                        <img src="/images/photos/aq_640x413.jpg">
+                        <img src="{% static 'images/home/airquality.jpg' %}">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Air Quality</h4>
@@ -94,7 +95,7 @@
 
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
-                        <img src="/images/sc_640x426.png">
+                        <img src="{% static 'images/home/logo.jpg' %}">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">About</h4>
