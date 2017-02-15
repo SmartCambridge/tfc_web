@@ -34,7 +34,10 @@
             {
                 console.log(spaces_capacity, spaces_free, i)
                 // nearly full = red, otherwise green
-                if (spaces_free / spaces_capacity < 0.2) {
+                usage = spaces_free / spaces_capacity
+                if ((usage > 0.15) && (usage < 0.30)) {
+                    return '#d6c901'; // yellow
+                } else if (usage < 0.15) {
                     return '#d62728'; // red
                 } else {
                     return '#2ca02c'; // green
