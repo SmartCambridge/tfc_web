@@ -19,8 +19,10 @@ from transport import views
 
 
 urlpatterns = [
+    # Main pages
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', TemplateView.as_view(template_name="index.html"), name='home'),
+    url(r'^about$', TemplateView.as_view(template_name="about.html"), name='about'),
 
     # Transport (Buses and others)
     url(r'^transport/', include('transport.urls')),
