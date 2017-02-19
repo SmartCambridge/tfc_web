@@ -1,13 +1,18 @@
-import zipfile
 import re
 import xmltodict
+import zipfile
 from datetime import timedelta
+from io import BytesIO
+from urllib.request import urlopen
 from django.core.management.base import NoArgsCommand
 from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
     JourneyPatternTimingLink
+from tfc_web import secrets
+
 
 xml_timedelta_regex = re.compile('(?P<sign>-?)P(?:(?P<years>\d+)Y)?(?:(?P<months>\d+)M)?(?:(?P<days>\d+)D)?'
                                  '(?:T(?:(?P<hours>\d+)H)?(?:(?P<minutes>\d+)M)?(?:(?P<seconds>\d+[.]‌​?\d*)S)?)?')
+
 
 def xml_timedelta_to_python(xml_timedelta):
     # Fetch the match groups with default value of 0 (not None)
@@ -28,13 +33,10 @@ def xml_timedelta_to_python(xml_timedelta):
 class Command(NoArgsCommand):
     help = "Updates bus data from zip file containing the XML files from TravelLine website"
 
-    def add_arguments(self, parser):
-        parser.add_argument('zip_file_path')
-
-    def handle(self, *args, **options):
-        traveline_zip_file = zipfile.ZipFile(options['zip_file_path'])
-        files_list = traveline_zip_file.namelist()
-        for filename in files_list:
+    def handle_noargs(self, **options):
+        traveline_zip_file = zipfile.ZipFile(BytesIO(urlopen('ftp://%s:%s@ftp.tnds.basemap.co.uk/EA.zip' %
+                                                             (secrets.TNDS_USERNAME, secrets.TNDS_PASSWORD)).read()))
+        for filename in traveline_zip_file.namelist():
             with traveline_zip_file.open(filename) as xml_file:
                 content = xmltodict.parse(xml_file)
 
