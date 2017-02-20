@@ -1,5 +1,5 @@
 from django.contrib import admin
-from gis.models import Area
+from tfc_gis.models import Area
 
 
 @admin.register(Area)
