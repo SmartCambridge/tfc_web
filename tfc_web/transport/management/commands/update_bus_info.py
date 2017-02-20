@@ -5,9 +5,9 @@ from datetime import timedelta
 from io import BytesIO
 from urllib.request import urlopen
 from django.core.management.base import NoArgsCommand
+from django.conf import settings
 from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
     JourneyPatternTimingLink
-from tfc_web import secrets
 
 
 xml_timedelta_regex = re.compile('(?P<sign>-?)P(?:(?P<years>\d+)Y)?(?:(?P<months>\d+)M)?(?:(?P<days>\d+)D)?'
@@ -35,7 +35,7 @@ class Command(NoArgsCommand):
 
     def handle_noargs(self, **options):
         traveline_zip_file = zipfile.ZipFile(BytesIO(urlopen('ftp://%s:%s@ftp.tnds.basemap.co.uk/EA.zip' %
-                                                             (secrets.TNDS_USERNAME, secrets.TNDS_PASSWORD)).read()))
+                                                             (settings.TNDS_USERNAME, settings.TNDS_PASSWORD)).read()))
         for filename in traveline_zip_file.namelist():
             with traveline_zip_file.open(filename) as xml_file:
                 content = xmltodict.parse(xml_file)
@@ -57,7 +57,12 @@ class Command(NoArgsCommand):
                         'description': service['Description'],
                         'operator': bus_operator,
                         'standard_origin': service['StandardService']['Origin'],
-                        'standard_destination': service['StandardService']['Destination']
+                        'standard_destination': service['StandardService']['Destination'],
+                        'start_date': service['OperatingPeriod']['StartDate'],
+                        'end_date': service['OperatingPeriod']['EndDate'],
+                        'regular_days_of_week': list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys()),
+                        'bank_holiday_operation': list(service['OperatingProfile']['BankHolidayOperation']['DaysOfNonOperation'].keys())
+                        if 'BankHolidayOperation' in service['OperatingProfile'] else None
                     })
 
                     # Routes
@@ -128,13 +133,20 @@ class Command(NoArgsCommand):
                     if journeys.__class__ is not list:
                         journeys = list([journeys])
                     for journey in journeys:
-                        # try:
+                        if 'OperatingProfile' not in journey:
+                            days_of_week = None
+                        elif 'DaysOfWeek' in journey['OperatingProfile']['RegularDayType']:
+                            days_of_week = list(journey['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
+                        elif 'HolidaysOnly' in journey['OperatingProfile']['RegularDayType']:
+                            days_of_week = "HolidaysOnly"
+                            # TODO Store which days
+                        else:
+                            days_of_week = None
+                            print(journey)
                         VehicleJourney.objects.update_or_create(id=journey['PrivateCode'], defaults={
                             'journey_pattern': JourneyPattern.objects.get(id=journey['JourneyPatternRef']),
                             'departure_time': journey['DepartureTime'],
-                            # 'days_of_week': list(journey['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())[0]
+                            'days_of_week': days_of_week
                         })
-                        # except:
-                        #     print(journey)
 
                 xml_file.close()

@@ -74,6 +74,10 @@ class Line(models.Model):
     operator = models.ForeignKey(Operator, related_name="lines")
     standard_origin = models.CharField(max_length=255)
     standard_destination = models.CharField(max_length=255)
+    regular_days_of_week = models.CharField(max_length=255, null=True)
+    bank_holiday_operation = models.CharField(max_length=255, null=True)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
 
     def get_all_vehicle_journeys(self):
         journeys = []
