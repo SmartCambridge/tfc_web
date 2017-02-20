@@ -3,7 +3,7 @@ from tfc_web.secrets import DATABASE_PASSWORD
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'tfcweb',
         'USER': 'tfcwebuser',
         'PASSWORD': DATABASE_PASSWORD,
