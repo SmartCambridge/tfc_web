@@ -121,7 +121,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-API_ENDPOINT = 'http://localhost'
+API_ENDPOINT = 'http://tfc-app2.cl.cam.ac.uk'
 
 # Web proxy
 
