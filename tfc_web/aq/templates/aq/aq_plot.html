@@ -200,15 +200,18 @@ function init()
         // ********** ONLY IN FRAME MODE ADD SENSOR BUTTONS  ****
         // ******************************************************
 
-        var buttons_el = document.getElementById("page_buttons");
+        var header_div = document.getElementsByClassName("header")[0];
+        var tab_div = document.createElement('div');
+        tab_div.className = 'mdl-layout__tab-bar mdl-js-ripple-effect';
+        header_div.appendChild(tab_div);
 
-        add_breadcrumb(buttons_el, 'MAP', AQ_MAP_URL);
-        add_breadcrumb(buttons_el, 'LIST', AQ_LIST_URL);
+        add_breadcrumb(tab_div, 'MAP', AQ_MAP_URL);
+        add_breadcrumb(tab_div, 'LIST', AQ_LIST_URL);
 
         var sensor_types = STATION_CONFIG.request_data.SensorTypes;
         for ( var i=0; i<sensor_types.length; i++ )
         {
-            add_button(buttons_el, STATION_ID, sensor_types[i]);
+            add_button(tab_div, STATION_ID, sensor_types[i]);
         }
     }
     // embed station name into page
@@ -327,10 +330,10 @@ function last_record()
 function add_button(el, STATION_ID, button_sensor_type)
 {
     var button = document.createElement('a');
-    var button_style = 'mdl-button mdl-js-button mdl-button--raised mdl-button--colored plot-sensor-button';
+    var button_style = 'mdl-layout__tab';
     if (button_sensor_type==SENSOR_TYPE)
     {
-        button_style = 'mdl-button mdl-js-button mdl-button--raised mdl-button--accent plot-sensor-button';
+        button_style = 'mdl-layout__tab is-active';
     }
     button.className = button_style;
     button.appendChild(document.createTextNode(button_sensor_type));
@@ -342,7 +345,7 @@ function add_button(el, STATION_ID, button_sensor_type)
 function add_breadcrumb(el, text, url)
 {
     var button = document.createElement('a');
-    button.className = 'mdl-button mdl-js-button mdl-button--raised mdl-button--colored plot-sensor-button';
+    button.className = 'mdl-layout__tab';
     button.appendChild(document.createTextNode(text));
     button.href = url;
     el.appendChild(button);

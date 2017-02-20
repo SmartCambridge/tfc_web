@@ -346,6 +346,26 @@ footer .mdl-mega-footer--right-section a .material-icons {
     top: 6px;
 }
 
+.mdl-layout__tab-bar-button {
+    background: white;
+}
+
+.mdl-layout__tab-bar {
+    background: white;
+}
+
+.mdl-layout__tab-bar .mdl-layout__tab {
+    color: black;
+}
+
+.mdl-layout.is-upgraded .mdl-layout__tab.is-active {
+    color: #005851;
+}
+
+.mdl-layout.is-upgraded .mdl-layout__tab.is-active::after {
+    background-color: #1cb2b5;
+}
+
 
 /**** Mobile layout ****/
 @media (max-width: 900px) {
