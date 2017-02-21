@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -61,10 +61,9 @@ class Stop(models.Model):
         return "%s, %s %s" % (self.locality_name, self.indicator, self.common_name)
 
 
-@receiver(post_save, sender=Stop)
+@receiver(pre_save, sender=Stop)
 def update_gis_fields(sender, instance, **kwargs):
-    instance.gis_location = Point(instance.longitude, instance.latitude)
-    instance.save()
+    instance.gis_location = Point(float(instance.longitude), float(instance.latitude))
 
 
 class Operator(models.Model):
