@@ -38,7 +38,7 @@ class Stop(models.Model):
     northing = models.IntegerField()
     longitude = models.FloatField()
     latitude = models.FloatField()
-    gis_location = models.PointField()
+    gis_location = models.PointField(null=True)
     stop_type = models.CharField(max_length=3)
     bus_stop_type = models.CharField(max_length=3)
     timing_status = models.CharField(max_length=3)
