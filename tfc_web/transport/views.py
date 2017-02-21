@@ -4,7 +4,7 @@ import json
 from urllib.request import urlopen
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney
 from vix.models import Route as VixRoute, Stop as VixStop
@@ -74,8 +74,13 @@ def bus_route_timetable_map(request, journey_id):
     return render(request, 'bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
 
-def bus_stops_list(request):
-    return render(request, 'bus_stops_list.html', {'bus_stops': Stop.objects.all()})
+def bus_stops_list(request, area_id=None):
+    if area_id:
+        area = get_object_or_404(Area, id=area_id)
+        bus_stops = Stop.objects.filter(gis_location__contained=area.poly)
+    else:
+        bus_stops = Stop.objects.all()
+    return render(request, 'bus_stops_list.html', {'bus_stops': bus_stops})
 
 
 def bus_stop(request, bus_stop_id):
