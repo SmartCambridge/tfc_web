@@ -36,6 +36,7 @@ urlpatterns = [
 
     # Bus Lines
     url(r'^lines/$', views.bus_lines_list, name='bus-lines-list'),
+    url(r'^lines/area/(?P<area_id>\d+)/$', views.bus_lines_list, name='bus-lines-list-area'),
     url(r'^line/(?P<bus_line_id>.+)/$', views.bus_line, name='bus-line'),
 
     # Bus Routes

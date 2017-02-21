@@ -3,6 +3,7 @@ import requests
 import json
 from urllib.request import urlopen
 from django.conf import settings
+from django.contrib.gis.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from tfc_gis.models import Area
@@ -58,8 +59,16 @@ def busdata_json(request):
     return JsonResponse(bus_data)
 
 
-def bus_lines_list(request):
-    return render(request, 'bus_lines_list.html', {'bus_lines': Line.objects.all().order_by('line_name')})
+def bus_lines_list(request, area_id=None):
+    if area_id:
+        area = get_object_or_404(Area, id=area_id)
+        bus_lines = Line.objects.filter(
+            Q(routes__journey_patterns__section__timing_links__stop_from__gis_location__contained=area.poly) |
+            Q(routes__journey_patterns__section__timing_links__stop_to__gis_location__contained=area.poly))\
+            .order_by('line_name')
+    else:
+        bus_lines = Line.objects.all().order_by('line_name')
+    return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
 
 
 def bus_line(request, bus_line_id):
