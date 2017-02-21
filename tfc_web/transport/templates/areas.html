@@ -11,8 +11,10 @@
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">{{ area.name }}</h4>
                     </div>
+                    <div class="mdl-card__supporting-text">
+                    </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'bus-map' %}">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'transport-area-home' area.id %}">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
