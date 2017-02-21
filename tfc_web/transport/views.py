@@ -33,11 +33,11 @@ def busdata_json(request):
 
     bus_data = requests.get(settings.API_ENDPOINT+'/api/dataserver/feed/now/vix').json()
     if boundaries_enabled:
-        for index, bus in enumerate(bus_data['entities']):
+        for index, bus in enumerate(bus_data['request_data']['entities']):
             if north > bus['latitude'] > south and west < bus['longitude'] < east:
                 bus_list += [bus]
         bus_data['entities'] = bus_list
-    for index, bus in enumerate(bus_data['entities']):
+    for index, bus in enumerate(bus_data['request_data']['entities']):
         if 'stop_id' in bus:
             stop = VixStop.objects.filter(id=bus['stop_id'])
             if stop:
