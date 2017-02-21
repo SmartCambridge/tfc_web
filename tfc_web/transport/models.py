@@ -1,5 +1,8 @@
 import datetime
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 
 
@@ -35,6 +38,7 @@ class Stop(models.Model):
     northing = models.IntegerField()
     longitude = models.FloatField()
     latitude = models.FloatField()
+    gis_location = models.PointField()
     stop_type = models.CharField(max_length=3)
     bus_stop_type = models.CharField(max_length=3)
     timing_status = models.CharField(max_length=3)
@@ -47,6 +51,7 @@ class Stop(models.Model):
     revision_number = models.IntegerField()
     modification = models.CharField(max_length=3)
     status = models.CharField(max_length=3)
+    objects = models.GeoManager()
 
     def get_coordinates(self):
         return [self.latitude, self.longitude]
@@ -54,6 +59,12 @@ class Stop(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         return "%s, %s %s" % (self.locality_name, self.indicator, self.common_name)
+
+
+@receiver(post_save, sender=Stop)
+def update_gis_fields(sender, instance, **kwargs):
+    instance.gis_location = Point(instance.longitude, instance.latitude)
+    instance.save()
 
 
 class Operator(models.Model):
