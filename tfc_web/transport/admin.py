@@ -1,5 +1,5 @@
-from django.contrib import admin
-from django.contrib.admin import ModelAdmin
+from django.contrib.gis import admin
+from django.contrib.gis.admin import ModelAdmin
 from transport.models import Line, Stop, Operator, Route, VehicleJourney, JourneyPatternSection, \
     JourneyPattern
 
