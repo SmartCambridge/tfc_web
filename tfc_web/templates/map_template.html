@@ -54,8 +54,8 @@
                 complete: function (data) {
                     var json = JSON.parse(data.responseText);
                     info_map.update(new Date(json["timestamp"]*1000));
-                    for (var i = 0; i < json['entities'].length; i++) {
-                        var bus = json['entities'][i];
+                    for (var i = 0; i < json['request_data']['entities'].length; i++) {
+                        var bus = json['request_data']['entities'][i];
                         existing_bus_index = buses.findIndex(b => b['vehicle_id'] === bus['vehicle_id']);
                         if (existing_bus_index > -1){
                             // Bus with vehicle_id already in the exisitng buses list

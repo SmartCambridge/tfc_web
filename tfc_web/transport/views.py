@@ -36,16 +36,16 @@ def busdata_json(request):
         for index, bus in enumerate(bus_data['request_data']['entities']):
             if north > bus['latitude'] > south and west < bus['longitude'] < east:
                 bus_list += [bus]
-        bus_data['entities'] = bus_list
+        bus_data['request_data']['entities'] = bus_list
     for index, bus in enumerate(bus_data['request_data']['entities']):
         if 'stop_id' in bus:
             stop = VixStop.objects.filter(id=bus['stop_id'])
             if stop:
-                bus_data['entities'][index]['stop'] = stop.values("code", "name")[0]
+                bus_data['request_data']['entities'][index]['stop'] = stop.values("code", "name")[0]
         if 'route_id' in bus:
             route = VixRoute.objects.filter(id=bus['route_id'])
             if route:
-                bus_data['entities'][index]['route'] = route.values("long_name", "short_name", "agency__name")[0]
+                bus_data['request_data']['entities'][index]['route'] = route.values("long_name", "short_name", "agency__name")[0]
     return JsonResponse(bus_data)
 
 
