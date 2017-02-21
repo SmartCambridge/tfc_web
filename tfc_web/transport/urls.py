@@ -20,6 +20,10 @@ from transport import views
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name="home.html"), name='bus-home'),
 
+    # Areas
+    url(r'^areas/$', views.areas, name='transport-areas'),
+    url(r'^area/(?P<area_id>\d+)/$', views.area_home, name='transport-area-home'),
+
     # Bus movements
     url(r'^map/$', views.bus_map, name='bus-map'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),

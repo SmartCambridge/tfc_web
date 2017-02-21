@@ -5,8 +5,17 @@ from urllib.request import urlopen
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
+from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney
 from vix.models import Route as VixRoute, Stop as VixStop
+
+
+def areas(request):
+    return render(request, 'areas.html', {'areas': Area.objects.all()})
+
+
+def area_home(request, area_id):
+    return render(request, 'area-home.html', {'area': Area.objects.get(id=area_id)})
 
 
 def bus_map(request):
