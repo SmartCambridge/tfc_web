@@ -5,4 +5,5 @@ class Area(models.Model):
     name = models.CharField(max_length=100)
     poly = models.PolygonField()
     objects = models.GeoManager()
-    image = models.ImageField()
+    image = models.ImageField(null=True, blank=True)
+
