@@ -91,12 +91,7 @@ class Line(models.Model):
     rendered_timetable = models.TextField(null=True, blank=True)
 
     def get_all_vehicle_journeys(self):
-        journeys = []
-        for route in self.routes.all():
-            for jp in route.journey_patterns.all():
-                for journey in jp.journeys.all():
-                    journeys.append(journey)
-        return journeys
+        return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
 
     @python_2_unicode_compatible
     def __str__(self):
