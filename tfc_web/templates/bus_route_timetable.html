@@ -18,7 +18,7 @@
               <tbody>
                 {% for journey in journeys %}
                     <tr>
-                        <td>{% journey.days_of_week %}</td>
+                        <td>{{ journey.days_of_week }}</td>
                         {% for timetable in journey.get_timetable %}
                             <td class="mdl-data-table__cell--non-numeric">{{ timetable.time }}</td>
                         {% endfor %}

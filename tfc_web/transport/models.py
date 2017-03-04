@@ -104,6 +104,9 @@ class Route(models.Model):
     line = models.ForeignKey(Line, related_name='routes')
     stops_list = models.TextField()
 
+    def get_all_vehicle_journeys(self):
+        return VehicleJourney.objects.filter(journey_pattern__route=self).order_by('departure_time')
+
     def get_stops_list(self):
         bus_stops = []
         for stop in self.stops_list.split(','):

@@ -6,11 +6,30 @@
     {% for route in bus_line.routes.all %}
         <p>
             <h4>{{ route.description }}</h4>
-            {% for stop in route.get_stops_list %}
-                <a href="{% url 'bus-stop' stop.atco_code %}">{{ stop }}</a> -
-            {% endfor %}
-            <h5><a href="{% url 'bus-route-map' route.id %}">View in Map</a></h5>
-            <h6><a href="{% url 'bus-route-timetable' route.id %}">View Timetable</a></h6>
+            <p><a href="{% url 'bus-route-map' route.id %}">View in Map</a></p>
+
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                  <thead>
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric"></th>
+                        {% for stop in route.get_stops_list %}
+                            <th class="mdl-data-table__cell--non-numeric"><a href="{% url 'bus-stop' stop.atco_code %}">{{ stop }}</a></th>
+                        {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for journey in route.get_all_vehicle_journeys %}
+                        <tr>
+                            <td>{{ journey.days_of_week }}</td>
+                            {% for timetable in journey.get_timetable %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ timetable.time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
         </p>
     {% endfor %}
 {% endblock %}
