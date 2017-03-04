@@ -7,7 +7,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 
 class Stop(models.Model):
-    atco_code = models.CharField(max_length=12, unique=True, primary_key=True)
+    atco_code = models.CharField(max_length=12, unique=True, primary_key=True, db_index=True)
     naptan_code = models.CharField(max_length=12)
     plate_code = models.CharField(max_length=10)
     cleardown_code = models.CharField(max_length=10)
@@ -78,7 +78,7 @@ class Operator(models.Model):
 
 
 class Line(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=255, primary_key=True, db_index=True)
     line_name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     operator = models.ForeignKey(Operator, related_name="lines")
@@ -103,7 +103,7 @@ class Line(models.Model):
 
 
 class Route(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=255, primary_key=True, db_index=True)
     description = models.CharField(max_length=255)
     line = models.ForeignKey(Line, related_name='routes')
     stops_list = models.TextField()
@@ -126,7 +126,7 @@ class Route(models.Model):
 
 
 class JourneyPatternSection(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=255, primary_key=True, db_index=True)
 
     def get_stops_list(self):
         bus_stops = []
@@ -142,7 +142,7 @@ class JourneyPatternSection(models.Model):
 
 
 class JourneyPatternTimingLink(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=255, primary_key=True, db_index=True)
     stop_from = models.ForeignKey(Stop, related_name='departure_journeys')
     stop_from_timing_status = models.CharField(max_length=3)
     stop_from_sequence_number = models.IntegerField()
@@ -159,7 +159,7 @@ class JourneyPatternTimingLink(models.Model):
 
 
 class JourneyPattern(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=255, primary_key=True, db_index=True)
     route = models.ForeignKey(Route, related_name='journey_patterns')
     direction = models.CharField(max_length=100)
     section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns')
@@ -173,7 +173,7 @@ class JourneyPattern(models.Model):
 
 
 class VehicleJourney(models.Model):
-    id = models.CharField(max_length=255, primary_key=True)
+    id = models.CharField(max_length=255, primary_key=True, db_index=True)
     journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
     departure_time = models.CharField(max_length=20)
     days_of_week = models.CharField(max_length=100, null=True)
