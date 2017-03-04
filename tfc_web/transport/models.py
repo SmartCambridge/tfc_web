@@ -88,6 +88,7 @@ class Line(models.Model):
     bank_holiday_operation = models.CharField(max_length=255, null=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
+    rendered_timetable = models.TextField(null=True, blank=True)
 
     def get_all_vehicle_journeys(self):
         journeys = []
