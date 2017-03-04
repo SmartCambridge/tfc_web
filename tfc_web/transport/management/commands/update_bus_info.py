@@ -2,9 +2,10 @@ import re
 import xmltodict
 import zipfile
 from datetime import timedelta
+
+from django.core.management import BaseCommand
 from io import BytesIO
 from urllib.request import urlopen
-from django.core.management.base import NoArgsCommand
 from django.conf import settings
 from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
     JourneyPatternTimingLink
@@ -30,7 +31,7 @@ def xml_timedelta_to_python(xml_timedelta):
     return delta
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "Updates bus data from zip file containing the XML files from TravelLine website"
 
     def handle_noargs(self, **options):
