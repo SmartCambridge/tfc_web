@@ -6,7 +6,7 @@
             {% for area in areas %}
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
-                        <img src="{% if area.image %}{{ area.image }}{% else %}{% static 'images/area.jpg' %}{% endif %}">
+                        <img src="{% if area.image %}{{ area.image.url }}{% else %}{% static 'images/area.jpg' %}{% endif %}">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">{{ area.name }}</h4>
