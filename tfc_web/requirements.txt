@@ -4,3 +4,4 @@ whitenoise
 xmltodict
 psycopg2
 gunicorn
+Pillow

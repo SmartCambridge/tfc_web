@@ -8,7 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 class Stop(models.Model):
     atco_code = models.CharField(max_length=12, unique=True)
-    naptan_code = models.CharField(max_length=8)
+    naptan_code = models.CharField(max_length=12)
     plate_code = models.CharField(max_length=10)
     cleardown_code = models.CharField(max_length=10)
     common_name = models.CharField(max_length=64)
@@ -24,7 +24,7 @@ class Stop(models.Model):
     indicator = models.CharField(max_length=64)
     indicator_lang = models.CharField(max_length=2)
     bearing = models.CharField(max_length=2)
-    nptg_locality_code = models.CharField(max_length=8)
+    nptg_locality_code = models.CharField(max_length=12)
     locality_name = models.CharField(max_length=64)
     parent_locality_name = models.CharField(max_length=64)
     grand_parent_locality_name = models.CharField(max_length=64)
