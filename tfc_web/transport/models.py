@@ -1,6 +1,7 @@
 import datetime
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
+from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
@@ -176,8 +177,9 @@ class VehicleJourney(models.Model):
     journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
     departure_time = models.CharField(max_length=20)
     days_of_week = models.CharField(max_length=100, null=True)
+    timetable = JSONField(null=True, blank=True)
 
-    def get_timetable(self):
+    def generate_timetable(self):
         timetable = []
         departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
@@ -187,7 +189,8 @@ class VehicleJourney(models.Model):
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
         timetable.append({'time': departure_time.time(), 'stop': timing_links.last().stop_to})
-        return timetable
+        self.timetable = timetable
+        self.save()
 
     def get_timetable_stops(self):
         timetable = []

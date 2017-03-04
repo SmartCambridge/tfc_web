@@ -124,8 +124,8 @@ class Command(BaseCommand):
                         JourneyPattern.objects.update_or_create(id=journey_pattern['@id'],
                                                                 defaults=
                                                                 {'direction': journey_pattern['Direction'],
-                                                                 'route__id': journey_pattern['RouteRef'],
-                                                                 'section__id':
+                                                                 'route_id': journey_pattern['RouteRef'],
+                                                                 'section_id':
                                                                      journey_pattern['JourneyPatternSectionRefs']})
 
                     # Journey
@@ -144,9 +144,12 @@ class Command(BaseCommand):
                             days_of_week = None
                             print(journey)
                         VehicleJourney.objects.update_or_create(id=journey['PrivateCode'], defaults={
-                            'journey_pattern__id': journey['JourneyPatternRef'],
+                            'journey_pattern_id': journey['JourneyPatternRef'],
                             'departure_time': journey['DepartureTime'],
                             'days_of_week': days_of_week
                         })
 
                 xml_file.close()
+
+        for vehicle_journey in VehicleJourney.objects.all():
+            vehicle_journey.generate_timetable()

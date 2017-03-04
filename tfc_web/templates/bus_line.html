@@ -22,7 +22,7 @@
                     {% for journey in route.get_all_vehicle_journeys %}
                         <tr>
                             <td>{{ journey.days_of_week }}</td>
-                            {% for timetable in journey.get_timetable %}
+                            {% for timetable in journey.timetable %}
                                 <td class="mdl-data-table__cell--non-numeric">{{ timetable.time }}</td>
                             {% endfor %}
                         </tr>
