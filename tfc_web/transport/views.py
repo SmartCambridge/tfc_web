@@ -65,7 +65,7 @@ def bus_lines_list(request, area_id=None):
         bus_lines = Line.objects.filter(
             Q(routes__journey_patterns__section__timing_links__stop_from__gis_location__contained=area.poly) |
             Q(routes__journey_patterns__section__timing_links__stop_to__gis_location__contained=area.poly))\
-            .order_by('line_name')
+            .order_by('line_name').distinct()
     else:
         bus_lines = Line.objects.all().order_by('line_name')
     return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
