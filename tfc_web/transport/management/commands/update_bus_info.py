@@ -34,7 +34,7 @@ def xml_timedelta_to_python(xml_timedelta):
 class Command(BaseCommand):
     help = "Updates bus data from zip file containing the XML files from TravelLine website"
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
         traveline_zip_file = zipfile.ZipFile(BytesIO(urlopen('ftp://%s:%s@ftp.tnds.basemap.co.uk/EA.zip' %
                                                              (settings.TNDS_USERNAME, settings.TNDS_PASSWORD)).read()))
         for filename in traveline_zip_file.namelist():
