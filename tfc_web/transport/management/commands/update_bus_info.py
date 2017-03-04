@@ -123,10 +123,9 @@ class Command(NoArgsCommand):
                         JourneyPattern.objects.update_or_create(id=journey_pattern['@id'],
                                                                 defaults=
                                                                 {'direction': journey_pattern['Direction'],
-                                                                 'route': Route.objects.get
-                                                                 (id=journey_pattern['RouteRef']),
-                                                                 'section': JourneyPatternSection.objects.get
-                                                                 (id=journey_pattern['JourneyPatternSectionRefs'])})
+                                                                 'route__id': journey_pattern['RouteRef'],
+                                                                 'section__id':
+                                                                     journey_pattern['JourneyPatternSectionRefs']})
 
                     # Journey
                     journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
@@ -144,7 +143,7 @@ class Command(NoArgsCommand):
                             days_of_week = None
                             print(journey)
                         VehicleJourney.objects.update_or_create(id=journey['PrivateCode'], defaults={
-                            'journey_pattern': JourneyPattern.objects.get(id=journey['JourneyPatternRef']),
+                            'journey_pattern__id': journey['JourneyPatternRef'],
                             'departure_time': journey['DepartureTime'],
                             'days_of_week': days_of_week
                         })

@@ -155,7 +155,7 @@ class JourneyPatternTimingLink(models.Model):
 
     @python_2_unicode_compatible
     def __str__(self):
-        return "%s - %s (%s)" % (self.stop_from, self.stop_to, self.runtime)
+        return "%s - %s (%s)" % (self.stop_from, self.stop_to, self.run_time)
 
 
 class JourneyPattern(models.Model):
