@@ -6,4 +6,3 @@ class Area(models.Model):
     poly = models.PolygonField()
     objects = models.GeoManager()
     image = models.ImageField(null=True, blank=True)
-
