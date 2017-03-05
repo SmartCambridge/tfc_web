@@ -184,11 +184,11 @@ class VehicleJourney(models.Model):
         departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
-            timetable.append({'time': departure_time.time(), 'stop': timing_link.stop_from})
+            timetable.append({'time': departure_time.time(), 'stop_id': timing_link.stop_from.atco_code})
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
-        timetable.append({'time': departure_time.time(), 'stop': timing_links.last().stop_to})
+        timetable.append({'time': departure_time.time(), 'stop_id': timing_links.last().stop_to.atco_code})
         self.timetable = timetable
         self.save()
 
