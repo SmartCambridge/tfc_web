@@ -7,10 +7,8 @@ from transport.models import Stop
 
 def update_bus_stops_from_api():
     """Update Bus Stops data from the DFT website"""
-    downloaded_file = zipfile.ZipFile(BytesIO(urlopen(
-        'http://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv&LA=050').read()))
-    downloaded_file_zip = downloaded_file.read('NaPTAN050csv.zip')
-    stops_csv_file = zipfile.ZipFile(BytesIO(downloaded_file_zip)).read('Stops.csv')
+    stops_csv_file = zipfile.ZipFile(BytesIO(urlopen(
+        'http://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv').read())).read('Stops.csv')
     csv_reader = csv.DictReader(TextIOWrapper(BytesIO(stops_csv_file)))
 
     # Emtpy all table content to put the new data
