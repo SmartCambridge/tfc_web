@@ -9,7 +9,7 @@ def update_bus_stops_from_api():
     """Update Bus Stops data from the DFT website"""
     stops_csv_file = zipfile.ZipFile(BytesIO(urlopen(
         'http://naptan.app.dft.gov.uk/DataRequest/Naptan.ashx?format=csv').read())).read('Stops.csv')
-    csv_reader = csv.DictReader(TextIOWrapper(BytesIO(stops_csv_file)))
+    csv_reader = csv.DictReader(TextIOWrapper(BytesIO(stops_csv_file), encoding='cp1252'))
 
     # Emtpy all table content to put the new data
     Stop.objects.all().delete()
