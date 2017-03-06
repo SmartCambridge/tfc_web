@@ -62,21 +62,17 @@ python3 -m pip install -r requirements.txt
 ### Configure the database:
 Install and configure postgreSQL database
 ```
-$ sudo apt-get install postgresql postgresql-contrib
+$ sudo apt-get install postgresql postgresql-contrib postgis
 $ sudo -u postgres psql
 postgres=# CREATE DATABASE tfcweb;
-postgres=# CREATE USER tfcwebuser WITH PASSWORD 'password';
-postgres=# ALTER ROLE tfcwebuser SET client_encoding TO 'utf8';
-postgres=# ALTER ROLE tfcwebuser SET default_transaction_isolation TO 'read committed';
-postgres=# ALTER ROLE tfcwebuser SET timezone TO 'UTC';
-postgres=# GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;
+postgres=# CREATE USER tfc_prod;
+postgres=# ALTER ROLE tfc_prod SET client_encoding TO 'utf8';
+postgres=# ALTER ROLE tfc_prod SET default_transaction_isolation TO 'read committed';
+postgres=# ALTER ROLE tfc_prod SET timezone TO 'UTC';
+postgres=# GRANT ALL PRIVILEGES ON DATABASE tfcweb TO tfc_prod;
+postgres=# \connect tfcweb
+postgres=# CREATE EXTENSION postgis;
 postgres=# \q
-```
-
-Put the same password that you have used in the postgreSQL configuration in the secrets.py file inside the 
-tfc_web folder (same folder as the settings.py files) following this format:
-```
-DATABASE_PASSWORD = 'password'
 ```
 
 ### Test basic nginx/ gunicorn / python web access with:
