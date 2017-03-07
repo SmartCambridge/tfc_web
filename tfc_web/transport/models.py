@@ -1,9 +1,7 @@
 import datetime
-import json
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 from django.contrib.postgres.fields import JSONField
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
@@ -182,15 +180,15 @@ class VehicleJourney(models.Model):
     timetable = JSONField(null=True, blank=True)
 
     def generate_timetable(self):
-        timetable = []
+        self.timetable = []
         departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
-            timetable.append({'time': str(departure_time.time()), 'stop_id': timing_link.stop_from.atco_code})
+            self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_link.stop_from.atco_code})
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
-        timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
+        self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
         self.save()
 
     def get_timetable_stops(self):
