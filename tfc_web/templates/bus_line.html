@@ -19,7 +19,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for journey in route.get_all_vehicle_journeys %}
+                    {% for journey in route.get_all_vehicle_journeys|slice:"2:-2" %}
                         <tr>
                             <td>{{ journey.days_of_week }}</td>
                             {% for timetable in journey.timetable %}
