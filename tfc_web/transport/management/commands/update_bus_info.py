@@ -136,7 +136,7 @@ class Command(BaseCommand):
                         if 'OperatingProfile' not in journey:
                             days_of_week = None
                         elif 'DaysOfWeek' in journey['OperatingProfile']['RegularDayType']:
-                            days_of_week = list(journey['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
+                            days_of_week = list(journey['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())[0]
                         elif 'HolidaysOnly' in journey['OperatingProfile']['RegularDayType']:
                             days_of_week = "HolidaysOnly"
                             # TODO Store which days
