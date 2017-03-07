@@ -4,10 +4,10 @@
     <h2>{{ bus_line.description }}</h2>
     <h3>Route</h3>
     {% for route in bus_line.routes.all %}
+        {% with journeys=route.get_all_vehicle_journeys %}
+        {% if journeys %}
         <p>
-            <h4>{{ route.description }}</h4>
-            <p><a href="{% url 'bus-route-map' route.id %}">View in Map</a></p>
-
+            <h4>{{ route.description }} (<a href="{% url 'bus-route-map' route.id %}">Map</a>)</h4>
             <div style="overflow-x: scroll;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                   <thead>
@@ -19,7 +19,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for journey in route.get_all_vehicle_journeys|slice:"2:-2" %}
+                    {% for journey in journeys %}
                         <tr>
                             <td>{{ journey.days_of_week }}</td>
                             {% for timetable in journey.timetable %}
@@ -31,6 +31,8 @@
                 </table>
             </div>
         </p>
+        {% endif %}
+        {% endwith %}
     {% endfor %}
 
     <script>
