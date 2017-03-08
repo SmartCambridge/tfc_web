@@ -5,3 +5,4 @@ xmltodict
 psycopg2
 gunicorn
 Pillow
+pytz
