@@ -43,7 +43,7 @@ def update_bus_stops_from_api():
         bus_stop.town_lang = csv_row['TownLang']
         bus_stop.suburb = csv_row['Suburb']
         bus_stop.suburb_lang = csv_row['SuburbLang']
-        bus_stop.locality_centre = csv_row['LocalityCentre']
+        bus_stop.locality_centre = False if csv_row['LocalityCentre'] == '' else csv_row['LocalityCentre']
         bus_stop.grid_type = csv_row['GridType']
         bus_stop.easting = csv_row['Easting']
         bus_stop.northing = csv_row['Northing']
