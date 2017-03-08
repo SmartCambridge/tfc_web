@@ -1,7 +1,7 @@
 import csv
 import zipfile
 from datetime import datetime
-from django.utils.timezone import pytz
+from django.utils.timezone import pytz, now
 from io import BytesIO, TextIOWrapper
 from urllib.request import urlopen
 from transport.models import Stop
@@ -56,8 +56,8 @@ def update_bus_stops_from_api():
         bus_stop.notes = csv_row['Notes']
         bus_stop.notes_lang = csv_row['NotesLang']
         bus_stop.administrative_area_code = csv_row['AdministrativeAreaCode']
-        bus_stop.creation_datetime = datetime.strptime(csv_row['CreationDateTime'], '%Y-%m-%dT%H:%M:%S').\
-            replace(tzinfo=pytz.utc)
+        bus_stop.creation_datetime = now if '' else datetime.strptime(
+            csv_row['CreationDateTime'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
         bus_stop.modification_datetime = None if '' else datetime.strptime(
             csv_row['ModificationDateTime'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
         bus_stop.revision_number = csv_row['RevisionNumber']
