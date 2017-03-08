@@ -58,8 +58,8 @@ def update_bus_stops_from_api():
         bus_stop.administrative_area_code = csv_row['AdministrativeAreaCode']
         bus_stop.creation_datetime = datetime.strptime(csv_row['CreationDateTime'], '%Y-%m-%dT%H:%M:%S').\
             replace(tzinfo=pytz.utc)
-        bus_stop.modification_datetime = datetime.strptime(csv_row['ModificationDateTime'], '%Y-%m-%dT%H:%M:%S').\
-            replace(tzinfo=pytz.utc)
+        bus_stop.modification_datetime = None if '' else datetime.strptime(
+            csv_row['ModificationDateTime'], '%Y-%m-%dT%H:%M:%S').replace(tzinfo=pytz.utc)
         bus_stop.revision_number = csv_row['RevisionNumber']
         bus_stop.modification = csv_row['Modification']
         bus_stop.status = csv_row['Status']
