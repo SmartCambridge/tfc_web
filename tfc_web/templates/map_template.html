@@ -75,7 +75,7 @@
                                 tooltip_text += 'Route: ' + (bus["route"]["agency__name"] || '') + ' - ' + (bus["route"]["short_name"] || '') + ' - ' + (bus["route"]["long_name"] || '') +'<br>';
                             if (bus["stop"] != undefined)
                                 tooltip_text += 'Next Stop: <a href="{% url 'bus-stop-template' %}'+bus["stop"]["code"]+'">' + (bus["stop"]["name"] || '') + ' - ' + (bus["stop"]["code"] || '') +'</a><br>';
-                            if (bus["stop"] != label)
+                            if (bus["label"] != undefined)
                                 tooltip_text += 'Label: ' + (bus["label"] || '');
                             if (tooltip_text != '')
                                 bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
