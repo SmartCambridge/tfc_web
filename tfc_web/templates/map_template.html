@@ -75,8 +75,12 @@
                                 tooltip_text += 'Route: ' + (bus["route"]["agency__name"] || '') + ' - ' + (bus["route"]["short_name"] || '') + ' - ' + (bus["route"]["long_name"] || '') +'<br>';
                             if (bus["stop"] != undefined)
                                 tooltip_text += 'Next Stop: <a href="{% url 'bus-stop-template' %}'+bus["stop"]["code"]+'">' + (bus["stop"]["name"] || '') + ' - ' + (bus["stop"]["code"] || '') +'</a><br>';
-                            tooltip_text += 'Label: ' + (bus["label"] || '');
-                            bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
+                            if (bus["stop"] != label)
+                                tooltip_text += 'Label: ' + (bus["label"] || '');
+                            if (tooltip_text != '')
+                                bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
+                            else
+                                bus['marker'].addTo(map).start();
                             buses.push(bus); // Update the entry with the last one
                         }
                     }
