@@ -1,9 +1,13 @@
 import csv
 import json
 import zipfile
+import logging
 from io import BytesIO, TextIOWrapper
 from urllib.request import urlopen
 from transport.models import Stop
+
+
+logger = logging.getLogger(__name__)
 
 
 def update_bus_stops_from_api():
@@ -15,20 +19,23 @@ def update_bus_stops_from_api():
     title = csv_reader.fieldnames
     for row in csv_reader:
         csv_rows.extend([{title[i]:row[title[i]] for i in range(len(title))}])
-    json_data = json.dumps(csv_rows)
 
-    for element in json_data:
-        Stop.objects.update_or_create(atco_code=element['ATCOCode'],
-                                      defaults={
-                                          'atco_code': element['ATCOCode'],
-                                          'naptan_code': element['NaptanCode'],
-                                          'common_name': element['CommonName'],
-                                          'indicator': element['Indicator'],
-                                          'locality_name': element['LocalityName'],
-                                          'longitude': element['Longitude'],
-                                          'latitude': element['Latitude'],
-                                          'data': element
-                                      })
+    for element in csv_rows:
+        try:
+            Stop.objects.update_or_create(atco_code=element['ATCOCode'],
+                                          defaults={
+                                              'atco_code': element['ATCOCode'],
+                                              'naptan_code': element['NaptanCode'],
+                                              'common_name': element['CommonName'],
+                                              'indicator': element['Indicator'],
+                                              'locality_name': element['LocalityName'],
+                                              'longitude': element['Longitude'],
+                                              'latitude': element['Latitude'],
+                                              'data': element
+                                          })
+        except Exception as e:
+            logger.error('The following bus stop could not be imported in the database: %s\n\n'
+                         'The Exception received was: %s' % (element, e))
 
     # for csv_row in csv_reader:
     #     bus_stop = Stop()
