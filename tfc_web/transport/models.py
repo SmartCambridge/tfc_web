@@ -190,7 +190,9 @@ class VehicleJourney(models.Model):
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
-        self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
+        # TODO this should never happen but there is data that contain this error
+        if timing_link.last().stop_to:
+            self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
         self.save()
 
     def get_timetable_stops(self):
