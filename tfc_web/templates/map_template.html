@@ -47,13 +47,19 @@
             iconSize: [30, 30]
         });
 
-        function retrieve_busdata() {
+        function retrieve_busdata(previous=false) {
+            var url;
+            if (previous) {
+                url = '{% url 'busdata-json' %}?previous=true&border=true&north=' + mapbounds.getNorth() + '&east=' + mapbounds.getEast() + '&south=' + mapbounds.getSouth() + '&west=' + mapbounds.getWest()
+            } else {
+                url = '{% url 'busdata-json' %}?border=true&north=' + mapbounds.getNorth() + '&east=' + mapbounds.getEast() + '&south=' + mapbounds.getSouth() + '&west=' + mapbounds.getWest()
+            }
             $.ajax({
-                url: '{% url 'busdata-json' %}?border=true&north='+mapbounds.getNorth()+'&east='+mapbounds.getEast()+'&south='+mapbounds.getSouth()+'&west='+mapbounds.getWest(),
+                url: url,
                 dataType: 'application/json',
                 complete: function (data) {
                     var json = JSON.parse(data.responseText);
-                    info_map.update(new Date(json["timestamp"]*1000));
+                    info_map.update(new Date(json['request_data']['timestamp']*1000));
                     for (var i = 0; i < json['request_data']['entities'].length; i++) {
                         var bus = json['request_data']['entities'][i];
                         existing_bus_index = buses.findIndex(b => b['vehicle_id'] === bus['vehicle_id']);
@@ -62,7 +68,7 @@
                             if (bus['received_timestamp'] != buses[existing_bus_index]['received_timestamp']) {
                                 // only update if the data received is new
                                 bus['marker'] = buses[existing_bus_index]['marker'];
-                                bus['marker'].addLatLng([bus["latitude"], bus["longitude"]], [31000]);
+                                bus['marker'].moveTo([bus["latitude"], bus["longitude"]], [31000]);
                                 bus['marker'].resume();
                                 buses.splice(existing_bus_index, 1); // remove old entry
                                 buses.push(bus); // Update the entry with the last one
@@ -124,6 +130,7 @@
             }).addTo(map);
             info_map.addTo(map);
             mapbounds = map.getBounds();
+            retrieve_busdata(true);
             retrieve_busdata_repeat();
         });
 
