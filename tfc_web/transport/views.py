@@ -41,7 +41,9 @@ def busdata_json(request):
     else:
         boundaries_enabled = False
 
-    bus_data = requests.get(settings.API_ENDPOINT+'/api/dataserver/feed/now/vix').json()
+    bus_data = requests.get(settings.API_ENDPOINT+'/api/dataserver/feed/now/vix').json() \
+        if 'previous' not in request.GET else \
+        requests.get(settings.API_ENDPOINT+'/api/dataserver/feed/previous/vix').json()
     if boundaries_enabled:
         for index, bus in enumerate(bus_data['request_data']['entities']):
             if north > bus['latitude'] > south and west < bus['longitude'] < east:
