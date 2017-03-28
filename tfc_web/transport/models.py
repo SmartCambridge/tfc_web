@@ -95,6 +95,12 @@ class Line(models.Model):
     stop_list = models.TextField(null=True, blank=True)
     timetable = JSONField(null=True, blank=True)
 
+    def get_stop_list(self):
+        bus_stops = []
+        for stop in self.stop_list.split(','):
+            bus_stops.append(Stop.objects.get(atco_code=stop))
+        return bus_stops
+
     def get_all_vehicle_journeys(self):
         return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
 
