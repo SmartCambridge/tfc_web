@@ -37,8 +37,8 @@ urlpatterns = [
     # Bus Lines
     url(r'^lines/$', views.bus_lines_list, name='bus-lines-list'),
     url(r'^lines/area/(?P<area_id>\d+)/$', views.bus_lines_list, name='bus-lines-list-area'),
-    url(r'^line/(?P<bus_line_id>.+)/$', views.bus_line, name='bus-line'),
     url(r'^line/timetable/(?P<bus_line_id>.+)/$', views.bus_line_timetable, name='bus-line-timetable'),
+    url(r'^line/(?P<bus_line_id>.+)/$', views.bus_line, name='bus-line'),
 
     # Bus Routes
     url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
