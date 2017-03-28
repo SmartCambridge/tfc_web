@@ -92,9 +92,65 @@ class Line(models.Model):
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     rendered_timetable = models.TextField(null=True, blank=True)
+    stop_list = models.TextField(null=True, blank=True)
+    timetable = JSONField(null=True, blank=True)
 
     def get_all_vehicle_journeys(self):
         return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
+
+    def generate_stop_list(self):
+        stop_list = []
+        for route in Route.objects.filter(line=self):
+            last_stop_index = -1
+            for stop in route.stops_list.split(','):
+                if stop not in stop_list:
+                    last_stop_index += 1
+                    stop_list.insert(last_stop_index, stop)
+                else:
+                    last_stop_index = stop_list.index(stop)
+        self.stop_list = stop_list
+        self.save()
+
+    def generate_timetable(self):
+        # Create list of stops per line number
+        if not self.stop_list:
+            self.generate_stop_list()
+
+        line_timetable = {
+            'inbound': {
+                'MondayToFriday': {},
+                'Saturday': {},
+                'Sunday': {},
+                'HolidaysOnly': {}
+            },
+            'outbound': {
+                'MondayToFriday': {},
+                'Saturday': {},
+                'Sunday': {},
+                'HolidaysOnly': {}
+            }
+        }
+
+        for bound in ['inbound', 'outbound']:
+            for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
+                journeys = VehicleJourney.objects.filter(journey_pattern__route__line=self,
+                                                         journey_pattern__direction=bound,
+                                                         days_of_week=dayperiod).order_by('departure_time')
+                timetable = line_timetable[bound][dayperiod]
+                for stop in self.stop_list:
+                    timetable[stop] = []
+
+                i = 0
+                for journey in journeys:
+                    for stop in self.stop_list:
+                        timetable[stop].append(None)
+                    for journey_timetable_entry in journey.timetable:
+                        timetable[journey_timetable_entry['stop_id']][i] = journey_timetable_entry['time']
+                    i += 1
+
+        self.timetable = line_timetable
+        self.save()
+
 
     @python_2_unicode_compatible
     def __str__(self):
