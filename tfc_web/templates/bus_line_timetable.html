@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+{% block content %}
+{#    <div class="mdl-components__page mdl-grid is-active">#}
+{#    <div class="mdl-cell mdl-cell--12-col">#}
+        <h1>{{ bus_line.line_name }}</h1>
+        <h2>{{ bus_line.description }}</h2>
+
+        Monday to Friday
+        <div style="overflow-x: scroll;">
+            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                <tbody>
+                {% for stop, times in bus_line.timetable.inbound.MondayToFriday %}
+                    <tr>
+                        <td>{{ stop }}</td>
+                        {% for time in times %}
+                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{#    </div></div>#}
+{% endblock %}

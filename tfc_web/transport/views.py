@@ -77,6 +77,10 @@ def bus_line(request, bus_line_id):
     return render(request, 'bus_line.html', {'bus_line': Line.objects.get(id=bus_line_id)})
 
 
+def bus_line_timetable(request, bus_line_id):
+    return render(request, 'bus_line_timetable.html', {'bus_line': Line.objects.get(id=bus_line_id)})
+
+
 def bus_route_map(request, bus_route_id):
     return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
 
