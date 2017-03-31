@@ -236,7 +236,7 @@ class JourneyPattern(models.Model):
 class VehicleJourney(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
     journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
-    departure_time = models.CharField(max_length=20)
+    departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True)
     timetable = JSONField(null=True, blank=True)
 
