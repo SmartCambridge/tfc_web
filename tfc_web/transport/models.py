@@ -102,7 +102,6 @@ class Line(models.Model):
         return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
 
     def generate_stop_list(self):
-
         stop_list = {
             'inbound': {
                 'MondayToFriday': [],
@@ -124,15 +123,13 @@ class Line(models.Model):
                                                   journey_patterns__journeys__days_of_week=dayperiod):
                     last_stop_index = -1
                     for stop in route.stops_list.split(','):
-                        if stop not in stop_list:
+                        if stop not in stop_list[bound][dayperiod]:
                             last_stop_index += 1
-                            stop_list.insert(last_stop_index, stop)
+                            stop_list[bound][dayperiod].insert(last_stop_index, stop)
                         else:
-                            last_stop_index = stop_list.index(stop)
-                stop_list[bound][dayperiod] = ','.join(stop_list)
+                            last_stop_index = stop_list[bound][dayperiod].index(stop)
         self.stop_list = stop_list
         self.save()
-
 
     def generate_timetable(self):
         # Create list of stops per line number
