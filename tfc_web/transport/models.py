@@ -276,7 +276,7 @@ class VehicleJourney(models.Model):
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
         # TODO this should never happen but there is data that contain this error
-        if timing_link.last().stop_to:
+        if timing_links.last().stop_to:
             self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
         self.save()
 
