@@ -74,6 +74,7 @@ class Operator(models.Model):
     code = models.CharField(max_length=255)
     short_name = models.CharField(max_length=255)
     trading_name = models.CharField(max_length=255)
+    last_modified = models.DateTimeField(auto_now=True)
 
     @python_2_unicode_compatible
     def __str__(self):
@@ -94,6 +95,7 @@ class Line(models.Model):
     rendered_timetable = models.TextField(null=True, blank=True)
     stop_list = JSONField(null=True, blank=True)
     timetable = JSONField(null=True, blank=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def get_stop_list(self):
         return Stop.objects.filter(atco_code__in=self.stop_list.split(','))
@@ -155,17 +157,19 @@ class Line(models.Model):
             for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
                 journeys = VehicleJourney.objects.filter(journey_pattern__route__line=self,
                                                          journey_pattern__direction=bound,
-                                                         days_of_week=dayperiod).order_by('departure_time')
+                                                         days_of_week=dayperiod).distinct().order_by('departure_time')
                 timetable = line_timetable[bound][dayperiod]
                 for stop in self.stop_list[bound][dayperiod]:
                     timetable[stop] = []
-
                 i = 0
                 for journey in journeys:
                     for stop in self.stop_list[bound][dayperiod]:
                         timetable[stop].append(None)
                     for journey_timetable_entry in journey.timetable:
-                        timetable[journey_timetable_entry['stop_id']][i] = journey_timetable_entry['time']
+                        try:
+                            timetable[journey_timetable_entry['stop_id']][i] = journey_timetable_entry['time']
+                        except:
+                            print(bound, dayperiod, journey.id, journey.journey_pattern.id, journey.journey_pattern.route.id, journey_timetable_entry)
                     i += 1
 
         self.timetable = line_timetable
@@ -182,6 +186,7 @@ class Route(models.Model):
     description = models.CharField(max_length=255)
     line = models.ForeignKey(Line, related_name='routes')
     stops_list = models.TextField()
+    last_modified = models.DateTimeField(auto_now=True)
 
     def get_all_vehicle_journeys(self):
         return VehicleJourney.objects.filter(journey_pattern__route=self).order_by('departure_time')
@@ -205,6 +210,7 @@ class Route(models.Model):
 
 class JourneyPatternSection(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def get_stops_list(self):
         bus_stops = []
@@ -230,6 +236,7 @@ class JourneyPatternTimingLink(models.Model):
     run_time = models.DurationField()
     wait_time = models.DurationField(null=True, blank=True)
     journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_links')
+    last_modified = models.DateTimeField(auto_now=True)
 
     @python_2_unicode_compatible
     def __str__(self):
@@ -241,6 +248,7 @@ class JourneyPattern(models.Model):
     route = models.ForeignKey(Route, related_name='journey_patterns')
     direction = models.CharField(max_length=100)
     section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns')
+    last_modified = models.DateTimeField(auto_now=True)
 
     def departure_times(self):
         return self.journeys.order_by("departure_time").values_list("departure_time", flat=True)
@@ -256,6 +264,7 @@ class VehicleJourney(models.Model):
     departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True)
     timetable = JSONField(null=True, blank=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def generate_timetable(self):
         self.timetable = []

@@ -151,13 +151,12 @@ class Command(BaseCommand):
                         else:
                             days_of_week = None
                             print(journey)
-                        VehicleJourney.objects.update_or_create(id=journey['PrivateCode'], defaults={
-                            'journey_pattern_id': journey['JourneyPatternRef'],
-                            'departure_time': journey['DepartureTime'],
-                            'days_of_week': days_of_week
-                        })
+                        vehicle_journey, created = VehicleJourney.objects.update_or_create(
+                            id=journey['PrivateCode'], defaults={
+                                'journey_pattern_id': journey['JourneyPatternRef'],
+                                'departure_time': journey['DepartureTime'],
+                                'days_of_week': days_of_week
+                            })
+                        vehicle_journey.generate_timetable()
 
                 xml_file.close()
-
-        for vehicle_journey in VehicleJourney.objects.all():
-            vehicle_journey.generate_timetable()
