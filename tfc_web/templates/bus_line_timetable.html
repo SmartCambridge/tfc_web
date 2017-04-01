@@ -11,7 +11,7 @@
         <div style="overflow-x: scroll;">
             <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                 <tbody>
-                {% for stop in bus_line.get_stop_list %}
+                {% for stop in bus_line.stop_list.inbound.MondayToFriday %}
                     <tr>
                         <td>{{ stop }}</td>
                         {% for time in bus_line.timetable.inbound.MondayToFriday|keyvalue:stop.atco_code %}
@@ -26,7 +26,7 @@
         <div style="overflow-x: scroll;">
             <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                 <tbody>
-                {% for stop in bus_line.get_stop_list %}
+                {% for stop in bus_line.stop_list.inbound.Saturday %}
                     <tr>
                         <td>{{ stop }}</td>
                         {% for time in bus_line.timetable.inbound.Saturday|keyvalue:stop.atco_code %}
@@ -41,7 +41,7 @@
         <div style="overflow-x: scroll;">
             <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                 <tbody>
-                {% for stop in bus_line.get_stop_list %}
+                {% for stop in bus_line.stop_list.inbound.Sunday %}
                     <tr>
                         <td>{{ stop }}</td>
                         {% for time in bus_line.timetable.inbound.Sunday|keyvalue:stop.atco_code %}
@@ -60,7 +60,7 @@
         <div style="overflow-x: scroll;">
             <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                 <tbody>
-                {% for stop in bus_line.get_stop_list %}
+                {% for stop in bus_line.stop_list.outbound.MondayToFriday %}
                     <tr>
                         <td>{{ stop }}</td>
                         {% for time in bus_line.timetable.outbound.MondayToFriday|keyvalue:stop.atco_code %}
@@ -75,7 +75,7 @@
         <div style="overflow-x: scroll;">
             <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                 <tbody>
-                {% for stop in bus_line.get_stop_list %}
+                {% for stop in bus_line.stop_list.outbound.Saturday %}
                     <tr>
                         <td>{{ stop }}</td>
                         {% for time in bus_line.timetable.outbound.Saturday|keyvalue:stop.atco_code %}
@@ -90,7 +90,7 @@
         <div style="overflow-x: scroll;">
             <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                 <tbody>
-                {% for stop in bus_line.get_stop_list %}
+                {% for stop in bus_line.stop_list.outbound.Sunday %}
                     <tr>
                         <td>{{ stop }}</td>
                         {% for time in bus_line.timetable.outbound.Sunday|keyvalue:stop.atco_code %}
