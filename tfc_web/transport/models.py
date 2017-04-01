@@ -120,7 +120,7 @@ class Line(models.Model):
         for bound in ['inbound', 'outbound']:
             for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
                 for route in Route.objects.filter(line=self, journey_patterns__direction=bound,
-                                                  journey_patterns__journeys__days_of_week=dayperiod):
+                                                  journey_patterns__journeys__days_of_week=dayperiod).distinct():
                     last_stop_index = -1
                     for stop in route.stops_list.split(','):
                         if stop not in stop_list[bound][dayperiod]:
