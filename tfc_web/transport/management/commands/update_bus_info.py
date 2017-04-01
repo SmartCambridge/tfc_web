@@ -1,14 +1,17 @@
+import logging
 import re
 import xmltodict
 import zipfile
 from datetime import timedelta
-
 from django.core.management import BaseCommand
 from io import BytesIO
 from urllib.request import urlopen
 from django.conf import settings
 from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
     JourneyPatternTimingLink
+
+
+logger = logging.getLogger(__name__)
 
 
 xml_timedelta_regex = re.compile('(?P<sign>-?)P(?:(?P<years>\d+)Y)?(?:(?P<months>\d+)M)?(?:(?P<days>\d+)D)?'
@@ -77,9 +80,14 @@ class Command(BaseCommand):
                         route = routes[route_id]
                         stops = []
                         if route['RouteLink'].__class__ is list:
+                            next = None
                             for stop in route['RouteLink']:
-                                # TODO check if To from next item and From from current are the same
+                                # check if To from next item and From from current are the same
+                                if next and next != stop['From']['StopPointRef']:
+                                    logger.error('route links are not sequentials in route %s' %
+                                                 routes_desc[route_id]['@id'])
                                 stops.append(stop['From']['StopPointRef'])
+                                next = stop['To']['StopPointRef']
                             stops.append(route['RouteLink'][-1]['To']['StopPointRef'])
                         else:
                             stops.append(route['RouteLink']['From']['StopPointRef'])
