@@ -173,4 +173,5 @@ class Command(BaseCommand):
                             })
                         vehicle_journey.generate_timetable()
 
+                bus_line.generate_timetable()
                 xml_file.close()
