@@ -97,6 +97,14 @@ class Line(models.Model):
     timetable = JSONField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
+    def get_stop_list(self):
+        stop_list = {}
+        for bound in ['inbound', 'outbound']:
+            for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
+                for stop in self.stop_list[bound][dayperiod]:
+                    stop_list[stop] = Stop.objects.get(atco_code=stop)
+        return stop_list
+
     def get_all_vehicle_journeys(self):
         return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
 
