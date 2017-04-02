@@ -11,7 +11,7 @@
         </div>
 
         <div class="mdl-tabs__panel is-active" id="mondaytofriday">
-            <div style="overflow-x: scroll;">
+            <div style="overflow-x: scroll; margin-bottom: 30px;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
                     {% for stop in bus_line.stop_list.inbound.MondayToFriday %}
@@ -44,7 +44,7 @@
 
 
         <div class="mdl-tabs__panel is-active" id="saturday">
-            <div style="overflow-x: scroll;">
+            <div style="overflow-x: scroll; margin-bottom: 30px;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
                     {% for stop in bus_line.stop_list.inbound.Saturday %}
@@ -75,7 +75,7 @@
         </div>
 
         <div class="mdl-tabs__panel is-active" id="sunday">
-            <div style="overflow-x: scroll;">
+            <div style="overflow-x: scroll; margin-bottom: 30px;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
                     {% for stop in bus_line.stop_list.inbound.Sunday %}
