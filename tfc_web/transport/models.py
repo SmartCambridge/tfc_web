@@ -97,9 +97,6 @@ class Line(models.Model):
     timetable = JSONField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
-    def get_stop_list(self):
-        return Stop.objects.filter(atco_code__in=self.stop_list.split(','))
-
     def get_all_vehicle_journeys(self):
         return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
 

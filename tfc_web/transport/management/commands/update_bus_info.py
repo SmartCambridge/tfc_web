@@ -8,8 +8,7 @@ from io import BytesIO
 from urllib.request import urlopen
 from django.conf import settings
 from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
-    JourneyPatternTimingLink
-
+    JourneyPatternTimingLink, Stop
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +63,10 @@ class Command(BaseCommand):
                         'standard_destination': service['StandardService']['Destination'],
                         'start_date': service['OperatingPeriod']['StartDate'],
                         'end_date': service['OperatingPeriod']['EndDate'],
-                        'regular_days_of_week': list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys()),
-                        'bank_holiday_operation': list(service['OperatingProfile']['BankHolidayOperation']['DaysOfNonOperation'].keys())
+                        'regular_days_of_week':
+                            list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys()),
+                        'bank_holiday_operation':
+                            list(service['OperatingProfile']['BankHolidayOperation']['DaysOfNonOperation'].keys())
                         if 'BankHolidayOperation' in service['OperatingProfile'] else None
                     })
 
@@ -110,18 +111,31 @@ class Command(BaseCommand):
                         for journey_pattern_timing_link in journey_pattern_timing_links:
                             wait_time = xml_timedelta_to_python(journey_pattern_timing_link['To']['WaitTime']) \
                                 if 'WaitTime' in journey_pattern_timing_link['To'] else None
-                            JourneyPatternTimingLink.objects.update_or_create(id=journey_pattern_timing_link['@id'],
-                                                                              defaults={
-                                                                                  'stop_from_id': journey_pattern_timing_link['From']['StopPointRef'],
-                                                                                  'stop_to_id': journey_pattern_timing_link['To']['StopPointRef'],
-                                                                                  'stop_from_timing_status': journey_pattern_timing_link['From']['TimingStatus'],
-                                                                                  'stop_to_timing_status': journey_pattern_timing_link['To']['TimingStatus'],
-                                                                                  'stop_from_sequence_number': journey_pattern_timing_link['From']['@SequenceNumber'],
-                                                                                  'stop_to_sequence_number': journey_pattern_timing_link['To']['@SequenceNumber'],
-                                                                                  'run_time': xml_timedelta_to_python(journey_pattern_timing_link['RunTime']),
-                                                                                  'wait_time': wait_time,
-                                                                                  'journey_pattern_section_id': journey_pattern_section['@id']
-                                                                              })
+                            if not Stop.objects.filter(atco_code=journey_pattern_timing_link['From']['StopPointRef']):
+                                logger.error("Stop %s cannot be found in the database, creating a temporal entry" %
+                                             journey_pattern_timing_link['From']['StopPointRef'])
+                                Stop.objects.create(atco_code=journey_pattern_timing_link['From']['StopPointRef'],
+                                                    naptan_code="Unknown", common_name="Unknown", indicator="Unknown",
+                                                    locality_name="", longitude=0, latitude=0)
+                            if not Stop.objects.filter(atco_code=journey_pattern_timing_link['To']['StopPointRef']):
+                                logger.error("Stop %s cannot be found in the database, creating a temporal entry" %
+                                             journey_pattern_timing_link['To']['StopPointRef'])
+                                Stop.objects.create(atco_code=journey_pattern_timing_link['To']['StopPointRef'],
+                                                    naptan_code="Unknown", common_name="Unknown", indicator="Unknown",
+                                                    locality_name="", longitude=0, latitude=0)
+                            JourneyPatternTimingLink.objects.update_or_create(
+                                id=journey_pattern_timing_link['@id'],
+                                defaults={
+                                    'stop_from_id': journey_pattern_timing_link['From']['StopPointRef'],
+                                    'stop_to_id': journey_pattern_timing_link['To']['StopPointRef'],
+                                    'stop_from_timing_status': journey_pattern_timing_link['From']['TimingStatus'],
+                                    'stop_to_timing_status': journey_pattern_timing_link['To']['TimingStatus'],
+                                    'stop_from_sequence_number': journey_pattern_timing_link['From']['@SequenceNumber'],
+                                    'stop_to_sequence_number': journey_pattern_timing_link['To']['@SequenceNumber'],
+                                    'run_time': xml_timedelta_to_python(journey_pattern_timing_link['RunTime']),
+                                    'wait_time': wait_time,
+                                    'journey_pattern_section_id': journey_pattern_section['@id']
+                                })
 
                     # Journey Pattern
                     journey_patterns = \
