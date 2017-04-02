@@ -1,105 +1,108 @@
 {% extends "template.html" %}
 {% load keyvalue %}
 {% block content %}
-{#    <div class="mdl-components__page mdl-grid is-active">#}
-{#    <div class="mdl-cell mdl-cell--12-col">#}
-        <h1>{{ bus_line.line_name }}</h1>
-        <h2>{{ bus_line.description }}</h2>
+    <h1>{{ bus_line.line_name }}</h1>
+    <h2>{{ bus_line.description }}</h2>
+    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+        <div class="mdl-tabs__tab-bar">
+            <a href="#mondaytofriday" class="mdl-tabs__tab is-active">Monday to Friday</a>
+            <a href="#saturday" class="mdl-tabs__tab">Saturday</a>
+            <a href="#sunday" class="mdl-tabs__tab">Sunday</a>
+        </div>
 
-        <h3>Inbound</h3>
-        <h4>Monday to Fridays</h4>
-        <div style="overflow-x: scroll;">
-            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
-                <tbody>
-                {% for stop in bus_line.stop_list.inbound.MondayToFriday %}
-                    <tr>
-                        <td>{{ stop }}</td>
-                        {% for time in bus_line.timetable.inbound.MondayToFriday|keyvalue:stop %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <h4>Saturdays</h4>
-        <div style="overflow-x: scroll;">
-            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
-                <tbody>
-                {% for stop in bus_line.stop_list.inbound.Saturday %}
-                    <tr>
-                        <td>{{ stop }}</td>
-                        {% for time in bus_line.timetable.inbound.Saturday|keyvalue:stop %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <h4>Sundays</h4>
-        <div style="overflow-x: scroll;">
-            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
-                <tbody>
-                {% for stop in bus_line.stop_list.inbound.Sunday %}
-                    <tr>
-                        <td>{{ stop }}</td>
-                        {% for time in bus_line.timetable.inbound.Sunday|keyvalue:stop %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="mdl-tabs__panel is-active" id="mondaytofriday">
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                    {% for stop in bus_line.stop_list.inbound.MondayToFriday %}
+                        <tr>
+                            <td>{{ stop }}</td>
+                            {% for time in bus_line.timetable.inbound.MondayToFriday|keyvalue:stop %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                    {% for stop in bus_line.stop_list.outbound.MondayToFriday %}
+                        <tr>
+                            <td>{{ stop }}</td>
+                            {% for time in bus_line.timetable.outbound.MondayToFriday|keyvalue:stop %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
 
+        <div class="mdl-tabs__panel is-active" id="saturday">
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                    {% for stop in bus_line.stop_list.inbound.Saturday %}
+                        <tr>
+                            <td>{{ stop }}</td>
+                            {% for time in bus_line.timetable.inbound.Saturday|keyvalue:stop %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                    {% for stop in bus_line.stop_list.outbound.Saturday %}
+                        <tr>
+                            <td>{{ stop }}</td>
+                            {% for time in bus_line.timetable.outbound.Saturday|keyvalue:stop %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <h3>Outbound</h3>
-        <h4>Monday to Fridays</h4>
-        <div style="overflow-x: scroll;">
-            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
-                <tbody>
-                {% for stop in bus_line.stop_list.outbound.MondayToFriday %}
-                    <tr>
-                        <td>{{ stop }}</td>
-                        {% for time in bus_line.timetable.outbound.MondayToFriday|keyvalue:stop %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="mdl-tabs__panel is-active" id="sunday">
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                    {% for stop in bus_line.stop_list.inbound.Sunday %}
+                        <tr>
+                            <td>{{ stop }}</td>
+                            {% for time in bus_line.timetable.inbound.Sunday|keyvalue:stop %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="overflow-x: scroll;">
+                <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
+                    <tbody>
+                    {% for stop in bus_line.stop_list.outbound.Sunday %}
+                        <tr>
+                            <td>{{ stop }}</td>
+                            {% for time in bus_line.timetable.outbound.Sunday|keyvalue:stop %}
+                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <h4>Saturdays</h4>
-        <div style="overflow-x: scroll;">
-            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
-                <tbody>
-                {% for stop in bus_line.stop_list.outbound.Saturday %}
-                    <tr>
-                        <td>{{ stop }}</td>
-                        {% for time in bus_line.timetable.outbound.Saturday|keyvalue:stop %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <h4>Sundays</h4>
-        <div style="overflow-x: scroll;">
-            <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
-                <tbody>
-                {% for stop in bus_line.stop_list.outbound.Sunday %}
-                    <tr>
-                        <td>{{ stop }}</td>
-                        {% for time in bus_line.timetable.outbound.Sunday|keyvalue:stop %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-{#    </div></div>#}
+    </div>
 {% endblock %}
