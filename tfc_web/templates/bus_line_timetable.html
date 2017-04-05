@@ -75,12 +75,12 @@
         </div>
 
         <div class="mdl-tabs__panel" id="sunday">
-            <div style="overflow-x: scroll; margin-bottom: 30px;">
+            <div style="overflow-x: scroll; margin-bottom: 30px; margin-left:5em;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
                     {% for stop in bus_line.stop_list.inbound.Sunday %}
                         <tr>
-                            <td><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
+                            <td class="bus-stop-column"><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.inbound.Sunday|keyvalue:stop %}
                                 <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
                             {% endfor %}

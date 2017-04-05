@@ -366,6 +366,12 @@ footer .mdl-mega-footer--right-section a .material-icons {
     background-color: #1cb2b5;
 }
 
+.bus-stop-column {
+    position: absolute;
+    left: 0;
+    width: 5em;
+}
+
 
 /**** Mobile layout ****/
 @media (max-width: 900px) {
