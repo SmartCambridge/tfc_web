@@ -19,6 +19,9 @@ from transport import views
 
 
 urlpatterns = [
+    # auth
+    url(r'^accounts/', include('allauth.urls')),
+
     # Main pages
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', TemplateView.as_view(template_name="index.html"), name='home'),

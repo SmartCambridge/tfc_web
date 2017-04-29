@@ -12,6 +12,10 @@ a img{
     border: 0px;
 }
 
+a {
+    color: #1cb2b5;
+}
+
 title {
     display: inline-block;
     text-transform: uppercase;
