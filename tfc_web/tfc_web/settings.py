@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'parking',
     'traffic',
     'aq',
+    'csn'
 ]
 
 MIDDLEWARE_CLASSES = [

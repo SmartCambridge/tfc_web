@@ -42,4 +42,7 @@ urlpatterns = [
     # Zones
     url(r'^zones/$', views.zones_list, name='zones-list'),
     url(r'^zone/(?P<zone_id>\w+)/$', views.zone, name='zone'),
+
+    # Cambridge Sensor Network
+    url(r'^csn/', include('csn.urls')),
 ]
