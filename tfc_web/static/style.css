@@ -370,6 +370,14 @@ footer .mdl-mega-footer--right-section a .material-icons {
     background-color: #1cb2b5;
 }
 
+.mdl-button--fab.mdl-button--colored {
+    background-color: #1cb2b5;
+}
+
+.mdl-button--fab.mdl-button--colored:hover {
+    background-color: #005851;
+}
+
 .bus-stop-column {
     position: absolute;
     left: 0;
