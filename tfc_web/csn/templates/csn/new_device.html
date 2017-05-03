@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>New device</h1>
+    <form action="{% url 'csn_new_device' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+{% endblock %}

@@ -19,4 +19,6 @@ from csn import views
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='csn/home.html'), name='csn_home'),
+    url(r'^devices', views.devices, name='csn_devices'),
+    url(r'^device/new$', views.new_device, name='csn_new_device'),
 ]

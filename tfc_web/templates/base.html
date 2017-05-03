@@ -70,21 +70,22 @@
 
 
         <div class="mdl-layout__content">
-            <div style="padding: 40px 0; max-width: 1044px; margin-left: auto; margin-right: auto;">
-            {% if messages %}
-                <div>
-                    <strong>Messages:</strong>
-                    <ul>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% block content %}{% endblock %}
-            {% block body %}{% endblock %}
-            {% block extra_body %}{% endblock %}
-            </div>
+            {% block inner_content %}
+                <div style="padding: 40px 0; max-width: 1044px; margin-left: auto; margin-right: auto;">
+                {% if messages %}
+                    <div>
+                        <strong>Messages:</strong>
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                {% block content %}{% endblock %}
+                {% block body %}{% endblock %}
+                {% block extra_body %}{% endblock %}
+            {% endblock %}
             <footer class="mdl-mega-footer">
                 <div class="mdl-mega-footer--top-section">
                     <p class="mdl-typography--font-light">Smart Cambridge - Greater Cambridge City Deal</p>
