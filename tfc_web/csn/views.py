@@ -1,3 +1,5 @@
+import requests
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from csn.models import LWDeviceForm, LWDevice
@@ -12,6 +14,7 @@ def new_device(request):
             lwdevice = lwdevice_form.save(commit=False)
             lwdevice.user = request.user
             lwdevice.save()
+            r = requests.post(settings.EVERYNET_API_ENDPOINT+"devices")
             return redirect('csn_home')
     return render(request, 'csn/new_device.html', {
         'form': lwdevice_form
