@@ -1,6 +1,11 @@
+import json
+import requests
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.forms import ModelForm
 
 
@@ -14,19 +19,45 @@ class LWDevice(models.Model):
         (2, 2),
         (4, 4),
     )
+    dev_eui = models.CharField(max_length=16, unique=True,
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
+                                           MinLengthValidator(16)])
     dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS)
     counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS)
     dev_addr = models.CharField(max_length=8,
                                 validators=[RegexValidator(r"^[0-9a-fA-F]+$",
                                                            "Should match the ^[0-9a-fA-F]+$ pattern"),
                                             MinLengthValidator(8)])
-    nwkskey = models.CharField(max_length=32, validators=[RegexValidator(r"^[0-9a-fA-F]+$",
-                                                                          "Should match the ^[0-9a-fA-F]+$ pattern"),
-                                                          MinLengthValidator(32)])
+    nwkskey = models.CharField(max_length=32,
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
+                                           MinLengthValidator(32)])
     user = models.ForeignKey(User)
+
+
+@receiver(post_save, sender=LWDevice)
+def send_to_everynet(sender, instance, created, **kwargs):
+    if created:
+        data = \
+            {
+                "app_eui": settings.LW_APP_EUI,
+                "dev_eui": instance.dev_eui,
+                "appskey": settings.LW_APP_API_KEY,
+                "dev_class": instance.dev_class,
+                "counters_size": instance.counters_size,
+                "activation_type": "abp_core",
+                "band": "EU863-870",
+                "dev_addr": instance.dev_addr,
+                "nwkskey": instance.nwkskey
+            }
+        headers = \
+            {
+                'Authorization': settings.LW_API_KEY,
+                'Content-Type': 'application/json'
+            }
+        requests.post(settings.EVERYNET_API_ENDPOINT + "devices", data=json.dumps(data), headers=headers)
 
 
 class LWDeviceForm(ModelForm):
     class Meta:
         model = LWDevice
-        fields = ['dev_class', 'counters_size', 'dev_addr', 'nwkskey']
+        fields = ['dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey']
