@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="cards-section-title mdl-typography--display-1-color-contrast">My applications</div>
+    <ul class="mdl-list">
+    {% for application in applications %}
+        <li class="mdl-list__item"><span class="mdl-list__item-primary-content">{{ application.name }}</span></li>
+    {% endfor %}
+    </ul>
+    <p><br></p>
+    <a href="{% url 'csn_new_application' %}">
+        <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+            <i class="material-icons">add new application</i>
+        </button>
+    </a>
+{% endblock %}

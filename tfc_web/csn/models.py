@@ -6,7 +6,7 @@ from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.forms import ModelForm
+from django.forms import ModelForm, inlineformset_factory
 
 
 class LWDevice(models.Model):
@@ -61,3 +61,26 @@ class LWDeviceForm(ModelForm):
     class Meta:
         model = LWDevice
         fields = ['dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey']
+
+
+class LWApplication(models.Model):
+    app_eui = models.CharField(max_length=16, unique=True,
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
+                                           MinLengthValidator(16)])
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    user = models.ForeignKey(User)
+
+
+class LWApplicationForm(ModelForm):
+    class Meta:
+        model = LWApplication
+        fields = ['app_eui', 'name', 'description']
+
+
+class LWCallbackURL(models.Model):
+    url = models.URLField()
+    application = models.ForeignKey(LWApplication, on_delete=models.CASCADE, related_name="callback_url")
+
+
+LWCallbackURLFormSet = inlineformset_factory(LWApplication, LWCallbackURL, fields=('url',), can_delete=False)
