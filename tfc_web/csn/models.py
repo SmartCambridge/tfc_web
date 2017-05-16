@@ -32,6 +32,8 @@ class LWDevice(models.Model):
                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
                                            MinLengthValidator(32)])
     user = models.ForeignKey(User)
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
 
 
 @receiver(post_save, sender=LWDevice)
@@ -60,7 +62,7 @@ def send_to_everynet(sender, instance, created, **kwargs):
 class LWDeviceForm(ModelForm):
     class Meta:
         model = LWDevice
-        fields = ['dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey']
+        fields = ['name', 'description', 'dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey']
 
 
 class LWApplication(models.Model):
