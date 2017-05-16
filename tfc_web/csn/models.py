@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ModelForm, inlineformset_factory
 
@@ -57,6 +57,16 @@ def send_to_everynet(sender, instance, created, **kwargs):
                 'Content-Type': 'application/json'
             }
         requests.post(settings.EVERYNET_API_ENDPOINT + "devices", data=json.dumps(data), headers=headers)
+
+
+@receiver(post_delete, sender=LWDevice)
+def send_to_everynet(sender, instance, **kwargs):
+    headers = \
+        {
+            'Authorization': settings.LW_API_KEY,
+            'Content-Type': 'application/json'
+        }
+    requests.delete(settings.EVERYNET_API_ENDPOINT + "devices/%s" % instance.dev_eui, headers=headers)
 
 
 class LWDeviceForm(ModelForm):
