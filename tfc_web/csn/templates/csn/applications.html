@@ -3,7 +3,16 @@
     <div class="cards-section-title mdl-typography--display-1-color-contrast">My applications</div>
     <ul class="mdl-list">
     {% for application in applications %}
-        <li class="mdl-list__item"><span class="mdl-list__item-primary-content">{{ application.name }}</span></li>
+        <li class="mdl-list__item mdl-list__item--three-line">
+            <span class="mdl-list__item-primary-content">
+                <i class="material-icons mdl-list__item-avatar">apps</i>
+                <span>{{ application.name }}</span>
+                <span class="mdl-list__item-text-body">{{ application.description }}</span>
+            </span>
+            <span class="mdl-list__item-secondary-content">
+                <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
+            </span>
+        </li>
     {% endfor %}
     </ul>
     <p><br></p>
