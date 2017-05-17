@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from csn.models import LWDeviceForm, LWDevice, LWCallbackURLFormSet, LWApplication, LWApplicationForm
 
 
@@ -23,6 +23,14 @@ def new_device(request):
     return render(request, 'csn/new_device.html', {
         'form': lwdevice_form
     })
+
+
+@login_required
+def delete_device(request):
+    if request.method == "POST":
+        lwdevice = get_object_or_404(LWDevice, user=request.user, dev_eui=request.POST['dev_eui'])
+        lwdevice.delete()
+    return redirect('csn_home')
 
 
 @login_required

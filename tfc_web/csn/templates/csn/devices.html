@@ -2,18 +2,18 @@
 {% block content %}
     <div class="cards-section-title mdl-typography--display-1-color-contrast">My devices</div>
     <ul class="mdl-list">
-    {% for device in devices %}
-        <li class="mdl-list__item mdl-list__item--three-line">
+        {% for device in devices %}
+            <li class="mdl-list__item mdl-list__item--three-line">
             <span class="mdl-list__item-primary-content">
                 <i class="material-icons mdl-list__item-avatar">nfc</i>
                 <span>{{ device.name }}</span>
                 <span class="mdl-list__item-text-body">{{ device.description }}</span>
             </span>
-            <span class="mdl-list__item-secondary-content">
-                <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>
+                <span class="mdl-list__item-secondary-content">
+                <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons" data-device-eui="{{ device.dev_eui }}">delete</i></a>
             </span>
-        </li>
-    {% endfor %}
+            </li>
+        {% endfor %}
     </ul>
     <p><br></p>
     <a href="{% url 'csn_new_device' %}">
@@ -21,4 +21,39 @@
             <i class="material-icons">add new device</i>
         </button>
     </a>
+    <dialog class="mdl-dialog">
+        <div class="mdl-dialog__content">
+            <p>
+                Are you sure you want to delete this device?
+            </p>
+        </div>
+        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+            <form action="{% url 'csn_delete_device' %}" method="post">
+                {% csrf_token %}
+                <input id="form_dev_eui" type="hidden" name="dev_eui">
+                <input type="submit" class="mdl-button" value="Yes">
+                <button type="button" class="mdl-button close">No</button>
+            </form>
+        </div>
+    </dialog>
+{% endblock %}
+{% block lazy_script %}
+    <script>
+        var dialog = document.querySelector('dialog');
+        var showModalButtons = document.querySelectorAll('.mdl-list__item-secondary-action');
+        if (! dialog.showModal) {
+            dialogPolyfill.registerDialog(dialog);
+        }
+        for (var i = 0; i < showModalButtons.length; i++) {
+            showModalButtons[i].addEventListener('click', function(event) {
+                dialog.showModal();
+                console.log(event);
+                console.log(event.target.dataset);
+                document.querySelector('#form_dev_eui').value = event.target.dataset.deviceEui;
+            });
+        }
+        dialog.querySelector('.close').addEventListener('click', function() {
+            dialog.close();
+        });
+    </script>
 {% endblock %}
