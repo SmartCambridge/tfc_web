@@ -1,4 +1,6 @@
 import json
+
+import logging
 import requests
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,6 +9,9 @@ from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.forms import ModelForm, inlineformset_factory
+
+
+LOGGER = logging.getLogger('CSN')
 
 
 class LWDevice(models.Model):
@@ -56,7 +61,9 @@ def send_to_everynet(sender, instance, created, **kwargs):
                 'Authorization': settings.LW_API_KEY,
                 'Content-Type': 'application/json'
             }
-        requests.post(settings.EVERYNET_API_ENDPOINT + "devices", data=json.dumps(data), headers=headers)
+        response = requests.post(settings.EVERYNET_API_ENDPOINT + "devices", data=json.dumps(data), headers=headers)
+        if response.status_code != 200:
+            LOGGER.error(response)
 
 
 @receiver(post_delete, sender=LWDevice)
