@@ -42,7 +42,7 @@ class LWDevice(models.Model):
 
 
 @receiver(post_save, sender=LWDevice)
-def send_to_everynet(sender, instance, created, **kwargs):
+def lw_device_new_in_everynet(sender, instance, created, **kwargs):
     if created:
         data = \
             {
@@ -67,7 +67,7 @@ def send_to_everynet(sender, instance, created, **kwargs):
 
 
 @receiver(post_delete, sender=LWDevice)
-def send_to_everynet(sender, instance, **kwargs):
+def lw_device_delete_in_everynet(sender, instance, **kwargs):
     headers = \
         {
             'Authorization': settings.LW_API_KEY,
