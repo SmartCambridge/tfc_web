@@ -12,13 +12,11 @@ def devices(request):
 
 @login_required
 def new_device(request):
-    lwdevice_form = LWDeviceForm()
+    lwdevice_form = LWDeviceForm(user=request.user)
     if request.method == "POST":
-        lwdevice_form = LWDeviceForm(request.POST)
+        lwdevice_form = LWDeviceForm(request.POST, user=request.user)
         if lwdevice_form.is_valid():
-            lwdevice = lwdevice_form.save(commit=False)
-            lwdevice.user = request.user
-            lwdevice.save()
+            lwdevice_form.save()
             return redirect('csn_home')
     return render(request, 'csn/new_device.html', {
         'form': lwdevice_form

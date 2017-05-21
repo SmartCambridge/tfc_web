@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>New device</h1>
+    <h3>New device</h3>
     <form action="{% url 'csn_new_device' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
