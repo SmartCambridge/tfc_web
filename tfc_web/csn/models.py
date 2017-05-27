@@ -16,9 +16,9 @@ LOGGER = logging.getLogger('CSN')
 
 
 class LWApplication(models.Model):
-    app_eui = models.CharField(max_length=16, unique=True,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
-                                           MinLengthValidator(16)])
+    # app_eui = models.CharField(max_length=16, unique=True,
+    #                            validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
+    #                                        MinLengthValidator(16)])
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     user = models.ForeignKey(User)
@@ -31,9 +31,8 @@ class LWApplication(models.Model):
 class LWApplicationForm(ModelForm):
     class Meta:
         model = LWApplication
-        fields = ['app_eui', 'name', 'description']
+        fields = ['name', 'description']
         widgets = {
-            'app_eui': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
         }
