@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'^device/new$', views.new_device, name='csn_new_device'),
     url(r'^device/delete', views.delete_device, name='csn_delete_device'),
     url(r'^apps', views.applications, name='csn_applications'),
-    url(r'^app/new$', views.new_application, name='csn_new_application'),
+    url(r'^app/new$', views.new_app, name='csn_new_app'),
 ]

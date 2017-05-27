@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-    <h3>New application</h3>
-    <form action="{% url 'csn_new_application' %}" method="post">
+    <h3>create application</h3>
+    <form action="{% url 'csn_new_app' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         {{ inline_form.as_p }}

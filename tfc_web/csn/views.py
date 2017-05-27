@@ -39,7 +39,7 @@ def applications(request):
 
 
 @login_required
-def new_application(request):
+def new_app(request):
     lwapplication_form = LWApplicationForm()
     lwcallbackurls_form = LWCallbackURLFormSet()
     if request.method == "POST":
@@ -52,7 +52,7 @@ def new_application(request):
                 lwapplication.user = request.user
                 lwapplication.save()
                 lwcallbackurls_form.save()
-                return redirect('csn_home')
+                return redirect('csn_applications')
     return render(request, 'csn/new_application.html', {
         'form': lwapplication_form,
         'inline_form': lwcallbackurls_form,
