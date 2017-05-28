@@ -28,7 +28,7 @@ def delete_device(request):
     if request.method == "POST":
         lwdevice = get_object_or_404(LWDevice, user=request.user, dev_eui=request.POST['dev_eui'])
         lwdevice.delete()
-    return redirect('csn_home')
+    return redirect('csn_devices')
 
 
 @login_required
@@ -57,3 +57,11 @@ def new_app(request):
         'form': lwapplication_form,
         'inline_form': lwcallbackurls_form,
     })
+
+
+@login_required
+def delete_app(request):
+    if request.method == "POST":
+        lwapp = get_object_or_404(LWApplication, user=request.user, id=request.POST['app_id'])
+        lwapp.delete()
+    return redirect('csn_applications')
