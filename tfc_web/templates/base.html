@@ -25,7 +25,7 @@
         <div class="mdl-snackbar__text"></div>
         <button type="button" class="mdl-snackbar__action"></button>
     </div>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer has-drawer">
         <div class="header mdl-layout__header mdl-layout__header--waterfall">
             <div class="mdl-layout__header-row">
                 <span class="title mdl-layout-title" style="display: inline-block;">
@@ -58,21 +58,30 @@
 
 
         <div class="drawer mdl-layout__drawer">
-            <span class="mdl-layout-title">
-                <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
-            </span>
+            {% if user.is_authenticated %}
+            <header class="drawer-header">
+                <div class="avatar-dropdown">
+                    Hello <span>{{ user.username }}</span>
+                </div>
+            </header>
+            {% endif %}
             <nav class="mdl-navigation">
-                {% block navigation %}
-                    <a class="mdl-navigation__link" href="{% url 'csn_home' %}">CSN Home</a>
-                {% endblock %}
-                {% if user.is_authenticated %}
-                    <a class="mdl-navigation__link" href="{% url 'account_email' %}">Change E-mail</a>
-                    <a class="mdl-navigation__link" href="{% url 'account_logout' %}">Sign Out</a>
-                {% else %}
+                {% if not user.is_authenticated %}
                     <a class="mdl-navigation__link" href="{% url 'account_login' %}">Sign In</a>
                     <a class="mdl-navigation__link" href="{% url 'account_signup' %}">Sign Up</a>
                 {% endif %}
-                <div class="drawer-separator"></div>
+                {% block navigation %}
+                    <a class="mdl-navigation__link" href="{% url 'csn_devices' %}">Devices</a>
+                    <a class="mdl-navigation__link" href="{% url 'csn_applications' %}">Applications</a>
+                    <a class="mdl-navigation__link" href="">
+                        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Forums
+                    </a>
+                {% endblock %}
+                {% if user.is_authenticated %}
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'account_email' %}">Change E-mail</a>
+                    <a class="mdl-navigation__link" href="{% url 'account_logout' %}">Sign Out</a>
+                {% endif %}
             </nav>
         </div>
 

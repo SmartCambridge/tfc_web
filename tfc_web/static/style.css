@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    min-height: 100vh;
 }
 
 /* Make titles BLACK for tfc_web, not mdl white-on-white */
@@ -159,7 +160,7 @@ title {
 .drawer .mdl-layout-title {
     position: relative;
     background: white;
-    height: 160px;
+    height: 100px;
 }
 
 .drawer .logo-image {
@@ -283,7 +284,6 @@ title {
 
 footer {
     background-color: #fafafa !important;
-    position: relative;
 }
 
 footer a:hover {
@@ -307,7 +307,6 @@ footer .mdl-mega-footer--bottom-section a {
 }
 
 footer .mdl-mega-footer--right-section a .material-icons {
-    position: relative;
     top: 6px;
 }
 
@@ -382,6 +381,23 @@ footer .mdl-mega-footer--right-section a .material-icons {
     position: absolute;
     left: 0;
     width: 5em;
+}
+
+.drawer-header {
+    box-sizing: border-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: flex-end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+    padding: 16px;
+    height: 100px;
+    background-color: #37474f;
+    color: white;
 }
 
 
