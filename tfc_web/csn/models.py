@@ -43,7 +43,17 @@ class LWCallbackURL(models.Model):
     application = models.ForeignKey(LWApplication, on_delete=models.CASCADE, related_name="callback_url")
 
 
-LWCallbackURLFormSet = inlineformset_factory(LWApplication, LWCallbackURL, fields=('url',), can_delete=False)
+class LWCallbackURLForm(ModelForm):
+    class Meta:
+        model = LWCallbackURL
+        fields = ['url', 'application']
+        widgets = {
+            'url': TextInput(attrs={'class': 'mdl-textfield__input'}),
+        }
+
+
+LWCallbackURLFormSet = inlineformset_factory(LWApplication, LWCallbackURL, form=LWCallbackURLForm, fields=('url',),
+                                             can_delete=False)
 
 
 class LWDevice(models.Model):
