@@ -20,9 +20,11 @@ from csn import views
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='csn/home.html'), name='csn_home'),
     url(r'^devices', views.devices, name='csn_devices'),
+    url(r'^device/(?P<device_id>\d+)/', views.device, name='csn_device'),
     url(r'^device/new$', views.new_device, name='csn_new_device'),
     url(r'^device/delete', views.delete_device, name='csn_delete_device'),
     url(r'^apps', views.applications, name='csn_applications'),
+    url(r'^app/(?P<app_id>\d+)/', views.application, name='csn_app'),
     url(r'^app/new$', views.new_app, name='csn_new_app'),
     url(r'^app/delete', views.delete_app, name='csn_delete_app'),
 ]

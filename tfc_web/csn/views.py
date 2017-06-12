@@ -11,6 +11,14 @@ def devices(request):
 
 
 @login_required
+def device(request, device_id):
+    lwdevice = get_object_or_404(LWDevice, user=request.user, id=device_id)
+    return render(request, 'csn/device.html', {
+        'device': lwdevice,
+    })
+
+
+@login_required
 def new_device(request):
     lwdevice_form = LWDeviceForm(user=request.user)
     if request.method == "POST":
@@ -35,6 +43,14 @@ def delete_device(request):
 def applications(request):
     return render(request, 'csn/applications.html', {
         'applications': LWApplication.objects.filter(user=request.user)
+    })
+
+
+@login_required
+def application(request, app_id):
+    lwapp = get_object_or_404(LWApplication, user=request.user, id=app_id)
+    return render(request, 'csn/application.html', {
+        'application': lwapp,
     })
 
 
