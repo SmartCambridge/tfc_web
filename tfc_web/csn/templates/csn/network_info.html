@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="{% static 'map.css' %}" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+{% endblock %}
+{% block content %}
+    <div style="height: 100vh;">
+        {% if error %}
+        <p>Please, try again later</p>
+        {% else %}
+        <div id="map" style="height: 100%; width: 100%;"></div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block lazy_script %}
+{% if not error %}
+<script>
+    var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
+    var info_map = L.control();
+    var gateways = {{ gateways|safe }};
+
+    // method that we will use to update the control based on feature properties passed
+    info_map.update = function (info_text) {
+        this._div.innerHTML = info_text;
+    };
+
+    $(document).ready(function() {
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        for (var i = 0; i < gateways.length; i++) {
+            if ((gateways[i]['pos_lat'] !== null) && (gateways[i]['pos_lon'] !== null)) {
+                L.marker([gateways[i]['pos_lat'], gateways[i]['pos_lon']]).addTo(map);
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,6 +1,9 @@
+import json
+import requests
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from csn.models import LWDeviceForm, LWDevice, LWCallbackURLFormSet, LWApplication, LWApplicationForm
+from csn.models import LWDeviceForm, LWDevice, LWCallbackURLFormSet, LWApplication, LWApplicationForm, LOGGER
 
 
 @login_required
@@ -81,3 +84,28 @@ def delete_app(request):
         lwapp = get_object_or_404(LWApplication, user=request.user, id=request.POST['app_id'])
         lwapp.delete()
     return redirect('csn_applications')
+
+
+def network_info(request):
+    gateways = None
+    error = False
+    headers = \
+        {
+            'Authorization': settings.LW_API_KEY,
+            'Content-Type': 'application/json'
+        }
+    response = requests.get(settings.EVERYNET_API_ENDPOINT + "gateways", headers=headers)
+    if response.status_code != 200:
+        LOGGER.error(response)
+        error = True
+    else:
+        try:
+            gateways = json.loads(response.content.decode('utf-8'))
+        except Exception as e:
+            LOGGER.error(e)
+            error = True
+
+    return render(request, 'csn/network_info.html', {
+        'gateways': json.dumps(gateways['gateways']) if 'gateways' in gateways else gateways,
+        'error': error,
+    })

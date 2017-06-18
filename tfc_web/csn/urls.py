@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^app/(?P<app_id>\d+)/', views.application, name='csn_app'),
     url(r'^app/new$', views.new_app, name='csn_new_app'),
     url(r'^app/delete', views.delete_app, name='csn_delete_app'),
+    url(r'^network', views.network_info, name='csn_network_info'),
 ]
