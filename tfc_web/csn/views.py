@@ -1,5 +1,6 @@
 import json
 import requests
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
@@ -106,6 +107,41 @@ def network_info(request):
             error = True
 
     return render(request, 'csn/network_info.html', {
-        'gateways': json.dumps(gateways['gateways']) if 'gateways' in gateways else gateways,
+        'gateways': gateways['gateways'] if gateways and 'gateways' in gateways else None,
         'error': error,
+    })
+
+
+def gateway(request, gw_mac):
+    error = False
+    total_json = None
+    headers = \
+        {
+            'Authorization': settings.LW_API_KEY,
+            'Content-Type': 'application/json'
+        }
+    response_total = requests.get(settings.EVERYNET_API_ENDPOINT + "statistics/gateway/%s/total" % gw_mac,
+                                  headers=headers)
+    if response_total.status_code != 200:
+        LOGGER.error(response_total)
+        error = True
+    else:
+        try:
+            total_json = json.loads(response_total.content.decode('utf-8'))
+        except Exception as e:
+            LOGGER.error(e)
+            error = True
+    response_graph = requests.get(
+        settings.EVERYNET_API_ENDPOINT + "statistics/gateway/%s/graph?from_time=%s&to_time=%s&step=%s" %
+        (gw_mac, int((datetime.utcnow() - timedelta(days=7)).timestamp()), int(datetime.utcnow().timestamp()), 1800),
+        headers=headers)
+    if response_graph.status_code != 200:
+        LOGGER.error(response_graph)
+        error = True
+
+    return render(request, 'csn/gateway.html', {
+        'total': total_json['total'] if total_json and 'total' in total_json else None,
+        'graph': response_graph.content,
+        'error': error,
+        'gw_mac': gw_mac,
     })
