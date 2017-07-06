@@ -65,12 +65,16 @@ Install and configure postgreSQL database
 $ sudo apt-get install postgresql postgresql-contrib postgis
 $ sudo -u postgres psql
 postgres=# CREATE DATABASE tfcweb;
+postgres=# CREATE DATABASE csn;
 postgres=# CREATE USER tfc_prod;
 postgres=# ALTER ROLE tfc_prod SET client_encoding TO 'utf8';
 postgres=# ALTER ROLE tfc_prod SET default_transaction_isolation TO 'read committed';
 postgres=# ALTER ROLE tfc_prod SET timezone TO 'UTC';
 postgres=# GRANT ALL PRIVILEGES ON DATABASE tfcweb TO tfc_prod;
+postgres=# GRANT ALL PRIVILEGES ON DATABASE csn TO tfc_prod;
 postgres=# \connect tfcweb
+postgres=# CREATE EXTENSION postgis;
+postgres=# \connect csn
 postgres=# CREATE EXTENSION postgis;
 postgres=# \q
 ```
