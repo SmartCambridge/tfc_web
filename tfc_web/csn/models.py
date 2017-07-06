@@ -8,7 +8,7 @@ from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.forms import ModelForm, inlineformset_factory, TextInput, Select, ModelChoiceField
+from django.forms import ModelForm, TextInput, Select, ModelChoiceField
 from django.utils.encoding import python_2_unicode_compatible
 
 
@@ -22,6 +22,7 @@ class LWApplication(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     user = models.ForeignKey(User)
+    url = models.URLField()
 
     @python_2_unicode_compatible
     def __str__(self):
@@ -31,29 +32,11 @@ class LWApplication(models.Model):
 class LWApplicationForm(ModelForm):
     class Meta:
         model = LWApplication
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'url']
         widgets = {
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
         }
-
-
-class LWCallbackURL(models.Model):
-    url = models.URLField()
-    application = models.ForeignKey(LWApplication, on_delete=models.CASCADE, related_name="callback_url")
-
-
-class LWCallbackURLForm(ModelForm):
-    class Meta:
-        model = LWCallbackURL
-        fields = ['url', 'application']
-        widgets = {
-            'url': TextInput(attrs={'class': 'mdl-textfield__input'}),
-        }
-
-
-LWCallbackURLFormSet = inlineformset_factory(LWApplication, LWCallbackURL, form=LWCallbackURLForm, fields=('url',),
-                                             can_delete=False)
 
 
 class LWDevice(models.Model):
