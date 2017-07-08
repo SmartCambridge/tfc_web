@@ -78,6 +78,11 @@ postgres=# \connect csn
 postgres=# CREATE EXTENSION postgis;
 postgres=# \q
 ```
+Apply all the migrations
+```
+python3 manage.py migrate --database default
+python3 manage.py migrate --database csn
+```
 
 ### Test basic nginx/ gunicorn / python web access with:
 ```
