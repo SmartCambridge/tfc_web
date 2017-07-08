@@ -21,8 +21,19 @@ class LWApplication(models.Model):
     #                                        MinLengthValidator(16)])
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    user = models.ForeignKey(User)
+    user_id = models.IntegerField()
     url = models.URLField()
+
+    @property
+    def user(self):
+        return User.objects.get(pk=self.user_id)
+
+    @user.setter
+    def user(self, object):
+        if object.__class__ == User and object.pk is not None:
+            self.user_id = object.pk
+        else:
+            raise ValidationError("user needs to be a django User")
 
     @python_2_unicode_compatible
     def __str__(self):
@@ -64,12 +75,23 @@ class LWDevice(models.Model):
                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
                                            MinLengthValidator(32)])
     lw_application = models.ForeignKey(LWApplication, related_name="lw_devices")
-    user = models.ForeignKey(User)
+    user_id = models.IntegerField()
 
     def clean(self):
         pass
         # if self.user != self.lw_application.user:
         #     raise ValidationError("You are not authorise to add this device to the application selected")
+
+    @property
+    def user(self):
+        return User.objects.get(pk=self.user_id)
+
+    @user.setter
+    def user(self, object):
+        if object.__class__ == User and object.pk is not None:
+            self.user_id = object.pk
+        else:
+            raise ValidationError("user needs to be a django User")
 
 
 @receiver(post_save, sender=LWDevice)
@@ -111,7 +133,7 @@ class LWDeviceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(LWDeviceForm, self).__init__(*args, **kwargs)
-        self.fields['lw_application'] = ModelChoiceField(queryset=LWApplication.objects.filter(user=self.user),
+        self.fields['lw_application'] = ModelChoiceField(queryset=LWApplication.objects.filter(user_id=self.user.pk),
                                                          widget=Select(attrs={'class': 'mdl-textfield__input'}))
 
     def clean(self):

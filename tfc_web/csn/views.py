@@ -10,13 +10,13 @@ from csn.models import LWDeviceForm, LWDevice, LWApplication, LWApplicationForm,
 @login_required
 def devices(request):
     return render(request, 'csn/devices.html', {
-        'devices': LWDevice.objects.filter(user=request.user)
+        'devices': LWDevice.objects.filter(user_id=request.user.pk)
     })
 
 
 @login_required
 def device(request, device_id):
-    lwdevice = get_object_or_404(LWDevice, user=request.user, id=device_id)
+    lwdevice = get_object_or_404(LWDevice, user_id=request.user.pk, id=device_id)
     return render(request, 'csn/device.html', {
         'device': lwdevice,
     })
@@ -38,7 +38,7 @@ def new_device(request):
 @login_required
 def delete_device(request):
     if request.method == "POST":
-        lwdevice = get_object_or_404(LWDevice, user=request.user, dev_eui=request.POST['dev_eui'])
+        lwdevice = get_object_or_404(LWDevice, user_id=request.user.pk, dev_eui=request.POST['dev_eui'])
         lwdevice.delete()
     return redirect('csn_devices')
 
@@ -46,13 +46,13 @@ def delete_device(request):
 @login_required
 def applications(request):
     return render(request, 'csn/applications.html', {
-        'applications': LWApplication.objects.filter(user=request.user)
+        'applications': LWApplication.objects.filter(user_id=request.user.pk)
     })
 
 
 @login_required
 def application(request, app_id):
-    lwapp = get_object_or_404(LWApplication, user=request.user, id=app_id)
+    lwapp = get_object_or_404(LWApplication, user_id=request.user.pk, id=app_id)
     return render(request, 'csn/application.html', {
         'application': lwapp,
     })
@@ -76,7 +76,7 @@ def new_app(request):
 @login_required
 def delete_app(request):
     if request.method == "POST":
-        lwapp = get_object_or_404(LWApplication, user=request.user, id=request.POST['app_id'])
+        lwapp = get_object_or_404(LWApplication, user_id=request.user.pk, id=request.POST['app_id'])
         lwapp.delete()
     return redirect('csn_applications')
 

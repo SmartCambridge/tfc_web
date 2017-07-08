@@ -113,6 +113,7 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['tfc_web.dbrouter.CSNRouter']
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
