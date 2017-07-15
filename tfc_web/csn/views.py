@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from csn.models import LWDeviceForm, LWDevice, LWApplication, LWApplicationForm, LOGGER
+from csn.forms import LWDeviceForm, LWApplicationForm
+from csn.models import LWDevice, LWApplication, LOGGER
 
 
 @login_required

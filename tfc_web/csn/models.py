@@ -1,15 +1,14 @@
-import json
 import logging
-import requests
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.forms import ModelForm, TextInput, Select, ModelChoiceField
 from django.utils.encoding import python_2_unicode_compatible
+from csn.everynet_api import everynet_add_device, everynet_remove_device
+from csn.tfc_server_api import tfc_server_add_device, tfc_server_add_application, tfc_server_remove_application, \
+    tfc_server_remove_device
 
 
 LOGGER = logging.getLogger('CSN')
@@ -40,14 +39,15 @@ class LWApplication(models.Model):
         return self.name
 
 
-class LWApplicationForm(ModelForm):
-    class Meta:
-        model = LWApplication
-        fields = ['name', 'description', 'url']
-        widgets = {
-            'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
-            'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
-        }
+@receiver(post_save, sender=LWApplication)
+def add_lw_application_api(sender, instance, created, **kwargs):
+    if created:
+        tfc_server_add_application(instance)
+
+
+@receiver(post_delete, sender=LWApplication)
+def remove_lw_application_api(sender, instance, **kwargs):
+    tfc_server_remove_application(instance)
 
 
 class LWDevice(models.Model):
@@ -95,71 +95,13 @@ class LWDevice(models.Model):
 
 
 @receiver(post_save, sender=LWDevice)
-def lw_device_new_in_everynet(sender, instance, created, **kwargs):
+def add_lw_device_api(sender, instance, created, **kwargs):
     if created:
-        data = \
-            {
-                "app_eui": settings.LW_APP_EUI,
-                "dev_eui": instance.dev_eui,
-                "appskey": settings.LW_APP_API_KEY,
-                "dev_class": instance.dev_class,
-                "counters_size": instance.counters_size,
-                "activation_type": "abp_core",
-                "band": "EU863-870",
-                "dev_addr": instance.dev_addr,
-                "nwkskey": instance.nwkskey
-            }
-        headers = \
-            {
-                'Authorization': settings.LW_API_KEY,
-                'Content-Type': 'application/json'
-            }
-        response = requests.post(settings.EVERYNET_API_ENDPOINT + "devices", data=json.dumps(data), headers=headers)
-        if response.status_code != 200:
-            LOGGER.error(response)
+        everynet_add_device(instance)
+        tfc_server_add_device(instance)
 
 
 @receiver(post_delete, sender=LWDevice)
-def lw_device_delete_in_everynet(sender, instance, **kwargs):
-    headers = \
-        {
-            'Authorization': settings.LW_API_KEY,
-            'Content-Type': 'application/json'
-        }
-    requests.delete(settings.EVERYNET_API_ENDPOINT + "devices/%s" % instance.dev_eui, headers=headers)
-
-
-class LWDeviceForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user')
-        super(LWDeviceForm, self).__init__(*args, **kwargs)
-        self.fields['lw_application'] = ModelChoiceField(queryset=LWApplication.objects.filter(user_id=self.user.pk),
-                                                         widget=Select(attrs={'class': 'mdl-textfield__input'}))
-
-    def clean(self):
-        cleaned_data = super(LWDeviceForm, self).clean()
-        lw_application = cleaned_data.get("lw_application")
-        if self.user != lw_application.user:
-            raise ValidationError("You are not authorise to add this device to the application selected")
-        cleaned_data['user'] = self.user
-        return cleaned_data
-
-    def save(self, commit=True):
-        lw_device = super(LWDeviceForm, self).save(commit=False)
-        lw_device.user = self.user
-        lw_device.save()
-        return lw_device
-
-    class Meta:
-        model = LWDevice
-        fields = ['name', 'description', 'dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey',
-                  'lw_application']
-        widgets = {
-            'dev_eui': TextInput(attrs={'class': 'mdl-textfield__input'}),
-            'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
-            'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
-            'dev_class': Select(attrs={'class': 'mdl-textfield__input'}),
-            'counters_size': Select(attrs={'class': 'mdl-textfield__input'}),
-            'dev_addr': TextInput(attrs={'class': 'mdl-textfield__input'}),
-            'nwkskey': TextInput(attrs={'class': 'mdl-textfield__input'}),
-        }
+def remove_lw_device_api(sender, instance, **kwargs):
+    everynet_remove_device(instance)
+    tfc_server_remove_device(instance)

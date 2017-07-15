@@ -163,3 +163,6 @@ LOGIN_REDIRECT_URL = 'csn_home'
 
 # everynet API
 EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
+
+# TFC Server CSN API
+TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.httpmsg.test"
