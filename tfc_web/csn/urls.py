@@ -12,9 +12,10 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.views.generic import TemplateView
 from csn import views
+from machina.app import board
 
 
 urlpatterns = [
@@ -29,4 +30,7 @@ urlpatterns = [
     url(r'^app/delete', views.delete_app, name='csn_delete_app'),
     url(r'^network', views.network_info, name='csn_network_info'),
     url(r'^gateway/(?P<gw_mac>\w+)/', views.gateway, name='csn_gateway'),
+
+    # Forum
+    url(r'^forum/', include(board.urls)),
 ]

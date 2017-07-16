@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR, get_apps as get_machina_apps
 from tfc_web.secrets import *
 
 
@@ -31,25 +32,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk', 'localhost', '127.0.0.1', '[::1]']
 
 
-# Application definition
-
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # PostGIS
-    'django.contrib.gis',
-    # all auth
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.github',
-    # 'allauth.socialaccount.providers.google',
-    # applications
+# Application apps
+PROJECT_APPS = [
     'tfc_gis',
     'transport',
     'vix',
@@ -58,6 +42,26 @@ INSTALLED_APPS = [
     'aq',
     'csn'
 ]
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # PostGIS
+    'django.contrib.gis',
+
+    # all auth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.github',
+    # 'allauth.socialaccount.providers.google',
+] + PROJECT_APPS
 
 MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -68,7 +72,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'tfc_web.urls'
@@ -131,20 +134,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
 STATIC_URL = '/static_web/'
-
-STATICFILES_DIRS = [
-    "static",
-]
-
+STATICFILES_DIRS = ["static"]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 API_ENDPOINT = 'http://localhost'
 MEDIA_URL = "/media/"
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
@@ -154,15 +150,59 @@ USE_X_FORWARDED_HOST = True
 
 SITE_ID = 2
 
-# auth options
+
+######## djang-allauth options ##########
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 LOGIN_REDIRECT_URL = 'csn_home'
 
-# everynet API
+
+######### Forum app (django-machina) configuration ##########
+INSTALLED_APPS += [
+    'mptt',
+    'haystack',
+    'widget_tweaks',
+] + get_machina_apps()
+MIDDLEWARE_CLASSES += [
+    'machina.apps.forum_permission.middleware.ForumPermissionMiddleware',
+]
+TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'templates/forum'))
+TEMPLATES[0]['DIRS'].append(MACHINA_MAIN_TEMPLATE_DIR)
+TEMPLATES[0]['OPTIONS']['context_processors'].append('machina.core.context_processors.metadata')
+STATICFILES_DIRS.append(MACHINA_MAIN_STATIC_DIR)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+    'machina_attachments': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp',
+    }
+}
+HAYSTACK_CONNECTIONS = {
+  'default': {
+    'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+  },
+}
+MACHINA_FORUM_NAME = "SmartCambridge Forum"
+MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
+    'can_see_forum',
+    'can_read_forum',
+    'can_start_new_topics',
+    'can_reply_to_topics',
+    'can_edit_own_posts',
+    'can_post_without_approval',
+    'can_create_polls',
+    'can_vote_in_polls',
+    'can_download_file',
+]
+
+
+###### everynet API #########
 EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
+
 
 # TFC Server CSN API
 TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.httpmsg.test"
