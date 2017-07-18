@@ -1,8 +1,12 @@
 import logging
 from django.contrib.auth.models import User
+from django.contrib.gis.db.models import GeometryField
+from django.contrib.gis.forms import PointField
+from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
+from django.contrib.gis.db import models as models_gis
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
@@ -105,3 +109,24 @@ def add_lw_device_api(sender, instance, created, **kwargs):
 def remove_lw_device_api(sender, instance, **kwargs):
     everynet_remove_device(instance)
     tfc_server_remove_device(instance)
+
+
+class Point4DField(GeometryField):
+    geom_type = 'POINTZM'
+    form_class = PointField
+    description = "Point4D"
+
+    def __init__(self, dim=4, **kwargs):
+        super().__init__(dim=4, **kwargs)
+
+
+class SensorData(models_gis.Model):
+    """This model is used to store sensor data"""
+    DEVICE_TYPE = (
+        ('LWDevice', 'LoRaWAN Device'),
+    )
+    timestamp = models.DateTimeField()
+    location_4d = Point4DField(geography=True)
+    device = models.ForeignKey(LWDevice, to_field="dev_eui", db_constraint=False)
+    device_type = models.CharField(choices=DEVICE_TYPE, max_length=16)
+    data = JSONField()
