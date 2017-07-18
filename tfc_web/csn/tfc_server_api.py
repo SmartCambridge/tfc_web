@@ -45,7 +45,7 @@ def tfc_server_add_application(lwapp):
                 "app_eui": lwapp.id,
                 "http.post": True,
                 "http.host": appurl.hostname,
-                "http.port": appurl.port,
+                "http.port": appurl.port if appurl.port else 80,
                 "http.uri": appurl.path,
                 "http.ssl": True if appurl.scheme == 'https' else False,
                 "http.token": ""
