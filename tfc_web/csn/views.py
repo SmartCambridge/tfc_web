@@ -30,7 +30,7 @@ def new_device(request):
         lwdevice_form = LWDeviceForm(request.POST, user=request.user)
         if lwdevice_form.is_valid():
             lwdevice_form.save()
-            return redirect('csn_home')
+            return redirect('csn_devices')
     return render(request, 'csn/new_device.html', {
         'form': lwdevice_form
     })

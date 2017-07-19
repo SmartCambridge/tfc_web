@@ -66,17 +66,18 @@ class LWDevice(models.Model):
     )
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
+    # Device properties
     dev_eui = models.CharField(max_length=16, unique=True,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
                                            MinLengthValidator(16)])
     dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS)
     counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS)
+    # Activation by personalisation (ABP)
     dev_addr = models.CharField(max_length=8,
-                                validators=[RegexValidator(r"^[0-9a-fA-F]+$",
-                                                           "Should match the ^[0-9a-fA-F]+$ pattern"),
+                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
                                             MinLengthValidator(8)])
     nwkskey = models.CharField(max_length=32,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
                                            MinLengthValidator(32)])
     lw_application = models.ForeignKey(LWApplication, related_name="lw_devices")
     user_id = models.IntegerField()
