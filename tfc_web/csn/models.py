@@ -11,14 +11,52 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 from csn.everynet_api import everynet_add_device, everynet_remove_device
-from csn.tfc_server_api import tfc_server_add_device, tfc_server_add_application, tfc_server_remove_application, \
-    tfc_server_remove_device
+from csn.tfc_server_api import tfc_server_add_sensor, tfc_server_add_destination, tfc_server_remove_destination, \
+    tfc_server_remove_sensor
 
 
 LOGGER = logging.getLogger('CSN')
 
 
-class LWApplication(models.Model):
+class Sensor(models.Model):
+    sensor_id = models.CharField(max_length=255)
+    # Type of sensor, for example a LoRaWAN  device
+    type = models.CharField(max_length=100)
+    info = JSONField()
+    class Meta:
+        unique_together = ("sensor_id", "type")
+
+
+@receiver(post_save, sender=Sensor)
+def add_sensor_api(sender, instance, created, **kwargs):
+    if created:
+        tfc_server_add_sensor(instance)
+
+
+@receiver(post_delete, sender=Sensor)
+def remove_sensor_api(sender, instance, **kwargs):
+    tfc_server_remove_sensor(instance)
+
+
+class Destination(models.Model):
+    # Type of destianation, for example a LoRaWAN application
+    type = models.CharField(max_length=100)
+    info = JSONField()
+
+
+@receiver(post_save, sender=Destination)
+def add_destination_api(sender, instance, created, **kwargs):
+    if created:
+        tfc_server_add_destination(instance)
+
+
+@receiver(post_delete, sender=Destination)
+def remove_destination_api(sender, instance, **kwargs):
+    tfc_server_remove_destination(instance)
+
+
+class LWApplication(Destination):
+    type = "LWApplication"
     # app_eui = models.CharField(max_length=16, unique=True,
     #                            validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
     #                                        MinLengthValidator(16)])
@@ -42,20 +80,21 @@ class LWApplication(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, **kwargs):
+        self.type = "LWApplication"
+        self.info = {
+            'name': self.name,
+            'description': self.description,
+            'user_id': self.user_id,
+            'url': self.url,
+            'type': self.type
+        }
+        return super(LWApplication, self).save(**kwargs)
 
-@receiver(post_save, sender=LWApplication)
-def add_lw_application_api(sender, instance, created, **kwargs):
-    if created:
-        tfc_server_add_application(instance)
 
-
-@receiver(post_delete, sender=LWApplication)
-def remove_lw_application_api(sender, instance, **kwargs):
-    tfc_server_remove_application(instance)
-
-
-class LWDevice(models.Model):
+class LWDevice(Sensor):
     """This class will store LoRaWAN devices"""
+    type = "LWDevice"
     DEVICE_CLASS = (
         ('A', 'A'),
         ('C', 'C'),
@@ -98,18 +137,33 @@ class LWDevice(models.Model):
         else:
             raise ValidationError("user needs to be a django User")
 
+    def save(self, **kwargs):
+        self.type = "LWDevice"
+        self.sensor_id = self.dev_eui
+        self.info = {
+            'name': self.name,
+            'description': self.description,
+            'dev_eui': self.dev_eui,
+            'dev_class': self.user_id,
+            'counters_size': self.counters_size,
+            'dev_addr': self.dev_addr,
+            'nwkskey': self.nwkskey,
+            'destination_id': self.lw_application.id,
+            'user_id': self.user_id,
+            'type': self.type
+        }
+        return super(LWDevice, self).save(**kwargs)
+
 
 @receiver(post_save, sender=LWDevice)
 def add_lw_device_api(sender, instance, created, **kwargs):
     if created:
         everynet_add_device(instance)
-        tfc_server_add_device(instance)
 
 
 @receiver(post_delete, sender=LWDevice)
 def remove_lw_device_api(sender, instance, **kwargs):
     everynet_remove_device(instance)
-    tfc_server_remove_device(instance)
 
 
 class Point4DField(GeometryField):
@@ -123,11 +177,22 @@ class Point4DField(GeometryField):
 
 class SensorData(models_gis.Model):
     """This model is used to store sensor data"""
-    DEVICE_TYPE = (
+    SENSOR_TYPE = (
         ('LWDevice', 'LoRaWAN Device'),
+    )
+    SOURCE_TYPE = (
+        ('Everynet', 'Everynet Network'),
+    )
+    DATA_FORMAT = (
+        ('ascii_hex', 'ascii_hex'),
+        ('ascii', 'ascii'),
+        ('binary', 'binary'),
+        ('other', 'other'),
     )
     timestamp = models.DateTimeField()
     location_4d = Point4DField(geography=True)
-    device = models.ForeignKey(LWDevice, to_field="dev_eui", db_constraint=False)
-    device_type = models.CharField(choices=DEVICE_TYPE, max_length=16)
+    sensor_id = models.CharField(max_length=255)
+    sensor_type = models.CharField(choices=SENSOR_TYPE, max_length=100)
+    source_type = models.CharField(choices=SOURCE_TYPE, max_length=100)
+    data_format = models.CharField(choices=DATA_FORMAT, max_length=100)
     data = JSONField()
