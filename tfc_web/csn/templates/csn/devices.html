@@ -1,16 +1,16 @@
-{% extends "base.html" %}
+{% extends "csn/base.html" %}
 {% block content %}
     <div class="cards-section-title mdl-typography--display-1-color-contrast">My devices</div>
-    <ul class="mdl-list">
+    <ul class="mdl-list" style="max-width: 600px;">
         {% for device in devices %}
             <li class="mdl-list__item mdl-list__item--three-line">
-            <span class="mdl-list__item-primary-content">
-                <a href="{% url 'csn_device' device_id=device.id %}" style="text-decoration: none;">
-                    <i class="material-icons mdl-list__item-avatar">nfc</i>
-                    <span>{{ device.name }}</span>
-                    <span class="mdl-list__item-text-body">{{ device.description }}</span>
-                </a>
-            </span>
+                <span class="mdl-list__item-primary-content">
+                    <a href="{% url 'csn_device' device_id=device.id %}" style="text-decoration: none;">
+                        <i class="material-icons mdl-list__item-avatar">nfc</i>
+                        <span>{{ device.name }}</span>
+                        <span class="mdl-list__item-text-body">{{ device.description }}</span>
+                    </a>
+                </span>
                 <span class="mdl-list__item-secondary-content">
                 <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons" data-device-eui="{{ device.dev_eui }}">delete</i></a>
             </span>

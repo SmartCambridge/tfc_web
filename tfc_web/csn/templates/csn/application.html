@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="cards-section-title mdl-typography--display-1-color-contrast">Application {{ application.name }}</div>
-    <p>
-        Name: {{ application.name }}<br>
-        Description: {{ application.description }}
+    <div class="cards-section-title mdl-typography--display-1-color-contrast">Application: {{ application.name }}</div>
+    <p class="mdl-typography--body-1" style="margin-bottom: 0">
+        Description: {{ application.description }}<br>
+        URL: {{ application.url }}<br>
+        Devices:
     </p>
-    <div class="cards-section-title mdl-typography--display-1-color-contrast">Devices</div>
-    <ul class="mdl-list">
+    <ul class="mdl-list" style="margin-top: 0; padding-top: 0;">
     {% for device in application.lw_devices.all %}
         <li class="mdl-list__item mdl-list__item--three-line">
-            <a href="{% url 'csn_device' device_id=device.id %}" style="text-decoration: none;">
-                <span class="mdl-list__item-primary-content">
+            <span class="mdl-list__item-primary-content">
+                <a href="{% url 'csn_device' device_id=device.id %}" style="text-decoration: none;">
                     <i class="material-icons mdl-list__item-avatar">nfc</i>
                     <span>{{ device.name }}</span>
                     <span class="mdl-list__item-text-body">{{ device.description }}</span>
-                </span>
-            </a>
+                </a>
+            </span>
         </li>
     {% endfor %}
     </ul>

@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "csn/base.html" %}
 {% block content %}
-    <h3>New device</h3>
+    <h1 class="mdl-typography--display-1-color-contrast">New Device</h1>
     <form action="{% url 'csn_new_device' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}

@@ -1,21 +1,23 @@
-{% extends "base.html" %}
+{% extends "csn/base.html" %}
 {% block content %}
-    <div class="cards-section-title mdl-typography--display-1-color-contrast">Device {{ device.name }}</div>
-    <p>
-        Name: {{ device.name }}<br>
-        Description: {{ device.description }}
+    <div class="cards-section-title mdl-typography--display-1-color-contrast">Device: {{ device.name }}</div>
+    <p class="mdl-typography--body-1" style="margin-bottom: 0;">
+        Description: {{ device.description }}<br>
+        EUI: {{ device.dev_eui }}<br>
+        Class: {{ device.dev_class }}<br>
+        Address: {{ device.dev_addr }}<br>
+        Network session key: {{ device.nwkskey }}<br>
+        Application:
     </p>
-    <div class="cards-section-title mdl-typography--display-1-color-contrast">Application</div>
-    <ul class="mdl-list">
+    <ul class="mdl-list" style="margin-top: 0; padding-top: 0;">
         <li class="mdl-list__item mdl-list__item--three-line">
-            <a href="{% url 'csn_app' app_id=device.lw_application.id %}" style="text-decoration: none;">
-                <span class="mdl-list__item-primary-content">
+            <span class="mdl-list__item-primary-content">
+                <a href="{% url 'csn_app' app_id=device.lw_application.id %}" style="text-decoration: none;">
                     <i class="material-icons mdl-list__item-avatar">apps</i>
                     <span>{{ device.lw_application.name }}</span>
-                    <span class="mdl-list__item-text-body">{{ device.lw_application.description }}</span>
-                </span>
-            </a>
+                    <span class="mdl-list__item-text-body">{{ device.lw_application.description }}<br>{{ device.lw_application.url }}</span>
+                </a>
+            </span>
         </li>
     </ul>
-    <p><br></p>
 {% endblock %}

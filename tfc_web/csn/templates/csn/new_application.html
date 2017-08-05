@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "csn/base.html" %}
 {% block content %}
-    <h3>create application</h3>
+    <h1 class="mdl-typography--display-1-color-contrast">New Application</h1>
     <form action="{% url 'csn_new_app' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}

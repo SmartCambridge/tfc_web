@@ -30,6 +30,10 @@ title {
     margin: 0 0 0 10px;
 }
 
+ul.errorlist {
+    color: darkred;
+}
+
 ::-moz-selection {
     background-color: #1cb2b5;
     color: #fff;

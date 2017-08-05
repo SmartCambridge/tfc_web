@@ -28,6 +28,13 @@ class LWDeviceForm(ModelForm):
         model = LWDevice
         fields = ['name', 'description', 'dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey',
                   'lw_application']
+        labels = {
+            'dev_class': "Device Class",
+            'dev_eui': "Device EUI (16 HEX)",
+            'dev_addr': "Device Address (8 HEX)",
+            'nwkskey': "Network session key (32 HEX)",
+            'lw_application': "Application",
+        }
         widgets = {
             'dev_eui': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
@@ -46,4 +53,5 @@ class LWApplicationForm(ModelForm):
         widgets = {
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
+            'url': TextInput(attrs={'class': 'mdl-textfield__input'}),
         }
