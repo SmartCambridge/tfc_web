@@ -3,10 +3,17 @@
     <div class="cards-section-title mdl-typography--display-1-color-contrast">Device: {{ device.name }}</div>
     <p class="mdl-typography--body-1" style="margin-bottom: 0;">
         Description: {{ device.description }}<br>
-        EUI: {{ device.dev_eui }}<br>
         Class: {{ device.dev_class }}<br>
-        Address: {{ device.dev_addr }}<br>
-        Network session key: {{ device.nwkskey }}<br>
+        Counters Size: {{ device.counters_size }}<br>
+        Device EUI: {{ device.dev_eui }}<br>
+        Activation type: {{ device.get_activation_type_display }}<br>
+        {% if device.activation_type == "abp" %}
+        Device Address: {{ device.dev_addr }}<br>
+        Network Session Key: {{ device.nwkskey }}<br>
+        Application Session Key: {{ device.appskey }}<br>
+        {% elif device.activation_type == "otaa" %}
+        Application Key: {{ device.app_key }}<br>
+        {% endif %}
         Application:
     </p>
     <ul class="mdl-list" style="margin-top: 0; padding-top: 0;">

@@ -4,6 +4,94 @@
     <form action="{% url 'csn_new_device' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="id_dev_eui">
+            The Device EUI is the unique identifier for the device.
+        </div>
+        <p>
+            <label for="activation_type">Activation Type</label>
+            <select class="mdl-textfield__input" id="activation_type" name="activation_type">
+                <option value="otaa" {% if 'activation_type' in form.data %}{% if form.data.activation_type == "otaa" %}selected{% endif %}{% else %}selected{% endif %}>Over the Air Activation (OTAA)</option>
+                <option value="abp" {% if 'activation_type' in form.data and form.data.activation_type == "abp" %}selected{% endif %}>Activation By Personalization (ABP)</option>
+            </select>
+        </p>
+        <div id="otaa_fields">
+            <div class="header">
+                Please provide Over the Air Activation (OTAA) fields
+            </div>
+            <div class="contents">
+                <p id="app_key_form">
+                    <label for="app_key">Application key</label>
+                    <input class="mdl-textfield__input" id="app_key" name="app_key" required
+                           placeholder="32 hex characters" maxlength="32" minlength="32" pattern="[0-9A-Fa-f]{32}"
+                           title="32 hex characters" {% if 'app_key' in form.data %}value="{{ form.data.app_key }}"{% endif %}>
+                </p>
+                <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="app_key_form">
+                    The application key is used to derive the two session keys during the activation procedure. The key is 128 bits in length represented by a 32-character hexadecimal string.
+                </div>
+            </div>
+        </div>
+        <div id="abp_fields" style="display: none;">
+            <div class="header">
+                Please provide Activation By Personalization (ABP) fields
+            </div>
+            <div class="contents">
+                <p id="nwkskey_form">
+                    <label for="nwkskey">Network Session Key</label>
+                    <input class="mdl-textfield__input" id="nwkskey" name="nwkskey" required
+                           placeholder="32 hex characters" maxlength="32" minlength="32" pattern="[0-9A-Fa-f]{32}"
+                           title="32 hex characters" {% if 'nwkskey' in form.data %}value="{{ form.data.nwkskey }}"{% endif %}>
+                </p>
+                <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="nwkskey_form">
+                    The Network Session key is used to ensure security at network level - from device to the network. The key is 128 bits in length represented by a 32-character hexadecimal string.
+                </div>
+                <p id="appskey_form">
+                    <label for="appskey">Application Session Key</label>
+                    <input class="mdl-textfield__input" id="appskey" name="appskey" required
+                           placeholder="32 hex characters" maxlength="32" minlength="32" pattern="[0-9A-Fa-f]{32}"
+                           title="32 hex characters" {% if 'appskey' in form.data %}value="{{ form.data.appskey }}"{% endif %}>
+                </p>
+                <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="appskey_form">
+                    The Application Session key is used to ensure end to end security from the device to the data server. The key is 128 bits in length represented by a 32-character hexadecimal string.
+                </div>
+                <p id="dev_addr_form">
+                    <label for="dev_addr">Device Address</label>
+                    <input class="mdl-textfield__input" id="dev_addr" name="dev_addr" required
+                           placeholder="8 hex characters" maxlength="8" minlength="8" pattern="[0-9A-Fa-f]{8}"
+                           title="8 hex characters" {% if 'dev_addr' in form.data %}value="{{ form.data.dev_addr }}"{% endif %}>
+                </p>
+                <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="dev_addr_form">
+                    The device address is used to identify a device. 32 bit device address represented by a 8-character hexadecimal string.
+                </div>
+            </div>
+        </div>
         <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Send">
     </form>
+{% endblock %}
+
+{% block lazy_script %}
+    <script>
+        function toggle_activation_type() {
+            if (this.value === "abp") {
+                $("#abp_fields").show();
+                $("#nwkskey").prop("type", "text");
+                $("#appskey").prop("type", "text");
+                $("#dev_addr").prop("type", "text");
+                $("#otaa_fields").hide();
+                $("#app_key").prop("type", "hidden");
+            } else {
+                $("#otaa_fields").show();
+                $("#app_key").prop("type", "text");
+                $("#abp_fields").hide();
+                $("#nwkskey").prop("type", "hidden");
+                $("#appskey").prop("type", "hidden");
+                $("#dev_addr").prop("type", "hidden");
+            }
+        }
+        $(function() {
+            // Handler for .ready() called
+            activation_type_selector = $("#activation_type");
+            activation_type_selector.change(toggle_activation_type);
+            activation_type_selector.change();
+        });
+    </script>
 {% endblock %}

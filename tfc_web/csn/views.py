@@ -2,8 +2,11 @@ import json
 import requests
 from datetime import datetime, timedelta
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect, get_object_or_404
+from csn.everynet_api import everynet_add_device, everynet_remove_device
 from csn.forms import LWDeviceForm, LWApplicationForm
 from csn.models import LWDevice, LWApplication, LOGGER
 
@@ -28,9 +31,27 @@ def new_device(request):
     lwdevice_form = LWDeviceForm(user=request.user)
     if request.method == "POST":
         lwdevice_form = LWDeviceForm(request.POST, user=request.user)
-        if lwdevice_form.is_valid():
-            lwdevice_form.save()
-            return redirect('csn_devices')
+        try:
+            if lwdevice_form.is_valid():
+                lwdevice = lwdevice_form.save(commit=False)
+                lwdevice.user = request.user
+                lwdevice.activation_type = request.POST['activation_type']
+                if lwdevice.activation_type == "abp":
+                    lwdevice.nwkskey = request.POST['nwkskey']
+                    lwdevice.appskey = request.POST['appskey']
+                    lwdevice.dev_addr = request.POST['dev_addr']
+                elif lwdevice.activation_type == "otaa":
+                    lwdevice.app_key = request.POST['app_key']
+                else:
+                    raise ValidationError("Activation type not supported")
+                lwdevice.full_clean()
+                if everynet_add_device(lwdevice):
+                    lwdevice.save()
+                    return redirect('csn_devices')
+                else:
+                    lwdevice_form.add_error(field=None, error=lwdevice.error_message)
+        except Exception as e:
+            lwdevice_form.add_error(field=None, error=str(e))
     return render(request, 'csn/new_device.html', {
         'form': lwdevice_form
     })
@@ -40,7 +61,10 @@ def new_device(request):
 def delete_device(request):
     if request.method == "POST":
         lwdevice = get_object_or_404(LWDevice, user_id=request.user.pk, dev_eui=request.POST['dev_eui'])
-        lwdevice.delete()
+        if everynet_remove_device(lwdevice):
+            lwdevice.delete()
+        else:
+            messages.error(request, lwdevice.error_message)
     return redirect('csn_devices')
 
 

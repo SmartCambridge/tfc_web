@@ -451,3 +451,15 @@ footer .mdl-mega-footer--right-section a .material-icons {
         display: none;
     }
 }
+
+/**** CSN ****/
+
+#otaa_fields, #abp_fields {
+    background: #fafafa;
+    padding: 20px;
+    /*display: none;*/
+}
+
+#otaa_fields .header, #abp_fields .header {
+    margin-bottom: 20px;
+}

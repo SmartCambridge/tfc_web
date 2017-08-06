@@ -8,6 +8,7 @@ class LWDeviceForm(ModelForm):
         self.user = kwargs.pop('user')
         super(LWDeviceForm, self).__init__(*args, **kwargs)
         self.fields['lw_application'] = ModelChoiceField(queryset=LWApplication.objects.filter(user_id=self.user.pk),
+                                                         label="Destination",
                                                          widget=Select(attrs={'class': 'mdl-textfield__input'}))
 
     def clean(self):
@@ -21,30 +22,25 @@ class LWDeviceForm(ModelForm):
     def save(self, commit=True):
         lw_device = super(LWDeviceForm, self).save(commit=False)
         lw_device.user = self.user
-        lw_device.save()
+        if commit:
+            lw_device.save()
         return lw_device
 
     class Meta:
         model = LWDevice
-        fields = ['name', 'description', 'dev_eui', 'dev_class', 'counters_size', 'dev_addr', 'nwkskey',
-                  'lw_application']
+        fields = ['name', 'description', 'dev_class', 'counters_size', 'dev_eui', 'lw_application']
         labels = {
             'dev_class': "Device Class",
-            'dev_eui': "Device EUI (16 HEX)",
-            'dev_addr': "Device Address (8 HEX)",
-            'nwkskey': "Network session key (32 HEX)",
-            'lw_application': "Application",
+            'dev_eui': "Device EUI",
         }
         widgets = {
-            'dev_eui': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'dev_class': Select(attrs={'class': 'mdl-textfield__input'}),
             'counters_size': Select(attrs={'class': 'mdl-textfield__input'}),
-            'dev_addr': TextInput(attrs={'class': 'mdl-textfield__input'}),
-            'nwkskey': TextInput(attrs={'class': 'mdl-textfield__input'}),
+            'dev_eui': TextInput(attrs={'class': 'mdl-textfield__input', 'pattern': '[0-9A-Fa-f]{16}',
+                                        'placeholder': '16 hex characters', 'title': '16 hex characters'}),
         }
-
 
 class LWApplicationForm(ModelForm):
     class Meta:

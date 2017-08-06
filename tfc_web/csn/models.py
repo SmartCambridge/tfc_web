@@ -23,6 +23,7 @@ class Sensor(models.Model):
     # Type of sensor, for example a LoRaWAN  device
     type = models.CharField(max_length=100)
     info = JSONField()
+
     class Meta:
         unique_together = ("sensor_id", "type")
 
@@ -57,9 +58,6 @@ def remove_destination_api(sender, instance, **kwargs):
 
 class LWApplication(Destination):
     type = "LWApplication"
-    # app_eui = models.CharField(max_length=16, unique=True,
-    #                            validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Should match the ^[0-9a-fA-F]+$ pattern"),
-    #                                        MinLengthValidator(16)])
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     user_id = models.IntegerField()
@@ -103,22 +101,61 @@ class LWDevice(Sensor):
         (2, 2),
         (4, 4),
     )
+    ACTIVATION_TYPE = (
+        ('otaa', 'Over the Air Activation'),
+        ('abp', 'Activation by personalisation'),
+    )
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
+
     # Device properties
+    dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS)
+    counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS)
+    activation_type = models.CharField(max_length=5, choices=ACTIVATION_TYPE)
+
+    #######################################
+    # Activation by personalisation (ABP) #
+    #######################################
+    # ABP hardcodes the DevAddr as well as the security keys in the device
+
+    # Device Address - 32 bit device address (non-unique). Dynamically generated in OTA. Fixed in ABP.
+    dev_addr = models.CharField(max_length=8, null=True, blank=True,
+                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
+                                            MinLengthValidator(8)])
+    # Network Session Key - used for interaction between the node and the network.
+    # This key is used to check the validity of messages
+    # Is also used to map a non-unique device address (DevAddr) to a unique DevEUI and AppEUI.
+    nwkskey = models.CharField(max_length=32, null=True, blank=True,
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
+                                           MinLengthValidator(32)])
+    # Application Session Key - used for encryption and decryption of the payload
+    appskey = models.CharField(max_length=32, null=True, blank=True,
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
+                                           MinLengthValidator(32)])
+    # appskey and nwkskey are unique per device, per session. In OTAA these keys are re-generated on every activation.
+    # In ABP these keys stay the same until you change them.
+
+    ##################################
+    # Over the Air Activation (OTAA) #
+    ##################################
+    # Devices perform a join-procedure with the network, during which a dynamic DevAddr is assigned and security keys
+    # are negotiated with the device.
+
+    # Application Key -  used to derive the two session keys (appskey nwkskey) and during the activation procedure.
+    app_key = models.CharField(max_length=32, null=True, blank=True,
+                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
+                                           MinLengthValidator(32)])
+
+    # Device EUI - 64 bit end-device identifier, EUI-64 (unique)
+    # DevEUI is assigned to the device by the chip manufacturer in LoRaWAN devices.
+    # However, all communication is done using DevAddr (dynamic)
     dev_eui = models.CharField(max_length=16, unique=True,
                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
                                            MinLengthValidator(16)])
-    dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS)
-    counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS)
-    # Activation by personalisation (ABP)
-    dev_addr = models.CharField(max_length=8,
-                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                            MinLengthValidator(8)])
-    nwkskey = models.CharField(max_length=32,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                           MinLengthValidator(32)])
-    lw_application = models.ForeignKey(LWApplication, related_name="lw_devices")
+
+    # Application/Destination is linked to
+    lw_application = models.ForeignKey(LWApplication, related_name="lw_devices", null=True, blank=True)
+    # User that owns the device
     user_id = models.IntegerField()
 
     def clean(self):
@@ -137,33 +174,32 @@ class LWDevice(Sensor):
         else:
             raise ValidationError("user needs to be a django User")
 
-    def save(self, **kwargs):
+    def complete_proxy_model(self):
         self.type = "LWDevice"
-        self.sensor_id = self.dev_eui
+        self.sensor_id = self.dev_eui or self.dev_addr
         self.info = {
             'name': self.name,
             'description': self.description,
-            'dev_eui': self.dev_eui,
             'dev_class': self.user_id,
             'counters_size': self.counters_size,
+            'activation_type': self.activation_type,
             'dev_addr': self.dev_addr,
             'nwkskey': self.nwkskey,
-            'destination_id': self.lw_application.id,
+            'appskey': self.appskey,
+            'dev_eui': self.dev_eui,
+            'app_key': self.app_key,
+            'destination_id': self.lw_application.id if self.lw_application else None,
             'user_id': self.user_id,
             'type': self.type
         }
+
+    def full_clean(self, **kwargs):
+        self.complete_proxy_model()
+        return super(LWDevice, self).full_clean(**kwargs)
+
+    def save(self, **kwargs):
+        self.complete_proxy_model()
         return super(LWDevice, self).save(**kwargs)
-
-
-@receiver(post_save, sender=LWDevice)
-def add_lw_device_api(sender, instance, created, **kwargs):
-    if created:
-        everynet_add_device(instance)
-
-
-@receiver(post_delete, sender=LWDevice)
-def remove_lw_device_api(sender, instance, **kwargs):
-    everynet_remove_device(instance)
 
 
 class Point4DField(GeometryField):
