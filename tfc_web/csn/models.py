@@ -19,13 +19,11 @@ LOGGER = logging.getLogger('CSN')
 
 
 class Sensor(models.Model):
-    sensor_id = models.CharField(max_length=255)
-    # Type of sensor, for example a LoRaWAN  device
-    type = models.CharField(max_length=100)
+    id = models.AutoField(primary_key=True)
     info = JSONField()
 
     class Meta:
-        unique_together = ("sensor_id", "type")
+        managed = False
 
 
 @receiver(post_save, sender=Sensor)
@@ -40,9 +38,11 @@ def remove_sensor_api(sender, instance, **kwargs):
 
 
 class Destination(models.Model):
-    # Type of destianation, for example a LoRaWAN application
-    type = models.CharField(max_length=100)
+    id = models.AutoField(primary_key=True)
     info = JSONField()
+
+    class Meta:
+        managed = False
 
 
 @receiver(post_save, sender=Destination)
@@ -79,13 +79,13 @@ class LWApplication(Destination):
         return self.name
 
     def save(self, **kwargs):
-        self.type = "LWApplication"
         self.info = {
             'name': self.name,
             'description': self.description,
             'user_id': self.user_id,
             'url': self.url,
-            'type': self.type
+            'destination_id': self.url,
+            'type': "LWApplication"
         }
         return super(LWApplication, self).save(**kwargs)
 
@@ -175,9 +175,9 @@ class LWDevice(Sensor):
             raise ValidationError("user needs to be a django User")
 
     def complete_proxy_model(self):
-        self.type = "LWDevice"
-        self.sensor_id = self.dev_eui or self.dev_addr
         self.info = {
+            'sensor_id': self.dev_eui or self.dev_addr,
+            'type': "LWDevice",
             'name': self.name,
             'description': self.description,
             'dev_class': self.user_id,
@@ -189,8 +189,7 @@ class LWDevice(Sensor):
             'dev_eui': self.dev_eui,
             'app_key': self.app_key,
             'destination_id': self.lw_application.id if self.lw_application else None,
-            'user_id': self.user_id,
-            'type': self.type
+            'user_id': self.user_id
         }
 
     def full_clean(self, **kwargs):
@@ -213,22 +212,33 @@ class Point4DField(GeometryField):
 
 class SensorData(models_gis.Model):
     """This model is used to store sensor data"""
-    SENSOR_TYPE = (
-        ('LWDevice', 'LoRaWAN Device'),
-    )
-    SOURCE_TYPE = (
-        ('Everynet', 'Everynet Network'),
-    )
-    DATA_FORMAT = (
-        ('ascii_hex', 'ascii_hex'),
-        ('ascii', 'ascii'),
-        ('binary', 'binary'),
-        ('other', 'other'),
-    )
+    id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField()
     location_4d = Point4DField(geography=True)
-    sensor_id = models.CharField(max_length=255)
-    sensor_type = models.CharField(choices=SENSOR_TYPE, max_length=100)
-    source_type = models.CharField(choices=SOURCE_TYPE, max_length=100)
-    data_format = models.CharField(choices=DATA_FORMAT, max_length=100)
-    data = JSONField()
+    info = JSONField()
+
+    class Meta:
+        managed = False
+
+
+# class SensorData(models_gis.Model):
+#     """This model is used to store sensor data"""
+#     SENSOR_TYPE = (
+#         ('LWDevice', 'LoRaWAN Device'),
+#     )
+#     SOURCE_TYPE = (
+#         ('Everynet', 'Everynet Network'),
+#     )
+#     DATA_FORMAT = (
+#         ('ascii_hex', 'ascii_hex'),
+#         ('ascii', 'ascii'),
+#         ('binary', 'binary'),
+#         ('other', 'other'),
+#     )
+#     timestamp = models.DateTimeField()
+#     location_4d = Point4DField(geography=True)
+#     sensor_id = models.CharField(max_length=255)
+#     sensor_type = models.CharField(choices=SENSOR_TYPE, max_length=100)
+#     source_type = models.CharField(choices=SOURCE_TYPE, max_length=100)
+#     data_format = models.CharField(choices=DATA_FORMAT, max_length=100)
+#     data = JSONField()

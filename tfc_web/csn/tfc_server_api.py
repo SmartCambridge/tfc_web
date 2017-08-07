@@ -27,7 +27,7 @@ def tfc_server_api_call(method, params):
 
 
 def tfc_server_add_sensor(sensor):
-    params = {"sensor_id": sensor.sensor_id, "type": sensor.type, "info": sensor.info}
+    params = {"sensor_id": sensor.info['sensor_id'], "type": sensor.info['type'], "info": sensor.info}
     tfc_server_api_call("add_sensor", params)
 
 
@@ -37,7 +37,7 @@ def tfc_server_add_destination(destination):
 
 
 def tfc_server_remove_sensor(sensor):
-    params = {"sensor_id": sensor.sensor_id, "type": sensor.type}
+    params = {"sensor_id": sensor.info['sensor_id'], "type": sensor.info['type']}
     tfc_server_api_call("remove_sensor", params)
 
 

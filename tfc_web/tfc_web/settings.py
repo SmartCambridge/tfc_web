@@ -111,9 +111,9 @@ DATABASES = {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'tfcweb',
     },
-    'csn': {
+    'tfcserver': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'csn',
+        'NAME': 'tfcserver',
     }
 }
 
