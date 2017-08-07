@@ -7,8 +7,6 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    replaces = [('csn', '0001_initial'), ('csn', '0002_auto_20170509_2118'), ('csn', '0003_lwapplication_lwcallbackurl'), ('csn', '0004_auto_20170516_2125'), ('csn', '0005_lwdevice_lw_application'), ('csn', '0006_remove_lwapplication_app_eui'), ('csn', '0007_auto_20170706_2148'), ('csn', '0008_auto_20170708_1203'), ('csn', '0009_auto_20170708_1207')]
-
     initial = True
 
     dependencies = []
