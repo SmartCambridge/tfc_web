@@ -6,7 +6,7 @@ class CSNRouter(object):
         """
         Attempts to read Sensor, Destination, and SensorData models go to tfcserver database.
         """
-        if model._meta.app_label == 'csn' and model._meta.model_name in ['Sensor', 'Destination', 'SensorData']:
+        if model._meta.app_label == 'csn' and model._meta.object_name in ['Sensor', 'Destination', 'SensorData']:
             return 'tfcserver'
         return 'default'
 
@@ -14,7 +14,7 @@ class CSNRouter(object):
         """
         Attempts to write Sensor, Destination, and SensorData models go to tfcserver database.
         """
-        if model._meta.app_label == 'csn' and model._meta.model_name in ['Sensor', 'Destination', 'SensorData']:
+        if model._meta.app_label == 'csn' and model._meta.object_name in ['Sensor', 'Destination', 'SensorData']:
             return 'tfcserver'
         return 'default'
 
