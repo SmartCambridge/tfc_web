@@ -28,4 +28,9 @@ class CSNRouter(object):
         """
         Make sure that migrations are only applied to the default database
         """
-        return db == 'default'
+        if db == 'default':
+            if app_label == 'csn' and model_name in ['sensor', 'destination', 'sensordata']:
+                return False
+            else:
+                return True
+        return False
