@@ -61,9 +61,10 @@ class LWApplicationForm(ModelForm):
 
     class Meta:
         model = LWApplication
-        fields = ['name', 'description', 'url']
+        fields = ['name', 'description', 'url', 'token']
         widgets = {
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'description': TextInput(attrs={'class': 'mdl-textfield__input'}),
             'url': TextInput(attrs={'class': 'mdl-textfield__input'}),
+            'token': TextInput(attrs={'class': 'mdl-textfield__input'}),
         }
