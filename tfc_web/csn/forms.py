@@ -43,6 +43,22 @@ class LWDeviceForm(ModelForm):
         }
 
 class LWApplicationForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super(LWApplicationForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(LWApplicationForm, self).clean()
+        cleaned_data['user'] = self.user
+        return cleaned_data
+
+    def save(self, commit=True):
+        lw_device = super(LWApplicationForm, self).save(commit=False)
+        lw_device.user = self.user
+        if commit:
+            lw_device.save()
+        return lw_device
+
     class Meta:
         model = LWApplication
         fields = ['name', 'description', 'url']

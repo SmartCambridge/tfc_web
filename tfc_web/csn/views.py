@@ -34,7 +34,6 @@ def new_device(request):
         try:
             if lwdevice_form.is_valid():
                 lwdevice = lwdevice_form.save(commit=False)
-                lwdevice.user = request.user
                 lwdevice.activation_type = request.POST['activation_type']
                 if lwdevice.activation_type == "abp":
                     lwdevice.nwkskey = request.POST['nwkskey']
@@ -85,12 +84,11 @@ def application(request, app_id):
 
 @login_required
 def new_app(request):
-    lwapplication_form = LWApplicationForm()
+    lwapplication_form = LWApplicationForm(user=request.user)
     if request.method == "POST":
-        lwapplication_form = LWApplicationForm(request.POST)
+        lwapplication_form = LWApplicationForm(request.POST, user=request.user)
         if lwapplication_form.is_valid():
             lwapplication = lwapplication_form.save(commit=False)
-            lwapplication.user = request.user
             lwapplication.save()
             return redirect('csn_applications')
     return render(request, 'csn/new_application.html', {
