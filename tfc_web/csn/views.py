@@ -15,6 +15,7 @@ from csn.models import LWDevice, LWApplication, LOGGER
 def devices(request):
     return render(request, 'csn/devices.html', {
         'devices': LWDevice.objects.filter(user=request.user),
+        'app_choices': LWApplication.objects.filter(user=request.user)
     })
 
 
@@ -62,8 +63,19 @@ def delete_device(request):
         lwdevice = get_object_or_404(LWDevice, user=request.user, dev_eui=request.POST['dev_eui'])
         if everynet_remove_device(lwdevice):
             lwdevice.delete()
+            messages.info(request, "Device deleted")
         else:
             messages.error(request, lwdevice.error_message)
+    return redirect('csn_devices')
+
+
+@login_required
+def change_device_app(request):
+    if request.method == "POST":
+        lwdevice = get_object_or_404(LWDevice, user=request.user, id=request.POST['dev_id'])
+        lwapp = get_object_or_404(LWApplication, user=request.user, id=request.POST['app_id'])
+        lwdevice.lw_application = lwapp
+        lwdevice.save()
     return redirect('csn_devices')
 
 
