@@ -66,7 +66,7 @@ class LWApplication(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     user = models.ForeignKey(User, related_name="lwapplications")
-    url = models.URLField()
+    url = models.URLField(unique=True)
     token = models.CharField(max_length=255, null=True, blank=True)
 
     @python_2_unicode_compatible
