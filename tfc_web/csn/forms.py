@@ -7,7 +7,7 @@ class LWDeviceForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(LWDeviceForm, self).__init__(*args, **kwargs)
-        self.fields['lw_application'] = ModelChoiceField(queryset=LWApplication.objects.filter(user_id=self.user.pk),
+        self.fields['lw_application'] = ModelChoiceField(queryset=LWApplication.objects.filter(user=self.user),
                                                          label="Destination",
                                                          widget=Select(attrs={'class': 'mdl-textfield__input'}))
 
