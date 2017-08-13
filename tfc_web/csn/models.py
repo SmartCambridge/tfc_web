@@ -107,7 +107,7 @@ class LWApplication(models.Model):
 
 @receiver(post_delete, sender=LWApplication)
 def remove_lwapp_from_destination(sender, instance, **kwargs):
-    existing = Destination.objects.filter(info__destination_type=self.TYPE, info__destination_id=instance.url)
+    existing = Destination.objects.filter(info__destination_type=LWApplication.TYPE, info__destination_id=instance.url)
     if instance.destination_id and not existing:
         LOGGER.error("Inconsistency error, not found LWApplication with destination_id %s in Destination table."
                      "Was expecting id %s" % (instance.url, instance.destination_id))
@@ -230,6 +230,7 @@ class LWDevice(models.Model):
                 LOGGER.error("Current entry in local database with id %s was expecting entry in Sensor table "
                              "with id %s in tfcserver." % (self.id, self.sensor_id))
             existing.update(info=info)
+            tfc_server_add_sensor(existing[0])
         else:
             if self.sensor_id:
                 LOGGER.error("Inconsistency error, existing entry in LWSensor with id %s was expecting "
@@ -245,7 +246,7 @@ class LWDevice(models.Model):
 
 @receiver(post_delete, sender=LWDevice)
 def remove_lwdevice_from_sensor(sender, instance, **kwargs):
-    existing = Sensor.objects.filter(info__sensor_type=self.TYPE, info__sensor_id=instance.dev_eui)
+    existing = Sensor.objects.filter(info__sensor_type=LWDevice.TYPE, info__sensor_id=instance.dev_eui)
     if instance.sensor_id and not existing:
         LOGGER.error("Inconsistency error, not found LWDevice with sensor_id %s in Sensor table."
                      "Was expecting id %s" % (instance.dev_eui, instance.sensor_id))
