@@ -62,7 +62,7 @@ class LWApplication(models.Model):
     relationship is manual via destination_id, which is the id of the object created in the Destination table
     that represent this objects in json format.'''
     TYPE = "everynet_jsonrpc"
-    destination_id = models.IntegerField()
+    tfcserver_destination_id = models.IntegerField()
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     user = models.ForeignKey(User, related_name="lwapplications")
@@ -73,55 +73,63 @@ class LWApplication(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def destination_id(self):
+        return "csn_app_%s" % self.id
+
     def save(self, **kwargs):
         info = {
             'name': self.name,
             'description': self.description,
             'user_id': self.user.id,
             'url': self.url,
-            'destination_id': self.url,
+            'destination_id': self.destination_id,
             'http_token': self.token,
             'destination_type': self.TYPE
         }
-        existing = Destination.objects.filter(info__destination_type=self.TYPE, info__destination_id=self.url)
+        existing = Destination.objects.filter(info__destination_type=self.TYPE,
+                                              info__destination_id=self.destination_id)
         if existing:
-            if self.destination_id is None:
+            if self.tfcserver_destination_id is None:
                 LOGGER.error("Inconsistency error, found Destination entry with id %s and content %s in tfcserver, "
                              "that didn't exist in the local database. Trying to insert: %s" %
                              (existing.id, existing.info, info))
             if len(existing) > 1:
                 LOGGER.error("More than one entry for LWapplicationa and destination_id '%s' in Destination"
-                             "in tfcserver" % self.url)
-            if self.destination_id not in [destination.id for destination in existing]:
+                             "in tfcserver" % self.destination_id)
+            if self.tfcserver_destination_id not in [destination.id for destination in existing]:
                 LOGGER.error("Current entry in local database with id %s was expecting entry in Destination table "
-                             "with id %s in tfcserver." % (self.id, self.destination_id))
+                             "with id %s in tfcserver." % (self.id, self.tfcserver_destination_id))
             existing.update(info=info)
             # update previous Sensor entry in tfcserver
             tfc_server_add_sensor(existing[0])
         else:
-            if self.destination_id:
+            if self.tfcserver_destination_id:
                 LOGGER.error("Inconsistency error, existing entry in LWApplication with id %s was expecting "
                              "and entry with id %s in Destination table in tfcserver. Trying to insert: %s" %
-                             (self.id, self.destination_id, info))
-            self.destination_id = Destination.objects.create(info=info).id
+                             (self.id, self.tfcserver_destination_id, info))
+            self.tfcserver_destination_id = Destination.objects.create(info=info).id
         return super(LWApplication, self).save(**kwargs)
 
 
 @receiver(post_delete, sender=LWApplication)
 def remove_lwapp_from_destination(sender, instance, **kwargs):
-    existing = Destination.objects.filter(info__destination_type=LWApplication.TYPE, info__destination_id=instance.url)
-    if instance.destination_id and not existing:
+    existing = Destination.objects.filter(info__destination_type=instance.TYPE,
+                                          info__destination_id=instance.destination_id)
+    if instance.tfcserver_destination_id and not existing:
         LOGGER.error("Inconsistency error, not found LWApplication with destination_id %s in Destination table."
-                     "Was expecting id %s" % (instance.url, instance.destination_id))
+                     "Was expecting id %s" % (instance.destination_id, instance.tfcserver_destination_id))
     elif len(existing) > 1:
         LOGGER.error("More than one entry for LWapplicationa and destination_id '%s' in Destination"
-                     "in tfcserver db." % instance.url)
-    elif instance.destination_id and instance.destination_id not in [destination.id for destination in existing]:
+                     "in tfcserver db." % instance.destination_id)
+    elif instance.tfcserver_destination_id and instance.tfcserver_destination_id not in \
+            [destination.id for destination in existing]:
         LOGGER.error("Current entry LWApplication with destination_id %s was expecting entry in Destination table "
-                     "with id %s in tfcserver. Not found." % (instance.url, instance.destination_id))
-    elif not instance.destination_id and existing:
+                     "with id %s in tfcserver. Not found." % (instance.destination_id,
+                                                              instance.tfcserver_destination_id))
+    elif not instance.tfcserver_destination_id and existing:
         LOGGER.error("Inconsistency error, not expecting LWApplication with destination_id %s in Destination table."
-                     % instance.url)
+                     % instance.destination_id)
     else:
         existing.delete()
 
@@ -141,7 +149,7 @@ class LWDevice(models.Model):
         ('otaa', 'Over the Air Activation'),
         ('abp', 'Activation by personalisation'),
     )
-    sensor_id = models.IntegerField()
+    tfcserver_sensor_id = models.IntegerField()
 
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -201,9 +209,13 @@ class LWDevice(models.Model):
         # if self.user != self.lw_application.user:
         #     raise ValidationError("You are not authorise to add this device to the application selected")
 
+    @property
+    def sensor_id(self):
+        return self.dev_eui
+
     def save(self, **kwargs):
         info = {
-            'sensor_id': self.dev_eui,
+            'sensor_id': self.sensor_id,
             'sensor_type': self.TYPE,
             'name': self.name,
             'description': self.description,
@@ -215,52 +227,54 @@ class LWDevice(models.Model):
             'appskey': self.appskey,
             'dev_eui': self.dev_eui,
             'app_key': self.app_key,
-            'destination_id': self.lw_application.id if self.lw_application else None,
-            'destination_type': LWApplication.TYPE,
             'user_id': self.user.id
         }
-        existing = Sensor.objects.filter(info__sensor_type=self.TYPE, info__sensor_id=self.dev_eui)
+        if self.lw_application:
+            info['destination_type'] = self.lw_application.TYPE
+            info['destination_id'] = self.lw_application.destination_id
+        existing = Sensor.objects.filter(info__sensor_type=self.TYPE, info__sensor_id=self.sensor_id)
         if existing:
-            if self.sensor_id is None:
+            if self.tfcserver_sensor_id is None:
                 LOGGER.error("Inconsistency error, found Sensor entry with id %s and content %s in tfcserver, "
                              "that didn't exist in the local database. Trying to insert: %s" %
                              (existing.id, existing.info, info))
             if len(existing) > 1:
                 LOGGER.error("More than one entry for LWSensor and sensor_id '%s' in Sensor"
-                             "in tfcserver" % self.dev_eui)
-            if self.sensor_id not in [sensor.id for sensor in existing]:
+                             "in tfcserver" % self.sensor_id)
+            if self.tfcserver_sensor_id not in [sensor.id for sensor in existing]:
                 LOGGER.error("Current entry in local database with id %s was expecting entry in Sensor table "
-                             "with id %s in tfcserver." % (self.id, self.sensor_id))
+                             "with id %s in tfcserver." % (self.id, self.tfcserver_sensor_id))
             existing.update(info=info)
             tfc_server_add_sensor(existing[0])
         else:
-            if self.sensor_id:
+            if self.tfcserver_sensor_id:
                 LOGGER.error("Inconsistency error, existing entry in LWSensor with id %s was expecting "
                              "an entry with id %s in Sensor table in tfcserver. Trying to insert: %s" %
-                             (self.id, self.sensor_id, info))
-            self.sensor_id = Sensor.objects.create(info=info).id
+                             (self.id, self.tfcserver_sensor_id, info))
+            self.tfcserver_sensor_id = Sensor.objects.create(info=info).id
         try:
             return super(LWDevice, self).save(**kwargs)
         except Exception as e:
-            Sensor.objects.filter(id=self.sensor_id).delete()
+            Sensor.objects.filter(id=self.tfcserver_sensor_id).delete()
             raise e
 
 
 @receiver(post_delete, sender=LWDevice)
 def remove_lwdevice_from_sensor(sender, instance, **kwargs):
-    existing = Sensor.objects.filter(info__sensor_type=LWDevice.TYPE, info__sensor_id=instance.dev_eui)
-    if instance.sensor_id and not existing:
+    existing = Sensor.objects.filter(info__sensor_type=instance.TYPE,
+                                     info__sensor_id=instance.sensor_id)
+    if instance.tfcserver_sensor_id and not existing:
         LOGGER.error("Inconsistency error, not found LWDevice with sensor_id %s in Sensor table."
-                     "Was expecting id %s" % (instance.dev_eui, instance.sensor_id))
+                     "Was expecting id %s" % (instance.sensor_id, instance.tfcserver_sensor_id))
     elif len(existing) > 1:
         LOGGER.error("More than one entry for LWDevice and sensor_id '%s' in Sensor"
-                     "in tfcserver db." % instance.dev_eui)
-    elif instance.sensor_id and instance.sensor_id not in [sensor.id for sensor in existing]:
+                     "in tfcserver db." % instance.sensor_id)
+    elif instance.tfcserver_sensor_id and instance.tfcserver_sensor_id not in [sensor.id for sensor in existing]:
         LOGGER.error("Current entry LWDevice with sensor_id %s was expecting entry in Sensor table "
-                     "with id %s in tfcserver. Not found." % (instance.dev_eui, instance.sensor_id))
-    elif not instance.sensor_id and existing:
+                     "with id %s in tfcserver. Not found." % (instance.sensor_id, instance.tfcserver_sensor_id))
+    elif not instance.tfcserver_sensor_id and existing:
         LOGGER.error("Inconsistency error, not expecting LWDevice with sensor_id %s in Sensor table."
-                     % instance.dev_eui)
+                     % instance.sensor_id)
     else:
         existing.delete()
 
