@@ -147,8 +147,8 @@ class LWDevice(models.Model):
     description = models.CharField(max_length=255)
 
     # Device properties
-    dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS)
-    counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS)
+    dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS, default='A')
+    counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS, default=4)
     activation_type = models.CharField(max_length=5, choices=ACTIVATION_TYPE)
 
     #######################################
