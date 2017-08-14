@@ -96,6 +96,8 @@ class LWApplication(models.Model):
                 LOGGER.error("Current entry in local database with id %s was expecting entry in Destination table "
                              "with id %s in tfcserver." % (self.id, self.destination_id))
             existing.update(info=info)
+            # update previous Sensor entry in tfcserver
+            tfc_server_add_sensor(existing[0])
         else:
             if self.destination_id:
                 LOGGER.error("Inconsistency error, existing entry in LWApplication with id %s was expecting "
