@@ -75,7 +75,7 @@ class LWApplication(models.Model):
 
     @property
     def destination_id(self):
-        return "csn_app_%s" % self.id
+        return self.url
 
     def save(self, **kwargs):
         info = {

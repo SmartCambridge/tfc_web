@@ -44,7 +44,7 @@ def new_device(request):
                     lwdevice.app_key = request.POST['app_key']
                 else:
                     raise ValidationError("Activation type not supported")
-                lwdevice.full_clean(exclude=['sensor_id'])
+                lwdevice.full_clean(exclude=['tfcserver_sensor_id'])
                 if everynet_add_device(lwdevice):
                     lwdevice.save()
                     return redirect('csn_devices')
