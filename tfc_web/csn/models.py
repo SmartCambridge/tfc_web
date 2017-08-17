@@ -1,4 +1,5 @@
 import logging
+import uuid
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.gis.forms import PointField
@@ -63,6 +64,7 @@ class LWApplication(models.Model):
     that represent this objects in json format.'''
     TYPE = "everynet_jsonrpc"
     tfcserver_destination_id = models.IntegerField()
+    destination_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     user = models.ForeignKey(User, related_name="lwapplications")
@@ -73,11 +75,10 @@ class LWApplication(models.Model):
     def __str__(self):
         return self.name
 
-    @property
-    def destination_id(self):
-        return self.url
 
     def save(self, **kwargs):
+        if not self.destination_id:
+            self.destination_id = uuid.uuid4()
         info = {
             'name': self.name,
             'description': self.description,
