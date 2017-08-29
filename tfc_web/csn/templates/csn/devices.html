@@ -5,19 +5,19 @@
         {% for device in devices %}
             <li class="mdl-list__item mdl-list__item--three-line">
                 <span class="mdl-list__item-primary-content">
-                    <a href="{% url 'csn_device' device_id=device.id %}" style="text-decoration: none;">
+                    <a href="{% url 'csn_device' device_id=device.info.sensor_id %}" style="text-decoration: none;">
                         <i class="material-icons mdl-list__item-avatar">nfc</i>
-                        <span>{{ device.name }}</span>
-                        <span class="mdl-list__item-text-body">{{ device.description }}</span>
+                        <span>{{ device.info.name }}</span>
+                        <span class="mdl-list__item-text-body">{{ device.info.description }}</span>
                     </a>
                 </span>
                 <span class="mdl-list__item-secondary-content" style="align-items: center; flex-flow: row">
-                    <select class="mdl-list__item-secondary-action-appchoice mdl-textfield__input" data-device-id="{{ device.id }}">
+                    <select class="mdl-list__item-secondary-action-appchoice mdl-textfield__input" data-sensor-id="{{ device.info.sensor_id }}">
                     {% for app in app_choices %}
-                        <option value="{{ app.id }}" {% if app == device.lw_application %}selected{% endif %}>{{ app.name }}</option>
+                        <option value="{{ app.info.destination_id }}" {% if app.info.destination_id == device.lwapp.info.destination_id %}selected{% endif %}>{{ app.info.name }}</option>
                     {% endfor %}
                     </select>
-                    <a class="mdl-list__item-secondary-action-delete" href="#" style="margin-left: 20px;"><i class="material-icons" data-device-eui="{{ device.dev_eui }}">delete</i></a>
+                    <a class="mdl-list__item-secondary-action-delete" href="#" style="margin-left: 20px;"><i class="material-icons" data-sensor-id="{{ device.info.sensor_id }}">delete</i></a>
                 </span>
             </li>
         {% endfor %}
@@ -40,7 +40,7 @@
             <form action="{% url 'csn_change_device_app' %}" method="post">
                 {% csrf_token %}
                 <input id="form_app_id" type="hidden" name="app_id">
-                <input id="form_dev_id" type="hidden" name="dev_id">
+                <input id="form_sensor_id" type="hidden" name="sensor_id">
                 <input type="submit" class="mdl-button" value="Yes">
                 <button type="button" class="mdl-button close">No</button>
             </form>
@@ -55,7 +55,7 @@
         <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
             <form action="{% url 'csn_delete_device' %}" method="post">
                 {% csrf_token %}
-                <input id="form_dev_eui" type="hidden" name="dev_eui">
+                <input id="form_sensor_id" type="hidden" name="sensor_id">
                 <input type="submit" class="mdl-button" value="Yes">
                 <button type="button" class="mdl-button close">No</button>
             </form>
@@ -72,7 +72,7 @@
         for (var i = 0; i < deleteModalButtons.length; i++) {
             deleteModalButtons[i].addEventListener('click', function(event) {
                 dialog_delete.showModal();
-                document.querySelector('#form_dev_eui').value = event.target.dataset.deviceEui;
+                document.querySelector('#form_sensor_id').value = event.target.dataset.sensorId;
             });
         }
         dialog_delete.querySelector('.close').addEventListener('click', function() {
@@ -87,7 +87,7 @@
         for (var i = 0; i < appchoiceModalButtons.length; i++) {
             appchoiceModalButtons[i].addEventListener('change', function(event) {
                 dialog_appchoice.showModal();
-                document.querySelector('#form_dev_id').value = event.target.dataset.deviceId;
+                document.querySelector('#form_sensor_id').value = event.target.dataset.sensorId;
                 document.querySelector('#form_app_id').value = event.target.value;
             });
         }

@@ -1,15 +1,11 @@
 import logging
-import uuid
-from django.contrib.auth.models import User
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.gis.forms import PointField
 from django.contrib.postgres.fields import JSONField
-from django.core.validators import RegexValidator, MinLengthValidator
 from django.db import models
 from django.contrib.gis.db import models as models_gis
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.utils.encoding import python_2_unicode_compatible
 from csn.tfc_server_api import tfc_server_add_sensor, tfc_server_add_destination, tfc_server_remove_destination, \
     tfc_server_remove_sensor
 
@@ -18,10 +14,57 @@ LOGGER = logging.getLogger('CSN')
 
 
 class Sensor(models.Model):
-    '''This is the model in the tfcserver database that is used to store a json version of any type of
-    sensor object.'''
+    """This is the model in the tfcserver database that is used to store a json version of any type of
+    sensor object."""
     id = models.AutoField(primary_key=True)
     info = JSONField()
+
+    @classmethod
+    def get_lorawan(cls, sensor_id, user_id):
+        sensor = Sensor.objects.filter(info__sensor_id=sensor_id, info__sensor_type="lorawan", info__user_id=user_id)
+        if sensor:
+            sensor = sensor[0]
+            if 'destination_id' in sensor.info and 'destination_type' in sensor.info and \
+                            sensor.info['destination_type'] == "everynet_jsonrpc":
+                sensor.lwapp = Destination.get_everynet_jsonrpc(user_id=user_id,
+                                                                destination_id=sensor.info['destination_id'])
+            else:
+                sensor.lwapp = None
+            return sensor
+        else:
+            return None
+
+    @classmethod
+    def get_all_lorawan(cls, user_id):
+        return Sensor.objects.filter(info__sensor_type="lorawan", info__user_id=user_id, info__sensor_id__isnull=False)
+
+    @classmethod
+    def get_all_lorawan_with_lwapps(cls, user_id):
+        sensors = Sensor.objects.filter(info__sensor_type="lorawan", info__user_id=user_id,
+                                        info__sensor_id__isnull=False)
+        for sensor in sensors:
+            if 'destination_id' in sensor.info and 'destination_type' in sensor.info and \
+                            sensor.info['destination_type'] == "everynet_jsonrpc":
+                sensor.lwapp = Destination.get_everynet_jsonrpc(user_id=user_id,
+                                                                destination_id=sensor.info['destination_id'])
+            else:
+                sensor.lwapp = None
+        return sensors
+
+    @classmethod
+    def get_all_lorawan_for_destination(cls, user_id, destination_id, destination_type):
+        return Sensor.objects.filter(info__destination_id=destination_id, info__destination_type=destination_type,
+                                     info__user_id=user_id, info__sensor_id__isnull=False, info__sensor_type="lorawan")
+
+    @classmethod
+    def insert_lorawan(cls, info):
+        return Sensor.objects.create(info=info)
+
+    @classmethod
+    def delete_lorawan(cls, sensor_id, user_id):
+        sensor = Sensor.objects.filter(info__sensor_id=sensor_id, info__sensor_type="lorawan", info__user_id=user_id)
+        num_deleted, deleted = sensor.delete()
+        return num_deleted
 
     class Meta:
         managed = False
@@ -42,6 +85,50 @@ class Destination(models.Model):
     id = models.AutoField(primary_key=True)
     info = JSONField()
 
+    @classmethod
+    def get_everynet_jsonrpc(cls, destination_id, user_id):
+        dest = Destination.objects.filter(info__destination_id=destination_id,
+                                          info__destination_type="everynet_jsonrpc", info__user_id=user_id)
+        if dest:
+            return dest[0]
+        else:
+            return None
+
+    @classmethod
+    def get_everynet_jsonrpc_with_sensors(cls, destination_id, user_id):
+        dest = Destination.objects.filter(info__destination_id=destination_id,
+                                          info__destination_type="everynet_jsonrpc", info__user_id=user_id)
+        if dest:
+            dest[0].sensors = \
+                Sensor.get_all_lorawan_for_destination(user_id=user_id, destination_id=destination_id,
+                                                       destination_type="everynet_jsonrpc")
+            return dest[0]
+        else:
+            return None
+
+    @classmethod
+    def get_all_everynet_jsonrpc(cls, user_id):
+        return Destination.objects.filter(info__destination_type="everynet_jsonrpc", info__user_id=user_id,
+                                          info__destination_id__isnull=False)
+
+    @classmethod
+    def insert_everynet_jsonrpc(cls, info):
+        return Destination.objects.create(info=info)
+
+    @classmethod
+    def delete_everynet_jsonrpc(cls, destination_id, user_id):
+        dest = Destination.objects.filter(info__destination_id=destination_id,
+                                          info__destination_type="everynet_jsonrpc", info__user_id=user_id)
+        # TODO May other users have sensors associated to this destination?
+        sensors = Sensor.get_all_lorawan_for_destination(user_id=user_id, destination_id=destination_id,
+                                                         destination_type="everynet_jsonrpc")
+        for sensor in sensors:
+            sensor.info.pop('destination_id', None)
+            sensor.info.pop('destination_type', None)
+            sensor.save()
+        num_deleted, deleted = dest.delete()
+        return num_deleted
+
     class Meta:
         managed = False
 
@@ -55,229 +142,6 @@ def add_destination_api(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Destination)
 def remove_destination_api(sender, instance, **kwargs):
     tfc_server_remove_destination(instance)
-
-
-class LWApplication(models.Model):
-    '''Model used to store LoRaWAN applications. These are a type of "Destination" object in the tfcserver database.
-    This should be a child of Destination model (inheriatnce) but because they sit in different database, the
-    relationship is manual via destination_id, which is the id of the object created in the Destination table
-    that represent this objects in json format.'''
-    TYPE = "everynet_jsonrpc"
-    tfcserver_destination_id = models.IntegerField()
-    destination_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    user = models.ForeignKey(User, related_name="lwapplications")
-    url = models.URLField(unique=True)
-    token = models.CharField(max_length=255, null=True, blank=True)
-
-    @python_2_unicode_compatible
-    def __str__(self):
-        return self.name
-
-
-    def save(self, **kwargs):
-        if not self.destination_id:
-            self.destination_id = uuid.uuid4()
-        info = {
-            'name': self.name,
-            'description': self.description,
-            'user_id': self.user.id,
-            'url': self.url,
-            'destination_id': self.destination_id,
-            'http_token': self.token,
-            'destination_type': self.TYPE
-        }
-        existing = Destination.objects.filter(info__destination_type=self.TYPE,
-                                              info__destination_id=self.destination_id)
-        if existing:
-            if self.tfcserver_destination_id is None:
-                LOGGER.error("Inconsistency error, found Destination entry with id %s and content %s in tfcserver, "
-                             "that didn't exist in the local database. Trying to insert: %s" %
-                             (existing.id, existing.info, info))
-            if len(existing) > 1:
-                LOGGER.error("More than one entry for LWapplicationa and destination_id '%s' in Destination"
-                             "in tfcserver" % self.destination_id)
-            if self.tfcserver_destination_id not in [destination.id for destination in existing]:
-                LOGGER.error("Current entry in local database with id %s was expecting entry in Destination table "
-                             "with id %s in tfcserver." % (self.id, self.tfcserver_destination_id))
-            existing.update(info=info)
-            # update previous Sensor entry in tfcserver
-            tfc_server_add_sensor(existing[0])
-        else:
-            if self.tfcserver_destination_id:
-                LOGGER.error("Inconsistency error, existing entry in LWApplication with id %s was expecting "
-                             "and entry with id %s in Destination table in tfcserver. Trying to insert: %s" %
-                             (self.id, self.tfcserver_destination_id, info))
-            self.tfcserver_destination_id = Destination.objects.create(info=info).id
-        return super(LWApplication, self).save(**kwargs)
-
-
-@receiver(post_delete, sender=LWApplication)
-def remove_lwapp_from_destination(sender, instance, **kwargs):
-    existing = Destination.objects.filter(info__destination_type=instance.TYPE,
-                                          info__destination_id=instance.destination_id)
-    if instance.tfcserver_destination_id and not existing:
-        LOGGER.error("Inconsistency error, not found LWApplication with destination_id %s in Destination table."
-                     "Was expecting id %s" % (instance.destination_id, instance.tfcserver_destination_id))
-    elif len(existing) > 1:
-        LOGGER.error("More than one entry for LWapplicationa and destination_id '%s' in Destination"
-                     "in tfcserver db." % instance.destination_id)
-    elif instance.tfcserver_destination_id and instance.tfcserver_destination_id not in \
-            [destination.id for destination in existing]:
-        LOGGER.error("Current entry LWApplication with destination_id %s was expecting entry in Destination table "
-                     "with id %s in tfcserver. Not found." % (instance.destination_id,
-                                                              instance.tfcserver_destination_id))
-    elif not instance.tfcserver_destination_id and existing:
-        LOGGER.error("Inconsistency error, not expecting LWApplication with destination_id %s in Destination table."
-                     % instance.destination_id)
-    else:
-        existing.delete()
-
-
-class LWDevice(models.Model):
-    """This class will store LoRaWAN devices"""
-    TYPE = "lorawan"
-    DEVICE_CLASS = (
-        ('A', 'A'),
-        ('C', 'C'),
-    )
-    COUNTERS_SIZE_OPTIONS = (
-        (2, 2),
-        (4, 4),
-    )
-    ACTIVATION_TYPE = (
-        ('otaa', 'Over the Air Activation'),
-        ('abp', 'Activation by personalisation'),
-    )
-    tfcserver_sensor_id = models.IntegerField()
-
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-
-    # Device properties
-    dev_class = models.CharField(max_length=1, choices=DEVICE_CLASS, default='A')
-    counters_size = models.IntegerField(choices=COUNTERS_SIZE_OPTIONS, default=4)
-    activation_type = models.CharField(max_length=5, choices=ACTIVATION_TYPE)
-
-    #######################################
-    # Activation by personalisation (ABP) #
-    #######################################
-    # ABP hardcodes the DevAddr as well as the security keys in the device
-
-    # Device Address - 32 bit device address (non-unique). Dynamically generated in OTA. Fixed in ABP.
-    dev_addr = models.CharField(max_length=8, null=True, blank=True,
-                                validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                            MinLengthValidator(8)])
-    # Network Session Key - used for interaction between the node and the network.
-    # This key is used to check the validity of messages
-    # Is also used to map a non-unique device address (DevAddr) to a unique DevEUI and AppEUI.
-    nwkskey = models.CharField(max_length=32, null=True, blank=True,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                           MinLengthValidator(32)])
-    # Application Session Key - used for encryption and decryption of the payload
-    appskey = models.CharField(max_length=32, null=True, blank=True,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                           MinLengthValidator(32)])
-    # appskey and nwkskey are unique per device, per session. In OTAA these keys are re-generated on every activation.
-    # In ABP these keys stay the same until you change them.
-
-    ##################################
-    # Over the Air Activation (OTAA) #
-    ##################################
-    # Devices perform a join-procedure with the network, during which a dynamic DevAddr is assigned and security keys
-    # are negotiated with the device.
-
-    # Application Key -  used to derive the two session keys (appskey nwkskey) and during the activation procedure.
-    app_key = models.CharField(max_length=32, null=True, blank=True,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                           MinLengthValidator(32)])
-
-    # Device EUI - 64 bit end-device identifier, EUI-64 (unique)
-    # DevEUI is assigned to the device by the chip manufacturer in LoRaWAN devices.
-    # However, all communication is done using DevAddr (dynamic)
-    dev_eui = models.CharField(max_length=16, unique=True,
-                               validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
-                                           MinLengthValidator(16)])
-
-    # Application/Destination is linked to
-    lw_application = models.ForeignKey(LWApplication, related_name="lw_devices", null=True, blank=True)
-    # User that owns the device
-    user = models.ForeignKey(User, related_name="lwdevices")
-
-    def clean(self):
-        pass
-        # if self.user != self.lw_application.user:
-        #     raise ValidationError("You are not authorise to add this device to the application selected")
-
-    @property
-    def sensor_id(self):
-        return self.dev_eui
-
-    def save(self, **kwargs):
-        info = {
-            'sensor_id': self.sensor_id,
-            'sensor_type': self.TYPE,
-            'name': self.name,
-            'description': self.description,
-            'dev_class': self.dev_class,
-            'counters_size': self.counters_size,
-            'activation_type': self.activation_type,
-            'dev_addr': self.dev_addr,
-            'nwkskey': self.nwkskey,
-            'appskey': self.appskey,
-            'dev_eui': self.dev_eui,
-            'app_key': self.app_key,
-            'user_id': self.user.id
-        }
-        if self.lw_application:
-            info['destination_type'] = self.lw_application.TYPE
-            info['destination_id'] = self.lw_application.destination_id
-        existing = Sensor.objects.filter(info__sensor_type=self.TYPE, info__sensor_id=self.sensor_id)
-        if existing:
-            if self.tfcserver_sensor_id is None:
-                LOGGER.error("Inconsistency error, found Sensor entry with id %s and content %s in tfcserver, "
-                             "that didn't exist in the local database. Trying to insert: %s" %
-                             (existing.id, existing.info, info))
-            if len(existing) > 1:
-                LOGGER.error("More than one entry for LWSensor and sensor_id '%s' in Sensor"
-                             "in tfcserver" % self.sensor_id)
-            if self.tfcserver_sensor_id not in [sensor.id for sensor in existing]:
-                LOGGER.error("Current entry in local database with id %s was expecting entry in Sensor table "
-                             "with id %s in tfcserver." % (self.id, self.tfcserver_sensor_id))
-            existing.update(info=info)
-            tfc_server_add_sensor(existing[0])
-        else:
-            if self.tfcserver_sensor_id:
-                LOGGER.error("Inconsistency error, existing entry in LWSensor with id %s was expecting "
-                             "an entry with id %s in Sensor table in tfcserver. Trying to insert: %s" %
-                             (self.id, self.tfcserver_sensor_id, info))
-            self.tfcserver_sensor_id = Sensor.objects.create(info=info).id
-        try:
-            return super(LWDevice, self).save(**kwargs)
-        except Exception as e:
-            Sensor.objects.filter(id=self.tfcserver_sensor_id).delete()
-            raise e
-
-
-@receiver(post_delete, sender=LWDevice)
-def remove_lwdevice_from_sensor(sender, instance, **kwargs):
-    existing = Sensor.objects.filter(info__sensor_type=instance.TYPE,
-                                     info__sensor_id=instance.sensor_id)
-    if instance.tfcserver_sensor_id and not existing:
-        LOGGER.error("Inconsistency error, not found LWDevice with sensor_id %s in Sensor table."
-                     "Was expecting id %s" % (instance.sensor_id, instance.tfcserver_sensor_id))
-    elif len(existing) > 1:
-        LOGGER.error("More than one entry for LWDevice and sensor_id '%s' in Sensor"
-                     "in tfcserver db." % instance.sensor_id)
-    elif instance.tfcserver_sensor_id and instance.tfcserver_sensor_id not in [sensor.id for sensor in existing]:
-        LOGGER.error("Current entry LWDevice with sensor_id %s was expecting entry in Sensor table "
-                     "with id %s in tfcserver. Not found." % (instance.sensor_id, instance.tfcserver_sensor_id))
-    elif not instance.tfcserver_sensor_id and existing:
-        LOGGER.error("Inconsistency error, not expecting LWDevice with sensor_id %s in Sensor table."
-                     % instance.sensor_id)
-    else:
-        existing.delete()
 
 
 class Point4DField(GeometryField):

@@ -57,7 +57,7 @@ def everynet_remove_device(lwdev):
             'Authorization': settings.LW_API_KEY,
             'Content-Type': 'application/json'
         }
-    response = requests.delete(settings.EVERYNET_API_ENDPOINT + "devices/%s" % lwdev.dev_eui, headers=headers)
+    response = requests.delete(settings.EVERYNET_API_ENDPOINT + "devices/%s" % lwdev.info.dev_eui, headers=headers)
     if response.status_code != 200:
         LOGGER.error("Everynet responded with a %s status code and the following error message: %s" %
                      (response.status_code, response.text))
