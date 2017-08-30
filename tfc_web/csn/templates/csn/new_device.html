@@ -14,8 +14,9 @@
                 <option value="abp" {% if 'activation_type' in form.data and form.data.activation_type == "abp" %}selected{% endif %}>Activation By Personalization (ABP)</option>
             </select>
         </p>
+        {{ form.errors.activation_type }}
         <div id="otaa_fields">
-            <div class="header">
+            <div style="margin-bottom: 20px;">
                 Please provide Over the Air Activation (OTAA) fields
             </div>
             <div class="contents">
@@ -25,13 +26,14 @@
                            placeholder="32 hex characters" maxlength="32" minlength="32" pattern="[0-9A-Fa-f]{32}"
                            title="32 hex characters" {% if 'app_key' in form.data %}value="{{ form.data.app_key }}"{% endif %}>
                 </p>
+                {{ form.errors.app_key }}
                 <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="app_key_form">
                     The application key is used to derive the two session keys during the activation procedure. The key is 128 bits in length represented by a 32-character hexadecimal string.
                 </div>
             </div>
         </div>
         <div id="abp_fields" style="display: none;">
-            <div class="header">
+            <div style="margin-bottom: 20px;">
                 Please provide Activation By Personalization (ABP) fields
             </div>
             <div class="contents">
@@ -41,6 +43,7 @@
                            placeholder="32 hex characters" maxlength="32" minlength="32" pattern="[0-9A-Fa-f]{32}"
                            title="32 hex characters" {% if 'nwkskey' in form.data %}value="{{ form.data.nwkskey }}"{% endif %}>
                 </p>
+                {{ form.errors.nwkskey }}
                 <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="nwkskey_form">
                     The Network Session key is used to ensure security at network level - from device to the network. The key is 128 bits in length represented by a 32-character hexadecimal string.
                 </div>
@@ -50,6 +53,7 @@
                            placeholder="32 hex characters" maxlength="32" minlength="32" pattern="[0-9A-Fa-f]{32}"
                            title="32 hex characters" {% if 'appskey' in form.data %}value="{{ form.data.appskey }}"{% endif %}>
                 </p>
+                {{ form.errors.appskey }}
                 <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="appskey_form">
                     The Application Session key is used to ensure end to end security from the device to the data server. The key is 128 bits in length represented by a 32-character hexadecimal string.
                 </div>
@@ -59,6 +63,7 @@
                            placeholder="8 hex characters" maxlength="8" minlength="8" pattern="[0-9A-Fa-f]{8}"
                            title="8 hex characters" {% if 'dev_addr' in form.data %}value="{{ form.data.dev_addr }}"{% endif %}>
                 </p>
+                {{ form.errors.dev_addr }}
                 <div class="mdl-tooltip mdl-tooltip--large" data-mdl-for="dev_addr_form">
                     The device address is used to identify a device. 32 bit device address represented by a 8-character hexadecimal string.
                 </div>

@@ -44,6 +44,11 @@ def new_device(request):
                     lwdevice_form.add_error(field=None, error=lwdevice.error_message)
         except Exception as e:
             lwdevice_form.add_error(field=None, error=str(e))
+        lwdevice_form.fields.pop('activation_type')
+        lwdevice_form.fields.pop('nwkskey')
+        lwdevice_form.fields.pop('appskey')
+        lwdevice_form.fields.pop('dev_addr')
+        lwdevice_form.fields.pop('app_key')
     return render(request, 'csn/new_device.html', {
         'form': lwdevice_form
     })
