@@ -4,7 +4,7 @@
     <ul class="mdl-list" style="max-width: 600px;">
     {% for application in applications %}
         <li class="mdl-list__item mdl-list__item--three-line">
-            <span class="mdl-list__item-primary-content">
+            <span class="mdl-list__item-primary-content" style="word-break: break-all;">
                 <a href="{% url 'csn_app' app_id=application.info.destination_id %}" style="text-decoration: none;">
                     <i class="material-icons mdl-list__item-avatar">apps</i>
                     <span>{{ application.info.name }}</span>
