@@ -1,30 +1,34 @@
 {% extends "csn/base.html" %}
 {% block content %}
-    <div class="cards-section-title mdl-typography--display-1-color-contrast">Device: {{ device.name }}</div>
+    <div class="cards-section-title mdl-typography--display-1-color-contrast">Device: {{ device.info.name }}</div>
     <p class="mdl-typography--body-1" style="margin-bottom: 0;">
-        Description: {{ device.description }}<br>
-        Class: {{ device.dev_class }}<br>
-        Counters Size: {{ device.counters_size }}<br>
-        Device EUI: {{ device.dev_eui }}<br>
-        Activation type: {{ device.get_activation_type_display }}<br>
-        {% if device.activation_type == "abp" %}
-        Device Address: {{ device.dev_addr }}<br>
-        Network Session Key: {{ device.nwkskey }}<br>
-        Application Session Key: {{ device.appskey }}<br>
-        {% elif device.activation_type == "otaa" %}
-        Application Key: {{ device.app_key }}<br>
+        Description: {{ device.info.description }}<br>
+        Class: {{ device.info.dev_class }}<br>
+        Counters Size: {{ device.info.counters_size }}<br>
+        Device EUI: {{ device.info.dev_eui }}<br>
+        Activation type: {{ device.info.get_activation_type_display }}<br>
+        {% if device.info.activation_type == "abp" %}
+        Device Address: {{ device.info.dev_addr }}<br>
+        Network Session Key: {{ device.info.nwkskey }}<br>
+        Application Session Key: {{ device.info.appskey }}<br>
+        {% elif device.info.activation_type == "otaa" %}
+        Application Key: {{ device.info.app_key }}<br>
         {% endif %}
+        {% if device.lwapp %}
         Application:
     </p>
     <ul class="mdl-list" style="margin-top: 0; padding-top: 0;">
         <li class="mdl-list__item mdl-list__item--three-line">
             <span class="mdl-list__item-primary-content">
-                <a href="{% url 'csn_app' app_id=device.lw_application.id %}" style="text-decoration: none;">
+                <a href="{% url 'csn_app' app_id=device.lwapp.info.destination_id %}" style="text-decoration: none;">
                     <i class="material-icons mdl-list__item-avatar">apps</i>
-                    <span>{{ device.lw_application.name }}</span>
-                    <span class="mdl-list__item-text-body">{{ device.lw_application.description }}<br>{{ device.lw_application.url }}</span>
+                    <span>{{ device.lwapp.info.name }}</span>
+                    <span class="mdl-list__item-text-body">{{ device.lwapp.info.description }}<br>{{ device.lwapp.info.url }}</span>
                 </a>
             </span>
         </li>
     </ul>
+        {% else %}
+    </p>
+        {% endif %}
 {% endblock %}
