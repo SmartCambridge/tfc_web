@@ -40,6 +40,7 @@ class Command(BaseCommand):
         traveline_zip_file = zipfile.ZipFile(BytesIO(urlopen('ftp://%s:%s@ftp.tnds.basemap.co.uk/EA.zip' %
                                                              (settings.TNDS_USERNAME, settings.TNDS_PASSWORD)).read()))
         for filename in traveline_zip_file.namelist():
+            logger.info("Processing file %s" % filename)
             with traveline_zip_file.open(filename) as xml_file:
                 content = xmltodict.parse(xml_file)
 
@@ -64,10 +65,11 @@ class Command(BaseCommand):
                         'start_date': service['OperatingPeriod']['StartDate'],
                         'end_date': service['OperatingPeriod']['EndDate'],
                         'regular_days_of_week':
-                            list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys()),
+                            list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
+                        if 'OperatingProfile' in service and 'RegularDayType' in service['OperatingProfile'] else ('MondayToFriday',),
                         'bank_holiday_operation':
                             list(service['OperatingProfile']['BankHolidayOperation']['DaysOfNonOperation'].keys())
-                        if 'BankHolidayOperation' in service['OperatingProfile'] else None
+                        if 'OperatingProfile' in service and 'BankHolidayOperation' in service['OperatingProfile'] else None
                     })
 
                     # Routes
