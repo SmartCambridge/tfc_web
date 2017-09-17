@@ -70,11 +70,24 @@
             </div>
         </div>
         <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Send">
+        <input id="generate_values" class="mdl-button mdl-js-button mdl-button--raised" type="button" value="Generate Values">
     </form>
 {% endblock %}
 
 {% block lazy_script %}
     <script>
+        function generate_random_hex(num_bytes) {
+            string_ret = "";
+            for (i=0; i<num_bytes; i++) {
+                res = Math.floor(Math.random()*0xFF).toString(16);
+                if (res.length == 1) {
+                    string_ret += "0"+res;
+                } else {
+                    string_ret += res;
+                }
+            }
+            return string_ret;
+        }
         function toggle_activation_type() {
             if (this.value === "abp") {
                 $("#abp_fields").show();
@@ -97,6 +110,13 @@
             activation_type_selector = $("#activation_type");
             activation_type_selector.change(toggle_activation_type);
             activation_type_selector.change();
+        });
+        $("#generate_values").click(function() {
+            $("#id_dev_eui").val(generate_random_hex(8));
+            $("#nwkskey").val(generate_random_hex(16));
+            $("#appskey").val(generate_random_hex(16));
+            $("#dev_addr").val(generate_random_hex(4));
+            $("#app_key").val(generate_random_hex(16));
         });
     </script>
 {% endblock %}
