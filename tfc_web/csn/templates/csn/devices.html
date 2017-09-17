@@ -61,7 +61,7 @@
         <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
             <form action="{% url 'csn_delete_device' %}" method="post">
                 {% csrf_token %}
-                <input id="form_sensor_id" type="hidden" name="sensor_id">
+                <input id="form_delete_sensor_id" type="hidden" name="sensor_id">
                 <input type="submit" class="mdl-button" value="Yes">
                 <button type="button" class="mdl-button close">No</button>
             </form>
@@ -78,7 +78,7 @@
         for (var i = 0; i < deleteModalButtons.length; i++) {
             deleteModalButtons[i].addEventListener('click', function(event) {
                 dialog_delete.showModal();
-                document.querySelector('#form_sensor_id').value = event.target.dataset.sensorId;
+                document.querySelector('#form_delete_sensor_id').value = event.target.dataset.sensorId;
             });
         }
         dialog_delete.querySelector('.close').addEventListener('click', function() {

@@ -1,7 +1,6 @@
 import json
 import requests
 from datetime import datetime, timedelta
-from collections import namedtuple
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -36,12 +35,11 @@ def new_device(request):
         try:
             if lwdevice_form.is_valid():
                 lwdevice = lwdevice_form.cleaned_data
-                lwdevice_named = namedtuple("LWDevice", lwdevice.keys())(*lwdevice.values())
-                if everynet_add_device(lwdevice_named):
+                if everynet_add_device(lwdevice):
                     Sensor.insert_lorawan(info=lwdevice)
                     return redirect('csn_devices')
                 else:
-                    lwdevice_form.add_error(field=None, error=lwdevice.error_message)
+                    lwdevice_form.add_error(field=None, error=lwdevice['error_message'])
         except Exception as e:
             lwdevice_form.add_error(field=None, error=str(e))
         lwdevice_form.fields.pop('activation_type')
@@ -61,7 +59,6 @@ def delete_device(request):
         if not lwdevice:
             return HttpResponseNotFound()
         if everynet_remove_device(lwdevice):
-            # TODO change this to Sensor.delete_lorawan?
             lwdevice.delete()
             messages.info(request, "Device deleted")
         else:

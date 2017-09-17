@@ -1,13 +1,15 @@
 import logging
 import json
 import requests
+from collections import namedtuple
 from django.conf import settings
 
 
 LOGGER = logging.getLogger('CSN')
 
 
-def everynet_add_device(lwdev):
+def everynet_add_device(lwdevice):
+    lwdev = namedtuple("LWDevice", lwdevice.keys())(*lwdevice.values())
     if lwdev.activation_type == "otaa":
         data = \
             {
@@ -33,9 +35,9 @@ def everynet_add_device(lwdev):
                 "appskey": lwdev.appskey
             }
     else:
-        lwdev.error_message = "Activation type %s not supported for LoRaWAN device with id %s", \
-                              (lwdev.activation_type, lwdev.id)
-        LOGGER.error(lwdev.error_message)
+        lwdevice['error_message'] = "Activation type %s not supported for LoRaWAN device with id %s", \
+                                    (lwdev.activation_type, lwdev.id)
+        LOGGER.error(lwdevice['error_message'])
         return False
     headers = \
         {
@@ -46,7 +48,7 @@ def everynet_add_device(lwdev):
     if response.status_code != 200:
         LOGGER.error("Everynet responded with a HTTP %s and the following error message: %s" %
                      (response.status_code, response.text))
-        lwdev.error_message = response.json()['message']
+        lwdevice['error_message'] = response.json()['message']
         return False
     return True
 
@@ -57,7 +59,7 @@ def everynet_remove_device(lwdev):
             'Authorization': settings.LW_API_KEY,
             'Content-Type': 'application/json'
         }
-    response = requests.delete(settings.EVERYNET_API_ENDPOINT + "devices/%s" % lwdev.info.dev_eui, headers=headers)
+    response = requests.delete(settings.EVERYNET_API_ENDPOINT + "devices/%s" % lwdev.info['dev_eui'], headers=headers)
     if response.status_code != 200:
         LOGGER.error("Everynet responded with a %s status code and the following error message: %s" %
                      (response.status_code, response.text))
