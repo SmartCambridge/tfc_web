@@ -43,10 +43,6 @@ Get the tfc_web source
 (tfc_web_venv):# git clone https://github.com/ijl20/tfc_web.git
 ```
 
-### Install gunicorn
-```
-python3 -m pip install gunicorn
-```
 
 ### Set up Django and tfc_web application
 
@@ -54,7 +50,7 @@ Change to tfc_web Django directory:
 ```
 cd tfc_web/tfc_web
 ```
-Install Django:
+Install tfc_web python dependencies
 ```
 python3 -m pip install -r requirements.txt
 ```
@@ -63,37 +59,14 @@ python3 -m pip install -r requirements.txt
 Install and configure postgreSQL database
 ```
 $ sudo apt-get install postgresql postgresql-contrib postgis
-$ sudo -u postgres psql
-postgres=# CREATE DATABASE tfcweb;
-postgres=# CREATE DATABASE csn;
-postgres=# CREATE USER tfc_prod;
-postgres=# ALTER ROLE tfc_prod SET client_encoding TO 'utf8';
-postgres=# ALTER ROLE tfc_prod SET default_transaction_isolation TO 'read committed';
-postgres=# ALTER ROLE tfc_prod SET timezone TO 'UTC';
-postgres=# GRANT ALL PRIVILEGES ON DATABASE tfcweb TO tfc_prod;
-postgres=# GRANT ALL PRIVILEGES ON DATABASE csn TO tfc_prod;
-postgres=# \connect tfcweb
-postgres=# CREATE EXTENSION postgis;
-postgres=# \connect csn
-postgres=# CREATE EXTENSION postgis;
-postgres=# \q
 ```
+
+Set up initial configuration executing tfc_web/migrations and making sure tfcserver database has already been set up.
+
 Apply all the migrations
 ```
-python3 manage.py migrate --database default
-python3 manage.py migrate --database csn
+python3 manage.py migrate --database
 ```
-
-### Test basic nginx/ gunicorn / python web access with:
-```
-gunicorn --bind localhost:8099 tfc_web.echo
-```
-And with browser visit:
-```
-http://localhost/test/
-```
-You should see "Hello World"
-
 
 ### Collect static files for Django
 ```
@@ -107,7 +80,7 @@ gunicorn --reload --log-level debug tfc_web.wsgi
 ```
 Test with access to:
 ```
-http://localhost/web
+http://localhost/
 ```
 
 ### Periodically update route/timetable data
@@ -116,6 +89,7 @@ You will need as well to set up a cronjob that executes the following command we
 
 ```
 /home/tfc_prod/tfc_web_venv/bin/python3 /home/tfc_prod/tfc_web/tfc_web/manage.py update_bus_stops
+/home/tfc_prod/tfc_web_venv/bin/python3 /home/tfc_prod/tfc_web/tfc_web/manage.py update_bus_info
 ```
 
 ## Dependencies
@@ -127,3 +101,5 @@ This project uses:
 - [Leaflet](http://leafletjs.com/)
 - [Leaflet Moving Marker](https://github.com/ewoken/Leaflet.MovingMarker)
 - [Material Design Lite](https://getmdl.io/)
+- [django-machina](https://github.com/ellmetha/django-machina)
+- [django-allauth](https://github.com/pennersr/django-allauth)
