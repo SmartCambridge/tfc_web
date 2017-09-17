@@ -8,3 +8,4 @@ gunicorn
 Pillow
 pytz
 django-machina
+wheel
