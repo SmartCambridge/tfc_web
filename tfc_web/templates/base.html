@@ -41,7 +41,7 @@
                 <div class="navigation-container">
                     <nav class="navigation mdl-navigation">
                         {% block header_menu %}
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'csn_home' %}">CSN Home</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'csn-home' %}">CSN Home</a>
                             <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'forum:index' %}">Forum</a>
                         {% endblock %}
                         {% if user.is_authenticated %}

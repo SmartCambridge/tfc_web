@@ -2,40 +2,17 @@
 {% load static %}
 {% block inner_content %}
     <div class="presentation-band">
-        <div class="presentation-band-text">
+        <div style="text-align: center; color: white; padding: 20px 0;">
             <div class="mdl-typography--display-2 mdl-typography--font-thin">Cambridge Sensor Network</div>
-            <p class="mdl-typography--subhead mdl-typography--font-thin">
-                FOOBAR
-            </p>
-            <p>
-            <a class="mdl-typography--font-regular mdl-typography--text-uppercase aqua-alt-link" href="http://www.connectingcambridgeshire.co.uk/smartcamb/">
-                Visit XXXX website for more information&nbsp;<i class="material-icons">chevron_right</i>
-            </a>
-            </p>
+        </div>
+        <div style="min-height: 300px; background-position: bottom; background-image: url('/static_web/images/csn-home.png'); background-size: 100%; background-repeat: no-repeat;">
         </div>
     </div>
     <div class="cards-section">
         <div class="card-container mdl-grid">
             <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                 <div class="mdl-card__media">
-                    <img src="{% static 'images/devices.jpg' %}">
-                </div>
-                <div class="mdl-card__title">
-                    <h4 class="mdl-card__title-text">My devices</h4>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <span class="mdl-typography--font-light mdl-typography--subhead">List of all my LoRaWAN registered devices in the Cambridge Sensor Network</span>
-                </div>
-                <div class="mdl-card__actions">
-                    <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'csn_devices' %}">
-                        View
-                        <i class="material-icons">chevron_right</i>
-                    </a>
-                </div>
-            </div>
-            <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
-                <div class="mdl-card__media">
-                    <img src="{% static 'images/devices.jpg' %}">
+                    <img src="{% static 'images/home/csn-apps.jpg' %}">
                 </div>
                 <div class="mdl-card__title">
                     <h4 class="mdl-card__title-text">My applications</h4>
@@ -45,6 +22,23 @@
                 </div>
                 <div class="mdl-card__actions">
                     <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'csn_applications' %}">
+                        View
+                        <i class="material-icons">chevron_right</i>
+                    </a>
+                </div>
+            </div>
+            <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                <div class="mdl-card__media">
+                    <img src="{% static 'images/home/csn-devs.jpg' %}">
+                </div>
+                <div class="mdl-card__title">
+                    <h4 class="mdl-card__title-text">My devices</h4>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <span class="mdl-typography--font-light mdl-typography--subhead">List of all my LoRaWAN registered devices in the Cambridge Sensor Network</span>
+                </div>
+                <div class="mdl-card__actions">
+                    <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'csn_devices' %}">
                         View
                         <i class="material-icons">chevron_right</i>
                     </a>
