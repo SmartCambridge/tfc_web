@@ -12,7 +12,7 @@ def update_website_name(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('csn', '0001_initial_squashed_0005_auto_20170830_0736'),
+        ('sites', '0002_alter_domain_unique'),
     ]
 
     operations = [
