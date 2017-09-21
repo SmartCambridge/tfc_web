@@ -276,26 +276,26 @@ class VehicleJourney(models.Model):
         departure_time = self.departure_time
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
-            self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_link.stop_from.atco_code})
+            self.timetable.append({'time': str(departure_time), 'stop_id': timing_link.stop_from.atco_code})
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
         # TODO this should never happen but there is data that contain this error
         if timing_links.last().stop_to:
-            self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
+            self.timetable.append({'time': str(departure_time), 'stop_id': timing_links.last().stop_to.atco_code})
         self.save()
 
     def get_timetable_stops(self):
         timetable = []
-        departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
+        departure_time = self.departure_time
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
-            timetable.append({'time': departure_time.time(), 'latitude': timing_link.stop_from.latitude,
+            timetable.append({'time': departure_time, 'latitude': timing_link.stop_from.latitude,
                               'longitude': timing_link.stop_from.longitude})
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
-        timetable.append({'time': departure_time.time(), 'latitude': timing_links.last().stop_to.latitude,
+        timetable.append({'time': departure_time, 'latitude': timing_links.last().stop_to.latitude,
                           'longitude': timing_links.last().stop_to.longitude})
         return timetable
 
