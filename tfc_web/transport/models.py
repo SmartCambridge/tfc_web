@@ -273,7 +273,7 @@ class VehicleJourney(models.Model):
 
     def generate_timetable(self):
         self.timetable = []
-        departure_time = datetime.datetime.strptime(self.departure_time, '%H:%M:%S')
+        departure_time = self.departure_time
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
             self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_link.stop_from.atco_code})
