@@ -174,6 +174,7 @@ class Command(BaseCommand):
                                     'departure_time': journey['DepartureTime'],
                                     'days_of_week': days_of_week
                                 })
+                            vehicle_journey.refresh_from_db()
                             vehicle_journey.generate_timetable()
 
                     bus_line.generate_timetable()

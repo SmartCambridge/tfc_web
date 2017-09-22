@@ -20,7 +20,7 @@
                     <tr>
                         <td>{{ journey.days_of_week }}</td>
                         {% for timetable in journey.timetable %}
-                            <td class="mdl-data-table__cell--non-numeric">{{ timetable.time }}</td>
+                            <td class="mdl-data-table__cell--non-numeric">{{ timetable.time|default_if_none:"-" }}</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
