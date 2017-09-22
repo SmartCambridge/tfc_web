@@ -177,6 +177,7 @@ class Command(BaseCommand):
                             vehicle_journey.refresh_from_db()
                             vehicle_journey.generate_timetable()
 
+                    bus_line.refresh_from_db()
                     bus_line.generate_timetable()
                     xml_file.close()
             except Exception as e:
