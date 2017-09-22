@@ -5,12 +5,13 @@
     <h2>{{ bus_line.description }}</h2>
     <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
         <div class="mdl-tabs__tab-bar">
-            <a href="#mondaytofriday" class="mdl-tabs__tab is-active">Monday to Friday</a>
-            <a href="#saturday" class="mdl-tabs__tab">Saturday</a>
-            <a href="#sunday" class="mdl-tabs__tab">Sunday</a>
+            {% if bus_line.stop_list.inbound.MondayToFriday %}<a href="#mondaytofriday" class="mdl-tabs__tab is-active">Monday to Friday</a>{% endif %}
+            {% if bus_line.stop_list.inbound.Saturday %}<a href="#saturday" class="mdl-tabs__tab">Saturday</a>{% endif %}
+            {% if bus_line.stop_list.inbound.Sunday %}<a href="#sunday" class="mdl-tabs__tab">Sunday</a>{% endif %}
         </div>
 
         <div class="mdl-tabs__panel is-active" id="mondaytofriday">
+            <h3>Inbound</h3>
             <div style="overflow-x: scroll; margin-bottom: 30px;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
@@ -25,7 +26,7 @@
                     </tbody>
                 </table>
             </div>
-
+            <h3>Outbound</h3>
             <div style="overflow-x: scroll;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
@@ -44,6 +45,7 @@
 
 
         <div class="mdl-tabs__panel" id="saturday">
+            <h3>Inbound</h3>
             <div style="overflow-x: scroll; margin-bottom: 30px;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
@@ -58,6 +60,7 @@
                     </tbody>
                 </table>
             </div>
+            <h3>Outbound</h3>
             <div style="overflow-x: scroll;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
@@ -75,6 +78,7 @@
         </div>
 
         <div class="mdl-tabs__panel" id="sunday">
+            <h3>Inbound</h3>
             <div style="overflow-x: scroll; margin-bottom: 30px; margin-left:5em;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
@@ -89,6 +93,7 @@
                     </tbody>
                 </table>
             </div>
+            <h3>Outbound</h3>
             <div style="overflow-x: scroll;">
                 <table class="mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp" style="margin-left: auto; margin-right: auto;">
                     <tbody>
