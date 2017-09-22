@@ -18,7 +18,7 @@
                         <tr>
                             <td><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.inbound.MondayToFriday|keyvalue:stop %}
-                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                                <td class="mdl-data-table__cell--non-numeric">{{ time|default_if_none:"-" }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -33,7 +33,7 @@
                         <tr>
                             <td><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.outbound.MondayToFriday|keyvalue:stop %}
-                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                                <td class="mdl-data-table__cell--non-numeric">{{ time|default_if_none:"-" }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -51,7 +51,7 @@
                         <tr>
                             <td><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.inbound.Saturday|keyvalue:stop %}
-                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                                <td class="mdl-data-table__cell--non-numeric">{{ time|default_if_none:"-" }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -65,7 +65,7 @@
                         <tr>
                             <td><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.outbound.Saturday|keyvalue:stop %}
-                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                                <td class="mdl-data-table__cell--non-numeric">{{ time|default_if_none:"-" }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -82,7 +82,7 @@
                         <tr>
                             <td class="bus-stop-column"><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.inbound.Sunday|keyvalue:stop %}
-                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                                <td class="mdl-data-table__cell--non-numeric">{{ time|default_if_none:"-" }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -96,7 +96,7 @@
                         <tr>
                             <td><a href="{% url 'bus-stop' bus_stop_id=stop %}">{{ stop_list|keyvalue:stop }}</a></td>
                             {% for time in bus_line.timetable.outbound.Sunday|keyvalue:stop %}
-                                <td class="mdl-data-table__cell--non-numeric">{{ time }}</td>
+                                <td class="mdl-data-table__cell--non-numeric">{{ time|default_if_none:"-" }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
