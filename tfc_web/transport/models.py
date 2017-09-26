@@ -126,22 +126,22 @@ class Line(models.Model):
 
         for bound in ['inbound', 'outbound']:
             for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
-                for route in Route.objects.filter(line=self, journey_patterns__direction=bound,
-                                                  journey_patterns__journeys__days_of_week=dayperiod).distinct():
-                    last_stop_index = -1
-                    for stop in route.stops_list.split(','):
-                        if stop not in stop_list[bound][dayperiod]:
-                            last_stop_index += 1
-                            stop_list[bound][dayperiod].insert(last_stop_index, stop)
-                        else:
-                            last_stop_index = stop_list[bound][dayperiod].index(stop)
+                stop_list[bound][dayperiod] = list(Stop.objects.filter(
+                    departure_journeys__journey_pattern_section__journey_patterns__route__in=
+                    Route.objects.filter(line=self, journey_patterns__direction=bound,
+                                         journey_patterns__journeys__days_of_week=dayperiod)).distinct()\
+                    .order_by('departure_journeys__stop_from_sequence_number').values_list('atco_code', flat=True))
+                stop_list[bound][dayperiod].append(Stop.objects.last(
+                    arrival_journeys__journey_pattern_section__journey_patterns__route__in=
+                    Route.objects.filter(line=self, journey_patterns__direction=bound,
+                                         journey_patterns__journeys__days_of_week=dayperiod)).distinct()\
+                    .order_by('departure_journeys__stop_to_sequence_number').values_list('atco_code', flat=True))
         self.stop_list = stop_list
         self.save()
 
     def generate_timetable(self):
         # Create list of stops per line number
-        if not self.stop_list:
-            self.generate_stop_list()
+        self.generate_stop_list()
 
         line_timetable = {
             'inbound': {
@@ -168,6 +168,7 @@ class Line(models.Model):
                     timetable[stop] = []
                 i = 0
                 for journey in journeys:
+                    journey.generate_timetable()
                     for stop in self.stop_list[bound][dayperiod]:
                         timetable[stop].append(None)
                     for journey_timetable_entry in journey.timetable:
@@ -280,7 +281,7 @@ class VehicleJourney(models.Model):
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
-        # TODO this should never happen but there is data that contain this error
+        # this should never happen but there is data that contain this error
         if timing_links.last().stop_to:
             self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
         self.save()
