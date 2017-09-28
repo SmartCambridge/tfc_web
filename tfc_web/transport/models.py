@@ -131,11 +131,11 @@ class Line(models.Model):
                     Route.objects.filter(line=self, journey_patterns__direction=bound,
                                          journey_patterns__journeys__days_of_week=dayperiod)).distinct()\
                     .order_by('departure_journeys__stop_from_sequence_number').values_list('atco_code', flat=True))
-                stop_list[bound][dayperiod].append(Stop.objects.last(
+                stop_list[bound][dayperiod].append(Stop.objects.filter(
                     arrival_journeys__journey_pattern_section__journey_patterns__route__in=
                     Route.objects.filter(line=self, journey_patterns__direction=bound,
-                                         journey_patterns__journeys__days_of_week=dayperiod)).distinct()\
-                    .order_by('departure_journeys__stop_to_sequence_number').values_list('atco_code', flat=True))
+                                         journey_patterns__journeys__days_of_week=dayperiod))\
+                    .order_by('departure_journeys__stop_to_sequence_number').last().atco_code)
         self.stop_list = stop_list
         self.save()
 
