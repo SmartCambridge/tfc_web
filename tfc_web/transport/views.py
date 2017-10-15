@@ -174,22 +174,3 @@ class ServiceDetailView(DetailView):
         #             for row in grouping.rows:
         #                 row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
         return context
-
-    def render_to_response(self, context):
-        if not self.object.current:
-            alternative = Line.objects.filter(
-                description=self.object.description,
-                current=True
-            ).defer('geometry').first() or Line.objects.filter(
-                line_name=self.object.line_name,
-                stopusage__stop_id__in=self.object.stopusage_set.values_list('stop_id', flat=True),
-                current=True
-            ).defer('geometry').first()
-
-            if alternative is not None:
-                return redirect(alternative)
-
-            raise Http404()
-
-        response = super(ServiceDetailView, self).render_to_response(context)
-        return response
