@@ -77,8 +77,10 @@ class Stop(models.Model):
                 return '%s, %s %s' % (self.locality, self.indicator, self.common_name) if self.locality else \
                     '%s %s' % (self.indicator, self.common_name)
             else:
-                return '%s %s (%s)' % (self.locality, self.common_name, self.indicator) if self.locality else \
+                return '%s, %s (%s)' % (self.locality, self.common_name, self.indicator) if self.locality else \
                     '%s (%s)' % (self.common_name, self.indicator)
+        else:
+            return '%s, %s' % (self.locality, self.common_name) if self.locality else '%s' % self.common_name
 
 
 @receiver(pre_save, sender=Stop)
