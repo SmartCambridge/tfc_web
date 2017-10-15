@@ -581,3 +581,11 @@ main.timetable h1, main.timetable h2 {
 .fancy tfoot td:first-child {
     position: absolute;
 }
+
+input:not(:checked) + label + .timetable-wrapper .OTH, input:not(:checked) + label + .route .OTH {
+    display: none;
+}
+
+input:not(:checked) + label + .timetable-wrapper .referrer, input:not(:checked) + label + .route .referrer {
+    display: table-row;
+}
