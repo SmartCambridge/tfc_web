@@ -956,7 +956,7 @@ def get_filenames(service_id, archive):
         namelist = archive.namelist()
     except (IOError, OSError):
         return []
-    return [name for name in namelist if name.startswith(service_id)]
+    return [name for name in namelist if name.startswith("ea_%s" % service_id) or name.startswith("suf_%s" % service_id)]
 
 
 def get_files_from_zipfile(service_id):
