@@ -56,7 +56,7 @@
     {% if grouping.column_feet %}
         <tfoot>
         {% for row in grouping.column_feet.values %}
-            <tr><td></td>{% for foot in row %}<td{% if foot.span > 1 %} colspan="{{ foot.span }}"{% endif %}>{% if foot.notes %}{{ foot.notes|urlise }}{% endif %}</td>{% endfor %}</tr>
+            <tr><td></td>{% for foot in row %}<td{% if foot.span > 1 %} colspan="{{ foot.span }}"{% endif %}>{% if foot.notes %}{{ foot.notes }}{% endif %}</td>{% endfor %}</tr>
         {% endfor %}
         </tfoot>
     {% endif %}
