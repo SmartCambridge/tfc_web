@@ -120,14 +120,12 @@ DATABASE_ROUTERS = ['tfc_web.dbrouter.CSNRouter']
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+LANGUAGE_CODE = 'en-gb'
+TIME_FORMAT = 'H:i'
+DATE_FORMAT = 'l j F Y'
+TIME_ZONE = 'Europe/London'
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
