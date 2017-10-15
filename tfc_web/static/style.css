@@ -516,9 +516,11 @@ main.timetable h1, main.timetable h2 {
 
 .timetable td, .timetable th {
     height: 1.5em;
+    padding: .25em .5em;
+    text-align: left;
 }
 
-.timetable tbody tr:first-child td, .timetable tbody tr:first-child tr {
+.timetable tbody tr:first-child td, .timetable tbody tr:first-child th {
     border-top: 0;
 }
 
