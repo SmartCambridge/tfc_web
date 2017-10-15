@@ -4,6 +4,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
 
@@ -59,9 +60,32 @@ class Stop(models.Model):
     def get_coordinates(self):
         return [self.latitude, self.longitude]
 
+    def get_absolute_url(self):
+        return reverse('bus-stop', args=(self.atco_code,))
+
+    def get_qualified_name(self):
+        if self.locality:
+            locality_name = str(self.locality).replace(' Town Centre', '').replace(' City Centre', '')
+            if self.common_name in locality_name:
+                return str(self.locality)
+            if locality_name.replace('\'', '').replace('\u2019', '') not in self.common_name.replace('\'', ''):
+                if self.indicator in ('opp', 'adj', 'at', 'o/s', 'nr', 'before', 'after', 'by', 'on', 'in'):
+                    return '%s, %s %s' % (locality_name, self.indicator, self.common_name)
+                else:
+                    return '%s %s' % (locality_name, self)
+        return str(self)
+
+    @property
+    def locality(self):
+        return None
+
     @python_2_unicode_compatible
     def __str__(self):
-        return "%s, %s %s" % (self.locality_name, self.indicator, self.common_name)
+        if self.indicator:
+            return '%s (%s)' % (self.common_name, self.indicator)
+        return self.common_name
+
+
 
 
 @receiver(pre_save, sender=Stop)

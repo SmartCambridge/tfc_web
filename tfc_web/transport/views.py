@@ -5,8 +5,8 @@ from datetime import datetime
 from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.gis.db.models import Q
-from django.http import JsonResponse, Http404
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
 from tfc_gis.models import Area
@@ -158,6 +158,19 @@ class ServiceDetailView(DetailView):
         if not date:
             date = timezone.now().date()
         context['timetables'] = timetable_from_service(self.object, date)
+
+        if context.get('timetables'):
+            for table in context['timetables']:
+                table.groupings = [grouping for grouping in table.groupings if grouping.rows and grouping.rows[0].times]
+                for grouping in table.groupings:
+                    grouping.rows = [row for row in grouping.rows if any(row.times)]
+                    stops_id = []
+                    for row in grouping.rows:
+                        stops_id.append(row.part.stop.atco_code)
+                    stops_dict = {stop.pk: stop for stop in Stop.objects.filter(atco_code__in=stops_id)}
+                    for row in grouping.rows:
+                        row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
+
 
         # if not context.get('timetables'):
         #     context['stopusages'] = self.object.stopusage_set.all().select_related(
