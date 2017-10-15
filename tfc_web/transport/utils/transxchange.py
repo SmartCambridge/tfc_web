@@ -809,7 +809,7 @@ class Timetable(object):
 
     def date_options(self):
         start_date = min(self.date, datetime.date.today())
-        end_date = start_date + datetime.timedelta(weeks=2)
+        end_date = start_date + datetime.timedelta(weeks=4)
         while start_date <= end_date:
             yield start_date
             start_date += datetime.timedelta(days=1)
