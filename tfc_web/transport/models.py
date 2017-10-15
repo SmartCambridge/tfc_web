@@ -64,15 +64,6 @@ class Stop(models.Model):
         return reverse('bus-stop', args=(self.atco_code,))
 
     def get_qualified_name(self):
-        if self.locality:
-            locality_name = str(self.locality).replace(' Town Centre', '').replace(' City Centre', '')
-            if self.common_name in locality_name:
-                return str(self.locality)
-            if locality_name.replace('\'', '').replace('\u2019', '') not in self.common_name.replace('\'', ''):
-                if self.indicator in ('opp', 'adj', 'at', 'o/s', 'nr', 'before', 'after', 'by', 'on', 'in'):
-                    return '%s, %s %s' % (locality_name, self.indicator, self.common_name)
-                else:
-                    return '%s %s' % (locality_name, self)
         return str(self)
 
     @property
@@ -82,10 +73,12 @@ class Stop(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         if self.indicator:
-            return '%s (%s)' % (self.common_name, self.indicator)
-        return self.common_name
-
-
+            if self.indicator in ('opp', 'adj', 'at', 'o/s', 'nr', 'before', 'after', 'by', 'on', 'in'):
+                return '%s, %s %s' % (self.locality, self.indicator, self.common_name) if self.locality else \
+                    '%s %s' % (self.indicator, self.common_name)
+            else:
+                return '%s %s (%s)' % (self.locality, self.common_name, self.indicator) if self.locality else \
+                    '%s (%s)' % (self.common_name, self.indicator)
 
 
 @receiver(pre_save, sender=Stop)
