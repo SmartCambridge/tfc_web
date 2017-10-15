@@ -73,14 +73,14 @@ class Stop(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         if self.indicator:
-            if self.indicator in ('opp', 'adj', 'at', 'o/s', 'nr', 'before', 'after', 'by', 'on', 'in'):
-                return '%s, %s %s' % (self.locality, self.indicator, self.common_name) if self.locality else \
-                    '%s %s' % (self.indicator, self.common_name)
+            if self.indicator in ('opp', 'adj', 'at', 'o/s', 'nr', 'before', 'after', 'by', 'on', 'in', 'near'):
+                return '%s, %s %s' % (self.locality_name, self.indicator, self.common_name) \
+                    if self.locality_name else '%s %s' % (self.indicator, self.common_name)
             else:
-                return '%s, %s (%s)' % (self.locality, self.common_name, self.indicator) if self.locality else \
-                    '%s (%s)' % (self.common_name, self.indicator)
+                return '%s, %s (%s)' % (self.locality_name, self.common_name, self.indicator) \
+                    if self.locality_name else '%s (%s)' % (self.common_name, self.indicator)
         else:
-            return '%s, %s' % (self.locality, self.common_name) if self.locality else '%s' % self.common_name
+            return '%s, %s' % (self.locality_name, self.common_name) if self.locality_name else '%s' % self.common_name
 
 
 @receiver(pre_save, sender=Stop)
