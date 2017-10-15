@@ -1,13 +1,17 @@
 import codecs
 import requests
 import json
+from datetime import datetime
 from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.gis.db.models import Q
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse, Http404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
+from django.views.generic import DetailView
 from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney
+from transport.utils.transxchange import timetable_from_service
 from vix.models import Route as VixRoute, Stop as VixStop
 
 
@@ -135,3 +139,57 @@ def zone(request, zone_id):
         'tooltips_permanent': True,
         'mapcenter': "[%s, %s], %s" % (zone['center']['lat'], zone['center']['lng'], zone['zoom'])
     })
+
+class ServiceDetailView(DetailView):
+    "A service and the stops it stops at"
+
+    model = Line
+    template_name = "transport/new_timetable.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ServiceDetailView, self).get_context_data(**kwargs)
+
+        date = self.request.GET.get('date')
+        if date:
+            try:
+                date = datetime.strptime(date, '%Y-%m-%d').date()
+            except ValueError:
+                date = None
+        if not date:
+            date = timezone.now().date()
+        context['timetables'] = timetable_from_service(self.object, date)
+
+        # if not context.get('timetables'):
+        #     context['stopusages'] = self.object.stopusage_set.all().select_related(
+        #         'stop__locality'
+        #     ).defer('stop__osm', 'stop__locality__latlong').order_by('direction', 'order')
+        #     context['has_minor_stops'] = any(s.timing_status == 'OTH' for s in context['stopusages'])
+        # else:
+        #     stops_dict = {stop.pk: stop for stop in self.object.stops.all().select_related(
+        #         'locality').defer('osm', 'latlong', 'locality__latlong')}
+        #     for table in context['timetables']:
+        #         table.groupings = [grouping for grouping in table.groupings if grouping.rows and grouping.rows[0].times]
+        #         for grouping in table.groupings:
+        #             grouping.rows = [row for row in grouping.rows if any(row.times)]
+        #             for row in grouping.rows:
+        #                 row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
+        return context
+
+    def render_to_response(self, context):
+        if not self.object.current:
+            alternative = Line.objects.filter(
+                description=self.object.description,
+                current=True
+            ).defer('geometry').first() or Line.objects.filter(
+                line_name=self.object.line_name,
+                stopusage__stop_id__in=self.object.stopusage_set.values_list('stop_id', flat=True),
+                current=True
+            ).defer('geometry').first()
+
+            if alternative is not None:
+                return redirect(alternative)
+
+            raise Http404()
+
+        response = super(ServiceDetailView, self).render_to_response(context)
+        return response

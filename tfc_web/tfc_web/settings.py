@@ -142,6 +142,9 @@ API_ENDPOINT = 'http://localhost'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+TNDS_DIR = os.path.join(DATA_DIR, 'TNDS')
+
 
 # Web proxy
 
