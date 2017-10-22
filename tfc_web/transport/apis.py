@@ -67,9 +67,11 @@ def siriVM_to_journey(request):
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
             bus['vehicle_journeys'] = list(
-                Timetable.objects.filter(
-                    Q(stop_id=bus['OriginRef'], time=time, order=1) & Q(stop_id=bus['DestinationRef'], last_stop=True))
+                set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1)
+                    .values_list('vehicle_journey', flat=True)) |
+                set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True)
                     .values_list('vehicle_journey', flat=True))
+            )
     except:
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
 
