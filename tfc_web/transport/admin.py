@@ -19,6 +19,6 @@ admin.site.register(VehicleJourney, ModelAdmin)
 
 
 class TimetableAdmin(ModelAdmin):
-    list_display = ('id', 'vehicle_journey', 'stop', 'time')
+    list_display = ('id', 'vehicle_journey__id', 'stop__atco_code', 'time')
     list_filter = ('stop__atco_code',)
 admin.site.register(Timetable, TimetableAdmin)
