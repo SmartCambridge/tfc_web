@@ -16,4 +16,9 @@ admin.site.register(JourneyPatternTimingLink, ModelAdmin)
 admin.site.register(JourneyPatternSection, ModelAdmin)
 admin.site.register(JourneyPattern, ModelAdmin)
 admin.site.register(VehicleJourney, ModelAdmin)
-admin.site.register(Timetable, ModelAdmin)
+
+
+class TimetableAdmin(ModelAdmin):
+    list_display = ('id', 'vehicle_journey', 'stop', 'time')
+    list_filter = ('stop__atco_code',)
+admin.site.register(Timetable, TimetableAdmin)
