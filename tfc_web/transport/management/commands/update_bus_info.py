@@ -7,6 +7,7 @@ from django.core.management import BaseCommand
 from io import BytesIO
 from urllib.request import urlopen
 from django.conf import settings
+from django.db import transaction
 from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
     JourneyPatternTimingLink, Stop
 
@@ -37,9 +38,18 @@ def xml_timedelta_to_python(xml_timedelta):
 class Command(BaseCommand):
     help = "Updates bus data from zip file containing the XML files from TravelLine website"
 
+    @transaction.atomic
     def handle(self, **options):
         traveline_zip_file = zipfile.ZipFile(BytesIO(urlopen('ftp://%s:%s@ftp.tnds.basemap.co.uk/EA.zip' %
                                                              (settings.TNDS_USERNAME, settings.TNDS_PASSWORD)).read()))
+        Operator.objects.all().delete()
+        Line.objects.all().delete()
+        Route.objects.all().delete()
+        JourneyPattern.objects.all().delete()
+        JourneyPatternSection.objects.all().delete()
+        JourneyPatternTimingLink.objects.all().delete()
+        VehicleJourney.objects.all().delete()
+
         for filename in traveline_zip_file.namelist():
             logger.info("Processing file %s" % filename)
             try:
