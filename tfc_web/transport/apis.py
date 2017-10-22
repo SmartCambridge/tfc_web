@@ -62,6 +62,7 @@ def siriVM_to_journey(request):
                 .read_text())
     except:
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
+
     try:
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
@@ -70,3 +71,5 @@ def siriVM_to_journey(request):
                     .values_list('vehicle_journey', flat=True))
     except:
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
+
+    return JsonResponse(real_time, json_dumps_params={'indent': 2})
