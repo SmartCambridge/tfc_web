@@ -8,8 +8,7 @@ from io import BytesIO
 from urllib.request import urlopen
 from django.conf import settings
 from django.db import transaction
-from transport.models import Line, Operator, Route, VehicleJourney, JourneyPatternSection, JourneyPattern, \
-    JourneyPatternTimingLink, Stop
+from transport.models import *
 
 
 logger = logging.getLogger(__name__)
@@ -49,6 +48,7 @@ class Command(BaseCommand):
         JourneyPatternSection.objects.all().delete()
         JourneyPatternTimingLink.objects.all().delete()
         VehicleJourney.objects.all().delete()
+        Timetable.objects.all().delete()
 
         for filename in traveline_zip_file.namelist():
             logger.info("Processing file %s" % filename)
@@ -167,6 +167,7 @@ class Command(BaseCommand):
                         journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
                         if journeys.__class__ is not list:
                             journeys = list([journeys])
+                        order_journey = 1
                         for journey in journeys:
                             if 'OperatingProfile' not in journey:
                                 days_of_week = None
@@ -182,11 +183,14 @@ class Command(BaseCommand):
                                 id=journey['PrivateCode'], defaults={
                                     'journey_pattern_id': journey['JourneyPatternRef'],
                                     'departure_time': journey['DepartureTime'],
-                                    'days_of_week': days_of_week
+                                    'days_of_week': days_of_week,
+                                    'order': order_journey # trasxchange specifies that the order of the journeys in the
+                                    # xml is how journeys have to be shown
                                 })
+                            order_journey += 1
 
-                    bus_line.refresh_from_db()
-                    bus_line.generate_timetable()
+                    for vh in VehicleJourney.objects.all():
+                        vh.generate_timetable()
                     xml_file.close()
             except Exception as e:
                 logger.error("Error while trying to process file %s, exception was %s" % (filename, e))

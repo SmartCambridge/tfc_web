@@ -267,9 +267,6 @@ class JourneyPattern(models.Model):
     section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns')
     last_modified = models.DateTimeField(auto_now=True)
 
-    def departure_times(self):
-        return self.journeys.order_by("departure_time").values_list("departure_time", flat=True)
-
     @python_2_unicode_compatible
     def __str__(self):
         return "%s - %s" % (self.section, self.route)
@@ -280,6 +277,7 @@ class VehicleJourney(models.Model):
     journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
     departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True)
+    order = models.IntegerField()
     last_modified = models.DateTimeField(auto_now=True)
 
     def generate_timetable(self):
