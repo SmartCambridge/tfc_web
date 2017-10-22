@@ -288,22 +288,23 @@ class VehicleJourney(models.Model):
     journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
     departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True)
-    timetable = JSONField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     def generate_timetable(self):
-        self.timetable = []
         departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), self.departure_time)
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         for timing_link in timing_links:
-            self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_link.stop_from.atco_code})
+            Timetable.objects.create(vehicle_journey=self, stop_id=timing_link.stop_from.atco_code,
+                                        time=departure_time.time())
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
-        # this should never happen but there is data that contain this error
-        if timing_links.last().stop_to:
-            self.timetable.append({'time': str(departure_time.time()), 'stop_id': timing_links.last().stop_to.atco_code})
+        Timetable.objects.create(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
+                                 time=departure_time.time())
         self.save()
+
+    def get_timetable(self):
+        return Timetable.objects.filter(vehicle_journey=self).order_by('time')
 
     def get_timetable_stops(self):
         timetable = []
@@ -325,3 +326,10 @@ class VehicleJourney(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         return "%s - %s" % (self.journey_pattern.route, self.departure_time)
+
+
+class Timetable(models.Model):
+    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times')
+    stop = models.ForeignKey(Stop, related_name='journey_times')
+    time = models.TimeField()
+
