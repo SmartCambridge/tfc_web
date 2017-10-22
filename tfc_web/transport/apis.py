@@ -1,6 +1,5 @@
 import json
 from dateutil.parser import parse
-from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from os import listdir
 from pathlib import Path
@@ -68,7 +67,7 @@ def siriVM_to_journey(request):
             time = string_to_time(bus['OriginAimedDepartureTime'])
             bus['vehicle_journeys'] = list(
                 set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1)
-                    .values_list('vehicle_journey', flat=True)) |
+                    .values_list('vehicle_journey', flat=True)) &
                 set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True)
                     .values_list('vehicle_journey', flat=True))
             )
