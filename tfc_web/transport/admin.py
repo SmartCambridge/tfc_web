@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.contrib.gis.admin import OSMGeoAdmin
-from transport.models import Line, Stop, Operator, Route, VehicleJourney, JourneyPatternSection, \
-    JourneyPattern, JourneyPatternTimingLink
+from transport.models import *
 
 
 @admin.register(Stop)
@@ -17,3 +16,4 @@ admin.site.register(JourneyPatternTimingLink, ModelAdmin)
 admin.site.register(JourneyPatternSection, ModelAdmin)
 admin.site.register(JourneyPattern, ModelAdmin)
 admin.site.register(VehicleJourney, ModelAdmin)
+admin.site.register(Timetable, ModelAdmin)
