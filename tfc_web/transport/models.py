@@ -237,14 +237,6 @@ class JourneyPatternSection(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
     last_modified = models.DateTimeField(auto_now=True)
 
-    def get_stops_list(self):
-        bus_stops = []
-        timing_links = self.timing_link.order_by('stop_from_sequence_number')
-        for timing_link in timing_links:
-            bus_stops.append(timing_link.stop_from)
-        bus_stops.append(timing_links.last().stop_to)
-        return bus_stops
-
     @python_2_unicode_compatible
     def __str__(self):
         return "%s" % (self.id)
@@ -306,22 +298,11 @@ class VehicleJourney(models.Model):
     def get_timetable(self):
         return Timetable.objects.filter(vehicle_journey=self).order_by('time')
 
-    def get_timetable_stops(self):
-        timetable = []
-        departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), self.departure_time)
-        timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
-        for timing_link in timing_links:
-            timetable.append({'time': departure_time.time(), 'latitude': timing_link.stop_from.latitude,
-                              'longitude': timing_link.stop_from.longitude})
-            departure_time += timing_link.run_time
-            if timing_link.wait_time:
-                departure_time += timing_link.wait_time
-        timetable.append({'time': departure_time.time(), 'latitude': timing_links.last().stop_to.latitude,
-                          'longitude': timing_links.last().stop_to.longitude})
-        return timetable
+    def get_timetable_prefetch(self):
+        return self.get_timetable().select_related('stop')
 
     def get_stops_list(self):
-        return self.journey_pattern.section.get_stops_list()
+        return Timetable.objects.filter(vehicle_journey=self).order_by('time').values('stop')
 
     @python_2_unicode_compatible
     def __str__(self):

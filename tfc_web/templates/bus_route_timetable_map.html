@@ -25,8 +25,8 @@
             }).addTo(map);
             L.polyline({{ journey.journey_pattern.route.get_route_coordinates }}).addTo(map);
             map.fitBounds({{ journey.journey_pattern.route.get_route_coordinates }});
-            {% for stop_timetable in journey.get_timetable_stops %}
-            L.marker([{{ stop_timetable.latitude }}, {{ stop_timetable.longitude }}]).addTo(map).bindTooltip('{{ stop_timetable.time }}', { permanent: true });
+            {% for stop_timetable in journey.get_timetable_prefetch %}
+            L.marker([{{ stop_timetable.stop.latitude }}, {{ stop_timetable.stop.longitude }}]).addTo(map).bindTooltip('{{ stop_timetable.time }}', { permanent: true });
             {% endfor %}
         });
 
