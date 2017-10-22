@@ -269,7 +269,7 @@ class JourneyPattern(models.Model):
 
     @python_2_unicode_compatible
     def __str__(self):
-        return "%s - %s" % (self.section, self.route)
+        return self.id
 
 
 class VehicleJourney(models.Model):
@@ -304,7 +304,7 @@ class VehicleJourney(models.Model):
 
     @python_2_unicode_compatible
     def __str__(self):
-        return "%s - %s" % (self.journey_pattern.route, self.departure_time)
+        return self.id
 
 
 class Timetable(models.Model):
