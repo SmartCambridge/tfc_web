@@ -14,6 +14,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.views.generic import TemplateView
+from transport import apis
 from transport import views
 
 
@@ -49,4 +50,7 @@ urlpatterns = [
 
     # New Bus Timetable
     url(r'^timetable/(?P<pk>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
+
+    # API
+    url(r'api/journeys_by_time_and_stop/$', apis.journeys_by_time_and_stop, name='journeys-by-time-and-stop')
 ]
