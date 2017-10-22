@@ -1,19 +1,17 @@
 import datetime
+import json
+from dateutil.parser import parse
 from django.http import HttpResponse, JsonResponse
+from os import listdir
+from pathlib import Path
 from transport.models import Stop, Timetable
 
 
 def string_to_time(str_time):
     try:
-        time = datetime.datetime.strptime(str_time, '%H:%M:%S.%f').time()
+        time = parse(str_time).time()
     except:
-        try:
-            time = datetime.datetime.strptime(str_time, '%H:%M:%S').time()
-        except:
-            try:
-                time = datetime.datetime.strptime(str_time, '%H:%M').time()
-            except:
-                return None
+        return None
     return time
 
 
@@ -53,6 +51,22 @@ def stop_from_and_time_to_journey(request):
     if not time:
         return HttpResponse(status=400, reason="time_from badly formatted")
     results = Timetable.objects.filter(stop=stop_from, time=time, order=1).values_list('vehicle_journey', flat=True)
-    return JsonResponse({'results': list(results)})
+    return JsonResponse({'results': list(results)}, json_dumps_params={'indent': 2})
 
 
+def siriVM_to_journey(request):
+    '''Reads last data from SiriVM feed and tries to match it with a VehicleJourney'''
+    try:
+        real_time = json.loads(
+            Path('/media/tfc/sirivm_json/data_monitor/' + listdir('/media/tfc/sirivm_json/data_monitor/')[0])
+                .read_text())
+    except:
+        return HttpResponse(status=500, reason="error while importing siriVM data json file")
+    try:
+        for bus in real_time['request_data']:
+            time = string_to_time(bus['OriginAimedDepartureTime'])
+            bus['vehicle_journeys'] = list(
+                Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1)
+                    .values_list('vehicle_journey', flat=True))
+    except:
+        return HttpResponse(status=500, reason="error while importing siriVM data json file")
