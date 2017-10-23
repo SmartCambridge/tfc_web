@@ -188,9 +188,9 @@ class Command(BaseCommand):
                                     # xml is how journeys have to be shown
                                 })
                             order_journey += 1
-
-                    for vh in VehicleJourney.objects.all():
-                        vh.generate_timetable()
                     xml_file.close()
             except Exception as e:
                 logger.error("Error while trying to process file %s, exception was %s" % (filename, e))
+
+        for vh in VehicleJourney.objects.all():
+            vh.generate_timetable()
