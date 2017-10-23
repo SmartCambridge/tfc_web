@@ -301,7 +301,7 @@ class VehicleJourney(models.Model):
     @property
     def timetable(self):
         timetable = []
-        for time in Timetable.objects.filter(vehicle_journey=self).order_by('time').distinct('stop', 'time'):
+        for time in Timetable.objects.filter(vehicle_journey=self).order_by('order').distinct('stop', 'time'):
             timetable.append({'stop': time.stop.atco_code, 'time': time.time})
         return timetable
 
@@ -309,7 +309,7 @@ class VehicleJourney(models.Model):
         return self.get_timetable().select_related('stop')
 
     def get_stops_list(self):
-        return Timetable.objects.filter(vehicle_journey=self).order_by('time').values('stop')
+        return Timetable.objects.filter(vehicle_journey=self).order_by('order').values('stop')
 
     @python_2_unicode_compatible
     def __str__(self):
