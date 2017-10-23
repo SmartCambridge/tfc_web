@@ -33,7 +33,7 @@ def journeys_by_time_and_stop(request):
         results_json['results'].append({'stop': result.stop.atco_code, 'time': result.time,
                                         'vehicle_journey': result.vehicle_journey.id,
                                         'days_of_week': result.vehicle_journey.days_of_week})
-    return JsonResponse(results_json)
+    return JsonResponse(results_json, json_dumps_params={'indent': 2})
 
 
 def stop_from_and_time_to_journey(request):
@@ -54,7 +54,7 @@ def stop_from_and_time_to_journey(request):
 
 
 def siriVM_to_journey(request):
-    '''Reads last data from SiriVM feed and tries to match it with a VehicleJourney'''
+    '''Reads last data from siriVM feed and tries to match it with a VehicleJourney'''
     try:
         real_time = json.loads(
             Path('/media/tfc/sirivm_json/data_monitor/' + listdir('/media/tfc/sirivm_json/data_monitor/')[0])
