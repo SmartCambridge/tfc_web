@@ -7,13 +7,13 @@ from pathlib import Path
 from transport.models import Stop, Timetable
 
 
-DAYS = { 'Monday': ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
-         'Tuesday': ['Tuesday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
-         'Wednesday': ['Wednesday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
-         'Thursday': ['Thursday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
-         'Friday': ['Friday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
-         'Saturday': ['Saturday', 'Weekend', 'MondayToSaturday', 'MondayToSunday'],
-         'Sunday': ['Sunday', 'Weekend', 'MondayToSunday'] }
+DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         ['Tuesday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         ['Wednesday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         ['Thursday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         ['Friday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         ['Saturday', 'Weekend', 'MondayToSaturday', 'MondayToSunday'],
+         ['Sunday', 'Weekend', 'MondayToSunday'] ]
 
 
 def string_to_time(str_time):
