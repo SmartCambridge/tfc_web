@@ -4,7 +4,7 @@ from dateutil.parser import parse
 from django.http import HttpResponse, JsonResponse
 from os import listdir
 from pathlib import Path
-from transport.models import Stop, Timetable
+from transport.models import Stop, Timetable, VehicleJourney
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -88,3 +88,19 @@ def siriVM_to_journey(request):
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
 
     return JsonResponse(real_time, json_dumps_params={'indent': 2})
+
+
+def journey_id_to_journey(request):
+    '''Returns the journey object based on it's id'''
+    if request.method != "GET":
+        return HttpResponse(status=405, reason="only GET is allowed")
+    if 'vehicle_journey_id' not in request.GET:
+        return HttpResponse(status=400, reason="missing vehicle_journey_id from GET")
+    vehicle_journey = VehicleJourney.objects.filter(id=request.GET['vehicle_journey_id'])
+    if not vehicle_journey:
+        return HttpResponse(status=404, reason="VehicleJourney not found")
+    results_json = {'results': []}
+    for result in vehicle_journey:
+        results_json['results'].append({'id': result.id, 'days_of_week': result.days_of_week,
+                                        'timetable': result.timetable})
+    return JsonResponse(results_json, json_dumps_params={'indent': 2})

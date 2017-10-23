@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^timetable/(?P<pk>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
 
     # API
+    url(r'api/journey_id_to_journey', apis.journey_id_to_journey, name='journey-id-to-journey'),
     url(r'api/sirivm_to_journey', apis.siriVM_to_journey, name='siriVM-to-journey'),
     url(r'api/journeys_by_time_and_stop$', apis.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
     url(r'api/stop_from_and_time_to_journey$', apis.stop_from_and_time_to_journey, name='stop-from-and-time-to-journey')
