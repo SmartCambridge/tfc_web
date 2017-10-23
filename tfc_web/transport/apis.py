@@ -46,7 +46,7 @@ def stop_from_and_time_to_journey(request):
     stop_from = Stop.objects.filter(atco_code=request.GET['stop_from'])
     if not stop_from:
         return HttpResponse(status=404, reason="Stop not found")
-    time = string_to_time(request.GET['time'])
+    time = string_to_time(request.GET['departure_time'])
     if not time:
         return HttpResponse(status=400, reason="time_from badly formatted")
     results = Timetable.objects.filter(stop=stop_from, time=time, order=1).values_list('vehicle_journey', flat=True)
