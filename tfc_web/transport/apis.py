@@ -1,9 +1,19 @@
 import json
+from datetime import datetime
 from dateutil.parser import parse
 from django.http import HttpResponse, JsonResponse
 from os import listdir
 from pathlib import Path
 from transport.models import Stop, Timetable
+
+
+DAYS = { 'Monday': ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         'Tuesday': ['Tuesday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         'Wednesday': ['Wednesday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         'Thursday': ['Thursday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         'Friday': ['Friday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
+         'Saturday': ['Saturday', 'Weekend', 'MondayToSaturday', 'MondayToSunday'],
+         'Sunday': ['Sunday', 'Weekend', 'MondayToSunday'] }
 
 
 def string_to_time(str_time):
@@ -64,10 +74,12 @@ def siriVM_to_journey(request):
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
 
     try:
+        today = datetime.today().weekday()
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
             bus['vehicle_journeys'] = list(
-                set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1)
+                set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
+                                             vehicle_journey__days_of_week__in=DAYS[today])
                     .values_list('vehicle_journey', flat=True)) &
                 set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True)
                     .values_list('vehicle_journey', flat=True))
