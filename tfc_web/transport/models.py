@@ -296,13 +296,13 @@ class VehicleJourney(models.Model):
         self.save()
 
     def get_timetable(self):
-        return Timetable.objects.filter(vehicle_journey=self).order_by('time')
+        return Timetable.objects.filter(vehicle_journey=self).order_by('order')
 
     @property
     def timetable(self):
         timetable = []
-        for time in Timetable.objects.filter(vehicle_journey=self).order_by('order').distinct('stop', 'time'):
-            timetable.append({'stop': time.stop.atco_code, 'time': time.time})
+        for time in Timetable.objects.filter(vehicle_journey=self).order_by('order'):
+            timetable.append({'stop': time.stop.atco_code, 'time': time.time, 'order': time.order})
         return timetable
 
     def get_timetable_prefetch(self):
