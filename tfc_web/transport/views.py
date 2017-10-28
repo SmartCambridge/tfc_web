@@ -27,6 +27,10 @@ def bus_map(request):
     return render(request, 'routes.html', {})
 
 
+def bus_map_sirivm(request):
+    return render(request, 'routes_sirivm.html', {})
+
+
 def busdata_json(request):
     if 'north' in request.GET and 'south' in request.GET and 'east' in request.GET and 'west' in request.GET:
         north = float(request.GET['north'])

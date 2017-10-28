@@ -27,6 +27,7 @@ urlpatterns = [
 
     # Bus movements
     url(r'^map/$', views.bus_map, name='bus-map'),
+    url(r'^map2/$', views.bus_map_sirivm, name='bus-map-sirivm'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
 
     # Bus Stops
