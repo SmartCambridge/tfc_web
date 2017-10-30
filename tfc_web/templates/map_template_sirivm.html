@@ -92,7 +92,7 @@
                     // After 2 minutes since the last appearance in the feed, the bus is deleted
                     // or also if the bus have move out of the screen
                     map.removeLayer(buses[i]['marker']);
-                else if ((line_name === '')&&(operator === '') || (line_name === bus['PublishedLineName'])&&(operator === bus['OperatorRef']))
+                else if ((line_name === '')&&(operator === '') || (line_name === buses[i]['PublishedLineName'])&&(operator === buses[i]['OperatorRef']))
                     visible_buses.push(buses[i]);
                 else
                     map.removeLayer(buses[i]['marker']);
