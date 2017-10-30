@@ -1,6 +1,35 @@
 {% extends "map_template_sirivm.html" %}
+{% block extra_head %}
+    <script>
+        var line_name = "";
+        var operator = "";
+        function line_selector(bus_operator, line) {
+            operator = bus_operator;
+            line_name = line;
+            retrieve_busdata();
+        }
+    </script>
+{% endblock %}
 {% block content_web %}
     <div style="height: 80vh;">
         <div id="map" style="height: 90%; width: 100%;"></div>
+        <div style="height: 5%; width: 100%;">
+            <a onclick="javascript:line_selector('', '');" href="#">All Buses</a>
+            <a onclick="javascript:line_selector('SCCM', '1');" href="#">City 1</a>
+            <a onclick="javascript:line_selector('SCCM', '2');" href="#">City 2</a>
+            <a onclick="javascript:line_selector('SCCM', '3');" href="#">City 3</a>
+            <a onclick="javascript:line_selector('SCCM', '4');" href="#">City 4</a>
+            <a onclick="javascript:line_selector('SCCM', '5');" href="#">City 5</a>
+            <a onclick="javascript:line_selector('SCCM', '6');" href="#">City 6</a>
+            <a onclick="javascript:line_selector('SCCM', '7');" href="#">City 7</a>
+            <a onclick="javascript:line_selector('SCCM', '8');" href="#">City 8</a>
+            <a onclick="javascript:line_selector('WP', 'U');" href="#">Universal</a>
+            <a onclick="javascript:line_selector('SCCM', 'PR1');" href="#">Park and Ride Red</a>
+            <a onclick="javascript:line_selector('SCCM', 'PR2');" href="#">Park and Ride Blue</a>
+            <a onclick="javascript:line_selector('SCCM', 'PR3');" href="#">Park and Ride Green</a>
+            <a onclick="javascript:line_selector('SCCM', 'A');" href="#">Busway A</a>
+            <a onclick="javascript:line_selector('SCCM', 'B');" href="#">Busway B</a>
+            <a onclick="javascript:line_selector('WP', 'C');" href="#">Busway C</a>
+        </div>
     </div>
 {% endblock %}

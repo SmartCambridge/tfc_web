@@ -1,18 +1,12 @@
 {% extends "template.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
     <link rel="stylesheet" href="{% static 'map.css' %}" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
     <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
-    <script>
-        var route = "";
-        function route_change(bus_route) {
-            route = bus_route;
-            retrieve_busdata();
-        }
-    </script>
 {% endblock %}
+{% block extra_head %}{% endblock %}
 {% block title %}Bus Map{% endblock %}
 {% block content %}
     {% block content_web %}
@@ -69,16 +63,18 @@
                                 buses.splice(existing_bus_index, 1); // remove old entry
                                 buses.push(bus); // Update the entry with the last one
                             }
-                        } else {
+                        } else if ((line_name === '')&&(operator === '') || (line_name === bus['PublishedLineName'])&&(operator === bus['OperatorRef'])) {
                             // New bus, not present on the existing buses array, create a marker for it
                             bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
                             var tooltip_text = '';
-                            if ((bus["OperatorRef"] != undefined)&&(bus["PublishedLineName"] != undefined)&&(bus["OriginName"] != undefined)&&(bus["DestinationName"] != undefined))
+                            if ((bus["OperatorRef"] !== undefined)&&(bus["PublishedLineName"] !== undefined)&&(bus["OriginName"] !== undefined)&&(bus["DestinationName"] !== undefined))
                                 tooltip_text += 'Route: ' + (bus["OperatorRef"] || '') + ' - ' + (bus["PublishedLineName"] || '') + ' - ' + (bus["OriginName"] || '') + ' - ' + (bus["DestinationName"] || '') +'<br>';
-                            if (tooltip_text != '')
+                            if (tooltip_text !== '')
                                 bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
                             else
                                 bus['marker'].addTo(map).start();
+                            bus['OperatorRef'] = bus["OperatorRef"];
+                            bus['PublishedLineName'] = bus["PublishedLineName"];
                             buses.push(bus); // Update the entry with the last one
                         }
                     }
@@ -94,8 +90,10 @@
                     // After 2 minutes since the last appearance in the feed, the bus is deleted
                     // or also if the bus have move out of the screen
                     map.removeLayer(buses[i]['marker']);
-                else
+                else if ((line_name === '')&&(operator === '') || (line_name === bus['PublishedLineName'])&&(operator === bus['OperatorRef']))
                     visible_buses.push(buses[i]);
+                else
+                    map.removeLayer(buses[i]['marker']);
             }
             buses = visible_buses;
         }
