@@ -73,10 +73,8 @@
                             // New bus, not present on the existing buses array, create a marker for it
                             bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
                             var tooltip_text = '';
-                            if (bus["route"] != undefined)
-                                tooltip_text += 'Route: ' + (bus["route"]["OperatorRef"] || '') + ' - ' + (bus["route"]["PublishedLineName"] || '') + ' - ' + (bus["route"]["OriginName"] || '') + ' - ' + (bus["route"]["DestinationName"] || '') +'<br>';
-                            if (bus["label"] != undefined)
-                                tooltip_text += 'Journey: ' + (bus["vehicle_journeys"] || '');
+                            if ((bus["OperatorRef"] != undefined)&&(bus["PublishedLineName"] != undefined)&&(bus["OriginName"] != undefined)&&(bus["DestinationName"] != undefined))
+                                tooltip_text += 'Route: ' + (bus["OperatorRef"] || '') + ' - ' + (bus["PublishedLineName"] || '') + ' - ' + (bus["OriginName"] || '') + ' - ' + (bus["DestinationName"] || '') +'<br>';
                             if (tooltip_text != '')
                                 bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
                             else
@@ -115,7 +113,7 @@
 
         function retrieve_busdata_repeat() {
             retrieve_busdata();
-            setTimeout(retrieve_busdata_repeat, 30000);
+            setTimeout(retrieve_busdata_repeat, 2000);
         }
 
         $(document).ready(function() {
