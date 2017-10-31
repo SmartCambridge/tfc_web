@@ -1,15 +1,4 @@
 {% extends "map_template_sirivm.html" %}
-{% block extra_head %}
-    <script>
-        var line_name = "";
-        var operator = "";
-        function line_selector(bus_operator, line) {
-            operator = bus_operator;
-            line_name = line;
-            retrieve_busdata();
-        }
-    </script>
-{% endblock %}
 {% block content_web %}
     <div style="height: 80vh;">
         <div id="map" style="height: 90%; width: 100%;"></div>

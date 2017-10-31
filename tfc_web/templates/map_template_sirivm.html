@@ -16,6 +16,8 @@
     {% endblock %}
     {% block content_script %}
     <script>
+        var line_name = "";
+        var operator = "";
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var mapbounds;
         var info_map = L.control();
@@ -129,6 +131,12 @@
             clean_busdata_location();
             retrieve_busdata();
         });
+
+        function line_selector(bus_operator, line) {
+            operator = bus_operator;
+            line_name = line;
+            retrieve_busdata();
+        }
 
         {% block script_lazy %}{% endblock %}
 
