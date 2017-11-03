@@ -193,4 +193,4 @@ class Command(BaseCommand):
                                 order_journey += 1
                         xml_file.close()
                 except Exception as e:
-                    logger.error("Error while trying to process file %s, exception was %s" % (filename, e))
+                    logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
