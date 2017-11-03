@@ -189,8 +189,9 @@ class Command(BaseCommand):
                                         'order': order_journey # trasxchange specifies that the order of the journeys in the
                                         # xml is how journeys have to be shown
                                     })
-                                vehicle_journey.generate_timetable()
                                 order_journey += 1
                         xml_file.close()
                 except Exception as e:
                     logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
+        for vehicle_journey in VehicleJourney.objects.all():
+            vehicle_journey.generate_timetable()
