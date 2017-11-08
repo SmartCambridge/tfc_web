@@ -63,29 +63,26 @@ class Command(BaseCommand):
                         if content['TransXChange']['Services']['Service']['Mode'] == "bus":
                             # Operator
                             operator = content['TransXChange']['Operators']['Operator']
-                            bus_operator, created = Operator.objects.update_or_create(id=operator['@id'], defaults={
-                                'code': operator['OperatorCode'],
-                                'short_name': operator['OperatorShortName'],
-                                'trading_name': operator['TradingName']
-                            })
+                            bus_operator = Operator.objects.create(id=operator['@id'], code=operator['OperatorCode'],
+                                short_name=operator['OperatorShortName'], trading_name=operator['TradingName'])
 
                             # Service / Line
                             service = content['TransXChange']['Services']['Service']
-                            bus_line, created = Line.objects.update_or_create(id=service['ServiceCode'], defaults={
-                                'line_name': service['Lines']['Line']['LineName'],
-                                'description': service['Description'],
-                                'operator': bus_operator,
-                                'standard_origin': service['StandardService']['Origin'],
-                                'standard_destination': service['StandardService']['Destination'],
-                                'start_date': service['OperatingPeriod']['StartDate'],
-                                'end_date': service['OperatingPeriod']['EndDate'],
-                                'regular_days_of_week':
+                            bus_line = Line.objects.create(id=service['ServiceCode'],
+                                line_name=service['Lines']['Line']['LineName'],
+                                description=service['Description'],
+                                operator=bus_operator,
+                                standard_origin=service['StandardService']['Origin'],
+                                standard_destination=service['StandardService']['Destination'],
+                                start_date=service['OperatingPeriod']['StartDate'],
+                                end_date=service['OperatingPeriod']['EndDate'],
+                                regular_days_of_week=
                                     list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
                                 if 'OperatingProfile' in service and 'RegularDayType' in service['OperatingProfile'] else ('MondayToFriday',),
-                                'bank_holiday_operation':
+                                bank_holiday_operation=
                                     list(service['OperatingProfile']['BankHolidayOperation']['DaysOfOperation'].keys())
                                 if 'OperatingProfile' in service and 'BankHolidayOperation' in service['OperatingProfile'] and 'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
-                            })
+                            )
 
                             # Routes
                             routes = content['TransXChange']['RouteSections']['RouteSection']
@@ -94,6 +91,7 @@ class Command(BaseCommand):
                                 routes_desc = list([content['TransXChange']['Routes']['Route']])
                             else:
                                 routes_desc = content['TransXChange']['Routes']['Route']
+                            route_objects = []
                             for route_id in range(0, len(routes)):
                                 route = routes[route_id]
                                 stops = []
@@ -110,18 +108,23 @@ class Command(BaseCommand):
                                 else:
                                     stops.append(route['RouteLink']['From']['StopPointRef'])
                                     stops.append(route['RouteLink']['To']['StopPointRef'])
-                                Route.objects.update_or_create(id=routes_desc[route_id]['@id'], line=bus_line, defaults={
-                                    'stops_list': ','.join(stops),
-                                    'description': routes_desc[route_id]['Description']
-                                })
+                                route_objects.append(
+                                    Route(id=routes_desc[route_id]['@id'], line=bus_line, stops_list=','.join(stops),
+                                    description=routes_desc[route_id]['Description']))
+                            if route_objects:
+                                Route.objects.bulk_create(route_objects)
+
 
                             # Journey Pattern Sections
                             journey_pattern_sections = \
                                 content['TransXChange']['JourneyPatternSections']['JourneyPatternSection']
                             if journey_pattern_sections.__class__ is not list:
                                 journey_pattern_sections = list([journey_pattern_sections])
+                            journey_pattern_section_objects = []
+                            journey_pattern_timing_link_objects = []
                             for journey_pattern_section in journey_pattern_sections:
-                                JourneyPatternSection.objects.update_or_create(id=journey_pattern_section['@id'])
+                                journey_pattern_section_objects.append(
+                                    JourneyPatternSection(id=journey_pattern_section['@id']))
                                 journey_pattern_timing_links = journey_pattern_section['JourneyPatternTimingLink']
                                 if journey_pattern_timing_links.__class__ is not list:
                                     journey_pattern_timing_links = list([journey_pattern_timing_links])
@@ -140,38 +143,44 @@ class Command(BaseCommand):
                                         Stop.objects.create(atco_code=journey_pattern_timing_link['To']['StopPointRef'],
                                                             naptan_code="Unknown", common_name="Unknown", indicator="Unknown",
                                                             locality_name="", longitude=0, latitude=0)
-                                    JourneyPatternTimingLink.objects.update_or_create(
+                                    journey_pattern_timing_link_objects.append(JourneyPatternTimingLink(
                                         id=journey_pattern_timing_link['@id'],
-                                        defaults={
-                                            'stop_from_id': journey_pattern_timing_link['From']['StopPointRef'],
-                                            'stop_to_id': journey_pattern_timing_link['To']['StopPointRef'],
-                                            'stop_from_timing_status': journey_pattern_timing_link['From']['TimingStatus'],
-                                            'stop_to_timing_status': journey_pattern_timing_link['To']['TimingStatus'],
-                                            'stop_from_sequence_number': journey_pattern_timing_link['From']['@SequenceNumber'],
-                                            'stop_to_sequence_number': journey_pattern_timing_link['To']['@SequenceNumber'],
-                                            'run_time': xml_timedelta_to_python(journey_pattern_timing_link['RunTime']),
-                                            'wait_time': wait_time,
-                                            'journey_pattern_section_id': journey_pattern_section['@id']
-                                        })
+                                        stop_from_id=journey_pattern_timing_link['From']['StopPointRef'],
+                                        stop_to_id=journey_pattern_timing_link['To']['StopPointRef'],
+                                        stop_from_timing_status=journey_pattern_timing_link['From']['TimingStatus'],
+                                        stop_to_timing_status=journey_pattern_timing_link['To']['TimingStatus'],
+                                        stop_from_sequence_number=journey_pattern_timing_link['From']['@SequenceNumber'],
+                                        stop_to_sequence_number=journey_pattern_timing_link['To']['@SequenceNumber'],
+                                        run_time=xml_timedelta_to_python(journey_pattern_timing_link['RunTime']),
+                                        wait_time=wait_time,
+                                        journey_pattern_section_id=journey_pattern_section['@id']
+                                    ))
+                            if journey_pattern_section_objects:
+                                JourneyPatternSection.objects.bulk_create(journey_pattern_section_objects)
+                            if journey_pattern_timing_link_objects:
+                                JourneyPatternTimingLink.objects.bulk_create(journey_pattern_timing_link_objects)
 
                             # Journey Pattern
                             journey_patterns = \
                                 content['TransXChange']['Services']['Service']['StandardService']['JourneyPattern']
                             if journey_patterns.__class__ is not list:
                                 journey_patterns = list([journey_patterns])
+                            journey_pattern_objects = []
                             for journey_pattern in journey_patterns:
-                                JourneyPattern.objects.update_or_create(id=journey_pattern['@id'],
-                                                                        defaults=
-                                                                        {'direction': journey_pattern['Direction'],
-                                                                         'route_id': journey_pattern['RouteRef'],
-                                                                         'section_id':
-                                                                             journey_pattern['JourneyPatternSectionRefs']})
+                                journey_pattern_objects.append(JourneyPattern(
+                                    id=journey_pattern['@id'], direction=journey_pattern['Direction'],
+                                    route_id=journey_pattern['RouteRef'],
+                                    section_id=journey_pattern['JourneyPatternSectionRefs'])
+                                )
+                            if journey_pattern_objects:
+                                JourneyPattern.objects.bulk_create(journey_pattern_objects)
 
                             # Journey
                             journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
                             if journeys.__class__ is not list:
                                 journeys = list([journeys])
                             order_journey = 1
+                            vehicle_journey_objects = []
                             for journey in journeys:
                                 if 'OperatingProfile' not in journey:
                                     days_of_week = None
@@ -183,15 +192,14 @@ class Command(BaseCommand):
                                 else:
                                     days_of_week = None
                                     print(journey)
-                                vehicle_journey, created = VehicleJourney.objects.update_or_create(
-                                    id=journey['PrivateCode'], defaults={
-                                        'journey_pattern_id': journey['JourneyPatternRef'],
-                                        'departure_time': journey['DepartureTime'],
-                                        'days_of_week': days_of_week,
-                                        'order': order_journey # trasxchange specifies that the order of the journeys in the
-                                        # xml is how journeys have to be shown
-                                    })
+                                vehicle_journey_objects.append(VehicleJourney(
+                                    id=journey['PrivateCode'], journey_pattern_id=journey['JourneyPatternRef'],
+                                    departure_time=journey['DepartureTime'], days_of_week=days_of_week,
+                                    order=order_journey)
+                                )
                                 order_journey += 1
+                            if vehicle_journey_objects:
+                                VehicleJourney.objects.bulk_create(vehicle_journey_objects)
                         xml_file.close()
                 except Exception as e:
                     logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))

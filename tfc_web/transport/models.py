@@ -284,15 +284,18 @@ class VehicleJourney(models.Model):
         departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), self.departure_time)
         timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
         order = 1
+        timetable_objects = []
         for timing_link in timing_links:
-            Timetable.objects.create(vehicle_journey=self, stop_id=timing_link.stop_from.atco_code,
-                                        time=departure_time.time(), order=order)
+            timetable_objects.append(Timetable(
+                vehicle_journey=self, stop_id=timing_link.stop_from.atco_code, time=departure_time.time(), order=order))
             departure_time += timing_link.run_time
             if timing_link.wait_time:
                 departure_time += timing_link.wait_time
             order += 1
-        Timetable.objects.create(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
-                                 time=departure_time.time(), order=order, last_stop=True)
+        timetable_objects.append(Timetable(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
+                                           time=departure_time.time(), order=order, last_stop=True))
+        if timetable_objects:
+            Timetable.objects.bulk_create(timetable_objects)
         self.save()
 
     def get_timetable(self):
