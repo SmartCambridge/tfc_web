@@ -63,7 +63,7 @@ class Command(BaseCommand):
                         if content['TransXChange']['Services']['Service']['Mode'] == "bus":
                             # Operator
                             operator = content['TransXChange']['Operators']['Operator']
-                            bus_operator = Operator.objects.get_or_create(
+                            bus_operator, created = Operator.objects.get_or_create(
                                 id=operator['@id'], code=operator['OperatorCode'],
                                 short_name=operator['OperatorShortName'], trading_name=operator['TradingName'])
 
