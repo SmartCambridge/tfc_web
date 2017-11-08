@@ -142,6 +142,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 TNDS_DIR = os.path.join(DATA_DIR, 'TNDS')
+TNDS_NEW_DIR = os.path.join(DATA_DIR, 'TNDS_NEW')
 
 
 # Web proxy

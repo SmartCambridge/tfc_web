@@ -1,0 +1,1 @@
+Folder to cache new TNDS files while they are being processed by the app.

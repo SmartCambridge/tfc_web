@@ -1,14 +1,15 @@
 import logging
 import re
+import os
 import xmltodict
 import zipfile
 from datetime import timedelta
 from django.core.management import BaseCommand
-from io import BytesIO
-from urllib.request import urlopen
+from urllib.request import urlretrieve
 from django.conf import settings
 from django.db import transaction
 from transport.models import *
+from transport.utils.transxchange import BANK_HOLIDAYS, WEEKDAYS, DayOfWeek
 
 
 logger = logging.getLogger(__name__)
@@ -49,9 +50,10 @@ class Command(BaseCommand):
         Timetable.objects.all().delete()
 
         for tnds_zone in settings.TNDS_ZONES:
-            traveline_zip_file = zipfile.ZipFile(BytesIO(urlopen(
-                'ftp://%s:%s@ftp.tnds.basemap.co.uk/%s.zip' % (settings.TNDS_USERNAME, settings.TNDS_PASSWORD,
-                                                               tnds_zone)).read()))
+            local_filename, headers = urlretrieve('ftp://%s:%s@ftp.tnds.basemap.co.uk/%s.zip' %
+                                                  (settings.TNDS_USERNAME, settings.TNDS_PASSWORD, tnds_zone),
+                                                  filename=os.path.join(settings.TNDS_NEW_DIR, '%s.zip' % tnds_zone))
+            traveline_zip_file = zipfile.ZipFile(local_filename)
             for filename in traveline_zip_file.namelist():
                 logger.info("Processing file %s" % filename)
                 try:
@@ -195,3 +197,7 @@ class Command(BaseCommand):
                     logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
         for vehicle_journey in VehicleJourney.objects.all():
             vehicle_journey.generate_timetable()
+
+        for tnds_zone in settings.TNDS_ZONES:
+            os.rename(os.path.join(settings.TNDS_NEW_DIR, '%s.zip' % tnds_zone),
+                      os.path.join(settings.TNDS_DIR, '%s.zip' % tnds_zone))
