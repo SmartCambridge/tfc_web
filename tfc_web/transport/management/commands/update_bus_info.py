@@ -83,8 +83,8 @@ class Command(BaseCommand):
                                     list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
                                 if 'OperatingProfile' in service and 'RegularDayType' in service['OperatingProfile'] else ('MondayToFriday',),
                                 'bank_holiday_operation':
-                                    list(service['OperatingProfile']['BankHolidayOperation']['DaysOfNonOperation'].keys())
-                                if 'OperatingProfile' in service and 'BankHolidayOperation' in service['OperatingProfile'] else None
+                                    list(service['OperatingProfile']['BankHolidayOperation']['DaysOfOperation'].keys())
+                                if 'OperatingProfile' in service and 'BankHolidayOperation' in service['OperatingProfile'] and 'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
                             })
 
                             # Routes
