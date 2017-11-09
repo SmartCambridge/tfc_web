@@ -325,3 +325,8 @@ class Timetable(models.Model):
     time = models.TimeField()
     order = models.IntegerField()  # Order of the stop in the vehicle journey (first stop, order = 1)
     last_stop = models.BooleanField(default=False)  # Last stop of a vehicle journey
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['vehicle_journey', 'stop', 'time', 'order', 'last_stop']),
+        ]
