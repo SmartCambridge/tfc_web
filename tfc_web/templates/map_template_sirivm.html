@@ -72,7 +72,7 @@
                             if ((bus["OperatorRef"] !== undefined)&&(bus["PublishedLineName"] !== undefined)&&(bus["OriginName"] !== undefined)&&(bus["DestinationName"] !== undefined))
                                 tooltip_text += 'Route: ' + (bus["OperatorRef"] || '') + ' - ' + (bus["PublishedLineName"] || '') + ' - ' + (bus["OriginName"] || '') + ' - ' + (bus["DestinationName"] || '') +'<br>';
                                 if ((bus["vehicle_journeys"] !== undefined)&&(bus["vehicle_journeys"].length > 0))
-                                    tooltip_text = '<a href="/transport/route/timetable/map/'+bus["vehicle_journeys"][0]+'">'+tooltip_text+'</a>';
+                                    tooltip_text = '<a href="/transport/route/timetable/map/bus/'+bus["vehicle_journeys"][0]+'">'+tooltip_text+'</a>';
                             if (tooltip_text !== '')
                                 bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
                             else

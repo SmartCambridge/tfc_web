@@ -99,6 +99,10 @@ def bus_route_timetable_map(request, journey_id):
     return render(request, 'bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
 
+def route_timetable_map(request, journey_id):
+    return render(request, 'route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
+
+
 def bus_stops_list(request, area_id=None):
     if area_id:
         area = get_object_or_404(Area, id=area_id)
