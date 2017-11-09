@@ -294,9 +294,7 @@ class VehicleJourney(models.Model):
             order += 1
         timetable_objects.append(Timetable(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
                                            time=departure_time.time(), order=order, last_stop=True))
-        if timetable_objects:
-            Timetable.objects.bulk_create(timetable_objects)
-        self.save()
+        return timetable_objects
 
     def get_timetable(self):
         return Timetable.objects.filter(vehicle_journey=self).order_by('order')
