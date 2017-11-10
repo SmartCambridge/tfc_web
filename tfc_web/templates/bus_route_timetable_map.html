@@ -15,7 +15,7 @@
 {% endblock %}
 {% block content %}
     <div style="height: 80vh;">
-        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="title" style="height: 5%; width: 100%;"><h3 style="margin-left: 20px;">{{ journey.journey_pattern.route.line }}</h3></div>
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
     <script>
@@ -57,11 +57,16 @@
                                     bus['marker'] = bus_marker['marker'];
                                     bus['marker'].moveTo([bus["Latitude"], bus["Longitude"]], [new Date(bus['RecordedAtTime']) - new Date(bus_marker['RecordedAtTime'])]);
                                     bus['marker'].resume();
+                                    if (bus["Delay"] !== undefined)
+                                        bus['marker'].setTooltipContent('Current Delay: ' + bus["Delay"]);
                                     bus_marker = bus;
                                 }
                             } else {
                                 bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
-                                bus['marker'].addTo(map).start();
+                                if (bus["Delay"] !== undefined)
+                                    bus['marker'].addTo(map).bindTooltip('Current Delay: ' + bus["Delay"], { permanent: true, className: "bus-tooltip", interactive: true }).start();
+                                else
+                                    bus['marker'].addTo(map).start();
                                 bus_marker = bus;
                             }
                         }
