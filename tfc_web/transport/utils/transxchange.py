@@ -457,7 +457,7 @@ class VehicleJourney(object):
         # ensure the journey has a code and pattern, even if it won't be shown
         # (because it might be referenced by a shown journey)
 
-        self.code = element.find('txc:VehicleJourneyCode', NS).text
+        self.code = element.find('txc:PrivateCode', NS).text
 
         journeypatternref_element = element.find('txc:JourneyPatternRef', NS)
         if journeypatternref_element is not None:
@@ -472,9 +472,6 @@ class VehicleJourney(object):
         operatingprofile_element = element.find('txc:OperatingProfile', NS)
         if operatingprofile_element is not None:
             self.operating_profile = OperatingProfile(operatingprofile_element, servicedorgs)
-            if self.code in {'VJ_18-X52-_-y08-1-1-T0', 'VJ_18-X52-_-y08-1-4-T0'}:
-                if self.operating_profile.nonoperation_days[0].start == datetime.date(2017, 10, 20):
-                    self.operating_profile.nonoperation_days[0].start = datetime.date(2017, 9, 1)
             if not self.should_show(date):
                 return
 
@@ -987,7 +984,7 @@ def timetable_from_service(service, day=None):
         timetables = [t for t in timetables if any(g.rows and g.rows[0].times for g in t.groupings)] or timetables[:1]
     for timetable in timetables:
         for grouping in timetable.groupings:
-            del grouping.journeys
+            #del grouping.journeys
             del grouping.journeypatterns
             for row in grouping.rows:
                 del row.next
