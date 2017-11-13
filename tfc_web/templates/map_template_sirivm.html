@@ -76,7 +76,7 @@
                                 if ((bus["vehicle_journeys"] !== undefined)&&(bus["vehicle_journeys"].length > 0))
                                     tooltip_text = '<a href="/transport/route/timetable/map/bus/'+bus["vehicle_journeys"][0]+'">'+tooltip_text+'</a>';
                             if (debug) {
-                                tooltip_content += '<br>VehicleRef: ' + bus["VehicleRef"];
+                                tooltip_text += '<br>VehicleRef: ' + bus["VehicleRef"];
                             }
                             if (tooltip_text !== '')
                                 bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
