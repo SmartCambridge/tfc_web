@@ -1,15 +1,16 @@
 import csv
-import json
 import zipfile
 import logging
 from io import BytesIO, TextIOWrapper
 from urllib.request import urlopen
+from django.db import transaction
 from transport.models import Stop
 
 
 logger = logging.getLogger(__name__)
 
 
+@transaction.atomic
 def update_bus_stops_from_api():
     """Update Bus Stops data from the DFT website"""
     stops_csv_file = zipfile.ZipFile(BytesIO(urlopen(
@@ -18,24 +19,22 @@ def update_bus_stops_from_api():
     csv_rows = []
     title = csv_reader.fieldnames
     for row in csv_reader:
-        csv_rows.extend([{title[i]:row[title[i]] for i in range(len(title))}])
+        csv_rows.extend([{title[i]: row[title[i]] for i in range(len(title))}])
 
+    stop_objects = []
     for element in csv_rows:
-        try:
-            Stop.objects.update_or_create(atco_code=element['ATCOCode'],
-                                          defaults={
-                                              'atco_code': element['ATCOCode'],
-                                              'naptan_code': element['NaptanCode'],
-                                              'common_name': element['CommonName'],
-                                              'indicator': element['Indicator'],
-                                              'locality_name': element['LocalityName'],
-                                              'longitude': element['Longitude'],
-                                              'latitude': element['Latitude'],
-                                              'data': element
-                                          })
-        except Exception as e:
-            logger.error('The following bus stop could not be imported in the database: %s\n\n'
-                         'The Exception received was: %s' % (element, e))
+        stop_objects.append(
+            Stop(atco_code=element['ATCOCode'],
+                 naptan_code=element['NaptanCode'],
+                 common_name=element['CommonName'],
+                 indicator=element['Indicator'],
+                 locality_name=element['LocalityName'],
+                 longitude=element['Longitude'],
+                 latitude=element['Latitude'],
+                 data=element))
+    if stop_objects:
+        Stop.objects.all().delete()
+        Stop.objects.bulk_create(stop_objects)
 
     # for csv_row in csv_reader:
     #     bus_stop = Stop()
