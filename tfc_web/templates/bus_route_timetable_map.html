@@ -22,6 +22,8 @@
         var map = L.map('map');
         var vehicle_journey = "{{ journey.id }}";
         var info_map = L.control();
+        var urlparams = new URLSearchParams(window.location.search);
+        var debug = urlparams.has('debug');
 
         info_map.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
@@ -49,24 +51,36 @@
                 complete: function (data) {
                     var json = JSON.parse(data.responseText);
                     info_map.update(new Date(json['ts']*1000));
+                    var tooltip_content = '';
                     for (var i = 0; i < json['request_data'].length; i++) {
                         var bus = json['request_data'][i];
                         if ((bus["vehicle_journeys"] !== undefined) && (bus["vehicle_journeys"].length > 0) && (bus["vehicle_journeys"][0] === vehicle_journey)) {
-                            if (bus_marker !== undefined){
-                                if (bus['RecordedAtTime'] != bus_marker['RecordedAtTime']) {
+                            if (bus_marker !== undefined) {
+                                if (bus['RecordedAtTime'] !== bus_marker['RecordedAtTime']) {
                                     bus['marker'] = bus_marker['marker'];
                                     bus['marker'].moveTo([bus["Latitude"], bus["Longitude"]], [new Date(bus['RecordedAtTime']) - new Date(bus_marker['RecordedAtTime'])]);
                                     bus['marker'].resume();
-                                    if (bus["Delay"] !== undefined)
-                                        bus['marker'].setTooltipContent('Current Delay: ' + bus["Delay"]);
+                                    if (debug) {
+                                        tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' +
+                                            'Delay: ' + bus["Delay"];
+                                    } else if (bus["Delay"] !== undefined)
+                                        tooltip_content = 'Current Delay: ' + bus["Delay"];
+                                    bus['marker'].setTooltipContent(tooltip_content);
                                     bus_marker = bus;
                                 }
                             } else {
                                 bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
-                                if (bus["Delay"] !== undefined)
-                                    bus['marker'].addTo(map).bindTooltip('Current Delay: ' + bus["Delay"], { permanent: true, className: "bus-tooltip", interactive: true }).start();
-                                else
+                                if (debug) {
+                                    tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' + 'Delay: ' + bus["Delay"];
+                                } else if (bus["Delay"] !== undefined)
+                                    tooltip_content = 'Current Delay: ' + bus["Delay"];
+                                if (tooltip_content === '') {
                                     bus['marker'].addTo(map).start();
+                                } else bus['marker'].addTo(map).bindTooltip(tooltip_content, {
+                                    permanent: true,
+                                    className: "bus-tooltip",
+                                    interactive: true
+                                }).start();
                                 bus_marker = bus;
                             }
                         }

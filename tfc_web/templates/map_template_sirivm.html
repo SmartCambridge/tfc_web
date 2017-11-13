@@ -21,6 +21,8 @@
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var mapbounds;
         var info_map = L.control();
+        var urlparams = new URLSearchParams(window.location.search);
+        var debug = urlparams.has('debug');
 
         info_map.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
@@ -73,6 +75,9 @@
                                 tooltip_text += 'Route: ' + (bus["OperatorRef"] || '') + ' - ' + (bus["PublishedLineName"] || '') + ' - ' + (bus["OriginName"] || '') + ' - ' + (bus["DestinationName"] || '') +'<br>';
                                 if ((bus["vehicle_journeys"] !== undefined)&&(bus["vehicle_journeys"].length > 0))
                                     tooltip_text = '<a href="/transport/route/timetable/map/bus/'+bus["vehicle_journeys"][0]+'">'+tooltip_text+'</a>';
+                            if (debug) {
+                                tooltip_content += '<br>VehicleRef: ' + bus["VehicleRef"];
+                            }
                             if (tooltip_text !== '')
                                 bus['marker'].addTo(map).{% if tooltips_permanent %}bindTooltip{% else %}bindPopup{% endif %}(tooltip_text{% if tooltips_permanent %}, { permanent: true, className: "bus-tooltip", interactive: true }{% endif %}).start();
                             else
