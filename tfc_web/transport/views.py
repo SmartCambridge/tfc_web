@@ -28,7 +28,7 @@ def bus_map(request):
 
 
 def bus_map_sirivm(request):
-    return render(request, 'routes_sirivm.html', {})
+    return render(request, 'transport/routes_sirivm.html', {})
 
 
 def busdata_json(request):
@@ -96,7 +96,7 @@ def bus_route_map(request, bus_route_id):
 
 
 def bus_route_timetable_map(request, journey_id):
-    return render(request, 'bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
+    return render(request, 'transport/bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
 
 def route_timetable_map(request, journey_id):
