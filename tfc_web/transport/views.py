@@ -10,7 +10,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
 from tfc_gis.models import Area
-from transport.models import Stop, Line, Route, VehicleJourney
+from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
 from vix.models import Route as VixRoute, Stop as VixStop
 
@@ -147,6 +147,16 @@ def zone(request, zone_id):
         'tooltips_permanent': True,
         'mapcenter': "[%s, %s], %s" % (zone['center']['lat'], zone['center']['lng'], zone['zoom'])
     })
+
+
+def vehicle_journey_real_time(request, vehicle_journey_id):
+    vj = get_object_or_404(VehicleJourney, id=vehicle_journey_id)
+    timetable = Timetable.objects.filter(vehicle_journey_id=vehicle_journey_id).select_related('stop').order_by('order')
+    return render(request, 'transport/vjrt.html', {
+        'vj': vj,
+        'timetable': timetable
+    })
+
 
 class ServiceDetailView(DetailView):
     "A service and the stops it stops at"
