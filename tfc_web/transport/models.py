@@ -282,7 +282,8 @@ class VehicleJourney(models.Model):
 
     def generate_timetable(self):
         departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), self.departure_time)
-        timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')
+        timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')\
+            .select_related("stop_from")
         order = 1
         timetable_objects = []
         for timing_link in timing_links:

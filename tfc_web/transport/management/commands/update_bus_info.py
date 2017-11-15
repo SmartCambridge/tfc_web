@@ -204,11 +204,8 @@ class Command(BaseCommand):
                         xml_file.close()
                 except Exception as e:
                     logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
-        timetable_objects = []
         for vehicle_journey in VehicleJourney.objects.all():
-            timetable_objects += vehicle_journey.generate_timetable()
-        if timetable_objects:
-            Timetable.objects.bulk_create(timetable_objects)
+            Timetable.objects.bulk_create(vehicle_journey.generate_timetable())
 
         for tnds_zone in settings.TNDS_ZONES:
             os.rename(os.path.join(settings.TNDS_NEW_DIR, '%s.zip' % tnds_zone),
