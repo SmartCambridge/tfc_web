@@ -25,7 +25,7 @@
         var urlparams = new URLSearchParams(window.location.search);
         var debug = urlparams.has('debug');
         var timetable = [{% for timetable_entry in timetable %}
-            { "stop_id": {{ timetable_entry.stop.id }}, "stop_name": {{ timetable_entry.stop.__str__ }},
+            { "stop_id": {{ timetable_entry.stop.id }}, "stop_name": {{ timetable_entry.stop }},
                 "time": {{ timetable_entry.time }} },
         {% endfor %}];
 
