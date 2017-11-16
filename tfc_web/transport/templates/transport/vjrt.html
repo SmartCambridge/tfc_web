@@ -140,7 +140,7 @@
             mapbounds = map.getBounds();
             for (var i = 0; i < timetable.length; i++) {
                 timetable[i]['marker'] = L.marker([timetable[i]['stop_lat'], timetable[i]['stop_lon']]);
-                timetable[i]['marker'].addTo(map).bindTooltip("Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true });
+                timetable[i]['marker'].addTo(map).bindTooltip("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true });
             }
             retrieve_busdata(true);
             retrieve_busdata_repeat();
