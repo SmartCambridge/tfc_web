@@ -27,7 +27,7 @@
         var timetable = [{% for timetable_entry in timetable %}
             { "stop_id": "{{ timetable_entry.stop.atco_code }}", "stop_name": "{{ timetable_entry.stop }}",
                 "stop_lat": "{{ timetable_entry.stop.latitude }}", "stop_lon": "{{ timetable_entry.stop.longitude }}",
-                "time": "{{ timetable_entry.time }}:00", "time_rt": "Calculating..." },
+                "time": "{{ timetable_entry.time }}:00", "time_rt": "{{ timetable_entry.time }}:00" },
         {% endfor %}];
 
         info_map.onAdd = function (map) {
@@ -71,7 +71,7 @@
                 time.setMinutes(0);
                 time.setHours(0);
                 time.setSeconds(seconds + minutes * 60 + hours * 3600);
-                timetable[i]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0");
+                timetable[i]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0") + "*";
                 timetable[i]["marker"].setTooltipContent("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true, interactive: true });
             }
         }
@@ -94,22 +94,20 @@
                                     bus['marker'] = bus_marker['marker'];
                                     bus['marker'].moveTo([bus["Latitude"], bus["Longitude"]], [new Date(bus['RecordedAtTime']) - new Date(bus_marker['RecordedAtTime'])]);
                                     bus['marker'].resume();
-                                    if (debug) {
+                                    if (debug)
                                         tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' +
                                             'Delay: ' + bus["Delay"];
-                                    } else if (bus["Delay"] !== undefined){
+                                    if (bus["Delay"] !== undefined)
                                         update_delay(bus["Delay"]);
-                                    }
                                     bus['marker'].setTooltipContent(tooltip_content);
                                     bus_marker = bus;
                                 }
                             } else {
                                 bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
-                                if (debug) {
+                                if (debug)
                                     tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' + 'Delay: ' + bus["Delay"];
-                                } else if (bus["Delay"] !== undefined){
+                                if (bus["Delay"] !== undefined)
                                     update_delay(bus["Delay"]);
-                                }
                                 if (tooltip_content === '') {
                                     bus['marker'].addTo(map).start();
                                 } else bus['marker'].addTo(map).bindTooltip(tooltip_content, {
