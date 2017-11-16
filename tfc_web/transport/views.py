@@ -113,9 +113,12 @@ def bus_stops_list(request, area_id=None):
 
 
 def bus_stop(request, bus_stop_id):
-    bus_stop = Stop.objects.get(atco_code=bus_stop_id)
+    bus_stop = get_object_or_404(Stop, atco_code=bus_stop_id)
+    timetable = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now()) \
+        .select_related('vehicle_journey__journey_pattern__route__line').order_by('time')
     return render(request, 'bus_stop.html', {
         'bus_stop': bus_stop,
+        'timetable': timetable,
         'tooltips_permanent': True,
         'mapcenter': "[%s, %s], 16" % (bus_stop.latitude, bus_stop.longitude)
     })
