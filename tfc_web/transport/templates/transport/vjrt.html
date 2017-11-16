@@ -54,7 +54,7 @@
             for (var i = 0; i < timetable.length; i++) {
                 var time = new Date();
                 var time_dc = regex_time.exec(timetable[i]['time']);
-                if (delay_dc[0] === undefined)
+                if (delay_dc[1] === undefined)
                     posneg = 1;
                 else
                     posneg = -1;
