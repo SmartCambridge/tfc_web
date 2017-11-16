@@ -56,15 +56,19 @@
             var delay_dc = regex_xml_duration.exec(delay);
             var time = new Date();
             var time_dc = regex_time.exec(timetable[timetable_id]['time']);
+            if (delay_dc[0] === undefined)
+                posneg = 1;
+            else
+                posneg = -1;
             var hours = parseInt(time_dc[1]);
             if (delay_dc[2] !== undefined)
-                hours += parseInt(delay_dc[2]);
+                hours += parseInt(delay_dc[2])*posneg;
             var minutes = parseInt(time_dc[2]);
             if (delay_dc[3] !== undefined)
-                minutes += parseInt(delay_dc[3]);
+                minutes += parseInt(delay_dc[3])*posneg;
             var seconds = 0;
             if (delay_dc[4] !== undefined)
-                seconds += parseInt(delay_dc[4]);
+                seconds += parseInt(delay_dc[4])*posneg;
             time.setSeconds(0);
             time.setMinutes(0);
             time.setHours(0);
