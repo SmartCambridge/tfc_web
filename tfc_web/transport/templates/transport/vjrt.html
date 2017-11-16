@@ -68,7 +68,7 @@
                 time.setHours(0);
                 time.setSeconds(seconds + minutes * 60 + hours * 3600);
                 timetable[i]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0");
-                timetable[i]["marker"].setTooltipContent("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true });
+                timetable[i]["marker"].setTooltipContent("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true, interactive: true });
             }
         }
 
@@ -140,7 +140,7 @@
             mapbounds = map.getBounds();
             for (var i = 0; i < timetable.length; i++) {
                 timetable[i]['marker'] = L.marker([timetable[i]['stop_lat'], timetable[i]['stop_lon']]);
-                timetable[i]['marker'].addTo(map).bindTooltip("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true });
+                timetable[i]['marker'].addTo(map).bindTooltip("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true, interactive: true });
             }
             retrieve_busdata(true);
             retrieve_busdata_repeat();
