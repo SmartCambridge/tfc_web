@@ -24,7 +24,7 @@
         var info_map = L.control();
         var urlparams = new URLSearchParams(window.location.search);
         var debug = urlparams.has('debug');
-        var stop_name = {{ bus_stop }};
+        var stop_name = "{{ bus_stop }}";
         var stop_marker;
 
         var timetable = [{% for timetable_entry in timetable %}
