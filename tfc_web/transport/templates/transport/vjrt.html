@@ -26,7 +26,8 @@
         var debug = urlparams.has('debug');
         var timetable = [{% for timetable_entry in timetable %}
             { "stop_id": "{{ timetable_entry.stop.atco_code }}", "stop_name": "{{ timetable_entry.stop }}",
-                "time": "{{ timetable_entry.time }}" },
+                "stop_lat": "{{ timetable_entry.stop.latitude }}", "stop_lon": "{{ timetable_entry.stop.longitude }}",
+                "time": "{{ timetable_entry.time }}:00", "time_rt": "Calculating..." },
         {% endfor %}];
 
         info_map.onAdd = function (map) {
@@ -45,6 +46,31 @@
             iconUrl: '{% static 'images/bus-logo.png' %}',
             iconSize: [30, 30]
         });
+
+        function update_delay(delay) {
+            var regex_time = /(\d+):(\d+):(\d+)/;
+            var regex_xml_duration = /(-)?PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+            var delay_dc = regex_xml_duration.exec(delay);
+            for (var i = 0; i < timetable.length; i++) {
+                var time = new Date();
+                var time_dc = regex_time.exec(timetable[i]['time']);
+                var hours = parseInt(time_dc[1]);
+                if (delay_dc[2] !== undefined)
+                    hours += parseInt(delay_dc[2]);
+                var minutes = parseInt(time_dc[2]);
+                if (delay_dc[3] !== undefined)
+                    minutes += parseInt(delay_dc[3]);
+                var seconds = 0;
+                if (delay_dc[4] !== undefined)
+                    seconds += parseInt(delay_dc[4]);
+                time.setSeconds(0);
+                time.setMinutes(0);
+                time.setHours(0);
+                time.setSeconds(seconds + minutes * 60 + hours * 3600);
+                timetable[i]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0");
+                timetable[i]["marker"].setTooltipContent("Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true });
+            }
+        }
 
         function retrieve_busdata(previous=false) {
             var url;
@@ -67,8 +93,9 @@
                                     if (debug) {
                                         tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' +
                                             'Delay: ' + bus["Delay"];
-                                    } else if (bus["Delay"] !== undefined)
-                                        tooltip_content = 'Current Delay: ' + bus["Delay"];
+                                    } else if (bus["Delay"] !== undefined){
+                                        update_delay(bus["Delay"]);
+                                    }
                                     bus['marker'].setTooltipContent(tooltip_content);
                                     bus_marker = bus;
                                 }
@@ -76,8 +103,9 @@
                                 bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
                                 if (debug) {
                                     tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' + 'Delay: ' + bus["Delay"];
-                                } else if (bus["Delay"] !== undefined)
-                                    tooltip_content = 'Current Delay: ' + bus["Delay"];
+                                } else if (bus["Delay"] !== undefined){
+                                    update_delay(bus["Delay"]);
+                                }
                                 if (tooltip_content === '') {
                                     bus['marker'].addTo(map).start();
                                 } else bus['marker'].addTo(map).bindTooltip(tooltip_content, {
@@ -103,12 +131,17 @@
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             info_map.addTo(map);
-            L.polyline({{ journey.journey_pattern.route.get_route_coordinates }}).addTo(map);
-            map.fitBounds({{ journey.journey_pattern.route.get_route_coordinates }});
+            var coordinates = [];
+            for (var i = 0; i < timetable.length; i++) {
+                coordinates.push([timetable[i]['stop_lat'], timetable[i]['stop_lon']]);
+            }
+            L.polyline(coordinates).addTo(map);
+            map.fitBounds(coordinates);
             mapbounds = map.getBounds();
-            {% for stop_timetable in journey.get_timetable_prefetch %}
-            L.marker([{{ stop_timetable.stop.latitude }}, {{ stop_timetable.stop.longitude }}]).addTo(map).bindTooltip('{{ stop_timetable.time }}', { permanent: true });
-            {% endfor %}
+            for (var i = 0; i < timetable.length; i++) {
+                timetable[i]['marker'] = L.marker([timetable[i]['stop_lat'], timetable[i]['stop_lon']]);
+                timetable[i]['marker'].addTo(map).bindTooltip("Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true });
+            }
             retrieve_busdata(true);
             retrieve_busdata_repeat();
         });
