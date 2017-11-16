@@ -36,7 +36,7 @@
         <div class="timetable-wrapper">
         <table class="timetable">
         <tbody>
-            <tr><td></td>{% for journey in grouping.journeys %}<td><a href="{% url 'bus-route-timetable-map' journey.code %}">map</a></td>{% endfor %}</tr>
+            <tr><td></td>{% for journey in grouping.journeys %}<td><a href="{% url 'vehicle-journey-real-time' journey.code %}">map</a></td>{% endfor %}</tr>
         {% for row in grouping.rows %}
             <tr{% if not forloop.first and not forloop.last %} class="{{ row.part.timingstatus }}"{% endif %}><th>
             {% if row.part.stop.stop %}
