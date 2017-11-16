@@ -19,7 +19,7 @@
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
     <script>
-        var map = L.map('map');
+        var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var vehicle_journey = "{{ vj.id }}";
         var info_map = L.control();
         var urlparams = new URLSearchParams(window.location.search);
@@ -28,9 +28,9 @@
         var stop_marker;
 
         var timetable = [{% for timetable_entry in timetable %}
-            { "vj_id": "{{ timetable_entry.vehicle_journey_id }}", "line_id": "{{ vehicle_journey.journey_pattern.route.line_id }}",
-                "line_name": "{{ vehicle_journey.journey_pattern.route.line.line_name }}",
-                "time": "{{ timetable_entry.time }}:00", "time_rt": "Calculating..." },
+            { "vj_id": "{{ timetable_entry.vehicle_journey_id }}", "line_id": "{{ timetable_entry.vehicle_journey.journey_pattern.route.line_id }}",
+                "line_name": "{{ timetable_entry.vehicle_journey.journey_pattern.route.line.line_name }}",
+                "time": "{{ timetable_entry.time }}:00", "time_rt": "{{ timetable_entry.time }}:00" },
         {% endfor %}];
 
         info_map.onAdd = function (map) {
@@ -69,7 +69,7 @@
             time.setMinutes(0);
             time.setHours(0);
             time.setSeconds(seconds + minutes * 60 + hours * 3600);
-            timetable[timetable_id]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0");
+            timetable[timetable_id]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0") + "*";
         }
 
         function retrieve_busdata(previous=false) {
@@ -104,7 +104,7 @@
         function build_stop_tooltip() {
             tooltip = "{{ bus_stop }}<br>Line - Timetable - Expected time";
             for (var i = 0; i < timetable.length; i++) {
-                tooltip += "<br><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"'>"+timetable[i]['line_name']+"</a> - "+timetable[i]['time']+" - "+timetable[i]['time_rt'];
+                tooltip += "<br><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"/'>"+timetable[i]['line_name']+"</a> - "+timetable[i]['time']+" - "+timetable[i]['time_rt'];
             }
             return tooltip;
         }
@@ -114,9 +114,7 @@
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             info_map.addTo(map);
-            map.fitBounds(coordinates);
-            mapbounds = map.getBounds();
-            stop_marker = L.marker([{{ bus_stop.latitude }}, {{ bus_stop.longitude }}]).addTo(map).bindTooltip(build_stop_tooltip(), { permanent: true });
+            stop_marker = L.marker([{{ bus_stop.latitude }}, {{ bus_stop.longitude }}]).addTo(map).bindTooltip(build_stop_tooltip(), { permanent: true, interactive: true });
             retrieve_busdata_repeat();
         });
     </script>
