@@ -319,7 +319,7 @@ class VehicleJourney(models.Model):
 
 
 class SpecialDaysOperation(models.Model):
-    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times')
+    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='special_days_operation')
     days = DateRangeField()
     operates = models.BooleanField
 
