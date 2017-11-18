@@ -16,6 +16,7 @@ admin.site.register(JourneyPatternTimingLink, ModelAdmin)
 admin.site.register(JourneyPatternSection, ModelAdmin)
 admin.site.register(JourneyPattern, ModelAdmin)
 admin.site.register(VehicleJourney, ModelAdmin)
+admin.site.register(SpecialDaysOperation, ModelAdmin)
 
 
 class TimetableAdmin(ModelAdmin):
