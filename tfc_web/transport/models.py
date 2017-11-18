@@ -1,7 +1,7 @@
 import datetime
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, DateRangeField
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -316,6 +316,12 @@ class VehicleJourney(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         return self.id
+
+
+class SpecialDaysOperation(models.Model):
+    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times')
+    days = DateRangeField()
+    operates = models.BooleanField
 
 
 class Timetable(models.Model):

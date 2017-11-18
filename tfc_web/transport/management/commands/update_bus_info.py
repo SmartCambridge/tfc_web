@@ -197,6 +197,22 @@ class Command(BaseCommand):
                                                 regular_days += ["Saturday", "Sunday"]
                                             else:
                                                 regular_days.append(day)
+                                    # Special Days:
+                                    if 'SpecialDaysOperation' in element:
+                                        if 'DaysOfNonOperation' in element['SpecialDaysOperation']:
+                                            nonoperation_days = list(map(DateRange, element[
+                                                'SpecialDaysOperation']['DaysOfNonOperation']['DateRange']))
+                                            for nonoperation_day in nonoperation_days:
+                                                special_days_operation.append(
+                                                    SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
+                                                                         days=nonoperation_day, operates=False))
+                                        if 'DaysOfOperation' in element['SpecialDaysOperation']:
+                                            operation_days = list(map(DateRange, element[
+                                                'SpecialDaysOperation']['DaysOfOperation']['DateRange']))
+                                            for operation_day in operation_days:
+                                                special_days_operation.append(
+                                                    SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
+                                                                         days=operation_day, operates=True))
                                 vehicle_journey_objects.append(VehicleJourney(
                                     id=journey['PrivateCode'], journey_pattern_id=journey['JourneyPatternRef'],
                                     departure_time=journey['DepartureTime'], days_of_week=' '.join(regular_days),
@@ -205,6 +221,7 @@ class Command(BaseCommand):
                                 order_journey += 1
                             if vehicle_journey_objects:
                                 VehicleJourney.objects.bulk_create(vehicle_journey_objects)
+                                SpecialDaysOperation.objects.bulk_create(special_days_operation)
                         xml_file.close()
                 except Exception as e:
                     logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
