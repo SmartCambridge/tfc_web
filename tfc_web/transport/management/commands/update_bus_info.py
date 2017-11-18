@@ -9,6 +9,7 @@ from django.core.management import BaseCommand
 from urllib.request import urlretrieve
 from django.conf import settings
 from django.db import transaction
+from psycopg2._range import DateRange
 from transport.models import *
 from transport.utils.transxchange import BANK_HOLIDAYS, WEEKDAYS, DayOfWeek
 
@@ -179,8 +180,7 @@ class Command(BaseCommand):
 
                             # Journey
                             journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
-                            if journeys.__class__ is not list:
-                                journeys = list([journeys])
+                            journeys = list([journeys]) if journeys.__class__ is not list else journeys
                             order_journey = 1
                             vehicle_journey_objects = []
                             special_days_operation = []
@@ -202,19 +202,27 @@ class Command(BaseCommand):
                                     # Special Days:
                                     if 'SpecialDaysOperation' in element:
                                         if 'DaysOfNonOperation' in element['SpecialDaysOperation']:
-                                            nonoperation_days = list(map(DateRange, element[
-                                                'SpecialDaysOperation']['DaysOfNonOperation']['DateRange']))
-                                            for nonoperation_day in nonoperation_days:
-                                                special_days_operation.append(
-                                                    SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
-                                                                         days=nonoperation_day, operates=False))
+                                            noopdays = element['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
+                                            noopdays = list([noopdays]) if noopdays.__class__ is not list else noopdays
+                                            nonoperation_days = \
+                                                list(map(lambda x:
+                                                         SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
+                                                                              days=DateRange(lower=x['StartDate'],
+                                                                                             upper=x['EndDate'],
+                                                                                             bounds="[]"),
+                                                                              operates=False), noopdays))
+                                            special_days_operation += nonoperation_days
                                         if 'DaysOfOperation' in element['SpecialDaysOperation']:
-                                            operation_days = list(map(DateRange, element[
-                                                'SpecialDaysOperation']['DaysOfOperation']['DateRange']))
-                                            for operation_day in operation_days:
-                                                special_days_operation.append(
-                                                    SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
-                                                                         days=operation_day, operates=True))
+                                            opdays = element['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
+                                            opdays = list([opdays]) if opdays.__class__ is not list else opdays
+                                            operation_days = \
+                                                list(map(lambda x:
+                                                         SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
+                                                                              days=DateRange(lower=x['StartDate'],
+                                                                                             upper=x['EndDate'],
+                                                                                             bounds="[]"),
+                                                                              operates=True), opdays))
+                                            special_days_operation += operation_days
                                 vehicle_journey_objects.append(VehicleJourney(
                                     id=journey['PrivateCode'], journey_pattern_id=journey['JourneyPatternRef'],
                                     departure_time=journey['DepartureTime'], days_of_week=' '.join(regular_days),
