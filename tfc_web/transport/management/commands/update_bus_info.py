@@ -183,11 +183,13 @@ class Command(BaseCommand):
                                 journeys = list([journeys])
                             order_journey = 1
                             vehicle_journey_objects = []
+                            special_days_operation = []
                             for journey in journeys:
                                 regular_days = []
                                 if 'OperatingProfile' in journey:
-                                    if 'RegularDayType' in journey['OperatingProfile'] and 'DaysOfWeek' in journey['OperatingProfile']['RegularDayType']:
-                                        week_days_element = journey['OperatingProfile']['RegularDayType']['DaysOfWeek']
+                                    element = journey['OperatingProfile']
+                                    if 'RegularDayType' in element and 'DaysOfWeek' in element['RegularDayType']:
+                                        week_days_element = element['RegularDayType']['DaysOfWeek']
                                         for day in list(week_days_element.keys()):
                                             if 'To' in day:
                                                 day_range_bounds = [WEEKDAYS[i] for i in day.split('To')]
