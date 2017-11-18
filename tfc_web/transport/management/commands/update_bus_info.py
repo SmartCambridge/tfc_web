@@ -49,6 +49,7 @@ class Command(BaseCommand):
         JourneyPatternSection.objects.all().delete()
         JourneyPatternTimingLink.objects.all().delete()
         VehicleJourney.objects.all().delete()
+        SpecialDaysOperation.objects.all().delete()
         Timetable.objects.all().delete()
 
         for tnds_zone in settings.TNDS_ZONES:
@@ -186,6 +187,8 @@ class Command(BaseCommand):
                             special_days_operation = []
                             for journey in journeys:
                                 regular_days = []
+                                nonoperation_bank_holidays = []
+                                operation_bank_holidays = []
                                 if 'OperatingProfile' in journey:
                                     element = journey['OperatingProfile']
                                     if 'RegularDayType' in element and 'DaysOfWeek' in element['RegularDayType']:
@@ -199,6 +202,7 @@ class Command(BaseCommand):
                                                 regular_days += ["Saturday", "Sunday"]
                                             else:
                                                 regular_days.append(day)
+
                                     # Special Days:
                                     if 'SpecialDaysOperation' in element:
                                         if 'DaysOfNonOperation' in element['SpecialDaysOperation']:
@@ -223,10 +227,20 @@ class Command(BaseCommand):
                                                                                              bounds="[]"),
                                                                               operates=True), opdays))
                                             special_days_operation += operation_days
+
+                                    # Bank Holidays
+                                    if 'BankHolidayOperation' in element:
+                                        if 'DaysOfNonOperation' in element['BankHolidayOperation']:
+                                            nonoperation_bank_holidays = list(
+                                                element['BankHolidayOperation']['DaysOfNonOperation'].keys())
+                                        if 'DaysOfOperation' in element['BankHolidayOperation']:
+                                            operation_bank_holidays = list(
+                                                element['BankHolidayOperation']['DaysOfOperation'].keys())
                                 vehicle_journey_objects.append(VehicleJourney(
                                     id=journey['PrivateCode'], journey_pattern_id=journey['JourneyPatternRef'],
                                     departure_time=journey['DepartureTime'], days_of_week=' '.join(regular_days),
-                                    order=order_journey)
+                                    nonoperation_bank_holidays=' '.join(nonoperation_bank_holidays),
+                                    operation_bank_holidays=' '.join(operation_bank_holidays), order=order_journey)
                                 )
                                 order_journey += 1
                             if vehicle_journey_objects:

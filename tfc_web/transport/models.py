@@ -276,7 +276,9 @@ class VehicleJourney(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
     journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
     departure_time = models.TimeField()
-    days_of_week = models.CharField(max_length=100, null=True)
+    days_of_week = models.CharField(max_length=100, null=True, blank=True)
+    nonoperation_bank_holidays = models.CharField(max_length=200, null=True, blank=True)
+    operation_bank_holidays = models.CharField(max_length=200, null=True, blank=True)
     order = models.IntegerField()
     last_modified = models.DateTimeField(auto_now=True)
 
