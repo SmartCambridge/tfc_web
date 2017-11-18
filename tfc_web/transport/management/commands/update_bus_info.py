@@ -205,7 +205,7 @@ class Command(BaseCommand):
 
                                     # Special Days:
                                     if 'SpecialDaysOperation' in element:
-                                        if 'DaysOfNonOperation' in element['SpecialDaysOperation']:
+                                        if 'DaysOfNonOperation' in element['SpecialDaysOperation'] and element['SpecialDaysOperation']['DaysOfNonOperation']:
                                             noopdays = element['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
                                             noopdays = list([noopdays]) if noopdays.__class__ is not list else noopdays
                                             nonoperation_days = \
@@ -216,7 +216,7 @@ class Command(BaseCommand):
                                                                                              bounds="[]"),
                                                                               operates=False), noopdays))
                                             special_days_operation += nonoperation_days
-                                        if 'DaysOfOperation' in element['SpecialDaysOperation']:
+                                        if 'DaysOfOperation' in element['SpecialDaysOperation'] and element['SpecialDaysOperation']['DaysOfOperation']:
                                             opdays = element['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
                                             opdays = list([opdays]) if opdays.__class__ is not list else opdays
                                             operation_days = \
@@ -230,10 +230,10 @@ class Command(BaseCommand):
 
                                     # Bank Holidays
                                     if 'BankHolidayOperation' in element:
-                                        if 'DaysOfNonOperation' in element['BankHolidayOperation']:
+                                        if 'DaysOfNonOperation' in element['BankHolidayOperation'] and element['BankHolidayOperation']['DaysOfNonOperation']:
                                             nonoperation_bank_holidays = list(
                                                 element['BankHolidayOperation']['DaysOfNonOperation'].keys())
-                                        if 'DaysOfOperation' in element['BankHolidayOperation']:
+                                        if 'DaysOfOperation' in element['BankHolidayOperation'] and element['BankHolidayOperation']['DaysOfOperation']:
                                             operation_bank_holidays = list(
                                                 element['BankHolidayOperation']['DaysOfOperation'].keys())
                                 vehicle_journey_objects.append(VehicleJourney(
