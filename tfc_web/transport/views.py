@@ -1,7 +1,7 @@
 import codecs
 import requests
 import json
-from datetime import datetime
+from datetime import datetime, date
 from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.gis.db.models import Q
@@ -114,7 +114,8 @@ def bus_stops_list(request, area_id=None):
 
 def bus_stop(request, bus_stop_id):
     bus_stop = get_object_or_404(Stop, atco_code=bus_stop_id)
-    timetable = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now()) \
+    timetable = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now(),
+                                         vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
         .select_related('vehicle_journey__journey_pattern__route__line').order_by('time')
     return render(request, 'bus_stop.html', {
         'bus_stop': bus_stop,

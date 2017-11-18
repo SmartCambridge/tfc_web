@@ -1,3 +1,4 @@
+import calendar
 import logging
 import re
 import os
@@ -183,19 +184,22 @@ class Command(BaseCommand):
                             order_journey = 1
                             vehicle_journey_objects = []
                             for journey in journeys:
-                                if 'OperatingProfile' not in journey:
-                                    days_of_week = None
-                                elif 'DaysOfWeek' in journey['OperatingProfile']['RegularDayType']:
-                                    days_of_week = list(journey['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())[0]
-                                elif 'HolidaysOnly' in journey['OperatingProfile']['RegularDayType']:
-                                    days_of_week = "HolidaysOnly"
-                                    # TODO Store which days
-                                else:
-                                    days_of_week = None
-                                    print(journey)
+                                regular_days = []
+                                if 'OperatingProfile' in journey:
+                                    if 'RegularDayType' in journey['OperatingProfile'] and 'DaysOfWeek' in journey['OperatingProfile']['RegularDayType']:
+                                        week_days_element = journey['OperatingProfile']['RegularDayType']['DaysOfWeek']
+                                        for day in list(week_days_element.keys()):
+                                            if 'To' in day:
+                                                day_range_bounds = [WEEKDAYS[i] for i in day.split('To')]
+                                                day_range = range(day_range_bounds[0], day_range_bounds[1] + 1)
+                                                regular_days += [calendar.day_name[i] for i in day_range]
+                                            elif day == 'Weekend':
+                                                regular_days += ["Saturday", "Sunday"]
+                                            else:
+                                                regular_days.append(day)
                                 vehicle_journey_objects.append(VehicleJourney(
                                     id=journey['PrivateCode'], journey_pattern_id=journey['JourneyPatternRef'],
-                                    departure_time=journey['DepartureTime'], days_of_week=days_of_week,
+                                    departure_time=journey['DepartureTime'], days_of_week=' '.join(regular_days),
                                     order=order_journey)
                                 )
                                 order_journey += 1
