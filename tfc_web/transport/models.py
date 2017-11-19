@@ -325,6 +325,10 @@ class SpecialDaysOperation(models.Model):
     days = DateRangeField()
     operates = models.BooleanField()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['vehicle_journey', 'days', 'operated']),
+        ]
 
 class Timetable(models.Model):
     vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times')
