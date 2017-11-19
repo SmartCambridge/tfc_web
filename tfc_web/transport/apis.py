@@ -78,9 +78,11 @@ def siriVM_to_journey(request):
             bus['vehicle_journeys'] = list(
                 set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
                                              vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
+                    .exclude(vehicle_journey__special_days_operation__days__contains=date.today(), operates=False)
                     .values_list('vehicle_journey', flat=True)) &
                 set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
                                              vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
+                    .exclude(vehicle_journey__special_days_operation__days__contains=date.today(), operates=False)
                     .values_list('vehicle_journey', flat=True))
             )
     except:
