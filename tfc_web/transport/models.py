@@ -327,7 +327,7 @@ class SpecialDaysOperation(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=['vehicle_journey', 'days', 'operated']),
+            models.Index(fields=['vehicle_journey', 'days', 'operates']),
         ]
 
 class Timetable(models.Model):
