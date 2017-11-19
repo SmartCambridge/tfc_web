@@ -75,16 +75,25 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
+            # bus['vehicle_journeys'] = list(
+            #     set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
+            #                                  vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
+            #         .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
+            #                  vehicle_journey__special_days_operation__operates=False)
+            #         .values_list('vehicle_journey', flat=True)) &
+            #     set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
+            #                                  vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
+            #         .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
+            #                  vehicle_journey__special_days_operation__operates=False)
+            #         .values_list('vehicle_journey', flat=True))
+            # )
+            # This query uses too much load from Postgres, do this instead meanwhile
             bus['vehicle_journeys'] = list(
                 set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
                                              vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-                    .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
-                             vehicle_journey__special_days_operation__operates=False)
                     .values_list('vehicle_journey', flat=True)) &
                 set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
                                              vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-                    .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
-                             vehicle_journey__special_days_operation__operates=False)
                     .values_list('vehicle_journey', flat=True))
             )
     except:
