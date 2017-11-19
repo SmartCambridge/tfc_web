@@ -116,6 +116,7 @@ def bus_stop(request, bus_stop_id):
     bus_stop = get_object_or_404(Stop, atco_code=bus_stop_id)
     timetable = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now(),
                                          vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
+        .exclude(vehicle_journey__special_days_operation__days__contains=date.today()) \
         .select_related('vehicle_journey__journey_pattern__route__line').order_by('time')[:10]
     return render(request, 'bus_stop.html', {
         'bus_stop': bus_stop,
