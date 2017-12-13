@@ -8,57 +8,18 @@
 <!--
 file:   tfc_web/traffic/templates/zone_transit_plot.html (a Django template)
 author: Ian Lewis ijl20@cam.ac.uk
-date:   2016-12-12
+date:   2017-10-20
 
 This page is pre-populated with JSON data from the TFC api's for zone CONFIG and TRANSIT data,
 from which it will draw a transit time chart for the selected day.
 
-Example zone config data:
-{
-  "module_id": "vix",
-  "module_name": "dataserver"
-  "request_data":
-    {
-      "latitude": 52.2038,
-      "longitude": 0.1207,
-      "capacity": 890,
-      "parking_name": "Grand Arcade",
-      "parking_id": "grand-arcade-car-park",
-      "feed_id": "cam_park_local"
-    }
-}
-
-Example occupancy data:
-{
-  "module_id": "vix",
-  "module_name": "dataserver"
-  "request_data":
-    [
-      {
-        "msg_type": "feed_car_parks",
-        "spaces_capacity": 953,
-        "module_id": "cam",
-        "spaces_occupied": 77,
-        "spaces_free": 876,
-        "filename": "1480291423_2016-11-28-00-03-43",
-        "area_id": "cam",
-        "ts": 1480291423,
-        "module_name": "feedmaker",
-        "filepath": "2016/11/28",
-        "parking_name": "Grand Arcade",
-        "parking_id": "grand-arcade-car-park",
-        "feed_id": "cam_park_local"
-      },
-      ...
-    ]
-}
 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-    <!-- load the d3 library for the chart plot -->
-    <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
-    
-    <style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+<!-- load the d3 library for the chart plot -->
+<script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
+  
+<style>
       
 #page_date {
   font-size: 22px;
@@ -153,6 +114,9 @@ var MM = {{config_MM}};     // Month e.g. 07 = July
 var DD = {{config_dd}};     // day e.g. 23
 
 var YYYYMMDD = '{{config_yyyy}}/{{config_MM}}/{{config_dd}}';
+
+var feed_id = '{{config_feed_id}}';
+
 //********************************************************************************
 //********************************************************************************
 var zone = {};
@@ -202,7 +166,7 @@ var CHART_Y_MAX = 1000; // FIX limit of Y axis
 
 function init()
 {
-    document.title = 'Transit Plot';
+    document.title = 'Transit Plot v2.2';
 
     // make ?noframe adjustments to content
     if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0)
@@ -316,7 +280,7 @@ function init_chart()
     chart_yAxis = d3.svg.axis().scale(chart_yScale).orient("left").ticks(10);
 
     // setup chart functions where d = the zone transit record
-    chart_xValue = function(d) { return new Date(d.ts*1000);}; // data -> value
+    chart_xValue = function(d) { return make_date(d.ts);}; // data -> value
     chart_xMap = function(d) { return chart_xScale(chart_xValue(d));}; // data -> display
 
     chart_yValue = function(d) { return d.duration;}, // data -> value
@@ -329,7 +293,11 @@ function init_chart()
         {
           return 'red';
         }
-        return d.route_id=="" ? 'gray' : 'yellow';
+        if (d.position_record!=null)
+        {
+            return 'green';
+        }
+        return (d.route_id==null || d.route_id=="") ? 'gray' : 'yellow';
     };
 
     // initialize x axis - will redraw when data received
@@ -438,11 +406,7 @@ function draw_chart(rita_data)
               chart_tooltip.transition()
                    .duration(200)
                    .style("opacity", .9);
-              chart_tooltip.html("Zone: "+d.module_id+
-                                 "<br/>Route: "+d.route_id+
-                                 "<br/>Vehicle:"+d.vehicle_id +
-                                 "<br/>Transit time (secs):"+d.duration +
-                                 "<br/>Time:" + new Date(d.ts*1000))
+              chart_tooltip.html(tooltip_html(d))
                    .style("left", (d3.event.pageX + 5) + "px")
                    .style("top", (d3.event.pageY - 28) + "px");
           })
@@ -465,7 +429,7 @@ function draw_chart(rita_data)
           .attr('ry', 6)
           .style('fill', 'white')
 
-      var p_time = new Date(p.ts*1000);
+      var p_time = make_date(p.ts);
       var p_time_str = ' @ '+('0'+p_time.getHours()).slice(-2)+':'+('0'+p_time.getMinutes()).slice(-2);
       chart_svg.append("svg:text")
           .attr('x', chart_xMap(p))
@@ -477,6 +441,25 @@ function draw_chart(rita_data)
     
 } // end draw_chart
 
+ // Create a plot TOOLTIP our of the point data
+ // The point may have originated from GTFS feedhandler, GTFS feedmaker, or SIRI feedmaker
+function tooltip_html(d)
+{
+    var str = 'Zone: '+d.module_id;
+    str += '<br/>Vehicle:'+d.vehicle_id;
+    str += '<br/>Transit time (secs):'+d.duration;
+    str += '<br/>Time:' + make_date(d.ts);
+    if (d.position_record)
+    {
+        str += '<br/>'+JSON.stringify(d.position_record).replace(/,/g,', ');
+    }
+    else
+    {
+        str += '<br/>Route: '+d.route_id; // only if from GTFS feedhandler
+    }
+    return str;
+}
+    
 // ************************************************************************************
 // ************** Date forwards / backwards function             *********************
 // ************************************************************************************
@@ -496,6 +479,33 @@ function date_shift(n)
 
     console.log(new_year+'-'+new_month+'-'+new_day);
     window.location.href = '?date='+new_year+'-'+new_month+'-'+new_day;
+}
+
+// Return a javascript Date, given EITHER a UTC timestamp or a ISO 8601 datetime string
+function make_date(ts)
+{
+    var t;
+    if (isFinite(ts))
+    {
+        t = new Date(ts*1000);
+    }
+    else
+    {
+        // replace anything but numbers by spaces
+        var dt = ts.replace(/\D/g," ");
+
+        // trim any hanging white space
+        dt = dt.replace(/\s+$/,"");
+
+        // split on space
+        var dtcomps = dt.split(" ");
+
+        // modify month between 1 based ISO 8601 and zero based Date
+        dtcomps[1]--;
+
+        t = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
+    }
+    return t;
 }
 
 </script>

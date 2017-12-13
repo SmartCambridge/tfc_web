@@ -209,7 +209,7 @@ function init()
     // ******************************************************
     // **********   TITLE  **********************************
     // ******************************************************
-    document.title = "Parking Plot";
+    document.title = "Parking Plot v2.1";
 
     // make ?noframe adjustments to content
     if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0 )
@@ -356,13 +356,16 @@ function init_chart()
     // EXCEPT for plots other than 'index=0' the DATE will be rebased to the date of the user query
     // so that the plots align on the x-axis
     chart_xValue = function(d) {
-          var x_value = new Date(plot_date);
-          var t = new Date(d.ts*1000);
-          x_value.setHours(t.getHours());
-          x_value.setMinutes(t.getMinutes());
-          x_value.setSeconds(t.getSeconds());
-          return x_value;
-        }; // data -> value
+        var x_value = new Date(plot_date);
+
+        // timestamp may be either a UTC timestamp (1507018861) or ISO 8601 ("2017-10-03T15:56:23.228Z")
+        var t = make_date(d.ts);
+        
+        x_value.setHours(t.getHours());
+        x_value.setMinutes(t.getMinutes());
+        x_value.setSeconds(t.getSeconds());
+        return x_value;
+      }; // data -> value
       
     chart_xMap = function(d) { return chart_xScale(chart_xValue(d));}; // data -> display
 
@@ -453,6 +456,33 @@ function init_chart()
     
 }
 
+// Return a javascript Date, given EITHER a UTC timestamp or a ISO 8601 datetime string
+function make_date(ts)
+{
+        var t;
+        if (isFinite(ts))
+        {
+            t = new Date(ts*1000);
+        }
+        else
+        {
+            // replace anything but numbers by spaces
+            var dt = ts.replace(/\D/g," ");
+
+            // trim any hanging white space
+            dt = dt.replace(/\s+$/,"");
+
+            // split on space
+            var dtcomps = dt.split(" ");
+
+            // modify month between 1 based ISO 8601 and zero based Date
+            dtcomps[1]--;
+
+            t = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
+        }
+    return t;
+}
+
 // ****************************************************************************
 // *********  Plot the occupancy data on the chart      ***********************
 // ****************************************************************************
@@ -487,7 +517,7 @@ function draw_chart(rita_data, index)
                    .style("opacity", .9);
               chart_tooltip.html("ID: "+d.parking_id+
                                  "<br/>Occupied "+d.spaces_occupied+
-                                 "<br/>Time:" + new Date(d.ts*1000))
+                                 "<br/>Time: " + make_date(d.ts))
                    .style("left", (d3.event.pageX + 5) + "px")
                    .style("top", (d3.event.pageY - 28) + "px");
           })
@@ -516,7 +546,7 @@ function draw_chart(rita_data, index)
               .style('fill', 'white')
               .style('fill-opacity', 0.5)
 
-          var p_time = new Date(p.ts*1000);
+          var p_time = make_date(p.ts);
           var p_time_str = ' @ '+('0'+p_time.getHours()).slice(-2)+':'+('0'+p_time.getMinutes()).slice(-2);
           chart_g.append("svg:text")
               .attr('x', chart_xMap(p))
