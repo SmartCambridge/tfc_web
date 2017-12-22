@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, date
+from datetime import date
 from dateutil.parser import parse
 from django.http import HttpResponse, JsonResponse
 from os import listdir
@@ -75,27 +75,24 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
-            # bus['vehicle_journeys'] = list(
-            #     set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
-            #                                  vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-            #         .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
-            #                  vehicle_journey__special_days_operation__operates=False)
-            #         .values_list('vehicle_journey', flat=True)) &
-            #     set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
-            #                                  vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-            #         .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
-            #                  vehicle_journey__special_days_operation__operates=False)
-            #         .values_list('vehicle_journey', flat=True))
-            # )
-            # This query uses too much load from Postgres, do this instead meanwhile
-            bus['vehicle_journeys'] = list(
-                set(Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
-                                             vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-                    .values_list('vehicle_journey', flat=True)) &
-                set(Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
-                                             vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-                    .values_list('vehicle_journey', flat=True))
-            )
+            # query1 = Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
+            #                                   vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
+            #     .values_list('vehicle_journey', flat=True)
+            # query2 = Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
+            #                                   vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
+            #     .values_list('vehicle_journey', flat=True)
+            # temp = query1.intersection(query2)
+            # query3 = VehicleJourney.objects.filter(
+            #     id__in=temp, special_days_operation__days__contains=date.today(),
+            #     special_days_operation__operates=False).values_list('id', flat=True)
+            # bus['vehicle_journeys'] = list(temp.difference(query3))
+            query1 = Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
+                                              vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
+                .values_list('vehicle_journey', flat=True)
+            query3 = VehicleJourney.objects.filter(
+                id__in=query1, special_days_operation__days__contains=date.today(),
+                special_days_operation__operates=False).values_list('id', flat=True)
+            bus['vehicle_journeys'] = list(query1.difference(query3))
     except:
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
 
