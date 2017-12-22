@@ -122,10 +122,10 @@ def bus_stop(request, bus_stop_id):
     # This query uses too much load from Postgres, do this instead meanwhile
     query1 = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now(),
                                       vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-    query2 = VehicleJourney.objects.filter(
-        id__in=query1.values_list('vehicle_journey', flat=True), special_days_operation__days__contains=date.today(),
-        special_days_operation__operates=False).values_list('id', flat=True)
-    timetable = query1.difference(query2).select_related('vehicle_journey__journey_pattern__route__line')\
+    query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
+                                      vehicle_journey__special_days_operation__days__contains=date.today(),
+                                      vehicle_journey__special_days_operation__operates=False)
+    timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
                     .order_by('time')[:10]
 
     return render(request, 'bus_stop.html', {
