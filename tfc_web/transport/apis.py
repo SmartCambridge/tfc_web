@@ -4,6 +4,9 @@ from dateutil.parser import parse
 from django.http import HttpResponse, JsonResponse
 from os import listdir
 from pathlib import Path
+
+from django.views.decorators.csrf import csrf_exempt
+
 from transport.models import Stop, Timetable, VehicleJourney
 
 
@@ -63,6 +66,7 @@ def stop_from_and_time_to_journey(request):
     return JsonResponse({'results': list(results)}, json_dumps_params={'indent': 2})
 
 
+@csrf_exempt
 def siriVM_POST_to_journey(request):
     '''Reads siriVM data from POST and tries to match it with a VehicleJourney'''
     if request.method != "POST":
