@@ -63,6 +63,28 @@ def stop_from_and_time_to_journey(request):
     return JsonResponse({'results': list(results)}, json_dumps_params={'indent': 2})
 
 
+def siriVM_POST_to_journey(request):
+    '''Reads siriVM data from POST and tries to match it with a VehicleJourney'''
+    if request.method != "POST":
+        return HttpResponse(status=405, reason="only POST is allowed")
+    if 'sirivm_data' not in request.POST:
+        return HttpResponse(status=400, reason="missing sirivm_data from POST")
+    real_time = request.POST['sirivm_data']
+    try:
+        for bus in real_time['request_data']:
+            time = string_to_time(bus['OriginAimedDepartureTime'])
+            query1 = Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
+                                              vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
+                .values_list('vehicle_journey', flat=True)
+            query3 = VehicleJourney.objects.filter(
+                id__in=query1, special_days_operation__days__contains=date.today(),
+                special_days_operation__operates=False).values_list('id', flat=True)
+            bus['vehicle_journeys'] = list(query1.difference(query3))
+    except:
+        return HttpResponse(status=500, reason="error while processing siriVM data")
+    return JsonResponse(real_time, json_dumps_params={'indent': 2})
+
+
 def siriVM_to_journey(request):
     '''Reads last data from siriVM feed and tries to match it with a VehicleJourney'''
     try:
