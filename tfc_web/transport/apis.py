@@ -73,7 +73,10 @@ def siriVM_POST_to_journey(request):
         return HttpResponse(status=405, reason="only POST is allowed")
     if 'sirivm_data' not in request.POST:
         return HttpResponse(status=400, reason="missing sirivm_data from POST")
-    real_time = request.POST['sirivm_data']
+    try:
+        real_time = json.loads(request.POST['sirivm_data'])
+    except:
+        return HttpResponse(status=500, reason="JSON error in siriVM data")
     try:
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
