@@ -13,7 +13,7 @@ from django.shortcuts import render
 def zone_transit_plot(request, zone_id):
 
     today = date.today().strftime('%Y-%m-%d')
-    
+
     user_date = request.GET.get('date')
     if not user_date:
         user_date = today
@@ -21,10 +21,10 @@ def zone_transit_plot(request, zone_id):
     yyyy = user_date[0:4]
     MM = user_date[5:7]
     dd = user_date[8:10]
-    
+
     feed_id = request.GET.get('feed_id')
     if not feed_id:
-        feed_id = 'vix'
+        feed_id = 'cloudamber/sirivm'
 
     reader = codecs.getreader("utf-8")
     try:
@@ -40,7 +40,7 @@ def zone_transit_plot(request, zone_id):
         )))
     except:
         zone_config = None
-    
+
     return render(request, 'traffic/zone_transit_plot.html', {
         'config_date':  user_date,
         'config_zone_id': zone_id,

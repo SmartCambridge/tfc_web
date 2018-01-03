@@ -96,3 +96,8 @@ ENV/
 *.sqlite3
 secrets.py
 staticfiles/
+
+/media
+/tfc_web/media
+
+nohup.out
