@@ -18,7 +18,7 @@ from transport import views
 
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name="home.html"), name='bus-home'),
+    url(r'^$', TemplateView.as_view(template_name="transport/home.html"), name='bus-home'),
 
     # Areas
     url(r'^areas/$', views.areas, name='transport-areas'),
@@ -26,6 +26,7 @@ urlpatterns = [
 
     # Bus movements
     url(r'^map/$', views.bus_map, name='bus-map'),
+    url(r'^map_real_time/$', views.map_real_time, name='map-real-time'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
 
     # Bus Stops

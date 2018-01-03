@@ -22,6 +22,8 @@ def area_home(request, area_id):
 def bus_map(request):
     return render(request, 'routes.html', {})
 
+def map_real_time(request):
+    return render(request, 'transport/map_real_time.html', {})
 
 def busdata_json(request):
     if 'north' in request.GET and 'south' in request.GET and 'east' in request.GET and 'west' in request.GET:
