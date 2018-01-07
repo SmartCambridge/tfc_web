@@ -59,6 +59,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # 'allauth.socialaccount.providers.github',
     # 'allauth.socialaccount.providers.google',
+
+    # Django REST Framework
+    'rest_framework',
 ] + PROJECT_APPS
 
 MIDDLEWARE_CLASSES = [

@@ -10,3 +10,4 @@ Pillow
 pytz
 django-machina
 wheel
+djangorestframework
