@@ -4,9 +4,11 @@ from dateutil.parser import parse
 from django.http import HttpResponse, JsonResponse
 from os import listdir
 from pathlib import Path
-
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from transport.models import Stop, Timetable, VehicleJourney
 
 
@@ -92,6 +94,8 @@ def siriVM_POST_to_journey(request):
     return JsonResponse(real_time, json_dumps_params={'indent': 2})
 
 
+@api_view(['GET'])
+@renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 def siriVM_to_journey(request):
     '''Reads last data from siriVM feed and tries to match it with a VehicleJourney'''
     try:
@@ -104,17 +108,6 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             time = string_to_time(bus['OriginAimedDepartureTime'])
-            # query1 = Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
-            #                                   vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
-            #     .values_list('vehicle_journey', flat=True)
-            # query2 = Timetable.objects.filter(stop_id=bus['DestinationRef'], last_stop=True,
-            #                                   vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
-            #     .values_list('vehicle_journey', flat=True)
-            # temp = query1.intersection(query2)
-            # query3 = VehicleJourney.objects.filter(
-            #     id__in=temp, special_days_operation__days__contains=date.today(),
-            #     special_days_operation__operates=False).values_list('id', flat=True)
-            # bus['vehicle_journeys'] = list(temp.difference(query3))
             query1 = Timetable.objects.filter(stop_id=bus['OriginRef'], time=time, order=1,
                                               vehicle_journey__days_of_week__contains=date.today().strftime("%A"))\
                 .values_list('vehicle_journey', flat=True)
@@ -124,8 +117,7 @@ def siriVM_to_journey(request):
             bus['vehicle_journeys'] = list(query1.difference(query3))
     except:
         return HttpResponse(status=500, reason="error while importing siriVM data json file")
-
-    return JsonResponse(real_time, json_dumps_params={'indent': 2})
+    return Response(real_time)
 
 
 def journey_id_to_journey(request):
@@ -140,3 +132,8 @@ def journey_id_to_journey(request):
         return HttpResponse(status=404, reason="VehicleJourney not found")
     return JsonResponse({'results': {'id': vehicle_journey.id, 'days_of_week': vehicle_journey.days_of_week,
                                      'timetable': vehicle_journey.timetable} }, json_dumps_params={'indent': 2})
+
+
+class FooBar(APIView):
+    def get(self, request, format=None):
+        return Response()
