@@ -13,6 +13,9 @@ ADD . .
 
 RUN apt-get -y update && apt-get install -y binutils libproj-dev gdal-bin
 
+COPY docker/wait-for-it.sh ./
+RUN install wait-for-it.sh /usr/local/bin/wait-for-it
+
 # By default, use the Django development server to serve the application and use
 # developer-specific settings.
 #

@@ -16,8 +16,8 @@ services:
     # container.
     volumes:
       - type: volume
-        source: ./
-        target: /usr/src/app
+        source: "."
+        target: "/usr/src/app"
         read_only: true
     environment:
       - PORT=8000
@@ -31,7 +31,8 @@ services:
       - DJANGO_EMAIL_PORT=1025
   migrate:
     <<: *devserver
-    command: ["migrate"]
+    entrypoint: ["wait-for-it", "db:5432", "-t", "5", "--"]
+    command: ["./manage.py", "migrate"]
   shell:
     <<: *devserver
     command: ["shell"]
@@ -45,3 +46,5 @@ services:
     image: mailhog/mailhog
     ports:
       - "8025:8025"
+volumes:
+  ".":
