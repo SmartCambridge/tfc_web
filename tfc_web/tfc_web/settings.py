@@ -59,6 +59,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # 'allauth.socialaccount.providers.github',
     # 'allauth.socialaccount.providers.google',
+
+    # Django REST Framework
+    'rest_framework',
 ] + PROJECT_APPS
 
 MIDDLEWARE_CLASSES = [
@@ -146,7 +149,6 @@ TNDS_NEW_DIR = os.path.join(DATA_DIR, 'TNDS_NEW')
 
 
 # Web proxy
-
 USE_X_FORWARDED_HOST = True
 
 SITE_ID = 2
