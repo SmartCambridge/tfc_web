@@ -6,3 +6,4 @@ class VehicleJourneySerializer(serializers.ModelSerializer):
     class Meta:
         model = VehicleJourney
         fields = '__all__'
+        depth = 4
