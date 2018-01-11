@@ -15,9 +15,9 @@ services:
     # to allow local changes to be reflected without having to re-build the
     # container.
     volumes:
-      - type: volume
-        source: "."
-        target: "/usr/src/app"
+      - type: bind
+        source: ./
+        target: /usr/src/app
         read_only: true
     environment:
       - PORT=8000
@@ -46,5 +46,3 @@ services:
     image: mailhog/mailhog
     ports:
       - "8025:8025"
-volumes:
-  ".":

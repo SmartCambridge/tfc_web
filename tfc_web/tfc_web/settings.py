@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 
     # Django REST Framework
     'rest_framework',
+    'drf_openapi',
 ] + PROJECT_APPS
 
 MIDDLEWARE_CLASSES = [
@@ -149,7 +150,6 @@ TNDS_NEW_DIR = os.path.join(DATA_DIR, 'TNDS_NEW')
 
 
 # Web proxy
-
 USE_X_FORWARDED_HOST = True
 
 SITE_ID = 2
@@ -213,3 +213,9 @@ TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/t
 
 
 TNDS_ZONES = ['EA', 'SE', 'EM']
+
+
+###### Django Rest Framwork ######
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning'
+}

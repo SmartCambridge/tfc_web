@@ -5,10 +5,13 @@ from django.http import HttpResponse, JsonResponse
 from os import listdir
 from pathlib import Path
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import generics
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from transport.api.serializers import VehicleJourneySerializer
 from transport.models import Stop, Timetable, VehicleJourney
 
 
@@ -97,7 +100,12 @@ def siriVM_POST_to_journey(request):
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 def siriVM_to_journey(request):
-    '''Reads last data from siriVM feed and tries to match it with a VehicleJourney'''
+    """Reads last data from siriVM feed and tries to match it with a VehicleJourney
+
+    get:
+    returns the last data fro the siriVM feed and adds to each entry the corresponding vehicle_journey entry
+    """
+    return Response({})
     try:
         real_time = json.loads(
             Path('/media/tfc/sirivm_json/data_monitor/' + listdir('/media/tfc/sirivm_json/data_monitor/')[0])
@@ -134,6 +142,12 @@ def journey_id_to_journey(request):
                                      'timetable': vehicle_journey.timetable} }, json_dumps_params={'indent': 2})
 
 
-class FooBar(APIView):
-    def get(self, request, format=None):
-        return Response()
+class VehicleJourneyList(generics.ListAPIView):
+    queryset = VehicleJourney.objects.all()
+    serializer_class = VehicleJourneySerializer
+
+
+class VehicleJourneyRetrieve(generics.RetrieveAPIView):
+    queryset = VehicleJourney.objects.all()
+    serializer_class = VehicleJourneySerializer
+
