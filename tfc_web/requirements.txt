@@ -11,3 +11,6 @@ pytz
 django-machina
 wheel
 djangorestframework
+coreapi
+pygments
+markdown
