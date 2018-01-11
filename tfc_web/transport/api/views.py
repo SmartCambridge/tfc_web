@@ -7,6 +7,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from transport.api.serializers import VehicleJourneySerializer
@@ -20,6 +21,12 @@ DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
          ['Friday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
          ['Saturday', 'Weekend', 'MondayToSaturday', 'MondayToSunday'],
          ['Sunday', 'Weekend', 'MondayToSunday'] ]
+
+
+class Pagination(PageNumberPagination):
+    page_size = 25
+    max_page_size = 50
+    page_size_query_param = 'page_size'
 
 
 def string_to_time(str_time):
@@ -148,6 +155,7 @@ class VehicleJourneyList(generics.ListAPIView):
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
+    pagination_class = Pagination
 
 
 class VehicleJourneyRetrieve(generics.RetrieveAPIView):
