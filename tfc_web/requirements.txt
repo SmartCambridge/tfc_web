@@ -11,4 +11,3 @@ pytz
 django-machina
 wheel
 djangorestframework
-drf_openapi

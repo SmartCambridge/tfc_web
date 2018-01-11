@@ -12,8 +12,9 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.views.generic import TemplateView
+from rest_framework.documentation import include_docs_urls
 from transport.api import views as api_views
 from transport import views
 
@@ -55,12 +56,11 @@ urlpatterns = [
     url(r'^timetable/(?P<pk>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
 
     # API
-    url(f'api/', include('drf_openapi.urls')),
+    url(r'api/docs/', include_docs_urls(title='SmartCambridge Transport API')),
     url(r'api/journeys/$', api_views.VehicleJourneyList.as_view()),
     url(r'api/journey/(?P<pk>[^/]+)/$', api_views.VehicleJourneyRetrieve.as_view()),
-    url(r'api/journey_id_to_journey', api_views.journey_id_to_journey, name='journey-id-to-journey'),
-    url(r'api/sirivm_to_journey', api_views.siriVM_to_journey, name='siriVM-to-journey'),
-    url(r'api/sirivm_post_to_journey', api_views.siriVM_POST_to_journey, name='siriVM-POST-to-journey'),
-    url(r'api/journeys_by_time_and_stop$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
-    url(r'api/stop_from_and_time_to_journey$', api_views.stop_from_and_time_to_journey, name='stop-from-and-time-to-journey')
+    url(r'api/sirivm_with_journey/', api_views.siriVM_to_journey, name='siriVM-to-journey'),
+    url(r'api/sirivm_add_journey/', api_views.siriVM_POST_to_journey, name='siriVM-POST-to-journey'),
+    url(r'api/journeys_by_time_and_stop/(?P<stop_id>[^/]+)/$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
+    url(r'api/departure_to_journey/(?P<stop_id>[^/]+)/$', api_views.stop_from_and_time_to_journey, name='stop-from-and-time-to-journey')
 ]
