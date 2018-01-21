@@ -1,15 +1,18 @@
 import json
 from datetime import date
+import coreapi
+import coreschema
 from dateutil.parser import parse
 from os import listdir
 from pathlib import Path
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, schema
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.schemas import ManualSchema
 from transport.api.serializers import VehicleJourneySerializer
 from transport.models import Stop, Timetable, VehicleJourney
 
@@ -37,7 +40,7 @@ def string_to_time(str_time):
     return time
 
 
-def calculate_vehicle_journey(departure_time, bus_stop):
+def calculate_vehicle_journey(departure_time, bus_stop_id):
     """
     Retrieves a list of possible Vehicle Journeys from a departure time and a bus stop. Today is always used as
     the day the vehicle operates
@@ -45,7 +48,7 @@ def calculate_vehicle_journey(departure_time, bus_stop):
     :param bus_stop:
     :return: list of Vehicle Journeys
     """
-    query1 = Timetable.objects.filter(stop_id=bus_stop, time=departure_time, order=1,
+    query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time, order=1,
                                       vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
         .values_list('vehicle_journey', flat=True)
     query3 = VehicleJourney.objects.filter(
@@ -54,21 +57,47 @@ def calculate_vehicle_journey(departure_time, bus_stop):
     return list(query1.difference(query3))
 
 
+journeys_by_time_and_stop_schema = ManualSchema(
+    fields = [
+        coreapi.Field(
+            "stop_id",
+            required=True,
+            location="query",
+            schema=coreschema.String(description="Stop atco_code."),
+            description="Stop atco_code."
+        ),
+        coreapi.Field(
+            "time_from",
+            required=False,
+            location="query",
+            schema=coreschema.String(description="Start time to give results from. If not given now is used."),
+            description="Start time to give results from. If not given now is used."
+        ),
+        coreapi.Field(
+            "time_to",
+            required=False,
+            location="query",
+            schema=coreschema.String(description="Until when results are wanted."),
+            description="Until when results are wanted."
+        ),
+    ],
+    description="Will return the timetable expected for a given stop between two times (optional). "
+                "Returns a list of Journeys given time_from and a stop_id (atco_code) delimited by an optional time_to."
+)
+
+
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
-def journeys_by_time_and_stop(request, stop_id):
-    """This API will return the timetable expected for a given stop between two times (optional).
-    Returns a list of Journeys given time_from and a stop (atco_code). Also accepts an optional time_to.
-
-    get:
-        `stop`: stop atco_code.
-        `time_from:` [OPTIONAL] start time to give results, if not given now is used.
-        `time_to`: [OPTIONAL] final time.
-    """
+@schema(journeys_by_time_and_stop_schema)
+def journeys_by_time_and_stop(request):
+    try:
+        stop_id = request.GET['stop_id']
+    except:
+        return Response({"details": "stop_id not present"}, status=400)
     try:
         stop = Stop.objects.get(atco_code=stop_id)
     except:
-        return Response({"details": "Stop not found"}, status=404)
+        return Response({"details": "Stop %s not found" % stop_id}, status=404)
     time_from = string_to_time(request.GET['time_from']) if request.GET['time_to'] else now().time()
     time_to = string_to_time(request.GET['time_to']) if request.GET['time_to'] else None
     if not time_from or not time_to:
@@ -85,32 +114,77 @@ def journeys_by_time_and_stop(request, stop_id):
     return Response(results_json)
 
 
+departure_to_journey_schema = ManualSchema(
+    fields = [
+        coreapi.Field(
+            "departure_stop_id",
+            required=True,
+            location="query",
+            schema=coreschema.String(description="Departure Stop atco_code. First stop of a Journey."),
+            description="Departure Stop atco_code. First stop of a Journey."
+        ),
+        coreapi.Field(
+            "departure_time",
+            required=True,
+            location="query",
+            schema=coreschema.String(description="Departure time. The time when the Journey starts."),
+            description="Departure time. The time when the Journey starts."
+        ),
+        coreapi.Field(
+            "expand_journey",
+            required=False,
+            location="query",
+            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
+            description="Exdpands the resulted Journey into a full object"
+        ),
+    ],
+    description="Using a Departure Stop and a Departure time tries to match it with a VehicleJourney. "
+                "Returns the list of VehicleJourney that match."
+)
+
+
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
-def stop_from_and_time_to_journey(request, stop_id):
+@schema(departure_to_journey_schema)
+def departure_to_journey(request):
     '''Using a Departure Stop and a Departure time tries to match it with a VehicleJourney.
     Returns the list of VehicleJourney that match.
-
-    get:
-        `departure_time`: [OPTIONAL] if empty, now is used.
-        `stop_from`: stop atco_code.
     '''
-    if 'stop_from' not in request.GET:
-        return Response({"details": "missing stop_from parameter"}, status=400)
     try:
-        stop_from = Stop.objects.get(atco_code=request.GET['stop_from'])
+        departure_stop_id = request.GET['departure_stop_id']
     except:
-        return Response({"details": "Stop not found"}, status=404)
-    time = string_to_time(request.GET['departure_time']) if request.GET['departure_time'] else now().time()
-    return Response({'results': list(calculate_vehicle_journey(time, stop_from.atco_code))})
+        return Response({"details": "departure_stop_id not present"}, status=400)
+    try:
+        departure_time = parse(request.GET['departure_time']).time()
+    except:
+        return Response({"details": "departure_time not present or has wrong format, has to be ISO"}, status=400)
+    try:
+        departure_stop = Stop.objects.get(atco_code=departure_stop_id)
+    except:
+        return Response({"details": "Stop %s not found" % departure_stop_id}, status=404)
+    vj_list = VehicleJourney.objects.filter(pk__in=calculate_vehicle_journey(departure_time, departure_stop.atco_code))
+    return Response({'results': VehicleJourneySerializer(vj_list, many=True).data})
 
+
+siriVM_POST_to_journey_schema = ManualSchema(
+    fields = [
+        coreapi.Field(
+            "sirivm_data",
+            required=True,
+            location="form",
+            schema=coreschema.String(description="siriVM data block"),
+            description="siriVM data block"
+        ),
+    ],
+    description="Reads sirivm_data from POST and adds VehicleJourney data to its entries"
+)
 
 @csrf_exempt
 @api_view(['POST'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@schema(siriVM_POST_to_journey_schema)
 def siriVM_POST_to_journey(request):
-    '''Reads sirivm_data from POST and adds VehicleJourney data to its entries'''
-    if 'sirivm_data' not in request.POST:
+    if 'sirivm_data' not in request.:
         return Response({"details": "missing sirivm_data from POST"}, status=400)
     try:
         real_time = json.loads(request.POST['sirivm_data'])

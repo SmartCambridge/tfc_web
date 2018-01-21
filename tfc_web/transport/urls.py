@@ -61,6 +61,6 @@ urlpatterns = [
     url(r'api/journey/(?P<pk>[^/]+)/$', api_views.VehicleJourneyRetrieve.as_view()),
     url(r'api/sirivm_with_journey/', api_views.siriVM_to_journey, name='siriVM-to-journey'),
     url(r'api/sirivm_add_journey/', api_views.siriVM_POST_to_journey, name='siriVM-POST-to-journey'),
-    url(r'api/journeys_by_time_and_stop/(?P<stop_id>[^/]+)/$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
-    url(r'api/departure_to_journey/(?P<stop_id>[^/]+)/$', api_views.stop_from_and_time_to_journey, name='stop-from-and-time-to-journey')
+    url(r'api/journeys_by_time_and_stop/$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
+    url(r'api/departure_to_journey/$', api_views.departure_to_journey, name='departure-to-journey')
 ]
