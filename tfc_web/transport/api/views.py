@@ -184,7 +184,7 @@ siriVM_POST_to_journey_schema = ManualSchema(
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 @schema(siriVM_POST_to_journey_schema)
 def siriVM_POST_to_journey(request):
-    if 'sirivm_data' not in request.:
+    if 'sirivm_data' not in request.POST:
         return Response({"details": "missing sirivm_data from POST"}, status=400)
     try:
         real_time = json.loads(request.POST['sirivm_data'])
