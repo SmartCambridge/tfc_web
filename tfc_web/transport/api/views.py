@@ -162,8 +162,10 @@ def departure_to_journey(request):
         departure_stop = Stop.objects.get(atco_code=departure_stop_id)
     except:
         return Response({"details": "Stop %s not found" % departure_stop_id}, status=404)
-    vj_list = VehicleJourney.objects.filter(pk__in=calculate_vehicle_journey(departure_time, departure_stop.atco_code))
-    return Response({'results': VehicleJourneySerializer(vj_list, many=True).data})
+    vj_list = calculate_vehicle_journey(departure_time, departure_stop.atco_code)
+    if 'expand_journey' in request.GET and request.GET['expand_journey'] == True:
+        vj_list = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=vj_list), many=True).data
+    return Response({'results': vj_list})
 
 
 siriVM_POST_to_journey_schema = ManualSchema(
