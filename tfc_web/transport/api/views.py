@@ -168,22 +168,23 @@ def departure_to_journey(request):
     return Response({'results': vj_list})
 
 
-siriVM_POST_to_journey_schema = ManualSchema(
-    fields = [
+siriVM_POST_to_journey_schema = AutoSchema(
+    manual_fields = [
         coreapi.Field(
-            "sirivm_data",
+            "body",
             required=True,
-            location="form",
+            location="body",
+            type="application/json",
             schema=coreschema.String(description="siriVM data block"),
             description="siriVM data block"
         ),
-    ],
-    description="Reads sirivm_data from POST and adds VehicleJourney data to its entries"
+    ]
 )
 
 @csrf_exempt
 @api_view(['POST'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@parser_classes((JSONParser,))
 @schema(siriVM_POST_to_journey_schema)
 def siriVM_POST_to_journey(request):
     '''Reads sirivm_data from POST and adds VehicleJourney data to its entries'''
