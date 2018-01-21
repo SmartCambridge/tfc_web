@@ -186,19 +186,20 @@ siriVM_POST_to_journey_schema = ManualSchema(
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
 @schema(siriVM_POST_to_journey_schema)
 def siriVM_POST_to_journey(request):
-    if 'sirivm_data' not in request.POST:
-        return Response({"details": "missing sirivm_data from POST"}, status=400)
+    '''Reads sirivm_data from POST and adds VehicleJourney data to its entries'''
     try:
-        real_time = json.loads(request.POST['sirivm_data'])
-    except:
-        return Response({"details": "JSON error in siriVM data"}, status=500)
+        jsondata = json.loads(request.body)
+    except Exception as e:
+        return Response({"details": "JSON wrongly formatted: %s" % e}, status=500)
+    if 'request_data' not in jsondata:
+        return Response({"details": "missing request_data from json"}, status=400)
     try:
-        for bus in real_time['request_data']:
+        for bus in jsondata['request_data']:
             bus['vehicle_journeys'] = calculate_vehicle_journey(string_to_time(bus['OriginAimedDepartureTime']),
                                                                 bus['OriginRef'])
-    except:
-        return Response({"details": "error while processing siriVM data"}, status=500)
-    return Response(real_time)
+    except Exception as e:
+        return Response({"details": "error while processing siriVM data: %s" % e}, status=500)
+    return Response(jsondata)
 
 
 @api_view(['GET'])
