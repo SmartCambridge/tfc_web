@@ -163,7 +163,7 @@ def departure_to_journey(request):
     except:
         return Response({"details": "Stop %s not found" % departure_stop_id}, status=404)
     vj_list = calculate_vehicle_journey(departure_time, departure_stop.atco_code)
-    if 'expand_journey' in request.GET and request.GET['expand_journey'] == True:
+    if 'expand_journey' in request.GET and request.GET['expand_journey'] == ['true']:
         vj_list = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=vj_list), many=True).data
     return Response({'results': vj_list})
 
