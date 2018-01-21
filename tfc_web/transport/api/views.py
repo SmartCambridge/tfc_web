@@ -191,6 +191,8 @@ def siriVM_POST_to_journey(request):
     '''Reads sirivm_data from POST and adds VehicleJourney data to its entries'''
     try:
         jsondata = json.loads(request.body.decode("utf-8"))
+        if jsondata.__class__ == str:
+            jsondata = json.loads(jsondata)
     except Exception as e:
         return Response({"details": "JSON wrongly formatted: %s" % e}, status=500)
     if 'request_data' not in jsondata:
