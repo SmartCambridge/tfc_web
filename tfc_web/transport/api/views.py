@@ -190,7 +190,7 @@ siriVM_POST_to_journey_schema = AutoSchema(
 def siriVM_POST_to_journey(request):
     '''Reads sirivm_data from POST and adds VehicleJourney data to its entries'''
     try:
-        jsondata = json.loads(request.body)
+        jsondata = json.loads(request.body.decode("utf-8"))
     except Exception as e:
         return Response({"details": "JSON wrongly formatted: %s" % e}, status=500)
     if 'request_data' not in jsondata:
