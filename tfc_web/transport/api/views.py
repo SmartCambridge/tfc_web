@@ -8,11 +8,12 @@ from pathlib import Path
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
-from rest_framework.decorators import api_view, renderer_classes, schema
+from rest_framework.decorators import api_view, renderer_classes, schema, parser_classes
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.schemas import ManualSchema
+from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer
 from transport.models import Stop, Timetable, VehicleJourney
 
