@@ -62,9 +62,11 @@ INSTALLED_APPS = [
 
     # Django REST Framework
     'rest_framework',
+    'corsheaders',
 ] + PROJECT_APPS
 
 MIDDLEWARE_CLASSES = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -212,3 +214,6 @@ TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/t
 
 
 TNDS_ZONES = ['EA', 'SE', 'EM']
+
+
+CORS_ORIGIN_ALLOW_ALL = True
