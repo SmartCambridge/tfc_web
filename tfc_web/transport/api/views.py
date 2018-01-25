@@ -99,11 +99,13 @@ def journeys_by_time_and_stop(request):
         stop = Stop.objects.get(atco_code=stop_id)
     except:
         return Response({"details": "Stop %s not found" % stop_id}, status=404)
-    time_from = string_to_time(request.GET['time_from']) if request.GET['time_to'] else now().time()
-    time_to = string_to_time(request.GET['time_to']) if request.GET['time_to'] else None
-    if not time_from or not time_to:
-        return Response({"details": "time_from or time_to badly formatted"}, status=400)
+    time_from = string_to_time(request.GET['time_from']) if 'time_from' in request.GET else now().time()
+    if not time_from:
+        return Response({"details": "time_from badly formatted"}, status=400)
     kwargs_query = {"stop": stop, "time__gte": time_from}
+    time_to = string_to_time(request.GET['time_to']) if 'time_to' in request.GET else None
+    if not time_to and 'time_to' in request.GET:
+        return Response({"details": "time_to badly formatted"}, status=400)
     if time_to:
         kwargs_query["time__lte"] = time_to
     results = Timetable.objects.filter(**kwargs_query).select_related('stop', 'vehicle_journey')
