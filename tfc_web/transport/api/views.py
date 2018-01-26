@@ -14,7 +14,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
-from transport.api.serializers import VehicleJourneySerializer
+from transport.api.serializers import VehicleJourneySerializer, LineSerializer
 from transport.models import Stop, Timetable, VehicleJourney
 
 
@@ -33,9 +33,9 @@ class Pagination(PageNumberPagination):
     page_size_query_param = 'page_size'
 
 
-def string_to_time(str_time):
+def string_to_datetime(str_time):
     try:
-        time = parse(str_time).time()
+        time = parse(str_time)
     except:
         return None
     return time
@@ -64,26 +64,33 @@ journeys_by_time_and_stop_schema = ManualSchema(
             "stop_id",
             required=True,
             location="query",
-            schema=coreschema.String(description="Stop atco_code."),
+            schema=coreschema.String(description="Stop id atco_code."),
             description="Stop atco_code."
         ),
         coreapi.Field(
-            "time_from",
+            "datetime_from",
             required=False,
             location="query",
-            schema=coreschema.String(description="Start time to give results from. If not given now is used."),
-            description="Start time to give results from. If not given now is used."
+            schema=coreschema.String(description="Start datetime or time to give results from. "
+                                                 "If time is given insetad of a datetime, "
+                                                 "today is used as date. If nothing given, "
+                                                 "now is used. The datetime or date must be "
+                                                 "given in ISO 8601 format."),
+            description="Start datetime or time to give results from. If time is given insetad "
+                        "of a datetime, today is used as date. If nothing given, now is used. "
+                        "The datetime or date must be given in ISO 8601 format."
         ),
         coreapi.Field(
-            "time_to",
+            "nresults",
             required=False,
             location="query",
-            schema=coreschema.String(description="Until when results are wanted."),
-            description="Until when results are wanted."
+            schema=coreschema.Integer(description="Maximum number of journeys to return"),
+            description="Maximum number of journeys to return."
         ),
     ],
-    description="Will return the timetable expected for a given stop between two times (optional). "
-                "Returns a list of Journeys given time_from and a stop_id (atco_code) delimited by an optional time_to."
+    description="Will return the timetable expected for a given stop from a specific time ("
+                "optional). Returns a list of Journeys given datetime_from and a stop_id ("
+                "atco_code)."
 )
 
 
@@ -99,21 +106,30 @@ def journeys_by_time_and_stop(request):
         stop = Stop.objects.get(atco_code=stop_id)
     except:
         return Response({"details": "Stop %s not found" % stop_id}, status=404)
-    time_from = string_to_time(request.GET['time_from']) if 'time_from' in request.GET else now().time()
-    if not time_from:
-        return Response({"details": "time_from badly formatted"}, status=400)
-    kwargs_query = {"stop": stop, "time__gte": time_from}
-    time_to = string_to_time(request.GET['time_to']) if 'time_to' in request.GET else None
-    if not time_to and 'time_to' in request.GET:
-        return Response({"details": "time_to badly formatted"}, status=400)
-    if time_to:
-        kwargs_query["time__lte"] = time_to
-    results = Timetable.objects.filter(**kwargs_query).select_related('stop', 'vehicle_journey')
+    datetime_from = string_to_datetime(request.GET['datetime_from']) if 'datetime_from' in request.GET else now()
+    if not datetime_from:
+        return Response({"details": "datetime_from badly formatted"}, status=400)
+    try:
+        nresults = int(request.GET['nresults']) if 'nresults' in request.GET else None
+    except:
+        return Response({"details": "nresults is not an int"}, status=400)
+
+    query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
+                                      vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
+    query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
+                                      vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                                      vehicle_journey__special_days_operation__operates=False)
+    timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
+                    .order_by('time')
+
+    if nresults:
+        timetable = timetable[:nresults]
+
     results_json = {'results': []}
-    for result in results:
-        results_json['results'].append({'stop': result.stop.atco_code, 'time': result.time,
-                                        'vehicle_journey': result.vehicle_journey.id,
-                                        'days_of_week': result.vehicle_journey.days_of_week})
+    for result in timetable:
+        results_json['results'].append({'time': result.time, 'vehicle_journey': result.vehicle_journey.id,
+                                        'line': LineSerializer(
+                                            result.vehicle_journey.journey_pattern__route__line).data})
     return Response(results_json)
 
 
@@ -201,8 +217,8 @@ def siriVM_POST_to_journey(request):
         return Response({"details": "missing request_data from json"}, status=400)
     try:
         for bus in jsondata['request_data']:
-            bus['vehicle_journeys'] = calculate_vehicle_journey(string_to_time(bus['OriginAimedDepartureTime']),
-                                                                bus['OriginRef'])
+            bus['vehicle_journeys'] = \
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
     except Exception as e:
         return Response({"details": "error while processing siriVM data: %s" % e}, status=500)
     return Response(jsondata)
@@ -225,8 +241,8 @@ def siriVM_to_journey(request):
 
     try:
         for bus in real_time['request_data']:
-            bus['vehicle_journeys'] = calculate_vehicle_journey(string_to_time(bus['OriginAimedDepartureTime']),
-                                                                bus['OriginRef'])
+            bus['vehicle_journeys'] = \
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
     return Response(real_time)
