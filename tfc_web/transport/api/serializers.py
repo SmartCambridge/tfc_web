@@ -1,13 +1,16 @@
 from rest_framework import serializers
-from transport.models import VehicleJourney, Line, Stop
+from transport.models import VehicleJourney, Line, Stop, SpecialDaysOperation
 
 
 class VehicleJourneySerializer(serializers.ModelSerializer):
     timetable = serializers.SerializerMethodField()
-    special_days_operation = serializers.RelatedField(many=True, read_only=True)
+    special_days_operation = serializers.SerializerMethodField()
 
     def get_timetable(self, obj):
         return obj.get_timetable().values('order', 'stop_id', 'time')
+
+    def get_special_days_operation(self, obj):
+        return SpecialDaysOperation.objects.filter(vehicle_journey=obj).values('days', 'operates')
 
     class Meta:
         model = VehicleJourney
