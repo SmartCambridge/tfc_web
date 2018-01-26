@@ -52,10 +52,10 @@ def calculate_vehicle_journey(departure_time, bus_stop_id):
     query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time, order=1,
                                       vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
         .values_list('vehicle_journey', flat=True)
-    query3 = VehicleJourney.objects.filter(
+    query2 = VehicleJourney.objects.filter(
         id__in=query1, special_days_operation__days__contains=date.today(),
         special_days_operation__operates=False).values_list('id', flat=True)
-    return list(query1.difference(query3))
+    return list(query1.difference(query2))
 
 
 journeys_by_time_and_stop_schema = ManualSchema(
