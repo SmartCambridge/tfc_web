@@ -10,7 +10,8 @@ class VehicleJourneySerializer(serializers.ModelSerializer):
         return obj.get_timetable().values('order', 'stop_id', 'time')
 
     def get_special_days_operation(self, obj):
-        return SpecialDaysOperation.objects.filter(vehicle_journey=obj).values('days', 'operates')
+        return SpecialDaysOperation.objects.filter(vehicle_journey=obj)\
+            .values('days__lower', 'days__upper', 'operates')
 
     class Meta:
         model = VehicleJourney
