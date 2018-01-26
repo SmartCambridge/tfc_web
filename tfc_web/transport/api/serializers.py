@@ -4,7 +4,7 @@ from transport.models import VehicleJourney, Line, Stop
 
 class VehicleJourneySerializer(serializers.ModelSerializer):
     timetable = serializers.SerializerMethodField()
-    special_days_operation = serializers.RelatedField(many=True)
+    special_days_operation = serializers.RelatedField(many=True, read_only=True)
 
     def get_timetable(self, obj):
         return obj.get_timetable().values('order', 'stop_id', 'time')
