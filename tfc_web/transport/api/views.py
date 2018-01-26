@@ -129,7 +129,7 @@ def journeys_by_time_and_stop(request):
     for result in timetable:
         results_json['results'].append({'time': result.time, 'vehicle_journey': result.vehicle_journey.id,
                                         'line': LineSerializer(
-                                            result.vehicle_journey.journey_pattern__route__line).data})
+                                            result.vehicle_journey.journey_pattern.route.line).data})
     return Response(results_json)
 
 
