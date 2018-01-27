@@ -1,0 +1,560 @@
+{% extends "template.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="{% static 'map.css' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
+    <script>
+        var route = "";
+        function route_change(bus_route) {
+            route = bus_route;
+            retrieve_busdata();
+        }
+    </script>
+<style>
+
+.sensor-popup {
+    font-size: small;
+}
+
+.marker_sensor_M {
+    background-image: url("/static/images/bus_logo_M.png");
+    /* background-color: green; */
+}
+
+.marker_sensor_L {
+    background-image: url("/static/images/bus_logo_L.png");
+    /* background-color: green; */
+}
+
+.marker_label_M {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 7px;
+    font-size: 7px;
+    text-align: center;
+}
+
+.marker_label_L {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 8px;
+    font-size: 11px;
+    text-align: center;
+}
+</style>
+
+{% endblock %}
+{% block title %}Real-Time Bus Map{% endblock %}
+{% block content %}
+    {% block content_web %}
+    <div style="height: 80vh;">
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+    {% endblock %}
+    {% block content_script %}
+<script>
+var RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
+
+var OLD_DATA_RECORD = 60; // time (s) threshold where a data record is considered 'old'
+
+var map;       // Leaflet map
+var map_tiles; // map tiles layer
+var mapbounds;
+var info_map;
+
+// Sensor data - dictionary of sensors by sensor_id
+var sensors = {};
+
+// Here we define the 'data record format' of the incoming websocket feed
+var RECORD_INDEX = 'VehicleRef';  // data record property that is primary key
+var RECORDS_ARRAY = 'request_data'; // incoming socket data property containing data records
+var RECORD_TS = 'RecordedAtTime'; // data record property containing timestamp
+var RECORD_TS_FORMAT = 'ISO8601'; // data record timestamp format
+                                  // 'ISO8601' = iso-format string
+var RECORD_LAT = 'Latitude';      // name of property containing latitude
+var RECORD_LNG = 'Longitude';     // name of property containing longitude
+
+// *****************
+// Map globals
+var ICON_URL = '/static/images/bus-logo.png';
+
+var ICON_IMAGE = new Image();
+ICON_IMAGE.src = ICON_URL;
+
+var icon_size = 'L';
+
+var oldsensorIcon = L.icon({
+    iconUrl: ICON_URL,
+    iconSize: [20, 20]
+});
+
+// *************************
+// **** Routes stuff
+
+var bus_stop_icon = L.icon({
+    iconUrl: '/static/images/bus_stop.png',
+    iconSize: [15,40],
+    iconAnchor: [3,40]
+});
+
+function init()
+{
+    map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
+
+    map_tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+    mapbounds = map.getBounds();
+
+    info_map = L.control();
+    info_map.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
+            this.update();
+            return this._div;
+    };
+
+    // method that we will use to update the control based on feature properties passed
+    info_map.update = function (info_text) {
+        this._div.innerHTML = info_text;
+    };
+
+    info_map.addTo(map);
+    mapbounds = map.getBounds();
+    map.on('moveend', function() {
+            mapbounds = map.getBounds();
+    });
+
+    // OK let's set up a subscription for the real-time data
+    sock_connect();
+} // end init()
+
+// We have received data from a previously unseen sensor, so initialize
+function create_sensor(msg, clock_time)
+{
+    // new sensor, create marker
+    log(' ** New '+msg[RECORD_INDEX]);
+
+    var sensor_id = msg[RECORD_INDEX];
+
+    var sensor = { sensor_id: sensor_id,
+                   msg: msg
+                 };
+
+    var marker_icon = create_sensor_icon(msg);
+
+    sensor['marker'] = L.Marker.movingMarker([[msg[RECORD_LAT], msg[RECORD_LNG]],
+                                                   [msg[RECORD_LAT], msg[RECORD_LNG]]],
+                                                  [1000],
+                                                  {icon: marker_icon});
+    sensor['marker']
+        .addTo(map)
+        .bindPopup(popup_content(msg), { className: "sensor-popup"})
+        .bindTooltip(tooltip_content(msg), {
+                            // permanent: true,
+                            className: "sensor-tooltip",
+                            interactive: true
+                          })
+        .on('click', function()
+                {
+                  //console.log("marker click handler");
+                })
+        .start();
+
+    sensor.state = {};
+
+    sensors[sensor_id] = sensor;
+
+    // flag if this record is OLD or NEW
+    init_old_status(sensor, clock_time);
+
+}
+
+// We have received a new data message from an existing sensor, so analyze and update state
+function update_sensor(msg, clock_time)
+{
+		// existing sensor data record has arrived
+
+        var sensor_id = msg[RECORD_INDEX];
+
+		if (get_msg_date(msg).getTime() != get_msg_date(sensors[sensor_id].msg).getTime())
+        {
+            // move marker
+            var pos = get_msg_point(msg);
+            var marker = sensors[sensor_id].marker;
+		    marker.moveTo([pos.lat, pos.lng], [1000] );
+		    marker.resume();
+
+            // update tooltip and popup
+		    marker.setTooltipContent(tooltip_content(msg));
+		    marker.setPopupContent(popup_content(msg));
+
+            // store as latest msg
+            // moving current msg to prev_msg
+            sensors[sensor_id].prev_msg = sensors[sensor_id].msg;
+		    sensors[sensor_id].msg = msg; // update entry for this msg
+
+            var sensor = sensors[sensor_id];
+
+            // flag if this record is OLD or NEW
+            update_old_status(sensor, clock_time);
+
+		}
+}
+
+// Given a data record, update '.old' property t|f and reset marker icon
+// Note that 'current time' is the JS date value in global 'clock_time'
+// so that this function works equally well during replay of old data.
+//
+function init_old_status(sensor, clock_time)
+{
+    update_old_status(sensor, clock_time);
+}
+
+function update_old_status(sensor, clock_time)
+{
+    var data_timestamp = get_msg_date(sensor.msg); // will hold Date from sensor
+
+    // get current value of sensor.state.old flag (default false)
+    var current_old_flag = !(sensor.state.old == null) || sensor.state.old;
+
+    // calculate age of sensor (in seconds)
+    var age = (clock_time - data_timestamp) / 1000;
+
+    if (age > OLD_DATA_RECORD)
+    {
+        // data record is OLD
+        // skip if this data record is already flagged as old
+        if (sensor.state.old != null && sensor.state.old)
+        {
+            return;
+        }
+        // set the 'old' flag on this record and update icon
+        sensor.state.old = true;
+        sensor.marker.setIcon(oldsensorIcon);
+    }
+    else
+    {
+        // data record is NOT OLD
+        // skip if this data record is already NOT OLD
+        if (sensor.state.old != null && !sensor.state.old)
+        {
+            return;
+        }
+        // reset the 'old' flag on this data record and update icon
+        sensor.state.old = false;
+        sensor.marker.setIcon(create_sensor_icon(sensor.msg));
+    }
+}
+
+// return {lat:, lng:} from sensor message
+function get_msg_point(msg)
+{
+    return { lat: msg[RECORD_LAT], lng: msg[RECORD_LNG] };
+}
+
+// return a JS Date() from sensor message
+function get_msg_date(msg)
+{
+    switch (RECORD_TS_FORMAT)
+    {
+        case 'ISO8601':
+            return new Date(msg[RECORD_TS]);
+            break;
+
+        default:
+            break;
+    }
+    return null;
+}
+
+// ***********************************************************
+// Pretty print an XML duration
+// Convert '-PT1H2M33S' to '-1:02:33'
+function xml_duration_to_string(xml)
+{
+    var seconds = xml_duration_to_seconds(xml);
+
+    var sign = (seconds < 0) ? '-' : '+';
+
+    seconds = Math.abs(seconds);
+
+    if (seconds < 60)
+    {
+        return sign + seconds + 's';
+    }
+
+    var minutes = Math.floor(seconds / 60);
+
+    var remainder_seconds = ('0' + (seconds - minutes * 60)).slice(-2);
+
+    if (minutes < 60)
+    {
+        return sign + minutes + ':' + remainder_seconds;
+    }
+
+    var hours = Math.floor(minutes / 60);
+
+    var remainder_minutes = ('0' + (minutes - hours * 60)).slice(-2);
+
+    return sign + hours + ':' + remainder_minutes + ':' + remainder_seconds;
+}
+
+// Parse an XML duration like '-PT1H2M33S' (minus 1:02:33) into seconds
+function xml_duration_to_seconds(xml)
+{
+    if (!xml || xml == '')
+    {
+        return 0;
+    }
+    var sign = 1;
+    if (xml.slice(0,1) == '-')
+    {
+        sign = -1;
+    }
+    var hours = get_xml_digits(xml,'H');
+    var minutes = get_xml_digits(xml,'M');
+    var seconds = get_xml_digits(xml,'S');
+
+    return sign * (hours * 3600 + minutes * 60 + seconds);
+}
+
+// Given '-PT1H2M33S' and 'S', return 33
+function get_xml_digits(xml, units)
+{
+    var end = xml.indexOf(units);
+    if (end < 0)
+    {
+        return 0;
+    }
+    var start = end - 1;
+    // slide 'start' backwards until it points to non-digit
+    while (/[0-9]/.test(xml.slice(start, start+1)))
+    {
+        start--;
+    }
+
+    return Number(xml.slice(start+1,end));
+}
+
+// End of the XML duration pretty print code
+// *************************************************************
+
+// return a Leaflet Icon based on a real-time msg
+function create_sensor_icon(msg)
+{
+    var line = '';
+
+    if (msg.LineRef != null)
+    {
+        line = msg.LineRef;
+    }
+
+    var marker_html =  '<div class="marker_label_'+icon_size+'">'+line+'</div>';
+
+    var marker_size = new L.Point(30,30);
+
+    switch (icon_size)
+    {
+        case 'L':
+            marker_size = new L.Point(45,45);
+            break;
+
+        default:
+            break;
+    }
+
+    return L.divIcon({
+        className: 'marker_sensor_'+icon_size,
+        iconSize: marker_size,
+        iconAnchor: L.point(23,38),
+        html: marker_html
+    });
+}
+
+function tooltip_content(msg)
+{
+    var time = get_msg_date(msg);
+    var time_str = ("0" + time.getHours()).slice(-2)   + ":" +
+                   ("0" + time.getMinutes()).slice(-2) + ":" +
+                   ("0" + time.getSeconds()).slice(-2);
+    return time_str +
+            '<br/>' + msg[RECORD_INDEX] +
+			'<br/>Line "' + msg['PublishedLineName'] +'"'+
+            '<br/>Delay: ' + xml_duration_to_string(msg['Delay']);
+}
+
+function popup_content(msg)
+{
+    var time = get_msg_date(msg);
+    var time_str = ("0" + time.getHours()).slice(-2)   + ":" +
+                   ("0" + time.getMinutes()).slice(-2) + ":" +
+                   ("0" + time.getSeconds()).slice(-2);
+    var sensor_id = msg[RECORD_INDEX];
+    return time_str +
+        '<br/>' + sensor_id +
+		'<br/>Line "' + msg['PublishedLineName'] +'"'+
+        '<br/>Delay: ' + xml_duration_to_string(msg['Delay']);
+}
+
+// user has clicked on 'more' in the sensor popup
+function more_content(sensor_id)
+{
+    var sensor = sensors[sensor_id];
+    var content = JSON.stringify(sensor.msg).replace(/,/g,', ');
+    content +=
+        '<br/><a href="#" onclick="click_less('+"'"+sensor_id+"'"+')">less</a>';
+    return content;
+}
+
+// ********************************************************************************
+// ***********  Process the data records arrived from WebSocket or Replay *********
+// ********************************************************************************
+
+// Process websocket data
+function handle_records(websock_data)
+{
+    var incoming_data = JSON.parse(websock_data);
+    //console.log('handle_records'+json['request_data'].length);
+    for (var i = 0; i < incoming_data[RECORDS_ARRAY].length; i++)
+    {
+	    handle_msg(incoming_data[RECORDS_ARRAY][i], new Date());
+    }
+} // end function handle_records
+
+function log(str)
+{
+    console.log(str);
+}
+
+// process a single data record
+function handle_msg(msg, clock_time)
+{
+    var sensor_id = msg[RECORD_INDEX];
+
+    // If an existing entry in 'sensors' has this key, then update
+    // otherwise create new entry.
+    if (sensors.hasOwnProperty(sensor_id))
+    {
+        update_sensor(msg, clock_time);
+    }
+    else
+    {
+        create_sensor(msg, clock_time);
+    }
+}
+
+// watchdog function to flag 'old' data records
+// records are stored in 'sensors' object
+function check_old_records(clock_time)
+{
+    //console.log('checking for old data records..,');
+
+    // do nothing if timestamp format not recognised
+    switch (RECORD_TS_FORMAT)
+    {
+        case 'ISO8601':
+            break;
+
+        default:
+            return;
+    }
+
+    for (var sensor_id in sensors)
+    {
+        update_old_status(sensors[sensor_id], clock_time);
+    }
+}
+
+// ***************************************************************************
+// *******************  WebSocket code    ************************************
+// ***************************************************************************
+
+var sock; // the page's WebSocket
+
+// sock_connect() will be called on startup (i.e. in init())
+// It will connect socket, when successful will
+// send { 'msg_type': 'rt_connect'} message, and should receive { 'msg_type': 'rt_connect_ok' }, then
+// send { 'msg_type': 'rt_subscribe', 'request_id' : 'A' } which subsribes to ALL records.
+function sock_connect()
+{
+    sock = new SockJS(RTMONITOR_URI);
+
+    sock.onopen = function() {
+                log('** socket open');
+                sock_send_str('{ "msg_type": "rt_connect" }');
+                };
+
+    sock.onmessage = function(e) {
+                var json_msg = JSON.parse(e.data);
+                if (json_msg.msg_type != null && json_msg.msg_type == "rt_nok")
+                {
+                    log('<span class="log_error">** '+e.data+'</span>');
+                    return;
+                }
+                if (json_msg.msg_type != null && json_msg.msg_type == "rt_connect_ok")
+                {
+                    log('Connected OK');
+                    sock_send_str('{ "msg_type": "rt_subscribe", "request_id": "A" }');
+
+                    return;
+                }
+                handle_records(e.data);
+                };
+
+    sock.onclose = function() {
+                    log('** socket closed');
+                };
+}
+
+function sock_close()
+{
+    log('** closing socket...');
+    sock.close();
+}
+
+function sock_send(input_name)
+{
+    var msg = document.getElementById(input_name).value;
+
+    sock_send_str(msg);
+}
+
+function sock_send_str(msg)
+{
+    if (sock == null)
+    {
+	    log('<span style="color: red;">Socket not yet connected</span>');
+	    return;
+    }
+    if (sock.readyState == SockJS.CONNECTING)
+    {
+	    log('<span style="color: red;">Socket connecting...</span>');
+  	    return;
+    }
+    if (sock.readyState == SockJS.CLOSING)
+    {
+	    log('<span style="color: red;">Socket closing...</span>');
+	    return;
+    }
+    if (sock.readyState == SockJS.CLOSED)
+    {
+	    log('<span style="color: red;">Socket closed</span>');
+	    return;
+    }
+
+    log('sending: '+msg);
+
+    sock.send(msg);
+}
+
+$(document).ready(init);
+
+        {% block script_lazy %}{% endblock %}
+
+    </script>
+    {% endblock %}
+{% endblock %}

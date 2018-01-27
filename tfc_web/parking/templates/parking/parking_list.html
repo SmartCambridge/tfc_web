@@ -152,25 +152,43 @@
 
         // Create 'occupancy' dictionary parking_id -> occupancy record
         var occupancy = {};
-        for (var i = 0; i < parking_feed.request_data.length; i++) {
+        if (parking_feed.request_data.length==0)
+        {
+            console.log('Parking feed data length is zero');
+            var error_message = document.createElement('div');
+            error_message.className = 'error_message';
+            var error_text = document.createElement('h2');
+            error_text.className = 'error_text';
+            error_text.appendChild(document.createTextNode('Our source of parking data seems to have a problem, we are looking into it...'));
+            error_message.appendChild(error_text);
+            parking_cards.appendChild(error_message);
+        }
+        for (var i = 0; i < parking_feed.request_data.length; i++)
+        {
             occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
         }
 
         // Now iterate through all car parks in config list, adding card to page for each
-        for (var i = 0; i < parking_list.length; i++) {
+        for (var i = 0; i < parking_list.length; i++)
+        {
             var parking_id = parking_list[i]['parking_id'];
             var parking_name = parking_list[i]['parking_name'];
-            var spaces_free = occupancy[parking_id].spaces_free;
-            var capacity = occupancy[parking_id].spaces_capacity;
+            try
+            {
+                var spaces_free = occupancy[parking_id].spaces_free;
+                var capacity = occupancy[parking_id].spaces_capacity;
 
-            add_parking(parking_name, parking_id, spaces_free, capacity);
-
-            // finally, set the page to refresh in 6 mins...
-            setTimeout(function () {
-                location.reload();
-            }, 6 * 60 * 1000);
-
+                add_parking(parking_name, parking_id, spaces_free, capacity);
+            }
+            catch (err)
+            {
+                console.log('Failed to read occupancy data for '+parking_list[i]['parking_id']);
+            }
         }
+        // finally, set the page to refresh in 6 mins...
+        setTimeout(function () {
+            location.reload();
+        }, 6 * 60 * 1000);
 
     </script>
 {% endblock %}

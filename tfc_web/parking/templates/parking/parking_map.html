@@ -18,6 +18,7 @@ Parking Map
     
 {% block content %}
     <div style="height: 80vh;">
+        <div id="sys_info"></div>
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
     <script>
@@ -66,6 +67,17 @@ Parking Map
         // create lookup table for occupancy data, index by parking_id
 
         var occupancy = {};
+        if (parking_feed.request_data.length==0)
+        {
+            console.log('Parking feed data length is zero');
+            var error_message = document.createElement('div');
+            error_message.className = 'error_message';
+            var error_text = document.createElement('h2');
+            error_text.className = 'error_text';
+            error_text.appendChild(document.createTextNode('Our source of parking data seems to have a problem, we are looking into it...'));
+            error_message.appendChild(error_text);
+            document.getElementById('sys_info').appendChild(error_message);
+        }
         for ( var i = 0; i < parking_feed.request_data.length; i++ )
         {
           occupancy[parking_feed.request_data[i].parking_id] = parking_feed.request_data[i];
@@ -78,11 +90,14 @@ Parking Map
                                       ],
                                       { icon: parking_icon(parking_list[i]) }
                              )
-                        .addTo(map)
-                        .bindTooltip(
+                             .addTo(map)
+                try
+                {             
+                    marker.bindTooltip(
                              '<a href="{% url 'parking_plot' parking_id='Q4179568' %}'.replace('Q4179568',parking_id) + '?priordays=1,7">' +
                              parking_list[i]["parking_name"] +
                              '</a>' +
+                             
                              '<br/>Spaces:' + occupancy[parking_id].spaces_free +'/'+
                                  occupancy[parking_id].spaces_capacity,
                              { direction: 'top',
@@ -91,6 +106,11 @@ Parking Map
                                permanent: true
                              }
                                   ).openTooltip();
+                }
+                catch (err)
+                {
+                    console.log('Error adding occupancy data to '+parking_id);
+                }
                 mapMarkers.push(marker);
         }
 

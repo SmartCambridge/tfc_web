@@ -98,3 +98,7 @@ secrets.py
 staticfiles/
 tfc_web/data/TNDS/*.zip
 
+/media
+/tfc_web/media
+
+nohup.out
