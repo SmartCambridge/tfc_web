@@ -14,7 +14,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
-from transport.api.serializers import VehicleJourneySerializer, LineSerializer
+from transport.api.serializers import VehicleJourneySerializer, LineSerializer, VehicleJourneySummarisedSerializer
 from transport.models import Stop, Timetable, VehicleJourney
 
 
@@ -136,7 +136,7 @@ def journeys_by_time_and_stop(request):
     for result in timetable:
         results_json['results'].append(
             {'time': result.time,
-             'journey': VehicleJourneySerializer(result.vehicle_journey).data
+             'journey': VehicleJourneySummarisedSerializer(result.vehicle_journey).data
              if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true'
              else result.vehicle_journey.id,
              'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
