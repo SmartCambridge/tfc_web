@@ -23,7 +23,7 @@ def area_home(request, area_id):
     return render(request, 'area-home.html', {'area': Area.objects.get(id=area_id)})
 
 
-def bus_map(request):
+def bus_map_vix(request):
     return render(request, 'routes.html', {})
 
 
