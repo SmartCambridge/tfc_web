@@ -263,4 +263,3 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
-
