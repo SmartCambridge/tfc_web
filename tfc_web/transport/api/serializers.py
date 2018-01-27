@@ -25,7 +25,7 @@ class LineSerializer(serializers.ModelSerializer):
     operator = serializers.SerializerMethodField()
 
     def get_operator(self, obj):
-        return OperatorSerializer(obj.stop).data
+        return OperatorSerializer(obj.operator).data
 
     class Meta:
         model = Line
