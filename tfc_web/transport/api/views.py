@@ -87,6 +87,13 @@ journeys_by_time_and_stop_schema = ManualSchema(
             schema=coreschema.Integer(description="Maximum number of journeys to return"),
             description="Maximum number of journeys to return."
         ),
+        coreapi.Field(
+            "expand_journey",
+            required=False,
+            location="query",
+            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
+            description="Exdpands the resulted Journey into a full object"
+        ),
     ],
     description="Will return the timetable expected for a given stop from a specific time ("
                 "optional). Returns a list of Journeys given datetime_from and a stop_id ("
@@ -127,9 +134,12 @@ def journeys_by_time_and_stop(request):
 
     results_json = {'results': []}
     for result in timetable:
-        results_json['results'].append({'time': result.time, 'vehicle_journey': result.vehicle_journey.id,
-                                        'line': LineSerializer(
-                                            result.vehicle_journey.journey_pattern.route.line).data})
+        results_json['results'].append(
+            {'time': result.time,
+             'journey': VehicleJourneySerializer(result.vehicle_journey).data
+             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true'
+             else result.vehicle_journey.id,
+             'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
     return Response(results_json)
 
 
