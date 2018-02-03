@@ -1,0 +1,12 @@
+/* Styles for the station board widget */
+
+.message_area {
+    height: 100%;
+    width: 100%;
+    padding: 0.5em;
+}
+
+.message_area h1, .message_area h2 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

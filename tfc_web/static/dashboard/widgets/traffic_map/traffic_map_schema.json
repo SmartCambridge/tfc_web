@@ -1,0 +1,34 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/traffic.json",
+    "$comment": "",
+    "description": "Parameters for the ACP Traffic widget",
+    "title": "Traffic Map",
+
+    "type": "object",
+    "required": ["lat", "lng", "zoom"],
+    "properties": {
+        "lat": {
+            "type": "number",
+            "title": "Latitude",
+            "description": "Latitude of the centre of the map",
+            "minimum": -90.0,
+            "maximum": 90.0
+        },
+        "lng": {
+            "type": "number",
+            "title": "Longitude",
+            "description": "Longitude of the centre of the map",
+            "minimum": -180,
+            "maximum": 180
+        },
+        "zoom": {
+            "type": "integer",
+            "title": "Map zoom",
+            "description": "Map zoom level",
+            "minimum": 0,
+            "maximum": 21
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/twitter_timeline.json",
+    "$comment": "",
+    "description": "Parameters for the ACP Twitter Timeline widget",
+    "title": "Twitter Timeline",
+
+    "type": "object",
+    "required": ["who"],
+    "properties": {
+        "who": {
+            "type": "string",
+            "title": "Twitter ID",
+            "description": "Twitter ID (without leading '@') of the timeline to display"
+        }
+    }
+}

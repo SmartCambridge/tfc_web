@@ -1,0 +1,19 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/message_area.json",
+    "$comment": "HTML to embed must be suitable for directly embedding in a <div> container. It must be sanitised to avoid issues such as Cross Site Scripting.",
+    "description": "Parameters for the ACP Iframe Message widget",
+    "title": "Message Area",
+
+    "type": "object",
+    "required": ["message"],
+    "properties": {
+        "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Message to display",
+            "format": "acp-html"
+        }
+    }
+}

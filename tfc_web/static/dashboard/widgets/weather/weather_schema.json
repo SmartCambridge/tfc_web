@@ -1,0 +1,20 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/weather.json",
+    "$comment": "Information mapping places onto 'location' codes for the 3 hour forecast can be retrieved from the forecast site list feed -- see https://www.metoffice.gov.uk/datapoint/support/documentation/uk-locations-site-list-detailed-documentation. While the widget will work with any valid location there are UI advantages to only displaying (or at least promoting) places 'local' to the display's position",
+    "description": "Parameters for the ACP Weather widget",
+
+    "type": "object",
+    "required": ["location"],
+    "properties": {
+
+        "location": {
+            "type": "string",
+            "title": "Location code",
+            "description": "Met Office 3 hour forecast location code",
+            "format": "forecast_location"
+        }
+
+    }
+}
