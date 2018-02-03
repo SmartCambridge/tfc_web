@@ -9,3 +9,4 @@ class Screen(models.Model):
 class Layout(models.Model):
     name = models.CharField(max_length=100)
     design = JSONField()
+    configuration = JSONField(null=True, blank=True)
