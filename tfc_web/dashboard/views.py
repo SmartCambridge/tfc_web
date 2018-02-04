@@ -17,7 +17,7 @@ def generate_layout_configuration(layout):
     confdata = {}
     for key, value in layout.design.items():
         confdata[key] = {'design': layout.design[key]}
-        if key in layout.configuration:
+        if layout.configuration and key in layout.configuration:
             confdata[key]['configuration'] = layout.configuration[key]
     return confdata
 
