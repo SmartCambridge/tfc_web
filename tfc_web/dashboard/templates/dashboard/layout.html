@@ -1,4 +1,5 @@
 {% load static %}
+{% load remove_underscore %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,7 +31,8 @@
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
-            widget.push(new {{ value.configuration.widget|title }}('widget-{{ key }}', {{ value.configuration.data|safe }}));
+            widget.push(new {{ value.configuration.widget|title|remove_underscore }}('widget-{{ key }}',
+                {{ value.configuration.data|safe }}));
             {% endif %}
         {% endfor %}
 
