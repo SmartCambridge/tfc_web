@@ -17,6 +17,7 @@
         <p>design: {{ layout.design }}</p>
         <p>config: {{ layout.configuration }}</p>
         <p>confdata: {{ confdata }}</p>
+        <p><a href="{% url 'layout' layout.id %}" target="_blank">View layout</a></p>
     </div>
     <form action="{% url 'dashboard-layout-config' layout.id %}" method="post" id="config-form">
         {% csrf_token %}
