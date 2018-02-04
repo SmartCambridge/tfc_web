@@ -13,15 +13,25 @@ def design(request):
     return render(request, 'dashboard/design.html')
 
 
-def layout_config(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id)
-    if request.method == "POST" and 'data' in request.POST:
-        print(request.POST['data'], file=sys.stderr)
-        layout.configuration = json.loads(request.POST['data'])
-        layout.save()
+def generate_layout_configuration(layout):
     confdata = {}
     for key, value in layout.design.items():
         confdata[key] = {'design': layout.design[key]}
         if key in layout.configuration:
             confdata[key]['configuration'] = layout.configuration[key]
-    return render(request, 'dashboard/layout_config.html', {'layout': layout, 'confdata': confdata})
+    return confdata
+
+
+def layout_config(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id)
+    if request.method == "POST" and 'data' in request.POST:
+        layout.configuration = json.loads(request.POST['data'])
+        layout.save()
+    return render(request, 'dashboard/layout_config.html',
+                  {'layout': layout, 'confdata': generate_layout_configuration(layout)})
+
+
+def layout(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id)
+    return render(request, 'dashboard/layout.html',
+                  {'layout': layout, 'confdata': generate_layout_configuration(layout)})
