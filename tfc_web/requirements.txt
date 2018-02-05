@@ -15,3 +15,5 @@ coreapi
 pygments
 markdown
 django-cors-headers
+zeep
+
