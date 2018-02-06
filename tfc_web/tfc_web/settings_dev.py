@@ -1,4 +1,5 @@
 from tfc_web.settings import *
+import logging
 
 # Allow configuration of test-suite database from environment variables. A
 # variable DJANGO_DB_<key> will override the DATABASES['default'][<key>]
@@ -15,3 +16,10 @@ for name, value in os.environ.items():
 
     # Set value
     DATABASES['default'][name] = value
+
+if DEBUG:
+    # will output to your console
+    logging.basicConfig(
+        level = logging.DEBUG,
+        format = '%(asctime)s %(levelname)s %(message)s',
+    )
