@@ -1,6 +1,7 @@
+import logging
 # for widget support views
 from django.core.cache import cache
-import logging
+from django.shortcuts import render
 from django.conf import settings
 #    ... for station_board
 import zeep

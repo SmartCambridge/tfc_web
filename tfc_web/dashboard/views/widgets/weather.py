@@ -1,6 +1,6 @@
+import logging
 # for widget support views
 from django.core.cache import cache
-import logging
 from django.conf import settings
 from django.shortcuts import render
 #    ... for weather
@@ -15,10 +15,8 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 logger = logging.getLogger(__name__)
 
 
-# ----------------------------------------------------------------------
-# Support routines for the weather widget
-
 METOFFICE_API = 'http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/'
+
 
 # Met Office 'Significant weather' code to text description
 weather_descriptions = {
@@ -178,5 +176,3 @@ def weather(request):
         "location": data["SiteRep"]["DV"]["Location"]["name"],
         "issued": iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]),
     })
-
-# ----------------------------------------------------------------------
