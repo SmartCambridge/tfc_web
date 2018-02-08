@@ -22,7 +22,7 @@ function StationBoard(container, params) {
     this.do_load = function () {
         this.log("Running StationBoard.do_load", this.container);
         var self = this,
-            url = "widget/station_board?station=" + this.params.station +
+            url = "../../station_board?station=" + this.params.station +
                 "&offset=" + this.params.offset + " .station_board";
         this.log("do_load URI", url);
         this.log("Container", '#' + this.container);

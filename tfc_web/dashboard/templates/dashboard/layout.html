@@ -11,7 +11,7 @@
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     {% for key, value in confdata.items %}
         {% if value.configuration %}
-        <script src="/static_web/dashboard/widgets/{{ value.configuration.widget }}/{{ value.configuration.widget }}.js"></script>
+        <script src="{% static 'dashboard/widgets' %}/{{ value.configuration.widget }}/{{ value.configuration.widget }}.js"></script>
         {% endif %}
     {% endfor %}
 </head>

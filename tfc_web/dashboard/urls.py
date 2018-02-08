@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^layout/(?P<layout_id>\d+)/$', views.layout, name='layout'),
     url(r'^layout/(?P<layout_id>\d+)/config/$', views.layout_config, name='dashboard-layout-config'),
     url(r'^weather$', views.weather, name='dashboard-weather')
+    url(r'^station_board$', views.station_board, name='station-board')
 ]
