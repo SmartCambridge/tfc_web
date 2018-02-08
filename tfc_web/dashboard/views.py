@@ -3,22 +3,21 @@ import sys
 from collections import defaultdict
 from django.shortcuts import redirect, get_object_or_404, render
 from dashboard.models import Layout
+
+# for widget support views
 from django.core.cache import cache
 import logging
+from django.conf import settings
+#    ... for station_board
+import zeep
+#    ... for weather
 import requests
 from collections import OrderedDict
 import datetime
 import pytz
 import iso8601
-#import jinja2
-from django.conf import settings
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.http import HttpResponse
-import zeep
-from django.core.cache import cache
-import logging
-from django.http import HttpResponse
-from django.conf import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +55,8 @@ def layout(request, layout_id):
     return render(request, 'dashboard/layout.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout)})
 
+# ----------------------------------------------------------------------
+# Support routines for the station_board widget
 
 WSDL = 'https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01'
 STATION_ABBREV = { 'London Kings Cross': 'London Kings X',
@@ -94,7 +95,7 @@ def station_board(request):
 
 
 # ----------------------------------------------------------------------
-# Support routines for Weather parsing
+# Support routines for the weather widget
 
 METOFFICE_API = 'http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/'
 
@@ -257,3 +258,4 @@ def weather(request):
         "issued": iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]),
     })
 
+# ----------------------------------------------------------------------
