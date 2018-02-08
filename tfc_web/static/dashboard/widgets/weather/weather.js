@@ -22,7 +22,7 @@ function Weather(container, params) {
     this.do_load = function () {
         this.log("Running Weather.do_load", this.container);
         var self = this,
-            url = "widget/weather?location=" + this.params.location +
+            url = "../../weather?location=" + this.params.location +
                 " .weather";
         this.log("do_load URI", url);
         this.log("Container", '#' + this.container);
