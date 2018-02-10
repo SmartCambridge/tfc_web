@@ -59,9 +59,14 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # 'allauth.socialaccount.providers.github',
     # 'allauth.socialaccount.providers.google',
+
+    # Django REST Framework
+    'rest_framework',
+    'corsheaders',
 ] + PROJECT_APPS
 
 MIDDLEWARE_CLASSES = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,14 +125,12 @@ DATABASE_ROUTERS = ['tfc_web.dbrouter.CSNRouter']
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
+LANGUAGE_CODE = 'en-gb'
+TIME_FORMAT = 'H:i'
+DATE_FORMAT = 'l j F Y'
+TIME_ZONE = 'Europe/London'
+USE_I18N = False
+USE_L10N = False
 USE_TZ = True
 
 
@@ -142,9 +145,12 @@ API_ENDPOINT = 'http://localhost'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+TNDS_DIR = os.path.join(DATA_DIR, 'TNDS')
+TNDS_NEW_DIR = os.path.join(DATA_DIR, 'TNDS_NEW')
+
 
 # Web proxy
-
 USE_X_FORWARDED_HOST = True
 
 SITE_ID = 2
@@ -205,3 +211,9 @@ EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
 
 # TFC Server CSN API
 TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
+
+
+TNDS_ZONES = ['EA', 'SE', 'EM']
+
+
+CORS_ORIGIN_ALLOW_ALL = True

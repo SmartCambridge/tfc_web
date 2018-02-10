@@ -1,0 +1,112 @@
+{% extends "template.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="{% static 'map.css' %}" />
+    <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
+    <script>
+        var route = "";
+        function route_change(bus_route) {
+            route = bus_route;
+            retrieve_busdata();
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"><h3 style="margin-left: 20px;">{{ journey.journey_pattern.route.line }}</h3></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+    <script>
+        var map = L.map('map');
+        var vehicle_journey = "{{ journey.id }}";
+        var info_map = L.control();
+        var urlparams = new URLSearchParams(window.location.search);
+        var debug = urlparams.has('debug');
+
+        info_map.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
+            this.update();
+            return this._div;
+        };
+
+        // method that we will use to update the control based on feature properties passed
+        info_map.update = function (info_text) {
+            this._div.innerHTML = info_text;
+        };
+
+        var bus_marker;
+        var busIcon = L.icon({
+            iconUrl: '{% static 'images/bus-logo.png' %}',
+            iconSize: [30, 30]
+        });
+
+        function retrieve_busdata(previous=false) {
+            var url;
+            url = '{% url 'siriVM-to-journey' %}';
+            $.ajax({
+                url: url,
+                dataType: 'application/json',
+                complete: function (data) {
+                    var json = JSON.parse(data.responseText);
+                    info_map.update(new Date(json['ts']*1000));
+                    var tooltip_content = '';
+                    for (var i = 0; i < json['request_data'].length; i++) {
+                        var bus = json['request_data'][i];
+                        if ((bus["vehicle_journeys"] !== undefined) && (bus["vehicle_journeys"].length > 0) && (bus["vehicle_journeys"][0] === vehicle_journey)) {
+                            if (bus_marker !== undefined) {
+                                if (bus['RecordedAtTime'] !== bus_marker['RecordedAtTime']) {
+                                    bus['marker'] = bus_marker['marker'];
+                                    bus['marker'].moveTo([bus["Latitude"], bus["Longitude"]], [new Date(bus['RecordedAtTime']) - new Date(bus_marker['RecordedAtTime'])]);
+                                    bus['marker'].resume();
+                                    if (debug) {
+                                        tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' +
+                                            'Delay: ' + bus["Delay"];
+                                    } else if (bus["Delay"] !== undefined)
+                                        tooltip_content = 'Current Delay: ' + bus["Delay"];
+                                    bus['marker'].setTooltipContent(tooltip_content);
+                                    bus_marker = bus;
+                                }
+                            } else {
+                                bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
+                                if (debug) {
+                                    tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' + 'Delay: ' + bus["Delay"];
+                                } else if (bus["Delay"] !== undefined)
+                                    tooltip_content = 'Current Delay: ' + bus["Delay"];
+                                if (tooltip_content === '') {
+                                    bus['marker'].addTo(map).start();
+                                } else bus['marker'].addTo(map).bindTooltip(tooltip_content, {
+                                    permanent: true,
+                                    className: "bus-tooltip",
+                                    interactive: true
+                                }).start();
+                                bus_marker = bus;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function retrieve_busdata_repeat() {
+            retrieve_busdata();
+            setTimeout(retrieve_busdata_repeat, 2000);
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            info_map.addTo(map);
+            L.polyline({{ journey.journey_pattern.route.get_route_coordinates }}).addTo(map);
+            map.fitBounds({{ journey.journey_pattern.route.get_route_coordinates }});
+            mapbounds = map.getBounds();
+            {% for stop_timetable in journey.get_timetable_prefetch %}
+            L.marker([{{ stop_timetable.stop.latitude }}, {{ stop_timetable.stop.longitude }}]).addTo(map).bindTooltip('{{ stop_timetable.time }}', { permanent: true });
+            {% endfor %}
+            retrieve_busdata(true);
+            retrieve_busdata_repeat();
+        });
+    </script>
+{% endblock %}

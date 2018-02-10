@@ -463,3 +463,129 @@ footer .mdl-mega-footer--right-section a .material-icons {
 #otaa_fields .header, #abp_fields .header {
     margin-bottom: 20px;
 }
+
+/***** TIMETABLE *****/
+main.timetable {
+    width: 60em;
+    margin: 0 auto;
+    padding: 0 1em;
+    display: block;
+}
+
+main.timetable h1 {
+    font-size: 2em;
+}
+
+main.timetable h2 {
+    font-size: 1.25em;
+    margin-top: 1em;
+}
+
+main.timetable h1, main.timetable h2 {
+    font-weight: 600;
+    line-height: 1.2em;
+    margin: .5em 0;
+}
+
+.timetable-wrapper-wrapper {
+    font-size: .875em;
+    margin: 1em 0;
+}
+
+.timetable-wrapper-wrapper input {
+    vertical-align: top;
+}
+
+.timetable-wrapper {
+    margin-right: -1.1em;
+    margin-top: 1em;
+    overflow: auto;
+}
+
+.timetable {
+    border-collapse: separate;
+    border-spacing: 0;
+    padding-right: 1.1em;
+    table-layout: fixed;
+}
+
+.timetable td {
+    border-left: 0;
+    border-top: 1px solid #1cb2b5;
+}
+
+.timetable td, .timetable th {
+    height: 1.5em;
+    padding: .25em .5em;
+    text-align: left;
+}
+
+.timetable tbody tr:first-child td, .timetable tbody tr:first-child th {
+    border-top: 0;
+}
+
+.timetable .referrer td, .timetable .referrer th {
+    background: #1cb2b5;
+}
+
+.timetable .referrer td[colspan] {
+    background: none;
+}
+
+.timetable .referrer a {
+    color: #000;
+}
+
+.timetable th {
+    border-right: 1px solid #1cb2b5;
+    border-top: 1px solid #1cb2b5;
+    font-weight: normal;
+    white-space: nowrap;
+}
+
+.timetable th a {
+    display: block;
+    margin: -.25em -.5em;
+    margin-left: 0;
+    max-width: 40vw;
+    overflow: hidden;
+    padding: .25em .5em;
+    padding-left: 0;
+    text-overflow: ellipsis;
+}
+
+.timetable tfoot td {
+        border-left: 1px solid #1cb2b5;
+        border-top: 1px solid #1cb2b5;
+        vertical-align: top;
+    }
+
+.timetable tfoot td:first-child {
+    border: 0;
+}
+
+.timetable .OTH th a {
+    padding-left: 1em;
+}
+
+.fancy th {
+    padding-right: 0;
+    position: absolute;
+}
+
+.fancy th a {
+    margin-right: 0;
+    max-width: inherit;
+}
+
+.fancy tfoot td:first-child {
+    position: absolute;
+}
+
+input:not(:checked) + label + .timetable-wrapper .OTH, input:not(:checked) + label + .route .OTH {
+    display: none;
+}
+
+input:not(:checked) + label + .timetable-wrapper .referrer, input:not(:checked) + label + .route .referrer {
+    display: table-row;
+}

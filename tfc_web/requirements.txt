@@ -1,4 +1,5 @@
 Django>=1.11,<1.12
+python-dateutil
 django-allauth
 requests
 whitenoise
@@ -9,3 +10,8 @@ Pillow
 pytz
 django-machina
 wheel
+djangorestframework
+coreapi
+pygments
+markdown
+django-cors-headers

@@ -1,0 +1,123 @@
+{% extends 'template.html' %}
+{% block content %}
+<main class="timetable">
+    <h1>{{ object }}</h1>
+
+    <p>
+        {{ object.get_a_mode }}
+        {% if operators %}
+            operated by
+            {% for operator in operators %}{% if not forloop.first %}{% if forloop.last %} and {% else %}, {% endif %}{% endif %}<a href="{{ operator.get_absolute_url }}">{{ operator }}</a>{% endfor %}
+        {% endif %}
+    </p>
+
+    {% for note in notes %}
+        <p class="warning">{{ note|safe }}</p>
+    {% endfor %}
+
+    {% for timetable in timetables %}
+        <form class="timetable-date">
+            <select class="mdl-textfield__input" onchange="this.form.submit()" name="date">
+                {% for option in timetable.date_options %}
+                    <option{% if option == timetable.date %} selected{% endif %} value="{{ option.isoformat }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+            <noscript><input type="submit" /></noscript>
+        </form>
+
+        {% for grouping in timetable.groupings %}
+        <h2>{{ grouping }} {{ timetable.operating_period }}</h2>
+
+        <div class="timetable-wrapper-wrapper">
+        {% if grouping.has_minor_stops %}
+            <input type="checkbox" id="show-all-stops-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" />
+            <label for="show-all-stops-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">Show all stops</label>
+        {% endif %}
+        <div class="timetable-wrapper">
+        <table class="timetable">
+        <tbody>
+            <tr><td></td>{% for journey in grouping.journeys %}<td><a href="{% url 'vehicle-journey-real-time' journey.code %}">map</a></td>{% endfor %}</tr>
+        {% for row in grouping.rows %}
+            <tr{% if not forloop.first and not forloop.last %} class="{{ row.part.timingstatus }}"{% endif %}><th>
+            {% if row.part.stop.stop %}
+                <a href="{{ row.part.stop.stop.get_absolute_url }}">{{ row.part.stop.stop.get_qualified_name }}</a>
+            {% else %}{{ row.part.stop }}{% endif %}
+            </th>
+            {% for cell in row.times %}
+                {% if cell.colspan %}
+                    <td colspan="{{ cell.colspan }}" rowspan="{{ cell.rowspan }}">{{ cell }}</td>
+                {% else %}
+                    <td>{{ cell }}</td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+        {% if grouping.column_feet %}
+            <tfoot>
+            {% for row in grouping.column_feet.values %}
+                <tr><td></td>{% for foot in row %}<td{% if foot.span > 1 %} colspan="{{ foot.span }}"{% endif %}>{% if foot.notes %}{{ foot.notes }}{% endif %}</td>{% endfor %}</tr>
+            {% endfor %}
+            </tfoot>
+        {% endif %}
+        </table>
+        </div>
+        </div>
+        {% empty %}<p>Sorry, no journeys found for {{ timetable.date }}</p>{% endfor %}
+    {% empty %}
+
+    <div class="map-wrapper"><div id="map"></div></div>
+
+    {#{% for stopusage in stopusages %}#}
+    {#    {% ifchanged stopusage.direction %}#}
+    {#        {% if not forloop.first %}</ul>{% endif %}#}
+    {#        <h2>#}
+    {#            {% if stopusage.direction == 'outbound' %}#}
+    {#                {% firstof service.outbound_description stopusage.direction.capitalize %}#}
+    {#            {% elif stopusage.direction == 'inbound' %}#}
+    {#                {% firstof service.inbound_description stopusage.direction.capitalize %}#}
+    {#            {% else %}{{ stopusage.direction.capitalize }}{% endif %}#}
+    {#        </h2>#}
+    {#        {% if has_minor_stops %}#}
+    {#            <input type="checkbox" id="show-all-stops-{{ forloop.counter }}" />#}
+    {#            <label for="show-all-stops-{{ forloop.counter }}">Show all stops</label>#}
+    {#        {% endif %}#}
+    {#        <ul class="route">#}
+    {#    {% endifchanged %}#}
+    {#    <li class="{{ stopusage.timing_status }}" itemscope itemtype="https://schema.org/BusStop">#}
+    {#        <a href="{{ stopusage.stop.get_absolute_url }}">#}
+    {#            <span itemprop="name">{{ stopusage.stop.get_qualified_name }}</span>#}
+    {#            <span itemprop="geo" itemscope itemtype="https://schema.org/GeoCoordinates">#}
+    {#                <meta itemprop="latitude" content="{{ stopusage.stop.latlong.y }}" />#}
+    {#                <meta itemprop="longitude" content="{{ stopusage.stop.latlong.x }}" />#}
+    {#            </span>#}
+    {#        </a>#}
+    {#    </li>#}
+    {#    {% if forloop.last %}</ul>{% endif %}#}
+    {#{% endfor %}#}
+
+    {% if object.geometry %}
+        <script>window.geometry = {{ object.geometry.merged.json|safe }};</script>
+    {% endif %}
+
+    {% endfor %}
+
+    {% if links %}
+        <h2>More information</h2>
+        <ul class="bulleted">
+        {% for link in links %}
+           <li><a href="{{ link.url }}" rel="nofollow">{{ link.text }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if related %}
+        <h2>See also</h2>
+        <ul>
+        {% for service in related %}
+           <li><a href="{{ service.get_absolute_url }}">{{ service }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</main>
+{% endblock %}

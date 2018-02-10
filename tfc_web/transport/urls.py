@@ -14,18 +14,21 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.views.generic import TemplateView
+from rest_framework.documentation import include_docs_urls
+from transport.api import views as api_views
 from transport import views
 
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name="transport/home.html"), name='bus-home'),
+    url(r'^$', TemplateView.as_view(template_name="home.html"), name='bus-home'),
 
     # Areas
     url(r'^areas/$', views.areas, name='transport-areas'),
     url(r'^area/(?P<area_id>\d+)/$', views.area_home, name='transport-area-home'),
 
     # Bus movements
-    url(r'^map/$', views.bus_map, name='bus-map'),
+    url(r'^map2/$', views.bus_map_vix, name='bus-map-vix'),
+    url(r'^map/$', views.bus_map_sirivm, name='bus-map'),
     url(r'^map_real_time/$', views.map_real_time, name='map-real-time'),
     url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
 
@@ -45,6 +48,20 @@ urlpatterns = [
     url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
 
     # Bus Timetable
-    url(r'^timetable/map/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
-    url(r'^timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
+    url(r'^route/timetable/map/bus/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
+    url(r'^route/timetable/map/(?P<journey_id>.+)/$', views.route_timetable_map, name='route-timetable-map'),
+    url(r'^route/timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
+
+    # New Bus Timetable
+    url(r'^timetable/journey/(?P<vehicle_journey_id>.+)/$', views.vehicle_journey_real_time, name='vehicle-journey-real-time'),
+    url(r'^timetable/(?P<pk>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
+
+    # API
+    url(r'api/docs/', include_docs_urls(title='SmartCambridge Transport API')),
+    url(r'api/journeys/$', api_views.VehicleJourneyList.as_view()),
+    url(r'api/journey/(?P<pk>[^/]+)/$', api_views.VehicleJourneyRetrieve.as_view()),
+    url(r'api/sirivm_with_journey/', api_views.siriVM_to_journey, name='siriVM-to-journey'),
+    url(r'api/sirivm_add_journey/', api_views.siriVM_POST_to_journey, name='siriVM-POST-to-journey'),
+    url(r'api/journeys_by_time_and_stop/$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
+    url(r'api/departure_to_journey/$', api_views.departure_to_journey, name='departure-to-journey')
 ]

@@ -1,9 +1,125 @@
-{% extends "map_template.html" %}
-{% block content_web %}
+{% extends "template.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="{% static 'map.css' %}" />
+    <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
+    <script>
+        var route = "";
+        function route_change(bus_route) {
+            route = bus_route;
+            retrieve_busdata();
+        }
+    </script>
+{% endblock %}
+{% block content %}
     <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"><h3 style="margin-left: 20px;">{{ journey.journey_pattern.route.line }}</h3></div>
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
-{% endblock %}
-{% block script_lazy %}
-    L.marker([{{ bus_stop.latitude }}, {{ bus_stop.longitude }}]).addTo(map).bindTooltip('{{ bus_stop.atco_code }} - {{ bus_stop }}', { permanent: true });
+    <script>
+        var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
+        var vehicle_journey = "{{ vj.id }}";
+        var info_map = L.control();
+        var urlparams = new URLSearchParams(window.location.search);
+        var debug = urlparams.has('debug');
+        var stop_name = "{{ bus_stop }}";
+        var stop_marker;
+
+        var timetable = [{% for timetable_entry in timetable %}
+            { "vj_id": "{{ timetable_entry.vehicle_journey_id }}", "line_id": "{{ timetable_entry.vehicle_journey.journey_pattern.route.line_id }}",
+                "line_name": "{{ timetable_entry.vehicle_journey.journey_pattern.route.line.line_name }}",
+                "time": "{{ timetable_entry.time }}:00", "time_rt": "{{ timetable_entry.time }}:00" },
+        {% endfor %}];
+
+        info_map.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
+            this.update();
+            return this._div;
+        };
+
+        // method that we will use to update the control based on feature properties passed
+        info_map.update = function (info_text) {
+            this._div.innerHTML = info_text;
+        };
+
+        var bus_marker;
+        var busIcon = L.icon({
+            iconUrl: '{% static 'images/bus-logo.png' %}',
+            iconSize: [30, 30]
+        });
+
+        function update_delay(delay, timetable_id) {
+            var regex_time = /(\d+):(\d+):(\d+)/;
+            var regex_xml_duration = /(-)?PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+            var delay_dc = regex_xml_duration.exec(delay);
+            var time = new Date();
+            var time_dc = regex_time.exec(timetable[timetable_id]['time']);
+            if (delay_dc[1] === undefined)
+                posneg = 1;
+            else
+                posneg = -1;
+            var hours = parseInt(time_dc[1]);
+            if (delay_dc[2] !== undefined)
+                hours += parseInt(delay_dc[2])*posneg;
+            var minutes = parseInt(time_dc[2]);
+            if (delay_dc[3] !== undefined)
+                minutes += parseInt(delay_dc[3])*posneg;
+            var seconds = 0;
+            if (delay_dc[4] !== undefined)
+                seconds += parseInt(delay_dc[4])*posneg;
+            time.setSeconds(0);
+            time.setMinutes(0);
+            time.setHours(0);
+            time.setSeconds(seconds + minutes * 60 + hours * 3600);
+            timetable[timetable_id]["time_rt"] = time.getHours().toString().padStart(2, "0") + ":" + time.getMinutes().toString().padStart(2, "0") + ":" + time.getSeconds().toString().padStart(2, "0") + "*";
+        }
+
+        function retrieve_busdata(previous=false) {
+            var url;
+            url = '{% url 'siriVM-to-journey' %}';
+            $.ajax({
+                url: url,
+                dataType: 'application/json',
+                complete: function (data) {
+                    var json = JSON.parse(data.responseText);
+                    info_map.update(new Date(json['ts']*1000));
+                    var tooltip_content = '';
+                    for (var i = 0; i < json['request_data'].length; i++) {
+                        var bus = json['request_data'][i];
+                        if (bus['vehicle_journeys'].length > 0){
+                            existing_bus_index = timetable.findIndex(b => b['vj_id'] === bus['vehicle_journeys'][0]);
+                            if (existing_bus_index > -1){
+                                update_delay(bus['Delay'], existing_bus_index)
+                            }
+                        }
+                    }
+                    stop_marker.setTooltipContent(build_stop_tooltip());
+                }
+            });
+        }
+
+        function retrieve_busdata_repeat() {
+            retrieve_busdata();
+            setTimeout(retrieve_busdata_repeat, 2000);
+        }
+
+        function build_stop_tooltip() {
+            tooltip = "{{ bus_stop }}<br>Line - Timetable - Expected time";
+            for (var i = 0; i < timetable.length; i++) {
+                tooltip += "<br><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"/'>"+timetable[i]['line_name']+"</a> - "+timetable[i]['time']+" - "+timetable[i]['time_rt'];
+            }
+            return tooltip;
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            info_map.addTo(map);
+            stop_marker = L.marker([{{ bus_stop.latitude }}, {{ bus_stop.longitude }}]).addTo(map).bindTooltip(build_stop_tooltip(), { permanent: true, interactive: true });
+            retrieve_busdata_repeat();
+        });
+    </script>
 {% endblock %}
