@@ -16,11 +16,12 @@
     {% endfor %}
 </head>
 <body>
-    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 20px) * 0.5625); overflow: hidden;">
+    <div class="logos" style="height: 60px;">LOGOS LOCATION</div>
+    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">
         <ul id="grid" class="grid">
             {% for key, value in confdata.items %}
-                <li style="position: absolute; height: calc({{ value.design.h }}*100%/6);
-                        width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/6);
+                <li style="position: absolute; height: calc({{ value.design.h }}*100%/4);
+                        width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
                         left: calc({{ value.design.x }}*100%/6); border: solid 1px black;">
                     <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;">
                         {% if not value.configuration %}unconfigured{% endif %}</div></li>

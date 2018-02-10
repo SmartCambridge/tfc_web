@@ -48,7 +48,6 @@ function box_html(box_content) {
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="2" data-h="4">2x4</a>' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="4" data-h="2">4x2</a>' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="4" data-h="4">4x4</a>' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="2" data-h="6">2x6</a>' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="6" data-h="2">6x2</a>' +
         '<a href="#" class="delete mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-del="true">del</a>' +
         '</div>' +
@@ -60,7 +59,7 @@ function box_html(box_content) {
 var SmartCamGrid = {
     currentSize: 6,
     direction: 'vertical',
-    widthHeightRatio: 16 / 9,
+    widthHeightRatio: (1920 / (1080-60)) * (2 / 3),
     heightToFontSizeRatio: 0.25,
     buildElements: function ($gridContainer, dict) {
         Object.keys(dict).forEach(function(key) {
