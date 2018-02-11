@@ -234,8 +234,22 @@ def siriVM_POST_to_journey(request):
     return Response(jsondata)
 
 
+siriVM_to_journey_schema = ManualSchema(
+    fields = [
+        coreapi.Field(
+            "expand_journey",
+            required=False,
+            location="query",
+            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
+            description="Exdpands the resulted Journey into a full object"
+        ),
+    ],
+    description="Reads last data from siriVM feed and tries to match it with a VehicleJourney."
+)
+
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@schema(siriVM_to_journey_schema)
 def siriVM_to_journey(request):
     """Reads last data from siriVM feed and tries to match it with a VehicleJourney
 
@@ -253,6 +267,8 @@ def siriVM_to_journey(request):
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
                 calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
+            if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
+                bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
     return Response(real_time)
