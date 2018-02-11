@@ -1,8 +1,8 @@
 {% extends "template.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="{% static 'map.css' %}" />
     <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
 {% endblock %}
@@ -72,7 +72,7 @@
                             bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
                             var tooltip_text = '';
                             if ((bus["OperatorRef"] !== undefined)&&(bus["PublishedLineName"] !== undefined)&&(bus["OriginName"] !== undefined)&&(bus["DestinationName"] !== undefined))
-                                tooltip_text += 'Route: ' + (bus["OperatorRef"] || '') + ' - ' + (bus["PublishedLineName"] || '') + ' - ' + (bus["OriginName"] || '') + ' - ' + (bus["DestinationName"] || '') +'<br>';
+                                tooltip_text += (bus["OperatorRef"] || '') + ' - ' + (bus["PublishedLineName"] || '') + ' - ' + (bus["OriginName"] || '') + ' - ' + (bus["DestinationName"] || '') +'<br>';
                                 if ((bus["vehicle_journeys"] !== undefined)&&(bus["vehicle_journeys"].length > 0))
                                     tooltip_text = '<a href="/transport/timetable/journey/'+bus["vehicle_journeys"][0]+'/">'+tooltip_text+'</a>';
                             if (debug) {
