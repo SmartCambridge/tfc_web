@@ -108,7 +108,7 @@
         function build_stop_tooltip() {
             tooltip = "{{ bus_stop }}<br><table><tr><th>Line</th><th>Timetable</th><th>Expected time</th></tr>";
             for (var i = 0; i < timetable.length; i++) {
-                tooltip += "<tr><td><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"/'>"+timetable[i]['line_name']+"</a></td><td>"+timetable[i]['time']+"</td><td>"+timetable[i]['time_rt']+"</td></tr>";
+                tooltip += "<tr><td><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"/'>"+timetable[i]['line_name']+"</a></td><td style='text-align: center;'>"+timetable[i]['time']+"</td><td style='text-align: center;'>"+timetable[i]['time_rt']+"</td></tr>";
             }
             return tooltip;
         }
