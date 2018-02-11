@@ -63,7 +63,7 @@ class Command(BaseCommand):
                     with traveline_zip_file.open(filename) as xml_file:
                         content = xmltodict.parse(xml_file)
 
-                        if content['TransXChange']['Services']['Service']['Mode'] == "bus":
+                        if content['TransXChange']['Services']['Service']['Mode'] in ["bus", "coach"]:
                             # Operator
                             operator = content['TransXChange']['Operators']['Operator']
                             bus_operator, created = Operator.objects.get_or_create(
