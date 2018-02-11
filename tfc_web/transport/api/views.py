@@ -14,7 +14,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
-from transport.api.serializers import VehicleJourneySerializer, LineSerializer, VehicleJourneySummarisedSerializer
+from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
+    VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
 
 
@@ -289,3 +290,20 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
+
+
+class StopList(generics.ListAPIView):
+    """
+    Return a list of all the existing Stops.
+    """
+    queryset = Stop.objects.all()
+    serializer_class = StopSerializer
+    pagination_class = Pagination
+
+
+class StopRetrieve(generics.RetrieveAPIView):
+    """
+    Return the Stop corresponding to the given id (atco_code).
+    """
+    queryset = Stop.objects.all()
+    serializer_class = StopSerializer
