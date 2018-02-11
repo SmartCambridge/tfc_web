@@ -57,8 +57,8 @@ class StopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stop
-        fields = ['id', 'atco_code', 'naptan_code', 'common_name', 'indicator', 'locality_name',
-                  'longitude', 'latitude']
+        fields = ['id', 'stop_id', 'atco_code', 'naptan_code', 'common_name', 'indicator',
+                  'locality_name', 'longitude', 'latitude']
 
 
 class TimetableSerializerForJourney(serializers.ModelSerializer):
