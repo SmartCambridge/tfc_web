@@ -1,8 +1,8 @@
 {% extends "template.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="{% static 'map.css' %}" />
     <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
     <script>
@@ -106,9 +106,9 @@
         }
 
         function build_stop_tooltip() {
-            tooltip = "{{ bus_stop }}<br>Line - Timetable - Expected time";
+            tooltip = "{{ bus_stop }}<br><table><tr><th>Line</th><th>Timetable</th><th>Expected time</th></tr>";
             for (var i = 0; i < timetable.length; i++) {
-                tooltip += "<br><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"/'>"+timetable[i]['line_name']+"</a> - "+timetable[i]['time']+" - "+timetable[i]['time_rt'];
+                tooltip += "<tr><td><a href='/transport/timetable/journey/"+timetable[i]['vj_id']+"/'>"+timetable[i]['line_name']+"</a></td><td>"+timetable[i]['time']+"</td><td>"+timetable[i]['time_rt']+"</td></tr>";
             }
             return tooltip;
         }
