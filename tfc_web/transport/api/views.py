@@ -157,8 +157,13 @@ departure_to_journey_schema = ManualSchema(
             "departure_time",
             required=True,
             location="query",
-            schema=coreschema.String(description="Departure time. The time when the Journey starts."),
-            description="Departure time. The time when the Journey starts."
+            schema=coreschema.String(description="Departure datetime or time. "
+                                                 "The date or time when the Journey starts. "
+                                                 "If time is given insetad of a datetime, today is used as date. "
+                                                 "The datetime or date must be given in ISO 8601 format."),
+            description="Departure datetime or time. The date or time when the Journey starts. "
+                        "If time is given insetad of a datetime, today is used as date. "
+                        "The datetime or date must be given in ISO 8601 format."
         ),
         coreapi.Field(
             "expand_journey",
