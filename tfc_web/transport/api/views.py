@@ -50,11 +50,11 @@ def calculate_vehicle_journey(departure_time, bus_stop_id):
     :param bus_stop:
     :return: list of Vehicle Journeys
     """
-    query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time, order=1,
-                                      vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
+    query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time.time(), order=1,
+                                      vehicle_journey__days_of_week__contains=departure_time.date().strftime("%A")) \
         .values_list('vehicle_journey', flat=True)
     query2 = VehicleJourney.objects.filter(
-        id__in=query1, special_days_operation__days__contains=date.today(),
+        id__in=query1, special_days_operation__days__contains=departure_time.date(),
         special_days_operation__operates=False).values_list('id', flat=True)
     return list(query1.difference(query2))
 
@@ -185,7 +185,7 @@ def departure_to_journey(request):
     except:
         return Response({"details": "departure_stop_id not present"}, status=400)
     try:
-        departure_time = parse(request.GET['departure_time']).time()
+        departure_time = parse(request.GET['departure_time'])
     except:
         return Response({"details": "departure_time not present or has wrong format, has to be ISO"}, status=400)
     try:
@@ -229,7 +229,7 @@ def siriVM_POST_to_journey(request):
     try:
         for bus in jsondata['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'])
     except Exception as e:
         return Response({"details": "error while processing siriVM data: %s" % e}, status=500)
     return Response(jsondata)
@@ -242,7 +242,7 @@ siriVM_to_journey_schema = ManualSchema(
             required=False,
             location="query",
             schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
-            description="Exdpands the resulted Journey into a full object"
+            description="Expands the resulted Journey into a full object"
         ),
     ],
     description="Reads last data from siriVM feed and tries to match it with a VehicleJourney."
@@ -267,7 +267,7 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'])
             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
