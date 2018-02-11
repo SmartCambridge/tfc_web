@@ -53,6 +53,7 @@ class LineSerializer(serializers.ModelSerializer):
 
 class StopSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='atco_code')
+    stop_id = serializers.CharField(source='atco_code')
 
     class Meta:
         model = Stop
