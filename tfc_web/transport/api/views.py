@@ -148,7 +148,7 @@ def journeys_by_time_and_stop(request):
              'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
 
     results_json['next'] = "%s?stop_id=%s&datetime_from=%s&nresults=%s&expand_journey=%s" % \
-                           (reverse(journeys_by_time_and_stop), stop_id, quote(next_datetime), nresults,
+                           (reverse(journeys_by_time_and_stop), stop_id, quote(next_datetime.isoformat()), nresults,
                             request.GET.get('expand_journey', 'false'))
     return Response(results_json)
 
