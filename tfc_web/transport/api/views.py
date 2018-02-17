@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer, LineSerializer, VehicleJourneySummarisedSerializer
 from transport.models import Stop, Timetable, VehicleJourney
+from urllib.parse import quote
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -147,7 +148,7 @@ def journeys_by_time_and_stop(request):
              'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
 
     results_json['next'] = "%s?stop_id=%s&datetime_from=%s&nresults=%s&expand_journey=%s" % \
-                           (reverse(journeys_by_time_and_stop), stop_id, next_datetime, nresults,
+                           (reverse(journeys_by_time_and_stop), stop_id, quote(next_datetime), nresults,
                             request.GET.get('expand_journey', 'false'))
     return Response(results_json)
 
