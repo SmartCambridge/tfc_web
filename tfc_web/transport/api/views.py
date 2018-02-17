@@ -1,10 +1,11 @@
 import json
-from datetime import date
 import coreapi
 import coreschema
+from datetime import date, timedelta
 from dateutil.parser import parse
 from os import listdir
 from pathlib import Path
+from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
@@ -84,8 +85,8 @@ journeys_by_time_and_stop_schema = ManualSchema(
             "nresults",
             required=False,
             location="query",
-            schema=coreschema.Integer(description="Maximum number of journeys to return"),
-            description="Maximum number of journeys to return."
+            schema=coreschema.Integer(description="Maximum number of journeys to return. 10 by default"),
+            description="Maximum number of journeys to return. 10 by default"
         ),
         coreapi.Field(
             "expand_journey",
@@ -117,7 +118,7 @@ def journeys_by_time_and_stop(request):
     if not datetime_from:
         return Response({"details": "datetime_from badly formatted"}, status=400)
     try:
-        nresults = int(request.GET['nresults']) if 'nresults' in request.GET else None
+        nresults = int(request.GET['nresults']) if 'nresults' in request.GET else 10
     except:
         return Response({"details": "nresults is not an int"}, status=400)
 
@@ -126,20 +127,28 @@ def journeys_by_time_and_stop(request):
     query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
                                       vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
                                       vehicle_journey__special_days_operation__operates=False)
-    timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
-                    .order_by('time')
+    timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
+                     .order_by('time')[:nresults])
 
-    if nresults:
-        timetable = timetable[:nresults]
+    if len(timetable) < nresults:
+        # no more results for the current day selected
+        next_datetime = datetime_from.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    else:
+        last_time = timetable[-1].time
+        next_datetime = datetime_from.replace(hour=last_time.hour, minute=last_time.minute,
+                                              second=last_time.second, microsecond=0) + timedelta(seconds=1)
 
     results_json = {'results': []}
     for result in timetable:
         results_json['results'].append(
             {'time': result.time,
              'journey': VehicleJourneySummarisedSerializer(result.vehicle_journey).data
-             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true'
-             else result.vehicle_journey.id,
+             if request.GET.get('expand_journey', 'false').lower() == 'true' else result.vehicle_journey.id,
              'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
+
+    results_json['next'] = "%s?stop_id=%s&datetime_from=%s&nresults=%s&expand_journey=%s" % \
+                           (reverse(journeys_by_time_and_stop), stop_id, next_datetime, nresults,
+                            request.GET.get('expand_journey', 'false'))
     return Response(results_json)
 
 
