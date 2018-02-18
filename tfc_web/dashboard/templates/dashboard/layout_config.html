@@ -1,4 +1,5 @@
 {% load static %}
+{% load remove_underscore %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -42,8 +43,7 @@
             <div style="height: calc({{ value.design.h }}*100%/4); width: calc({{ value.design.w }}*100%/6);
                     border: solid 1px black; box-sizing: border-box;">
                 <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;"></div></div>
-            {% endif %}
-
+            {% else %}
             <select id="widget-{{ key }}" class="widget">
                 <option value="" selected disabled>Select a widget</option>
                 <option value="station_board">Train Stations</option>
@@ -53,6 +53,7 @@
                 <option value="message_area">Message Area</option>
             </select>
             <div class="container-form"></div>
+            {% endif %}
         </div>
     {% endfor %}
     <form action="{% url 'dashboard-layout-config' layout.id %}" method="post" id="config-form" style="margin-bottom: 40px;">
