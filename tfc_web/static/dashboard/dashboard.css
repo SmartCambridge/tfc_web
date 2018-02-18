@@ -95,13 +95,13 @@
     font-size: 50px;
     position: absolute;
     right: 0.5em;
-    line-height: 50px;
+    line-height: 60px;
 }
 
 #screen_clock {
     display: inline-block;
     font-size: 50px;
-    line-height: 50px;
+    line-height: 60px;
     font-weight: bold;
     width: 200px;
     height: 50px;
