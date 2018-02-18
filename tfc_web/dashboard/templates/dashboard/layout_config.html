@@ -12,6 +12,11 @@
     <script src="https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/js/brutusin-json-forms-bootstrap.min.js"></script>
     <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    {% for key, value in confdata.items %}
+        {% if value.configuration %}
+        <script src="{% static 'dashboard/widgets' %}/{{ value.configuration.widget }}/{{ value.configuration.widget }}.js"></script>
+        {% endif %}
+    {% endfor %}
 </head>
 <body style="margin-left: 20px; margin-right: 20px;">
     <div>
@@ -40,19 +45,24 @@
             {% if debug %}<p>{{ value }}</p>{% endif %}
 
             {% if value.configuration %}
-            <div style="height: calc({{ value.design.h }}*100%/4); width: calc({{ value.design.w }}*100%/6);
-                    border: solid 1px black; box-sizing: border-box;">
-                <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;"></div></div>
+                <form action="{% url 'dashboard-layout-delete-widget' layout.id %}" method="post" style="margin-bottom: 40px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="widgetid" value="{{ key }}">
+                    <input type="submit" value="Delete this widget">
+                </form>
+                <div style="height: calc({{ value.design.h }}*100%/4); width: calc({{ value.design.w }}*100%/6);
+                        border: solid 1px black; box-sizing: border-box;">
+                    <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;"></div></div>
             {% else %}
-            <select id="widget-{{ key }}" class="widget">
-                <option value="" selected disabled>Select a widget</option>
-                <option value="station_board">Train Stations</option>
-                <option value="weather">Weather</option>
-                <option value="traffic_map">Traffic Map</option>
-                <option value="twitter_timeline">Twitter timeline</option>
-                <option value="message_area">Message Area</option>
-            </select>
-            <div class="container-form"></div>
+                <select id="widget-{{ key }}" class="widget">
+                    <option value="" selected disabled>Select a widget</option>
+                    <option value="station_board">Train Stations</option>
+                    <option value="weather">Weather</option>
+                    <option value="traffic_map">Traffic Map</option>
+                    <option value="twitter_timeline">Twitter timeline</option>
+                    <option value="message_area">Message Area</option>
+                </select>
+                <div class="container-form"></div>
             {% endif %}
         </div>
     {% endfor %}

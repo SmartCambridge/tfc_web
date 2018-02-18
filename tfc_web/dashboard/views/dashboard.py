@@ -37,6 +37,14 @@ def layout_config(request, layout_id):
                    'debug': request.GET.get('debug', False)})
 
 
+def layout_delete_widget(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id)
+    if request.method == "POST" and 'widgetid' in request.POST:
+        del layout.configuration[request.POST['widgetid']]
+        layout.save()
+    return redirect(layout_config, layout_id)
+
+
 def layout(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id)
     return render(request, 'dashboard/layout.html',
