@@ -30,7 +30,7 @@
         <p><a href="{% url 'layout' layout.id %}" target="_blank">View layout</a></p>
     </div>
     {% for key, value in confdata.items %}
-        <div id="section-{{ key }}" style="margin-bottom: 150px;">
+        <div id="section-{{ key }}" style="margin-bottom: 120px;">
             <div class="grid-container mdl-color--teal-900" style="width: 192px; height: 108px; overflow: hidden;
             margin: 20px;">
                 <div style="position: absolute; width: 192px; height: 108px;">
@@ -45,7 +45,7 @@
             {% if debug %}<p>{{ value }}</p>{% endif %}
 
             {% if value.configuration %}
-                <form action="{% url 'dashboard-layout-delete-widget' layout.id %}" method="post" style="margin-bottom: 40px;">
+                <form action="{% url 'dashboard-layout-delete-widget' layout.id %}" method="post" style="margin-bottom: 20px;">
                     {% csrf_token %}
                     <input type="hidden" name="widgetid" value="{{ key }}">
                     <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete this widget">
@@ -54,7 +54,7 @@
                         border: solid 1px black; box-sizing: border-box;">
                     <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;"></div></div>
             {% else %}
-                <select id="widget-{{ key }}" class="widget mdl-textfield__input">
+                <select id="widget-{{ key }}" class="widget mdl-textfield__input" style="width: 200px;">
                     <option value="" selected disabled>Select a widget</option>
                     <option value="station_board">Train Stations</option>
                     <option value="weather">Weather</option>
