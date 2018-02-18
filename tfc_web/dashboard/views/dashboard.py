@@ -33,9 +33,10 @@ def layout_config(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id)
     if request.method == "POST" and 'data' in request.POST:
         data = json.loads(request.POST['data'])
+        if layout.configuration is None:
+            layout.configuration = {}
         for key, value in data.items():
-            data[key.strip("widget-")] = data.pop(key)
-        layout.configuration = data
+            layout.configuration[key.strip("widget-")] = value
         layout.save()
     return render(request, 'dashboard/layout_config.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
