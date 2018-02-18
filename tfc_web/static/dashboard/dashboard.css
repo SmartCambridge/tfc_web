@@ -84,13 +84,13 @@
       height: 35px;
     }
 
-.credits img {
+.logos img {
     height: 50px;
     margin: 5px;
     padding: 0 0.5em;
 }
 
-.credits span {
+.logos span {
     font-weight: bold;
     font-size: 50px;
     position: absolute;
