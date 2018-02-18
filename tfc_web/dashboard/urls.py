@@ -1,9 +1,12 @@
 from django.conf.urls import url
+from django.views.generic import TemplateView
 from dashboard.views import dashboard
 from dashboard.views.widgets import weather, station_board
 
 
 urlpatterns = [
+    url(r'^$', TemplateView.as_view(template_name="dashboard/home.html"), name='dashboard-home'),
+    url(r'^my/$', dashboard.my, name='dashboard-my'),
     url(r'^design/', dashboard.design, name='dashboard-design'),
     url(r'^layout/(?P<layout_id>\d+)/$', dashboard.layout, name='layout'),
     url(r'^layout/(?P<layout_id>\d+)/config/$', dashboard.layout_config, name='dashboard-layout-config'),

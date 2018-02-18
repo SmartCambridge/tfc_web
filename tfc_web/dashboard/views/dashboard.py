@@ -7,6 +7,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def my(request):
+    return render(request, 'dashboard/my.html', {'dashboards': Layout.objects.all()})
+
+
 def design(request):
     if request.method == "POST":
         if 'name' in request.POST and 'design' in request.POST and request.POST['design']:
