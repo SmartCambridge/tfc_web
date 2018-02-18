@@ -1,0 +1,21 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+{% block extra_head %}
+    {{ screen_form.media }}
+    <style>
+        #id_location_div_map {
+            float: none !important;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <h1 class="mdl-typography--display-1-color-contrast">New Screen</h1>
+        <form action="{% url 'dashboard-new-screen' %}" method="post">
+            {% csrf_token %}
+            <p>{{ screen_form.errors }}</p>
+            {{ screen_form.as_p }}
+            <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Send">
+        </form>
+    </div>
+{% endblock %}

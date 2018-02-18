@@ -1,0 +1,37 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="{% static 'map.css' %}" />
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="map" style="height: 100%; width: 100%;"></div>
+    </div>
+    <script>
+        var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
+        var info_map = L.control();
+        var screens = [{% for screen in screens %}
+            { "layout_url": "{% url 'layout' screen.layout.id %}", "layout_name": "{{ screen.layout.name }}",
+                "lat": "{{ screen.location.y }}", "lon": "{{ screen.location.x }}",
+                "name": "{{ screen.name }}" },
+        {% endfor %}];
+
+        info_map.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
+            return this._div;
+        };
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            info_map.addTo(map);
+            for (var i = 0; i < screens.length; i++) {
+                screens[i]['marker'] = L.marker([screens[i]['lat'], screens[i]['lon']]);
+                screens[i]['marker'].addTo(map).bindTooltip("Name: "+screens[i]['name']+"<br>Layout: <a target='_blank' href='"+screens[i]['layout_url']+"'>"+screens[i]['layout_name']+"</a>", { permanent: true, interactive: true });
+            }
+        });
+    </script>
+{% endblock %}

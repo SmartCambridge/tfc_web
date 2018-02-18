@@ -1,7 +1,8 @@
+import logging
 import json
 from django.shortcuts import redirect, get_object_or_404, render
-from dashboard.models import Layout
-import logging
+from dashboard.forms import ScreenForm
+from dashboard.models import Layout, Screen
 
 
 logger = logging.getLogger(__name__)
@@ -53,3 +54,17 @@ def layout(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id)
     return render(request, 'dashboard/layout.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout)})
+
+
+def new_screen(request):
+    screen_form = ScreenForm()
+    if request.method == "POST":
+        screen_form = ScreenForm(request.POST)
+        if screen_form.is_valid():
+            screen_form.save()
+            return redirect('dashboard-home')
+    return render(request, 'dashboard/new_screen.html', {'screen_form': screen_form})
+
+
+def screens(request):
+    return render(request, 'dashboard/screens.html', {'screens': Screen.objects.all()})
