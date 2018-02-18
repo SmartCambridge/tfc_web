@@ -6,7 +6,6 @@ var defaultGrid = {
 
 var nboxes = Object.keys(defaultGrid).length;
 
-
 function createGrid() {
     $('#grid').gridList({
         lanes: SmartCamGrid.currentSize,
@@ -15,7 +14,6 @@ function createGrid() {
         heightToFontSizeRatio: SmartCamGrid.heightToFontSizeRatio
     });
 }
-
 
 function assing_resize_binding() {
     $('#grid li .resize').click(function (e) {
@@ -88,7 +86,6 @@ var SmartCamGrid = {
         assing_resize_binding();
     }
 };
-
 
 $(window).resize(function () {
     $('#grid').gridList('reflow');

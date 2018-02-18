@@ -28,7 +28,7 @@
             {% for key, value in confdata.items %}
                 <li style="position: absolute; height: calc({{ value.design.h }}*100%/4);
                         width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
-                        left: calc({{ value.design.x }}*100%/6); border: solid 1px black; box-sizing: border-box; ">
+                        left: calc({{ value.design.x }}*100%/6); border: solid 1px black; box-sizing: border-box;">
                     <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;">
                         {% if not value.configuration %}unconfigured{% endif %}</div></li>
             {% endfor %}

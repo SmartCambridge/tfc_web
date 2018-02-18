@@ -21,6 +21,7 @@
     line-height: 4em;
     text-align: center;
     cursor: pointer;
+    box-sizing: border-box; 
     -webkit-transition: top 0.1s,
                         left 0.1s,
                         width 0.1s,
