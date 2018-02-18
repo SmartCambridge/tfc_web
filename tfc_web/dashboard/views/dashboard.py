@@ -33,7 +33,8 @@ def layout_config(request, layout_id):
         layout.configuration = data
         layout.save()
     return render(request, 'dashboard/layout_config.html',
-                  {'layout': layout, 'confdata': generate_layout_configuration(layout)})
+                  {'layout': layout, 'confdata': generate_layout_configuration(layout),
+                   'debug': request.GET.get('debug', False)})
 
 
 def layout(request, layout_id):
