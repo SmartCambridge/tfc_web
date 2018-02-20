@@ -14,6 +14,7 @@ function TrafficMap(container, params) {
         this.log("Running init", this.container);
         // Check that the google maps library has been loaded
         if (typeof google == 'undefined') {
+            var scripts = document.getElementsByTagName('script');
             for (var i = scripts.length; i--;) {
                 if (scripts[i].src == this.googleliburl) {
                     setTimeout(this.init, 500);
