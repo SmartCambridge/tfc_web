@@ -11,7 +11,15 @@ function TrafficMap(container, params) {
 
     this.init = function () {
         this.log("Running init", this.container);
-        this.do_load();
+        // Check that the google maps library has been loaded
+        if (typeof google == 'undefined') {
+            var script = document.createElement('script');
+            script.onload = this.do_load;
+            script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g";
+            document.head.appendChild(script);
+        } else {
+            this.do_load();
+        }
     };
 
     /*this.reload = function() {
