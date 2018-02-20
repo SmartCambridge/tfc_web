@@ -8,14 +8,21 @@ function TrafficMap(container, params) {
 
     this.container = container;
     this.params = params;
+    this.googleliburl = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g";
 
     this.init = function () {
         this.log("Running init", this.container);
         // Check that the google maps library has been loaded
         if (typeof google == 'undefined') {
+            for (var i = scripts.length; i--;) {
+                if (scripts[i].src == this.googleliburl) {
+                    setTimeout(this.init, 500);
+                    return;
+                }
+            }
             var script = document.createElement('script');
             script.onload = this.do_load;
-            script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g";
+            script.src = this.googleliburl;
             document.head.appendChild(script);
         } else {
             this.do_load();
