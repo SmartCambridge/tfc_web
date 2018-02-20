@@ -53,8 +53,14 @@ def layout_delete_widget(request, layout_id):
 
 def layout(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id)
+    confdata = generate_layout_configuration(layout)
+    uwl = []
+    for key, value in confdata.items():
+        if 'configuration' in value and value['configuration']['widget'] not in uwl:
+            uwl.append(value['configuration']['widget'])
     return render(request, 'dashboard/layout.html',
-                  {'layout': layout, 'confdata': generate_layout_configuration(layout)})
+                  {'layout': layout, 'confdata': confdata,
+                   'unique_widgets_list': uwl})
 
 
 def new_screen(request):
