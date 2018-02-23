@@ -32,6 +32,11 @@
     font-weight: bold;
 }
 
+.page_link {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 #heading_date {
   display: inline-block;
   width: 8em;
@@ -181,6 +186,8 @@ var CHART_Y_MIN = 0;
 
 function init()
 {
+    console.log(JSON.stringify(STATION_CONFIG)); 
+
     // ******************************************************
     // **********   TITLE  **********************************
     // ******************************************************
@@ -241,7 +248,19 @@ function init()
 
     if (SENSOR_DATA.length==0 || last_record()[0] < plot_date_ms_start)
     {
-        chart_message.appendChild(document.createTextNode('No data available for this date.'));
+        var date_from = STATION_CONFIG.request_data.date_from;
+        var date_to = STATION_CONFIG.request_data.date_to;
+        date_msg = document.createElement('div');
+        date_msg.setAttribute('class','date_msg');
+        date_msg.innerHTML = 'Data is available for this sensor from '+
+                             '<span class="page_link" onclick="page_load_date('+"'"+date_from+"')"+'")>'+
+                             date_from+
+                             '</span>'+
+                             ' to '+
+                             '<span class="page_link" onclick="page_load_date('+"'"+date_to+"')"+'")>'+
+                             date_to+
+                             '</span>';
+        chart_message.appendChild(date_msg);
     }
     
     plot_date_is_today = false; // will set to true below if correct
@@ -605,6 +624,12 @@ function date_shift(n)
 
     date_qs = new_year+'-'+new_month+'-'+new_day;
 
+    page_load_date(date_qs);
+}
+
+// reload page with "date=YYYY-MM-DD"
+function page_load_date(date_qs)
+{
     // splice the new 'date=YYYY-MM-DD' into the current querystring
     window.location.href = url_replace(location.search, 'date', date_qs);
 }
