@@ -1,5 +1,7 @@
 import logging
 import json
+import os
+from django.conf import settings
 from django.shortcuts import redirect, get_object_or_404, render
 from dashboard.forms import ScreenForm
 from dashboard.models import Layout, Screen
@@ -29,6 +31,19 @@ def generate_layout_configuration(layout):
     return confdata
 
 
+def generate_widget_list():
+    widget_directory = os.path.join(settings.BASE_DIR, 'static/dashboard/widgets')
+    list_widget_files = os.listdir(widget_directory)
+    list_widgets = []
+    for widget_file in list_widget_files:
+        list_widgets.append({
+            'name': json.load(open(os.path.join(widget_directory, '%s/%s_schema.json' %
+                                                (widget_file, widget_file))))['title'],
+            'file': list_widgets
+        })
+    return list_widgets
+
+
 def layout_config(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id)
     if request.method == "POST" and 'data' in request.POST:
@@ -40,7 +55,7 @@ def layout_config(request, layout_id):
         layout.save()
     return render(request, 'dashboard/layout_config.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
-                   'debug': request.GET.get('debug', False)})
+                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
 
 def layout_delete_widget(request, layout_id):
