@@ -1,13 +1,13 @@
-#SmartCambridge Dashboard Framework
+# SmartCambridge Dashboard Framework
 
 This directory contains the list of widgets for the SmartCambridge Dashboard Framework (aka Lobby Panel screens).
 
-##Installation of new widgets
+## Installation of new widgets
 
 To install a new widget just copy and paste the widget folder inside this folder. The Dashboard Framework will
 automatically recognise it and it will be ready to use. You will have to redeploy tfc_web and execute collectstatic.
 
-##Widget requirements
+## Widget requirements
 
 There are some requirements that the widgets need to follow in order to work with the SmartCambridge Dashboard 
 Framework:
