@@ -2,13 +2,14 @@
 
 /*global $, google, document */
 
-function TrafficMap(container, params) {
+function TrafficMap(container, params, static_url) {
 
     'use strict';
 
     this.container = container;
     this.params = params;
     this.googleliburl = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g";
+    this.static_url = static_url;
 
     this.init = function () {
         this.log("Running init", this.container);

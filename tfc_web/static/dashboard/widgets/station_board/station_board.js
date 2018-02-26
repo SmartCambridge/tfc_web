@@ -2,12 +2,13 @@
 
 /*global $ */
 
-function StationBoard(container, params) {
+function StationBoard(container, params, static_url) {
 
     'use strict';
 
     this.container = container;
     this.params = params;
+    this.static_url = static_url;
 
     this.init = function () {
         this.log("Running init", this.container);
