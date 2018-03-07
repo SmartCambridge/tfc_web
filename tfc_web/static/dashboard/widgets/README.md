@@ -39,5 +39,20 @@ Framework:
     dependencies.
  - The function with name "UniqueName" should contain a subfunction called init() that will be called once the DOM 
  is ready and all the widgets have been initialise.
- - The previous functions will have to load all the required dependencies of the widget (js libraries, css, etc), as
- the Dashboard only loads the main library js file and the json schema.
+ - The widgets can include a requirements.json file that will list the required stylesheets and scripts that need
+ loading in order to make the widget work. The requirements.json file will have to follow this format:
+```json
+{
+    "scripts": [
+        { 
+            "url": "https://unpkg.com/leaflet@1.0.1/dist/leaflet.js",
+            "integrity": ",whatever - I don't seem to have one for this..."
+        },
+        "js/geo.js"
+    ],
+    "stylesheets": [
+        "https://unpkg.com/leaflet@1.0.1/dist/leaflet.css",
+        "css/whatever.css"
+    ]
+}
+```
