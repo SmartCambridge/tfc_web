@@ -260,7 +260,8 @@ def siriVM_POST_to_journey(request):
     try:
         for bus in jsondata['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'],
+                                          bus['DestinationRef'])
     except Exception as e:
         return Response({"details": "error while processing siriVM data: %s" % e}, status=500)
     return Response(jsondata)
@@ -298,7 +299,8 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'],
+                                          bus['DestinationRef'])
             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
