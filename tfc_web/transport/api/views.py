@@ -122,22 +122,36 @@ def journeys_by_time_and_stop(request):
         nresults = int(request.GET['nresults']) if 'nresults' in request.GET else 10
     except:
         return Response({"details": "nresults is not an int"}, status=400)
+    if nresults < 1:
+        return Response({"details": "nresults is should be at least 1"}, status=400)
 
     query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
                                       vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
     query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
                                       vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
                                       vehicle_journey__special_days_operation__operates=False)
+    # We fetch an extra entry to see if there are more than one bus leaving at the same hour,
+    # to calculate next_datetime correctly
     timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
-                     .order_by('time')[:nresults])
+                     .order_by('time')[:nresults+1])
 
     if len(timetable) < nresults:
         # no more results for the current day selected
         next_datetime = datetime_from.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
     else:
-        last_time = timetable[-1].time
-        next_datetime = datetime_from.replace(hour=last_time.hour, minute=last_time.minute,
-                                              second=last_time.second, microsecond=0) + timedelta(seconds=1)
+        while timetable[-1].time == timetable[-2].time and len(timetable) > 2:
+            # Remove from the result entries with the same leaving time
+            timetable = timetable[:-1]
+        if timetable[-1].time == timetable[-2].time and len(timetable) == 2:
+            # Exceptional case where all entries have the same leaving time, in this case we return 0 results and
+            # increase the nresult of the next query
+            next_datetime = timetable[-1].time
+            nresults += 1
+            timetable = []
+        else:
+            # Remove the last entry that was only used to see if there are buses leaving at the same time
+            next_datetime = timetable[-1].time
+            timetable = timetable[:-1]
 
     results_json = {'results': []}
     for result in timetable:
