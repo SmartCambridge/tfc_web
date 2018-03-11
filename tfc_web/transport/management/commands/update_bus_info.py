@@ -42,15 +42,15 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, **options):
-        Operator.objects.all().delete()
-        Line.objects.all().delete()
-        Route.objects.all().delete()
+        SpecialDaysOperation.objects.all().delete()
+        Timetable.objects.all().delete()
+        VehicleJourney.objects.all().delete()
         JourneyPattern.objects.all().delete()
         JourneyPatternSection.objects.all().delete()
         JourneyPatternTimingLink.objects.all().delete()
-        VehicleJourney.objects.all().delete()
-        SpecialDaysOperation.objects.all().delete()
-        Timetable.objects.all().delete()
+        Route.objects.all().delete()
+        Line.objects.all().delete()
+        Operator.objects.all().delete()
 
         for tnds_zone in settings.TNDS_ZONES:
             local_filename, headers = urlretrieve('ftp://%s:%s@ftp.tnds.basemap.co.uk/%s.zip' %
