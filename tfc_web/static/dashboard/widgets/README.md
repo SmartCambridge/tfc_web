@@ -1,58 +1,180 @@
-# SmartCambridge Dashboard Framework
+# SmartCambridge SmartPanel Framework
 
-This directory contains the list of widgets for the SmartCambridge Dashboard Framework (aka Lobby Panel screens).
+This directory contains the widgets for the SmartCambridge SmartPanel
+Framework (aka Lobby Panels, Dashboards).
 
 ## Installation of new widgets
 
-To install a new widget just copy and paste the widget folder inside this folder. The Dashboard Framework will
-automatically recognise it and it will be ready to use. You will have to redeploy tfc_web and execute collectstatic.
+To install a new widget just copy and paste the widget folder inside
+this folder. The Dashboard Framework will automatically recognise it and
+it will be ready to use. You will have to redeploy tfc_web and execute
+collectstatic.
 
-## Widget requirements
+## Widget requirements (version 0.4)
 
-There are some requirements that the widgets need to follow in order to work with the SmartCambridge Dashboard 
-Framework:
+There are some requirements that the widgets need to follow in order to
+work with the framework:
 
- - Each widget has to have a unique_name that is used as the folder name, the js file name, and the schema.json 
- file name. The unique_name should be short and not contain spaces. For example, for the widget with name 
- "widget_foo", the directory structure will be:
-    - widget_foo
-        - widget_foo.js
-        - widget_foo_schema.json
-        - widget_foo.css
-        - README.md
- - The Dashboard Framework will load the json shchema file (for example, for widget "unique_name" this will be 
- "unique_name_schema.json") when the user wants to configure the widget. 
- Therefore, the schema json file should contain a json_schema definition of all fields that are needed to configure
- the widget. The Dashboard Framework will auto-generate a web form with these fields that will allow the user to
- configure the widget parameters. Do not forget to include "title" property inside the json schema of the widget 
- as this will be used as the user readable version of the name of the widget.
- - Once the user has configured the widget and has filled in all the required parameters, these will be used to
- initialise the widget inside the dashboard once it gets loaded. 
- - The only library that the dashboard will load will be "unique_name.js" and it will call the init function from this
- file passing the parameters filled in from the user with the configuration based on the widget json schema.
- - The js library will have to contain a function named as the widget but capitalised. For example, if the widget
- is called "unique_name", the function should be called "UniqueName". This class will be initialised with two
- parameters:
-    - container: the id of the DOM element where the widget will be loaded
-    - params: the list of required parameters (in dict/json format) to initialise the widget.
-    - static_files_url: the URL of the widgets. This is passed to the widget function so that it can help them to load
-    dependencies.
- - The function with name "UniqueName" should contain a subfunction called init() that will be called once the DOM 
- is ready and all the widgets have been initialise.
- - The widgets can include a requirements.json file that will list the required stylesheets and scripts that need
- loading in order to make the widget work. The requirements.json file will have to follow this format:
+1. Each widget has a _`<name>`_ by which it is known, for example
+`station_board`. The name should be short and not contain spaces.
+
+2. The files making up a widget should be stored in a directory named
+_`<name>`_.
+
+3. Within this directory, the following files will be recognised. All
+are optional, but a widget with no files won't do anything.
+
+    1. _`<name>.js`_
+
+        A JavaScript file containing an object definition for the
+        widget. If present, this file will be included into any page
+        that displays this widget and it's constructor and methods called.
+        Further details of this object are described below.
+
+    2. _`<name>.css`_
+
+        A file containing CSS definitions which, if present, will be
+        included into any page that displays this widget.
+
+        To avoid name clashes, widgets must associate a class _<name>_
+        with their outermost element and must prefix all CSS rules with
+        this class. For example
+
+        ```
+        <div class="station_board">.....</div>
+
+        .station_board { ....; ....; }
+        .station_board table { ...; ...; }
+        ```
+
+        The page displaying the widget will establish suitable style
+        defaults (including a default body font size) which should be
+        relied on where possible to promote visual conformity
+        between widgets. Widget-specific styles should
+        use relative dimensions such as ems, rems or percentages so that
+        they can adapt (where appropriate) to different body font sizes
+        and display areas.
+
+        Widgets are currently displayed on a grid with columns 320px
+        wide and rows 255px high.
+
+    3. _`<name>.html`_
+
+        A file containing an HTML fragment which, if present, will be
+        included into any page that displays this widget as the initial
+        widget content.
+
+        _[This feature is of limited value, isn't used by any current
+        widgets and may noy be supported by any currebt frameworks. iots
+        use is depricated and it may be withdrawn from future versions
+        of the framework]_
+
+    4. _`<name>_schema.json`_
+
+        A [JSON Schema](http://json-schema.org/) definition of the
+        parameters needed to configure the widget. The
+        Dashboard Framework uses this to auto-generate web forms with
+        these fields that allow the user to  configure the widget.
+
+        Include a top-level "title" property in the json schema which
+        will be used as the user readable version of the name of the
+        widget. Individual parameters should include "title" and
+        "description" elements which will be displayed to users.
+
+    5. _`requirements.json`_
+
+        A file listing additional additional JavaScript files and
+        stylesheets that need to be loaded to make the widget work. If
+        present, this file must contain an object with keys "scripts"
+        and/or "stylesheets". Each of these must contain an array whose
+        elements are either:
+
+        * Objects containing keys "src" and "integrity" (for scripts) or
+          "href" and "integrity" (for stylesheets) with apropriate
+          values; or
+        * URLs; or
+        * local filenames
+
+        An example of such a file appears below.
+
+    6. _`README.md`_
+
+        An optional documentation file for the widget.
+
+The widget directory may contain other files. These will be
+web-accessible and can be referenced by other components by relative URLs
+(from HTML and CSS files) or via the `static_url`
+configuration parameter (for JavaScript files).
+
+## Widget JavaScript objects
+
+JavaScript objects defining widgets must have the flowing
+characteristics:
+
+* Named based on _<name>_ but in camel case without   any '\_'
+  characters - for example `StationBoard`.
+
+* A constructor to be invoked by `new`. This may be called
+  before DOM construction is complete and so shouldn't
+  reference any DOM objects. It will recieve two parameters:
+
+    * A JavaScript Object conventionally named `params` containing
+      static configuration parameters for the widgit:
+
+        * container: The string DOM `id` of the page element
+          into which the widget's content should be placed. This
+          is guaranteed to be unique within any particular
+          SmartScreen instance and so can be used as a base for
+          other globally-unique names if needed.
+
+        * static_url: a URL coresponding to the widget directory (i.e.
+          the one containing the JavaScript file). This allow
+          the JavaScript to access other resources in the widget
+          directory without having to hard-code URLs. Hard-coded URL's
+          must not be used to allow SmartScreens to be setup
+          under a variety of URL prefixes.
+
+    * A JavaScript object conventionally named `config` containing
+      parameters for a particular instance of the widget as defined
+      in the _`<name>-schema.json`_ file.
+
+* Optionally an `init()` method. If present, this will be
+  called after DOM construction is complete and all widgets have
+  been instantiated. It will normally
+  arrange to populate the widget. This method may take
+  responsibility for subsequently updating the widget's content, or
+  this could be left to the `reload()` method.
+
+* Optionally a `reload()` method. If present, this will be
+  periodically called after the widget has been initialised and
+  will typically arrange to update the widget's content.
+
+Other than it's own name, widgets must not create any new names in
+the JavaScript global context.
+
+Widgets may assume the existance of a global `RTMONITOR_API` containing
+an instance of the RT Monitor API.
+
+Widgets may assume the existance of a global `DEBUG` which will contain
+'_`<name>_log`_' to request verbose logging by the widget.
+
+## Example `requirements.json` file
+
 ```json
 {
     "scripts": [
-        { 
-            "url": "https://unpkg.com/leaflet@1.0.1/dist/leaflet.js",
-            "integrity": ",whatever - I don't seem to have one for this..."
-        },
-        "js/geo.js"
+      { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
+        "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
+      },
+      "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js",
+      "js/geo.js"
     ],
     "stylesheets": [
-        "https://unpkg.com/leaflet@1.0.1/dist/leaflet.css",
-        "css/whatever.css"
+      { "href": "https://unpkg.com/leaflet@1.0.1/dist/leaflet.css",
+        "integrity": "sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+      },
+      "https://example.com/magic-stylesheet.css",
+      "css/special.css"
     ]
 }
 ```
