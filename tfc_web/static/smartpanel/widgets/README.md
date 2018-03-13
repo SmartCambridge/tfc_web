@@ -1,12 +1,12 @@
 # SmartCambridge SmartPanel Framework
 
 This directory contains the widgets for the SmartCambridge SmartPanel
-Framework (aka Lobby Panels, Dashboards).
+Framework.
 
 ## Installation of new widgets
 
 To install a new widget just copy and paste the widget folder inside
-this folder. The Dashboard Framework will automatically recognise it and
+this folder. The SmartPanel Framework will automatically recognise it and
 it will be ready to use. You will have to redeploy tfc_web and execute
 collectstatic.
 
@@ -73,7 +73,7 @@ are optional, but a widget with no files won't do anything.
 
         A [JSON Schema](http://json-schema.org/) definition of the
         parameters needed to configure the widget. The
-        Dashboard Framework uses this to auto-generate web forms with
+        SmartPanel Framework uses this to auto-generate web forms with
         these fields that allow the user to  configure the widget.
 
         Include a top-level "title" property in the json schema which

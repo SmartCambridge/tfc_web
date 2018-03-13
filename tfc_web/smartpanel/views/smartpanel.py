@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def my(request):
-    return render(request, 'smartpanel/my.html', {'dashboards': Layout.objects.all()})
+    return render(request, 'smartpanel/my.html', {'smartpanel': Layout.objects.all()})
 
 
 def design(request):

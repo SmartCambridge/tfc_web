@@ -2,21 +2,21 @@
 {% load static %}
 {% block content %}
         <div class="cards-section">
-            <div class="cards-section-title mdl-typography--display-1-color-contrast">Dashboard layouts</div>
+            <div class="cards-section-title mdl-typography--display-1-color-contrast">SmartPanel layouts</div>
             <div class="card-container mdl-grid">
-                {% for dashboard in dashboards %}
+                {% for smartpanel in smartpanels %}
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
-                        <h4 class="mdl-card__title-text">Layout {{ dashboard.name }}</h4>
+                        <h4 class="mdl-card__title-text">Layout {{ smartpanel.name }}</h4>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">Edit my dashboard layout</span>
+                        <span class="mdl-typography--font-light mdl-typography--subhead">Edit my SmartPanel layout</span>
                     </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'dashboard-layout-config' dashboard.id %}">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-layout-config' smartpanel.id %}">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
