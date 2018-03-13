@@ -20,11 +20,14 @@
     {% for stylesheet in stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}" integrity="{{ stylesheet.integrity }}">
+    {% endfor %}
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
     {% for script in external_scripts %}
-        <script src="{{ script.url }}" integrity="{{ script.integrity }}"></script>
+        <script src="{{ script.src }}" integrity="{{ script.integrity }}"></script>
     {% endfor %}
 </head>
 <body>

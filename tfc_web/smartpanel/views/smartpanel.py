@@ -36,6 +36,7 @@ def generate_dependencies_files_list(uwl):
     css_files_list = []
     js_files_list = []
     external_js_files_list = []
+    external_css_files_list = []
     for widget in uwl:
         js_files_list.append(static('smartpanel/widgets/%s/%s.js' % (widget, widget)))
         css_files_list.append(static('smartpanel/widgets/%s/%s.css' % (widget, widget)))
@@ -51,13 +52,13 @@ def generate_dependencies_files_list(uwl):
                         js_files_list.append(static('smartpanel/widgets/%s/%s' % (widget, script)))
             if 'stylesheets':
                 for stylesheet in requirements['stylesheets']:
-                    if stylesheet.startswith('http'):
-                        css_files_list.append(stylesheet)
+                    if stylesheet.__class__ is dict:
+                        external_css_files_list.append(stylesheet)
                     else:
                         css_files_list.append(static('smartpanel/widgets/%s/%s' % (widget, stylesheet)))
         except:
             pass
-    return (css_files_list, js_files_list, external_js_files_list)
+    return (css_files_list, js_files_list, external_js_files_list, external_css_files_list)
 
 
 def generate_widget_list():
@@ -107,7 +108,7 @@ def layout_config2(request, layout_id):
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(),
                    'stylesheets': dependencies_files_list[0], 'scripts': dependencies_files_list[1],
-                   'external_scripts': dependencies_files_list[2]})
+                   'external_scripts': dependencies_files_list[2], 'external_stylesheets': dependencies_files_list[3]})
 
 
 def layout_delete_widget(request, layout_id):
@@ -128,7 +129,8 @@ def layout(request, layout_id):
     dependencies_files_list = generate_dependencies_files_list(uwl)
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout, 'confdata': confdata, 'stylesheets': dependencies_files_list[0],
-                   'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2]})
+                   'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
+                   'external_stylesheets': dependencies_files_list[3]})
 
 
 def new_screen(request):

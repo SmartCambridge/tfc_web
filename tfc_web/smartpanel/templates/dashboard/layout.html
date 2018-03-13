@@ -8,12 +8,15 @@
     {% for stylesheet in stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}" integrity="{{ stylesheet.integrity }}">
+    {% endfor %}
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
     {% for script in external_scripts %}
-        <script src="{{ script.url }}" integrity="{{ script.integrity }}"></script>
+        <script src="{{ script.src }}" integrity="{{ script.integrity }}"></script>
     {% endfor %}
 </head>
 <body>
