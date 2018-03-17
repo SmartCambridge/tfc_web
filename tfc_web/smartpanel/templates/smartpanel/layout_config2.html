@@ -105,7 +105,7 @@
         {% for key, value in confdata.items %}
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}('widget-{{ key }}',
-                {{ value.configuration.data|safe }}));
+                {{ value.configuration.data|safe }}, '{% static 'smartpanel/widgets' %}'));
             {% endif %}
         {% endfor %}
 
