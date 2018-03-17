@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SmartCambridge dashboard</title>
-    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}"/>
+    <title>SmartCambridge SmartPanel</title>
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
     {% for stylesheet in stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
@@ -39,7 +39,7 @@
         {% for key, value in confdata.items %}
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}('widget-{{ key }}',
-                {{ value.configuration.data|safe }}, '{% static 'dashboard/widgets' %}'));
+                {{ value.configuration.data|safe }}, '{% static 'smartpanel/widgets' %}'));
             {% endif %}
         {% endfor %}
 

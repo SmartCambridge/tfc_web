@@ -46,4 +46,4 @@ def station_board(request):
 
     #return HttpResponse('Hello world!')
 
-    return render(request, 'dashboard/station_board.html', {'data': data})
+    return render(request, 'smartpanel/station_board.html', {'data': data})

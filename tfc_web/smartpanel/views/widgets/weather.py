@@ -129,7 +129,7 @@ def extract_weather_results(data):
         for rep in period["Rep"]:
             rep['description'] = weather_descriptions.get(rep['W'],'')
             if weather_icon.get(rep['W'],''):
-                rep['icon'] = static('dashboard/widgets/weather/icons/weather_icon-' +
+                rep['icon'] = static('smartpanel/widgets/weather/icons/weather_icon-' +
                               weather_icon.get(rep['W'],'') +'.png')
             logger.info(rep['icon'])
             rep['wind_desc'] = mph_to_descr(int(rep['S']))
@@ -171,7 +171,7 @@ def weather(request):
 
     logger.info(results)
 
-    return render(request, 'dashboard/weather.html', {
+    return render(request, 'smartpanel/weather.html', {
         "results": results,
         "location": data["SiteRep"]["DV"]["Location"]["name"],
         "issued": iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]),
