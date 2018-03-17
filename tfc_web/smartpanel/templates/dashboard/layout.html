@@ -9,14 +9,14 @@
         <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
     {% for stylesheet in external_stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet.href }}" integrity="{{ stylesheet.integrity }}">
+        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
     {% endfor %}
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
     {% for script in external_scripts %}
-        <script src="{{ script.src }}" integrity="{{ script.integrity }}"></script>
+        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
     {% endfor %}
 </head>
 <body>
