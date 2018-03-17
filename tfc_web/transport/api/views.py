@@ -104,9 +104,10 @@ journeys_by_time_and_stop_schema = ManualSchema(
             description="Exdpands the resulted Journey into a full object"
         ),
     ],
-    description="Will return the timetable expected for a given stop from a specific time ("
-                "optional). Returns a list of Journeys given datetime_from and a stop_id ("
-                "atco_code)."
+    description="Will return the timetable (Journeys) expected for a given stop (stop_id) from a specific date and "
+                "time datetime_from (optional, default = now). All results are paginated and a 'next' attribute is "
+                "also returned containing the URL to use to retrieve more results. The pagination can return up to n "
+                "(page size) results but also less if there are no more results for a day, for example."
 )
 
 
