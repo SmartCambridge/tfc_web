@@ -91,8 +91,7 @@ are optional, but a widget with no files won't do anything.
 
         * Objects containing keys "src" and "integrity" (for scripts) or
           "href" and "integrity" (for stylesheets) with apropriate
-          values; or
-        * URLs; or
+          values, for non local dependencies; or
         * local filenames
 
         An example of such a file appears below.
@@ -166,14 +165,14 @@ Widgets may assume the existance of a global `DEBUG` which will contain
       { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
         "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
       },
-      "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js",
+      { "src": "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js" },
       "js/geo.js"
     ],
     "stylesheets": [
       { "href": "https://unpkg.com/leaflet@1.0.1/dist/leaflet.css",
         "integrity": "sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
       },
-      "https://example.com/magic-stylesheet.css",
+      { "href": "https://example.com/magic-stylesheet.css" },
       "css/special.css"
     ]
 }
