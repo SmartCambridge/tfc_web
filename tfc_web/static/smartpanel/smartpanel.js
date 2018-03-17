@@ -128,7 +128,7 @@ $(function () {
         grid.gridList('resize', SmartCamGrid.currentSize); // refresh the grid to reallocate spaces
     });
 
-    $('#dashboard-design-form').submit(function (e) {
+    $('#smartpanel-design-form').submit(function (e) {
         var grid_items = $.extend({}, $("#grid").data('_gridList').gridList.items);
         for (i = 0; i < Object.keys(grid_items).length; i++) {
             delete grid_items[i].$element;

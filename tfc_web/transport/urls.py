@@ -60,6 +60,8 @@ urlpatterns = [
     url(r'api/docs/', include_docs_urls(title='SmartCambridge Transport API')),
     url(r'api/journeys/$', api_views.VehicleJourneyList.as_view()),
     url(r'api/journey/(?P<pk>[^/]+)/$', api_views.VehicleJourneyRetrieve.as_view()),
+    url(r'api/stops/$', api_views.StopList.as_view()),
+    url(r'api/stop/(?P<pk>[^/]+)/$', api_views.StopRetrieve.as_view()),
     url(r'api/sirivm_with_journey/', api_views.siriVM_to_journey, name='siriVM-to-journey'),
     url(r'api/sirivm_add_journey/', api_views.siriVM_POST_to_journey, name='siriVM-POST-to-journey'),
     url(r'api/journeys_by_time_and_stop/$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),

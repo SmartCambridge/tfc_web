@@ -15,7 +15,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
-from transport.api.serializers import VehicleJourneySerializer, LineSerializer, VehicleJourneySummarisedSerializer
+from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
+    VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
 from urllib.parse import quote
 
@@ -43,7 +44,7 @@ def string_to_datetime(str_time):
     return time
 
 
-def calculate_vehicle_journey(departure_time, bus_stop_id):
+def calculate_vehicle_journey(departure_time, departure_stop_id, destination_stop_id=None):
     """
     Retrieves a list of possible Vehicle Journeys from a departure time and a bus stop. Today is always used as
     the day the vehicle operates
@@ -51,11 +52,17 @@ def calculate_vehicle_journey(departure_time, bus_stop_id):
     :param bus_stop:
     :return: list of Vehicle Journeys
     """
-    query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time, order=1,
-                                      vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
+    journey_day_of_week = departure_time.date().strftime("%A")
+    query1 = Timetable.objects.filter(stop_id=departure_stop_id, time=departure_time.time(), order=1,
+                                      vehicle_journey__days_of_week__contains=journey_day_of_week) \
         .values_list('vehicle_journey', flat=True)
+    if destination_stop_id:
+        query1b = Timetable.objects.filter(stop_id=destination_stop_id, last_stop=True,
+                                           vehicle_journey__days_of_week__contains=journey_day_of_week) \
+            .values_list('vehicle_journey', flat=True)
+        query1 = query1.union(query1b)
     query2 = VehicleJourney.objects.filter(
-        id__in=query1, special_days_operation__days__contains=date.today(),
+        id__in=query1, special_days_operation__days__contains=departure_time.date(),
         special_days_operation__operates=False).values_list('id', flat=True)
     return list(query1.difference(query2))
 
@@ -180,8 +187,20 @@ departure_to_journey_schema = ManualSchema(
             "departure_time",
             required=True,
             location="query",
-            schema=coreschema.String(description="Departure time. The time when the Journey starts."),
-            description="Departure time. The time when the Journey starts."
+            schema=coreschema.String(description="Departure datetime or time. "
+                                                 "The date or time when the Journey starts. "
+                                                 "If time is given insetad of a datetime, today is used as date. "
+                                                 "The datetime or date must be given in ISO 8601 format."),
+            description="Departure datetime or time. The date or time when the Journey starts. "
+                        "If time is given insetad of a datetime, today is used as date. "
+                        "The datetime or date must be given in ISO 8601 format."
+        ),
+        coreapi.Field(
+            "destination_stop_id",
+            required=False,
+            location="query",
+            schema=coreschema.String(description="Destination Stop atco_code. Last stop of a Journey."),
+            description="Destination Stop atco_code. Last stop of a Journey."
         ),
         coreapi.Field(
             "expand_journey",
@@ -208,14 +227,17 @@ def departure_to_journey(request):
     except:
         return Response({"details": "departure_stop_id not present"}, status=400)
     try:
-        departure_time = parse(request.GET['departure_time']).time()
+        departure_time = parse(request.GET['departure_time'])
     except:
         return Response({"details": "departure_time not present or has wrong format, has to be ISO"}, status=400)
     try:
         departure_stop = Stop.objects.get(atco_code=departure_stop_id)
     except:
-        return Response({"details": "Stop %s not found" % departure_stop_id}, status=404)
-    vj_list = calculate_vehicle_journey(departure_time, departure_stop.atco_code)
+        return Response({"details": "Departure Stop %s not found" % departure_stop_id}, status=404)
+    destination_stop_id = request.GET.get('destination_stop_id', None)
+    if destination_stop_id and not Stop.objects.filter(atco_code=destination_stop_id).exists():
+        return Response({"details": "Destination Stop %s not found" % destination_stop_id}, status=404)
+    vj_list = calculate_vehicle_journey(departure_time, departure_stop.atco_code, destination_stop_id)
     if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
         vj_list = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=vj_list), many=True).data
     return Response({'results': vj_list})
@@ -252,7 +274,8 @@ def siriVM_POST_to_journey(request):
     try:
         for bus in jsondata['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'],
+                                          bus['DestinationRef'])
     except Exception as e:
         return Response({"details": "error while processing siriVM data: %s" % e}, status=500)
     return Response(jsondata)
@@ -265,7 +288,7 @@ siriVM_to_journey_schema = ManualSchema(
             required=False,
             location="query",
             schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
-            description="Exdpands the resulted Journey into a full object"
+            description="Expands the resulted Journey into a full object"
         ),
     ],
     description="Reads last data from siriVM feed and tries to match it with a VehicleJourney."
@@ -290,7 +313,8 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']).time(), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'],
+                                          bus['DestinationRef'])
             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
@@ -313,3 +337,20 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
+
+
+class StopList(generics.ListAPIView):
+    """
+    Return a list of all the existing Stops.
+    """
+    queryset = Stop.objects.all()
+    serializer_class = StopSerializer
+    pagination_class = Pagination
+
+
+class StopRetrieve(generics.RetrieveAPIView):
+    """
+    Return the Stop corresponding to the given id (atco_code).
+    """
+    queryset = Stop.objects.all()
+    serializer_class = StopSerializer

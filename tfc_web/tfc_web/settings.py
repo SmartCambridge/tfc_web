@@ -39,7 +39,7 @@ PROJECT_APPS = [
     'traffic',
     'aq',
     'csn',
-    'dashboard'
+    'smartpanel'
 ]
 
 INSTALLED_APPS = [

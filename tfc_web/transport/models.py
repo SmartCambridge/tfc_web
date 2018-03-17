@@ -102,6 +102,7 @@ class Operator(models.Model):
 
 class Line(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
+    area = models.CharField(max_length=10)
     line_name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     operator = models.ForeignKey(Operator, related_name="lines")

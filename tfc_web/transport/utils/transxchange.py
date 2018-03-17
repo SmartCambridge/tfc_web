@@ -956,11 +956,12 @@ def get_filenames(service_id, archive):
     return [name for name in namelist if name.startswith("ea_%s" % service_id) or name.startswith("suf_%s" % service_id)]
 
 
-def get_files_from_zipfile(service_id):
+def get_files_from_zipfile(service_id, service_area):
     """Given a Service,
     return an iterable of open files from the relevant zipfile.
     """
-    archive_path = os.path.join(settings.TNDS_DIR, 'EA.zip')
+    assert service_area in settings.TNDS_ZONES
+    archive_path = os.path.join(settings.TNDS_DIR, '%s.zip' % service_area)
     try:
         with zipfile.ZipFile(archive_path) as archive:
             filenames = get_filenames(service_id, archive)
@@ -978,7 +979,7 @@ def timetable_from_service(service, day=None):
     timetables = cache.get(cache_key)
     if timetables is not None:
         return timetables
-    timetables = (Timetable(xml_file, day, service.description) for xml_file in get_files_from_zipfile(service.pk))
+    timetables = (Timetable(xml_file, day, service.description) for xml_file in get_files_from_zipfile(service.pk, service.area))
     timetables = [timetable for timetable in timetables if hasattr(timetable, 'groupings')]
     if len(timetables) > 1:
         timetables = [t for t in timetables if any(g.rows and g.rows[0].times for g in t.groupings)] or timetables[:1]

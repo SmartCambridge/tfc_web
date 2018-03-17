@@ -10,14 +10,14 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dashboard', '0002_layout_configuration'),
+        ('smartpanel', '0002_layout_configuration'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='screen',
             name='layout',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='dashboard.Layout'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='smartpanel.Layout'),
         ),
         migrations.AddField(
             model_name='screen',
