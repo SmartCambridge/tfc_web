@@ -13,10 +13,20 @@
                         <h4 class="mdl-card__title-text">Layout {{ smartpanel.name }}</h4>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">Edit my SmartPanel layout</span>
+                        <span class="mdl-typography--font-light mdl-typography--subhead">
+                            {% if edit %}Edit my SmartPanel layout{% else %}View the SmartPanel layout{% endif %}
+                        </span>
                     </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-layout-config' smartpanel.id %}">
+                    {% if edit %}
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-layout-config' smartpanel.id %}">
+                            Edit
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    {% endif %}
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-layout' smartpanel.id %}" target="_blank">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
