@@ -47,8 +47,8 @@
                             <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_email' %}">Change E-mail</a>
                             <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_logout' %}">Sign Out</a>
                         {% else %}
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_login' %}">Sign In</a>
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_signup' %}">Sign Up</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_login' %}?next={{request.path}}">Sign In</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_signup' %}?next={{request.path}}">Sign Up</a>
                         {% endif %}
                     </nav>
                 </div>
@@ -70,8 +70,8 @@
             {% endif %}
             <nav class="mdl-navigation">
                 {% if not user.is_authenticated %}
-                    <a class="mdl-navigation__link" href="{% url 'account_login' %}">Sign In</a>
-                    <a class="mdl-navigation__link" href="{% url 'account_signup' %}">Sign Up</a>
+                    <a class="mdl-navigation__link" href="{% url 'account_login' %}?next={{request.path}}">Sign In</a>
+                    <a class="mdl-navigation__link" href="{% url 'account_signup' %}?next={{request.path}}">Sign Up</a>
                 {% endif %}
                 {% block navigation %}
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-my' %}">My SmartPanels</a>
