@@ -153,16 +153,45 @@ def layout(request, layout_id):
 
 @login_required
 def new_display(request):
-    screen_form = DisplayForm()
     if request.method == "POST":
         screen_form = DisplayForm(request.POST)
         if screen_form.is_valid():
             display = screen_form.save(commit=False)
-            display.user = request.user
+            display.owner = request.user
             display.save()
             return redirect('smartpanel-home')
-    return render(request, 'smartpanel/new_display.html', {'screen_form': screen_form})
+    else:
+        screen_form = DisplayForm()
+    return render(request, 'smartpanel/display.html', {'screen_form': screen_form})
 
 
 def displays(request):
     return render(request, 'smartpanel/displays.html', {'screens': Display.objects.all()})
+
+
+@login_required
+def my_displays(request):
+    return render(request, 'smartpanel/displays.html', {'screens': Display.objects.filter(owner=request.user),
+                                                        'edit': True})
+
+
+@login_required
+def edit_display(request, display_id):
+    display = get_object_or_404(Display, id=display_id, owner=request.user)
+    if request.method == "POST":
+        display_form = DisplayForm(request.POST, instance=display)
+        if display_form.is_valid():
+            display.save()
+            return redirect('smartpanel-home')
+    else:
+        display_form = DisplayForm(instance=display)
+    return render(request, 'smartpanel/display.html', {'screen_form': display_form, 'edit': True})
+
+
+@login_required
+def delete_display(request, display_id):
+    display = get_object_or_404(Display, id=display_id, owner=request.user)
+    if request.method == "POST":
+        display.delete()
+        return redirect('smartpanel-home')
+    return redirect('smartpanel-list-my-displays')

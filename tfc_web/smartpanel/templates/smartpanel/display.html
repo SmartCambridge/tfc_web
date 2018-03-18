@@ -11,11 +11,17 @@
 {% block content %}
     <div>
         <h1 class="mdl-typography--display-1-color-contrast">New Screen</h1>
-        <form action="{% url 'smartpanel-new-display' %}" method="post">
+        <form action="{% if edit %}{% url 'smartpanel-edit-display' screen_form.instance.pk %}{% else %}{% url 'smartpanel-new-display' %}{% endif %}" method="post">
             {% csrf_token %}
             <p>{{ screen_form.errors }}</p>
             {{ screen_form.as_p }}
             <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Send">
         </form>
+        {% if edit %}
+        <form action="{% url 'smartpanel-delete-display' screen_form.instance.pk %}" method="post">
+            {% csrf_token %}
+            <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Delete Display">
+        </form>
+        {% endif %}
     </div>
 {% endblock %}
