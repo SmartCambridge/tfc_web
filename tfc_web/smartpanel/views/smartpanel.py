@@ -121,6 +121,15 @@ def layout_config2(request, layout_id):
 
 
 @login_required
+def layout_delete(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
+    if request.method == "POST":
+        layout.delete()
+        return redirect('smartpanel-home')
+    return redirect('smartpanel-layout-config', layout_id)
+
+
+@login_required
 def layout_delete_widget(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     if request.method == "POST" and 'widgetid' in request.POST:

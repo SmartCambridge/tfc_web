@@ -34,6 +34,10 @@
             <input type="hidden" name="data" id="form-data">
             <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Save configuration" id="submit-form-data">
         </form>
+        <form action="{% url 'smartpanel-layout-delete' layout.id %}" method="post" style="float: left; margin-top: 10px; margin-left: 10px;">
+            {% csrf_token %}
+            <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete Design">
+        </form>
         <a href="http://www.connectingcambridgeshire.co.uk/smartcamb/"><img alt="Connecting Cambridgshire" src="{% static 'images/logo_sc_112.png' %}"></a>
         <a href="http://www.cam.ac.uk"><img alt="The University of Cambridge" src="{% static 'images/logo_uc_112.png' %}"></a>
     </div>
