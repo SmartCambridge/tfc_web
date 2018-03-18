@@ -2,24 +2,33 @@ import logging
 import json
 import os
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
-from smartpanel.forms import ScreenForm
-from smartpanel.models import Layout, Screen
+from smartpanel.forms import DisplayForm
+from smartpanel.models import Layout, Display
 
 
 logger = logging.getLogger(__name__)
 
 
+def all(request):
+    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all()})
+
+
+@login_required
 def my(request):
-    return render(request, 'smartpanel/my.html', {'smartpanel': Layout.objects.all()})
+    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.filter(owner=request.user),
+                                                  'edit': True})
 
 
+@login_required
 def design(request):
     if request.method == "POST":
         if 'name' in request.POST and 'design' in request.POST and request.POST['design']:
-            layout = Layout.objects.create(name=request.POST['name'], design=json.loads(request.POST['design']))
-            return redirect('smartpanel-layout-config2', layout.id)
+            layout = Layout.objects.create(name=request.POST['name'], design=json.loads(request.POST['design']),
+                                           owner=request.user)
+            return redirect('smartpanel-layout-config', layout.id)
     return render(request, 'smartpanel/design.html')
 
 
@@ -74,8 +83,9 @@ def generate_widget_list():
     return list_widgets
 
 
+@login_required
 def layout_config(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id)
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     if request.method == "POST" and 'data' in request.POST:
         data = json.loads(request.POST['data'])
         if layout.configuration is None:
@@ -87,9 +97,9 @@ def layout_config(request, layout_id):
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
-
+@login_required
 def layout_config2(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id)
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     if request.method == "POST" and 'data' in request.POST:
         data = json.loads(request.POST['data'])
         if layout.configuration is None:
@@ -110,12 +120,13 @@ def layout_config2(request, layout_id):
                    'external_scripts': dependencies_files_list[2]})
 
 
+@login_required
 def layout_delete_widget(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id)
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     if request.method == "POST" and 'widgetid' in request.POST:
         del layout.configuration[request.POST['widgetid']]
         layout.save()
-    return redirect(layout_config, layout_id)
+    return redirect('smartpanel-layout-config', layout_id)
 
 
 def layout(request, layout_id):
@@ -131,15 +142,18 @@ def layout(request, layout_id):
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2]})
 
 
-def new_screen(request):
-    screen_form = ScreenForm()
+@login_required
+def new_display(request):
+    screen_form = DisplayForm()
     if request.method == "POST":
-        screen_form = ScreenForm(request.POST)
+        screen_form = DisplayForm(request.POST)
         if screen_form.is_valid():
-            screen_form.save()
+            display = screen_form.save(commit=False)
+            display.user = request.user
+            display.save()
             return redirect('smartpanel-home')
-    return render(request, 'smartpanel/new_screen.html', {'screen_form': screen_form})
+    return render(request, 'smartpanel/new_display.html', {'screen_form': screen_form})
 
 
-def screens(request):
-    return render(request, 'smartpanel/screens.html', {'screens': Screen.objects.all()})
+def displays(request):
+    return render(request, 'smartpanel/displays.html', {'screens': Display.objects.all()})

@@ -11,7 +11,7 @@
 {% block content %}
     <div>
         <h1 class="mdl-typography--display-1-color-contrast">New Screen</h1>
-        <form action="{% url 'smartpanel-new-screen' %}" method="post">
+        <form action="{% url 'smartpanel-new-display' %}" method="post">
             {% csrf_token %}
             <p>{{ screen_form.errors }}</p>
             {{ screen_form.as_p }}

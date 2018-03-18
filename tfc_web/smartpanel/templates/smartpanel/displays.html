@@ -13,7 +13,7 @@
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var info_map = L.control();
         var screens = [{% for screen in screens %}
-            { "layout_url": "{% url 'layout' screen.layout.id %}", "layout_name": "{{ screen.layout.name }}",
+            { "layout_url": "{% url 'smartpanel-layout' screen.layout.id %}", "layout_name": "{{ screen.layout.name }}",
                 "lat": "{{ screen.location.y }}", "lon": "{{ screen.location.x }}",
                 "name": "{{ screen.name }}" },
         {% endfor %}];

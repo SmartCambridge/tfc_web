@@ -24,7 +24,7 @@
         <p>config: {{ layout.configuration }}</p>
         <p>confdata: {{ confdata }}</p>
         {% endif %}
-        <p><a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'layout' layout.id %}" target="_blank">View layout</a></p>
+        <p><a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'smartpanel-layout' layout.id %}" target="_blank">View layout</a></p>
     </div>
     {% for key, value in confdata.items %}
         <div id="section-{{ key }}" style="margin-bottom: 120px;">

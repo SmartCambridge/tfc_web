@@ -1,11 +1,11 @@
 from django.contrib.gis.forms import OSMWidget
 from django.forms import ModelForm, TextInput, Select
-from smartpanel.models import Screen
+from smartpanel.models import Display
 
 
-class ScreenForm(ModelForm):
+class DisplayForm(ModelForm):
     class Meta:
-        model = Screen
+        model = Display
         fields = ['name', 'layout', 'location']
         widgets = {
             'name': TextInput(attrs={'class': 'mdl-textfield__input'}),
