@@ -29,7 +29,7 @@
 </head>
 <body>
     <div class="logos" style="height: 60px;">
-        <form action="{% url 'smartpanel-layout-config2' layout.id %}" method="post" id="config-form" style="float: left; margin-top: 10px; margin-left: 10px;">
+        <form action="{% url 'smartpanel-layout-config' layout.id %}" method="post" id="config-form" style="float: left; margin-top: 10px; margin-left: 10px;">
             {% csrf_token %}
             <input type="hidden" name="data" id="form-data">
             <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Save configuration" id="submit-form-data">
