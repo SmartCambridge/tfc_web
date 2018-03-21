@@ -1,0 +1,57 @@
+{% load static from staticfiles %}
+<!doctype html>
+<title>Station Board</title>
+<link rel="stylesheet" href="{% static "smartpanel/widgets/station_board/station_board.css" %}">
+<body>
+
+<div class="container_2_2">
+
+<div class="station_board">
+
+<div class="content_area">
+
+<h1 class="widget_error">Connection issues</h1>
+
+<h1>{{ data.locationName }}</h1>
+<h2>Updated {{ data.generatedAt|date:"H:m" }}</h2>
+
+{% if data.nrccMessages %}
+    {% for message in data.nrccMessages.message %}
+        {% for key, value in message %}
+            <div class="message">{{ value }}</div>
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+<table>
+  <tr>
+    <th>Time</th>
+    <th>Destination</th>
+    <th>Expected</th>
+  </tr>
+{% for service in data.trainServices.service %}
+  {% if service.etd != 'On time' %}
+  <tr class="issue">
+  {% else %}
+  <tr>
+  {% endif %}
+    <td>{{ service.std }}</td>
+    <td>{{ service.destination.location.0.locationName }}</td>
+    <td>{{ service.etd }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+</div>
+
+<div class="credit">
+    <a href="http://www.nationalrail.co.uk/"><img alt="Powered by National Rail Enquires" 
+      src="{% static "smartpanel/widgets/station_board/NRE_Powered_logo.png" %}"></a>
+</div>
+
+</div>
+
+</div>
+
+</body>
+

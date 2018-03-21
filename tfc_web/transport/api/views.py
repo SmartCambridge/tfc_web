@@ -1,10 +1,11 @@
 import json
-from datetime import date
 import coreapi
 import coreschema
+from datetime import date, timedelta
 from dateutil.parser import parse
 from os import listdir
 from pathlib import Path
+from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
@@ -17,6 +18,7 @@ from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
     VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
+from urllib.parse import quote
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -42,7 +44,7 @@ def string_to_datetime(str_time):
     return time
 
 
-def calculate_vehicle_journey(departure_time, bus_stop_id):
+def calculate_vehicle_journey(departure_time, departure_stop_id, destination_stop_id=None):
     """
     Retrieves a list of possible Vehicle Journeys from a departure time and a bus stop. Today is always used as
     the day the vehicle operates
@@ -50,9 +52,15 @@ def calculate_vehicle_journey(departure_time, bus_stop_id):
     :param bus_stop:
     :return: list of Vehicle Journeys
     """
-    query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time.time(), order=1,
-                                      vehicle_journey__days_of_week__contains=departure_time.date().strftime("%A")) \
+    journey_day_of_week = departure_time.date().strftime("%A")
+    query1 = Timetable.objects.filter(stop_id=departure_stop_id, time=departure_time.time(), order=1,
+                                      vehicle_journey__days_of_week__contains=journey_day_of_week) \
         .values_list('vehicle_journey', flat=True)
+    if destination_stop_id:
+        query1b = Timetable.objects.filter(stop_id=destination_stop_id, last_stop=True,
+                                           vehicle_journey__days_of_week__contains=journey_day_of_week) \
+            .values_list('vehicle_journey', flat=True)
+        query1 = query1.union(query1b)
     query2 = VehicleJourney.objects.filter(
         id__in=query1, special_days_operation__days__contains=departure_time.date(),
         special_days_operation__operates=False).values_list('id', flat=True)
@@ -85,8 +93,8 @@ journeys_by_time_and_stop_schema = ManualSchema(
             "nresults",
             required=False,
             location="query",
-            schema=coreschema.Integer(description="Maximum number of journeys to return"),
-            description="Maximum number of journeys to return."
+            schema=coreschema.Integer(description="Maximum number of journeys to return. 10 by default"),
+            description="Maximum number of journeys to return. 10 by default"
         ),
         coreapi.Field(
             "expand_journey",
@@ -96,9 +104,10 @@ journeys_by_time_and_stop_schema = ManualSchema(
             description="Exdpands the resulted Journey into a full object"
         ),
     ],
-    description="Will return the timetable expected for a given stop from a specific time ("
-                "optional). Returns a list of Journeys given datetime_from and a stop_id ("
-                "atco_code)."
+    description="Will return the timetable (Journeys) expected for a given stop (stop_id) from a specific date and "
+                "time datetime_from (optional, default = now). All results are paginated and a 'next' attribute is "
+                "also returned containing the URL to use to retrieve more results. The pagination can return up to n "
+                "(page size) results but also less if there are no more results for a day, for example."
 )
 
 
@@ -118,29 +127,51 @@ def journeys_by_time_and_stop(request):
     if not datetime_from:
         return Response({"details": "datetime_from badly formatted"}, status=400)
     try:
-        nresults = int(request.GET['nresults']) if 'nresults' in request.GET else None
+        nresults = int(request.GET['nresults']) if 'nresults' in request.GET else 10
     except:
         return Response({"details": "nresults is not an int"}, status=400)
+    if nresults < 1:
+        return Response({"details": "nresults is should be at least 1"}, status=400)
 
     query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
                                       vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
     query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
                                       vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
                                       vehicle_journey__special_days_operation__operates=False)
-    timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
-                    .order_by('time')
+    # We fetch an extra entry to see if there are more than one bus leaving at the same hour,
+    # to calculate next_datetime correctly
+    timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
+                     .order_by('time')[:nresults+1])
 
-    if nresults:
-        timetable = timetable[:nresults]
+    if len(timetable) < nresults:
+        # no more results for the current day selected
+        next_datetime = datetime_from.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    else:
+        while timetable[-1].time == timetable[-2].time and len(timetable) > 2:
+            # Remove from the result entries with the same leaving time
+            timetable = timetable[:-1]
+        if timetable[-1].time == timetable[-2].time and len(timetable) == 2:
+            # Exceptional case where all entries have the same leaving time, in this case we return 0 results and
+            # increase the nresult of the next query
+            next_datetime = timetable[-1].time
+            nresults += 1
+            timetable = []
+        else:
+            # Remove the last entry that was only used to see if there are buses leaving at the same time
+            next_datetime = timetable[-1].time
+            timetable = timetable[:-1]
 
     results_json = {'results': []}
     for result in timetable:
         results_json['results'].append(
             {'time': result.time,
              'journey': VehicleJourneySummarisedSerializer(result.vehicle_journey).data
-             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true'
-             else result.vehicle_journey.id,
+             if request.GET.get('expand_journey', 'false').lower() == 'true' else result.vehicle_journey.id,
              'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
+
+    results_json['next'] = "%s?stop_id=%s&datetime_from=%s&nresults=%s&expand_journey=%s" % \
+                           (reverse(journeys_by_time_and_stop), stop_id, quote(next_datetime.isoformat()), nresults,
+                            request.GET.get('expand_journey', 'false'))
     return Response(results_json)
 
 
@@ -164,6 +195,13 @@ departure_to_journey_schema = ManualSchema(
             description="Departure datetime or time. The date or time when the Journey starts. "
                         "If time is given insetad of a datetime, today is used as date. "
                         "The datetime or date must be given in ISO 8601 format."
+        ),
+        coreapi.Field(
+            "destination_stop_id",
+            required=False,
+            location="query",
+            schema=coreschema.String(description="Destination Stop atco_code. Last stop of a Journey."),
+            description="Destination Stop atco_code. Last stop of a Journey."
         ),
         coreapi.Field(
             "expand_journey",
@@ -196,8 +234,11 @@ def departure_to_journey(request):
     try:
         departure_stop = Stop.objects.get(atco_code=departure_stop_id)
     except:
-        return Response({"details": "Stop %s not found" % departure_stop_id}, status=404)
-    vj_list = calculate_vehicle_journey(departure_time, departure_stop.atco_code)
+        return Response({"details": "Departure Stop %s not found" % departure_stop_id}, status=404)
+    destination_stop_id = request.GET.get('destination_stop_id', None)
+    if destination_stop_id and not Stop.objects.filter(atco_code=destination_stop_id).exists():
+        return Response({"details": "Destination Stop %s not found" % destination_stop_id}, status=404)
+    vj_list = calculate_vehicle_journey(departure_time, departure_stop.atco_code, destination_stop_id)
     if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
         vj_list = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=vj_list), many=True).data
     return Response({'results': vj_list})
@@ -234,7 +275,8 @@ def siriVM_POST_to_journey(request):
     try:
         for bus in jsondata['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'],
+                                          bus['DestinationRef'])
     except Exception as e:
         return Response({"details": "error while processing siriVM data: %s" % e}, status=500)
     return Response(jsondata)
@@ -272,7 +314,8 @@ def siriVM_to_journey(request):
     try:
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
-                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'])
+                calculate_vehicle_journey(string_to_datetime(bus['OriginAimedDepartureTime']), bus['OriginRef'],
+                                          bus['DestinationRef'])
             if 'expand_journey' in request.GET and request.GET['expand_journey'] == 'true':
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:

@@ -1,0 +1,55 @@
+{% load static from staticfiles %}
+{% load tz %}
+<!doctype html>
+<title>Weather</title>
+<link rel="stylesheet" href="{% static 'smartpanel/widgets/weather/weather.css' %}">
+<body>
+
+<div class="container_1_2">
+
+<div class="weather">
+
+<div class="content_area">
+
+<h1 class="widget_error">Connection issues</h1>
+
+<h1>{{ location.title }}</h1>
+<h2>Issued {{ issued|localtime|date:"H:i" }}</h2>
+{% for item in results %}
+
+{% if forloop.first %}
+<h2 class="time">Now:</h2>
+{% else %}
+<h2 class="time">{{ item.0|localtime|date:"H:i" }}:</h2>
+{% endif %}
+{% if item.1.icon %}
+<img src="{{ item.1.icon }}" alt="" />
+{% endif %}
+
+<p>
+
+<b>{{ item.1.description }}</b>
+
+<br>
+
+<b>{{ item.1.T }}&deg;C</b>
+{% if item.1.T != item.1.F %}
+(feels like {{ item.1.F }}&deg;C)
+{% endif %}
+
+<br>
+
+Wind <b>{{ item.1.wind_desc }}</b> ({{ item.1.S }} mph) <b>{{ item.1.D }}</b>
+
+</p>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+

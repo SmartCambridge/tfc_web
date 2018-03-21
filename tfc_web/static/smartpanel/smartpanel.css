@@ -1,0 +1,119 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.grid {
+    position: relative;
+    height: 100%;
+    list-style: none;
+    /* Will be modified by the grid jquery lib, depending on the items */
+    -webkit-transition: width 0.1s,
+        height 0.1s;
+    transition: width 0.1s,
+        height 0.1s;
+}
+
+.grid li {
+    position: absolute;
+    border: 1px solid black;
+    z-index: 1;
+    font-weight: bold;
+    line-height: 4em;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-transition: top 0.1s,
+        left 0.1s,
+        width 0.1s,
+        height 0.1s,
+        font-size 0.1s,
+        line-height 0.1s;
+    transition: top 0.1s,
+        left 0.1s,
+        width 0.1s,
+        height 0.1s,
+        font-size 0.1s,
+        line-height 0.1s;
+}
+
+.grid li .inner {
+    height: 100%;
+    background: #fff;
+    -webkit-transition: background 2s;
+    transition: background 2s;
+}
+
+.grid li.ui-draggable-dragging {
+    -webkit-transition: none;
+    transition: none;
+}
+
+.grid li.position-highlight {
+    -webkit-transition: none;
+    transition: none;
+}
+
+.grid li.position-highlight .inner {
+    border: none;
+    background: #ccc;
+}
+
+.grid .controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+    float: right;
+    font-size: 1em;
+    font-weight: normal;
+    opacity: 0;
+    -webkit-transition: opacity 0.2s;
+    transition: opacity 0.2s;
+}
+
+.grid .controls .resize, .grid .controls .delete {
+    font-size: 0.5em;
+    float: left;
+    margin: 5px 5px 0 0;
+    padding: 0.1em;
+    background: #fafafa;
+    color: #444;
+    text-decoration: none;
+}
+
+.grid li:hover .controls {
+    opacity: 1;
+}
+
+.grid .controls .selected {
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+    margin: 4px 4px 0 0;
+    height: 35px;
+}
+
+.logos img {
+    height: 50px;
+    margin: 5px;
+    padding: 0 0.5em;
+}
+
+.logos span {
+    font-weight: bold;
+    font-size: 50px;
+    position: absolute;
+    right: 0.5em;
+    line-height: 60px;
+}
+
+#screen_clock {
+    display: inline-block;
+    font-size: 50px;
+    line-height: 60px;
+    font-weight: bold;
+    width: 200px;
+    height: 50px;
+    margin-left: 20px;
+    vertical-align: top;
+}
