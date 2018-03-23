@@ -13,6 +13,8 @@
         <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
     {% endfor %}
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
@@ -40,6 +42,8 @@
         </ul>
     </div>
     <script>
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI();
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
@@ -49,6 +53,8 @@
             ));
             {% endif %}
         {% endfor %}
+        // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
+        RTMONITOR_API.init();
 
         function update_screen_clock() {
             var datetime = new Date();
