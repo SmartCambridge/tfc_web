@@ -10,7 +10,7 @@ this folder. The SmartPanel Framework will automatically recognise it and
 it will be ready to use. You will have to redeploy tfc_web and execute
 collectstatic.
 
-## Widget requirements (version 0.4)
+## Widget requirements (version 0.5)
 
 There are some requirements that the widgets need to follow in order to
 work with the framework:
@@ -36,13 +36,12 @@ are optional, but a widget with no files won't do anything.
         A file containing CSS definitions which, if present, will be
         included into any page that displays this widget.
 
-        To avoid name clashes, widgets must associate a class _<name>_
-        with their outermost element and must prefix all CSS rules with
-        this class. For example
+        To avoid name clashes, the page element into which the widget
+        is loaded automatically has a class of _`<name>`_. This can be
+        targeted directly by CSS selectors - all widget-specific rules
+        must include this as a prefix to their selectors. For example
 
         ```
-        <div class="station_board">.....</div>
-
         .station_board { ....; ....; }
         .station_board table { ...; ...; }
         ```
@@ -53,7 +52,9 @@ are optional, but a widget with no files won't do anything.
         between widgets. Widget-specific styles should
         use relative dimensions such as ems, rems or percentages so that
         they can adapt (where appropriate) to different body font sizes
-        and display areas.
+        and display areas. The page element containing the widget has
+        `position: relative` set and so will form the context for any
+        subsequent positioned elements.
 
         Widgets are currently displayed on a grid with columns 320px
         wide and rows 255px high.
@@ -96,6 +97,9 @@ are optional, but a widget with no files won't do anything.
 
         An example of such a file appears below.
 
+        A copy of jQuery will automatically be available and a request
+        for this shouldn't appear in requirements.
+
     6. _`README.md`_
 
         An optional documentation file for the widget.
@@ -110,7 +114,7 @@ configuration parameter (for JavaScript files).
 JavaScript objects defining widgets must have the flowing
 characteristics:
 
-* Named based on _<name>_ but in camel case without   any '\_'
+* Named based on _`<name>`_ but in camel case without   any '\_'
   characters - for example `StationBoard`.
 
 * A constructor to be invoked by `new`. This may be called
@@ -124,7 +128,9 @@ characteristics:
           into which the widget's content should be placed. This
           is guaranteed to be unique within any particular
           SmartScreen instance and so can be used as a base for
-          other globally-unique names if needed.
+          other globally-unique names if needed. This page element
+          will have a class of the widget's _`<name>`_ and the CSS
+          attribute `position: relative`.
 
         * static_url: a URL coresponding to the widget directory (i.e.
           the one containing the JavaScript file). This allow
@@ -150,6 +156,12 @@ characteristics:
 
 Other than it's own name, widgets must not create any new names in
 the JavaScript global context.
+
+Widgets can assume that a copy of jQuery is available and must not
+include this in their `requirements.json` file.
+
+The page element identified by `container` will be in a class named
+after the widget and will have the CSS attribute `position: relative`.
 
 Widgets may assume the existance of a global `RTMONITOR_API` containing
 an instance of the RT Monitor API.
