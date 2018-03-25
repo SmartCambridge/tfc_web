@@ -75,7 +75,7 @@
                 if ('init' in widget[i])
                     widget[i].init();
             {% if display %}
-            setInterval(refresh_display, 10000);
+            setInterval(refresh_display, 60000);
             {% endif %}
         });
     </script>
