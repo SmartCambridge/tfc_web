@@ -2,9 +2,11 @@ import logging
 import json
 import os
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
+from django.utils.timezone import now
 from smartpanel.forms import DisplayForm
 from smartpanel.models import Layout, Display
 
@@ -151,6 +153,17 @@ def layout(request, layout_id):
                   {'layout': layout, 'confdata': confdata, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3]})
+
+
+@login_required
+def publish_new_layout_version(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
+    if request.method == "POST":
+        layout.version += 1
+        layout.version_date = now()
+        layout.save()
+        messages.info(request, 'SmartPanel layout published')
+    return redirect('smartpanel-layout-my')
 
 
 @login_required

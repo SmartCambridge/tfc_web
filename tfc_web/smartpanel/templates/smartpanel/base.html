@@ -74,7 +74,7 @@
                     <a class="mdl-navigation__link" href="{% url 'account_signup' %}?next={{request.path}}">Sign Up</a>
                 {% endif %}
                 {% block navigation %}
-                    <a class="mdl-navigation__link" href="{% url 'smartpanel-my' %}">My SmartPanels</a>
+                    <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-my' %}">My SmartPanels</a>
                 {% endblock %}
                 {% if user.is_authenticated %}
                     <div class="drawer-separator"></div>
