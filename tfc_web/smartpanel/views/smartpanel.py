@@ -204,6 +204,13 @@ def display(request, display_id):
     return layout(request, display.layout.id, display=display)
 
 
+def displays_debug(request):
+    results = {}
+    for display in Display.objects.all():
+        results['display-%s' % display.id] = cache.get('display-%s' % display.id, {})
+    return JsonResponse(results)
+
+
 @login_required
 def my_displays(request):
     return render(request, 'smartpanel/displays.html', {'screens': Display.objects.filter(owner=request.user),
