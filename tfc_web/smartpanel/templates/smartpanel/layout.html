@@ -54,11 +54,29 @@
             document.getElementById('screen_clock').innerHTML = hh+':'+mm+':'+ss;
         }
 
+        {% if display %}
+        function refresh_display() {
+            $.ajax({
+                type: "GET",
+                url: '{% url 'smartpanel-display-refresh' display.id display.layout.id display.layout.version %}',
+                success: function(data) {
+                    console.log(data);
+                    if (data['refresh'] === true) {
+                        window.location.reload();
+                    }
+                },
+            });
+        }
+        {% endif %}
+
         $().ready(function () {
             setInterval(update_screen_clock, 1000);
             for (var i = 0; i < widget.length; i++)
                 if ('init' in widget[i])
                     widget[i].init();
+            {% if display %}
+            setInterval(refresh_display, 10000);
+            {% endif %}
         });
     </script>
 </body>

@@ -13,7 +13,8 @@
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var info_map = L.control();
         var screens = [{% for screen in screens %}
-            { "layout_url": "{% url 'smartpanel-layout' screen.layout.id %}", "layout_name": "{{ screen.layout.name }}",
+            { "display_url": "{% url 'smartpanel-display' screen.id %}", "layout_name": "{{ screen.layout.name }}",
+                "layout_url": "{% url 'smartpanel-layout' screen.layout.id %}",
                 "lat": "{{ screen.location.y }}", "lon": "{{ screen.location.x }}", "name": "{{ screen.name }}",
                 "edit_url": "{% url 'smartpanel-edit-display' screen.id %}"},
         {% endfor %}];
@@ -31,9 +32,10 @@
             for (var i = 0; i < screens.length; i++) {
                 screens[i]['marker'] = L.marker([screens[i]['lat'], screens[i]['lon']]);
                 screens[i]['marker'].addTo(map).bindTooltip(
-                    "Name: "+screens[i]['name']+"<br>Layout: <a target='_blank' href='"+screens[i]['layout_url']+"'>"+
+                    "<a target='_blank' href='"+screens[i]['display_url']+"'>"+
+                    screens[i]['name']+"</a><br> - <a target='_blank' href='"+screens[i]['layout_url']+"'>Layout "+
                     screens[i]['layout_name']+"</a>"+
-                    "<br><a target='_blank' href='"+screens[i]['edit_url']+"'>Edit</a>",
+                    "<br> - <a target='_blank' href='"+screens[i]['edit_url']+"'>Edit display</a>",
                     { permanent: true, interactive: true });
             }
         });
