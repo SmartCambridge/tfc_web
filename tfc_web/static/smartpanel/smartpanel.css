@@ -3,6 +3,10 @@
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 .grid {
     position: relative;
     height: 100%;
