@@ -2,80 +2,27 @@
 
 .station_board {
     height: 100%;
-    width: 100%;
     padding: 0.5em;
+    position: relative;
+    width: 100%;
 }
 
 .station_board .content_area {
     border-bottom: 40px solid transparent;
     height: 100%;
     overflow: hidden;
-    position: relative;
 }
 
 .station_board .credit {
-    left: 0px;
     bottom: 0.5em;
-    width: 100%;
     height: 30px;
+    left: 0;
     padding-left: 0.5em;
     padding-right: 0.5em;
     position: absolute;
+    width: 100%;
 }
 
 .station_board .credit img {
     height: 30px;
-}
-
-.station_board h1, .station_board h2 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-
-.station_board .message {
-    background-color: #fdd;
-    padding: 0.5em;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-}
-
-.station_board .message p {
-    margin: 0px;
-}
-
-.station_board table {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 0.5em;
-    width: 100%;
-    overflow: hidden;
-}
-
-.station_board th, .station_board td {
-    padding-top: 0.1em;
-    padding-bottom: 0.1em;
-    padding-left: 0.4em;
-    padding-right: 0.4em;
-}
-
-.station_board tr.issue {
-    background-color: #fdd;
-}
-
-.station_board tr th:first-child { text-align: center; }
-.station_board tr td:first-child { text-align: center; }
-.station_board tr th:first-child + th { text-align: left; }
-.station_board tr td:first-child + td { text-align: left; }
-.station_board tr th:first-child + th + th { text-align: center; }
-.station_board tr td:first-child + td + td { text-align: center; }
-
-.station_board .widget_error {
-    display: none;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    background: red;
-    text-align: center;
-    color: white;
 }

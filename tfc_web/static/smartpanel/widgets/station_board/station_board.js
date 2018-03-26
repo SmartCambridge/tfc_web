@@ -2,13 +2,22 @@
 
 /*global $ */
 
-function StationBoard(container, params, static_url) {
+function StationBoard(config, params) {
 
     'use strict';
 
+    // Backwards compatibility or first argument
+    var container;
+    if (typeof(config) === 'string') {
+        container = config;
+    }
+    else {
+        this.config = config;
+        container = config.container;
+    }
     this.container = container;
+
     this.params = params;
-    this.static_url = static_url;
 
     this.init = function () {
         this.log("Running init", this.container);
@@ -24,7 +33,7 @@ function StationBoard(container, params, static_url) {
         this.log("Running StationBoard.do_load", this.container);
         var self = this,
             url = "../../station_board?station=" + this.params.station +
-                "&offset=" + this.params.offset + " .station_board";
+                "&offset=" + this.params.offset + " .content_area";
         this.log("do_load URI", url);
         this.log("Container", '#' + this.container);
         $('#' + this.container).load(url, function (response, status, xhr) {
