@@ -41,6 +41,11 @@
             {% csrf_token %}
             <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete Design">
         </form>
+        <form action="{% url 'smartpanel-layout-publish' layout.id %}" method="post" style="float: left; margin-top: 10px; margin-left: 10px;">
+            {% csrf_token %}
+            <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Publish Layout">
+        </form>
+        <span style="font-size: 12px">Last published: {{ layout.version_date }}</span>
         <a href="http://www.connectingcambridgeshire.co.uk/smartcamb/"><img alt="Connecting Cambridgshire" src="{% static 'images/logo_sc_112.png' %}"></a>
         <a href="http://www.cam.ac.uk"><img alt="The University of Cambridge" src="{% static 'images/logo_uc_112.png' %}"></a>
     </div>
