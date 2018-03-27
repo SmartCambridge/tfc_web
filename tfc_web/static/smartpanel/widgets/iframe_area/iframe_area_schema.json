@@ -1,0 +1,25 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/iframe_area.json",
+    "$comment": "",
+    "description": "Parameters for the ACP Iframe Area widget",
+    "title": "Iframe Area",
+
+    "type": "object",
+    "required": ["url"],
+    "properties": {
+        "url": {
+            "type": "string",
+            "title": "URL",
+            "description": "The URL of the page to enbed",
+            "format": "url"
+        },
+        "scale": {
+            "type": "number",
+            "title": "Scale factor",
+            "description": "A scale factor to apply to the embedded page",
+            "minimum": 0
+        }
+    }
+}
