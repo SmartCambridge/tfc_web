@@ -1,17 +1,26 @@
 /* Traffic Map Widget for Twitter Timelines */
 
-/*global $ */
+/*global $, DEBUG */
+/* exported TwitterTimeline */
 
-'use strict';
+function TwitterTimeline(config, params) {
 
-function TwitterTimeline(container, params, static_url) {
+    'use strict';
 
+    // Backwards compatibility or first argument
+    var container;
+    if (typeof(config) === 'string') {
+        container = config;
+    }
+    else {
+        this.config = config;
+        container = config.container;
+    }
     this.container = container;
     this.params = params;
-    this.static_url = static_url;
 
     this.init = function () {
-        this.log("Running init", this.container);
+        this.log('Running init', this.container);
         this.do_load();
     };
 
@@ -21,7 +30,7 @@ function TwitterTimeline(container, params, static_url) {
     }*/
 
     this.do_load = function () {
-        this.log("Running do_load", this.container);
+        this.log('Running do_load', this.container);
         var container_width = $('#' + this.container).width(),
             container_height = $('#' + this.container).height(),
             tag = $('<a class="twitter-timeline" ' +
@@ -32,9 +41,9 @@ function TwitterTimeline(container, params, static_url) {
                 'data-link-color="#000000"' +
                 'href="https://twitter.com/' + this.params.who + '">Tweets by ' + this.params.who + ' </a>' +
                 '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
-        this.log("do_load (height,width)", container_height, container_width);
+        this.log('do_load (height,width)', container_height, container_width);
         $('#' + this.container).empty().append(tag);
-        this.log("do_load done", this.container);
+        this.log('do_load done', this.container);
     };
 
     this.log = function() {
@@ -43,6 +52,6 @@ function TwitterTimeline(container, params, static_url) {
         }
     };
 
-    this.log("Instantiated TwitterTimeline", container, params);
+    this.log('Instantiated TwitterTimeline', container, params);
 
 }
