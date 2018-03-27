@@ -36,7 +36,7 @@
                 <li style="height: calc({{ value.design.h }}*100%/4);
                         width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
                         left: calc({{ value.design.x }}*100%/6);">
-                    <div id="widget-{{ key }}" class="{{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
+                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
                         {% if not value.configuration %}unconfigured{% endif %}</div></li>
             {% endfor %}
         </ul>
@@ -48,7 +48,7 @@
         {% for key, value in confdata.items %}
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
-                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}'},
+                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/'},
                 {{ value.configuration.data|safe }}
             ));
             {% endif %}

@@ -129,11 +129,11 @@ characteristics:
           is guaranteed to be unique within any particular
           SmartScreen instance and so can be used as a base for
           other globally-unique names if needed. This page element
-          will have a class of the widget's _`<name>`_ and the CSS
+          will have classes of 'widget' and the widget's _`<name>`_, and the CSS
           attribute `position: relative`.
 
-        * static_url: a URL coresponding to the widget directory (i.e.
-          the one containing the JavaScript file). This allow
+        * static_url: a URL corresponding to the widget directory (i.e.
+          the one containing the JavaScript file), including a trailing '/'. This allow
           the JavaScript to access other resources in the widget
           directory without having to hard-code URLs. Hard-coded URL's
           must not be used to allow SmartScreens to be setup
