@@ -1,10 +1,16 @@
 import logging
 import json
 import os
+import copy
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
+from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
+from django.urls import reverse
+from django.utils.timezone import now
 from smartpanel.forms import DisplayForm
 from smartpanel.models import Layout, Display
 
@@ -139,7 +145,7 @@ def layout_delete_widget(request, layout_id):
     return redirect('smartpanel-layout-config', layout_id)
 
 
-def layout(request, layout_id):
+def layout(request, layout_id, display=None):
     layout = get_object_or_404(Layout, id=layout_id)
     confdata = generate_layout_configuration(layout)
     uwl = []
@@ -150,7 +156,18 @@ def layout(request, layout_id):
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout, 'confdata': confdata, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3]})
+                   'external_stylesheets': dependencies_files_list[3], 'display': display})
+
+
+@login_required
+def publish_new_layout_version(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
+    if request.method == "POST":
+        layout.version += 1
+        layout.version_date = now()
+        layout.save()
+        messages.info(request, 'SmartPanel layout published')
+    return redirect('smartpanel-layout-my')
 
 
 @login_required
@@ -169,6 +186,29 @@ def new_display(request):
 
 def displays(request):
     return render(request, 'smartpanel/displays.html', {'screens': Display.objects.all()})
+
+
+def display_refresh(request, display_id, layout_id, version):
+    display = get_object_or_404(Display, id=display_id)
+    refresh_info = copy.deepcopy(request.GET)
+    refresh_info['source_ip'] = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+    refresh_info['time'] = now()
+    cache.set('display-%s' % display.id, refresh_info)
+    if display.layout.id != int(layout_id) or display.layout.version != int(version):
+        return JsonResponse({'refresh': True, 'url': reverse('smartpanel-display', args=(display_id, ))})
+    return JsonResponse({'refresh': False, 'url': reverse('smartpanel-display', args=(display_id, ))})
+
+
+def display(request, display_id):
+    display = get_object_or_404(Display, id=display_id)
+    return layout(request, display.layout.id, display=display)
+
+
+def displays_debug(request):
+    results = {}
+    for display in Display.objects.all():
+        results['display-%s' % display.id] = cache.get('display-%s' % display.id, {})
+    return JsonResponse(results)
 
 
 @login_required
