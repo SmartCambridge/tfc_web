@@ -10,6 +10,8 @@ class Layout(models.Model):
     design = JSONField()
     configuration = JSONField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=DO_NOTHING)
+    version = models.IntegerField(default=1)
+    version_date = models.DateTimeField(auto_now_add=True)
 
     @python_2_unicode_compatible
     def __str__(self):
