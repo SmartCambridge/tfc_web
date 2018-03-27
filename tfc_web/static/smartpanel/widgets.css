@@ -14,6 +14,13 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Restore a top/bottom margin around block-level elements */
+/* (removed by smartpanel.css) */
+.widget p, .widget ul, .widget ol, .widget pre, .widget address,
+.widget blockquot, .widget hr {
+    margin: 0.5rem 0;
+}
+
 h1, h2 {
     margin-bottom: 0;
     margin-top: 0;
