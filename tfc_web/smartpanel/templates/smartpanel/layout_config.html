@@ -53,11 +53,9 @@
             {% else %}
                 <select id="widget-{{ key }}" class="widget mdl-textfield__input" style="width: 200px;">
                     <option value="" selected disabled>Select a widget</option>
-                    <option value="station_board">Train Stations</option>
-                    <option value="weather">Weather</option>
-                    <option value="traffic_map">Traffic Map</option>
-                    <option value="twitter_timeline">Twitter timeline</option>
-                    <option value="message_area">Message Area</option>
+                    {% for widget in widgets_list %}
+                    <option value="{{ widget.file}}">{{ widget.name }}</option>
+                    {% endfor %}
                 </select>
                 <div class="container-form"></div>
             {% endif %}

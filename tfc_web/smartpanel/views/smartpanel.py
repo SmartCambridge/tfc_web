@@ -81,11 +81,11 @@ def generate_widget_list():
     list_widget_files = os.listdir(widget_directory)
     list_widgets = []
     for widget_file in list_widget_files:
-        if os.path.isdir(widget_file):
+        if os.path.isdir(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets', widget_file)):
             list_widgets.append({
                 'name': json.load(open(os.path.join(widget_directory, '%s/%s_schema.json' %
                                                     (widget_file, widget_file))))['title'],
-                'file': list_widgets
+                'file': widget_file
             })
     return list_widgets
 
