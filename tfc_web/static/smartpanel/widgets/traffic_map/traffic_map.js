@@ -1,62 +1,100 @@
 /* Traffic Map Widget for ACP Lobby Screen */
 
-/*global $, google, document */
+/*jshint esversion:6 */
+/*global google, document, DEBUG */
+/*exported TrafficMap */
 
-function TrafficMap(container, params, static_url) {
+function TrafficMap(config, params) {
 
     'use strict';
 
-    this.container = container;
+    this.container = config.container;
     this.params = params;
-    this.googleliburl = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g";
-    this.static_url = static_url;
 
     this.init = function () {
-        this.log("Running init", this.container);
-        // Check that the google maps library has been loaded
-        if (typeof google == 'undefined') {
-            var scripts = document.getElementsByTagName('script');
-            for (var i = scripts.length; i--;) {
-                if (scripts[i].src == this.googleliburl) {
-                    setTimeout(this.init, 500);
-                    return;
-                }
-            }
-            var script = document.createElement('script');
-            script.onload = this.do_load;
-            script.src = this.googleliburl;
-            document.head.appendChild(script);
-        } else {
-            this.do_load();
+        log('Running init', config.container);
+
+        var container = document.getElementById(config.container);
+
+        // Empty the container
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
         }
-    };
 
-    /*this.reload = function() {
-        this.log("Running StationBoard.reload", this.container);
-        this.do_load();
-    }*/
+        // Backwards compatibility: allow params to be a single stop or
+        // to contain a list of stops
+        if (!params.maps) {
+            log('init - promoting one map to lots of maps');
+            params.maps = [params];
+        }
 
-    this.do_load = function () {
-        this.log("Running do_load", this.container);
-        var map, trafficLayer;
-        map = new google.maps.Map(document.getElementById(this.container), {
-            zoom: this.params.zoom,
-            center: {lat: this.params.lat, lng: this.params.lng},
+        var widget_area = document.createElement('div');
+        widget_area.classList.add('traffic_map');
+        container.appendChild(widget_area);
+
+        var map_div = document.createElement('div');
+        map_div.classList.add('map');
+        widget_area.appendChild(map_div);
+
+        // First map settings
+        log('init - preping map 0');
+        var map0 = params.maps[0];
+        var google_map = new google.maps.Map(map_div, {
+            zoom: map0.zoom,
+            center: {lat: map0.lat, lng: map0.lng},
             disableDefaultUI: true
         });
-        trafficLayer = new google.maps.TrafficLayer({
+        var trafficLayer = new google.maps.TrafficLayer({
             autoRefresh: true
         });
-        trafficLayer.setMap(map);
-        this.log("TragfficMap.do_load done", this.container);
+        trafficLayer.setMap(google_map);
+
+        // Title
+        var title = document.createElement('h1');
+        title.classList.add('translucent');
+        var img = document.createElement('img');
+        img.setAttribute('src', config.static_url + 'car.png');
+        title.appendChild(img);
+        title.appendChild(document.createTextNode(' '));
+        title.appendChild(document.createTextNode('Road Traffic'));
+        widget_area.appendChild(title);
+
+        // Ledgend
+        var ledgend = document.createElement('div');
+        ledgend.classList.add('ledgend');
+        ledgend.innerHTML =
+           `Live traffic speed<br/><i>Fast</i> <img src="${config.static_url}traffic-legend.png" alt=""/> <i>Slow</i>`;
+        widget_area.appendChild(ledgend);
+
+        // Rotation logic
+        var map_no = 0;
+        if (params.maps.length > 1) {
+            var interval = params.interval * 1000 || 7500;
+            if (interval < 1000) {
+                interval = 1000;
+            }
+            log('do load - interval is', interval);
+            window.setInterval(function() {
+                map_no = (map_no + 1) % params.maps.length;
+                log('TrafficMap - rolling maps to map number', map_no);
+                google_map.panTo({lat: params.maps[map_no].lat, lng: params.maps[map_no].lng});
+                google_map.setZoom(params.maps[map_no].zoom);
+            }, interval);
+        }
+        else {
+            log('init - only one map');
+        }
+
+        log('TragfficMap.init done', this.container);
+
     };
 
-    this.log = function() {
+    function log() {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('traffic_map_log') >= 0) {
             console.log.apply(console, arguments);
         }
-    };
+    }
 
-    this.log("Instantiated TrafficMap", container, params);
+    log('Instantiated TrafficMap', this.container, params);
 
 }
