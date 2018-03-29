@@ -1,0 +1,91 @@
+.stop_bus_map_title_h1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 0.5rem;
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.stop_bus_map_title_h1 img {
+    height: 0.8em; 
+}
+
+.stop_bus_map_title_text {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: auto;
+    text-align: center;
+    color: black;
+}
+
+.stop_bus_map_div {
+    width: 100%;
+    height: 100%;
+}
+
+.stop_bus_map_connection_div { /* connection error div */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: white;
+    font-size: 2em;
+    background-color: red;
+    text-align: center;
+    display: none;
+    z-index: 1010;
+}
+
+.sensor-popup {
+    font-size: small;
+}
+
+.marker_sensor_M {
+    background-image: url("images/bus_logo_M.png");
+    /* background-color: green; */
+}
+
+.marker_sensor_L {
+    background-image: url("images/bus_logo_L.png");
+    /* background-color: green; */
+}
+
+.marker_label_M {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 7px;
+    font-size: 7px;
+    text-align: center;
+}
+
+.marker_label_L {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 8px;
+    font-size: 11px;
+    text-align: center;
+}
+
+.marker_stop_L {
+    background-image: url("images/bus_stop_L.png");
+    background-size: 15px 40px;
+    background-repeat: no-repeat;
+    /* background-color: green; */
+}
+
+.marker_stop_label_L {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 8px;
+    margin-left: 10px;
+    font-size: 11px;
+    text-align: left;
+}
+
+
