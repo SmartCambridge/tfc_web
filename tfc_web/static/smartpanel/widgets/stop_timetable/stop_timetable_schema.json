@@ -1,0 +1,87 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/stop_timetable.json",
+    "description": "Parameters for the ACP Stop Timetable widget",
+    "title": "Bus stop timetable",
+
+    "type": "object",
+    "required": ["stop_id", "common_name", "layout"],
+    "properties": {
+
+        "stop_id": {
+            "type": "string",
+            "title": "Bus stop ID",
+            "description": "The NaPTAN AtcoCode of the stop to display"
+        },
+
+        "common_name": {
+            "type": "string",
+            "title": "Stop name or description",
+            "description": "Used as the title of the timetable display"
+        },
+
+        "offset": {
+            "type": "integer",
+            "title": "Timing offset",
+            "description": "Offset in minutes against the current time to provide the station board for",
+            "minimum": -120,
+            "maximum": 120
+        },
+
+        "layout": {
+            "type": "string",
+            "title": "Layout",
+            "description": "Required layout for the display",
+            "enum": [ "simple", "multiline", "nextbus", "debug" ]
+        },
+
+        "destinations": {
+            "type": "array",
+            "title": "Destinations",
+            "description": "Additional destinations to include on the display",
+            "items": {
+                "type": "object",
+                "required": ["description"],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "title": "Description",
+                        "description": "Description of the destination"
+                    },
+                    "stop_ids": {
+                        "type": "array",
+                        "title": "Destination bus stop IDs",
+                        "description": "One or more NaPTAN AtcoCodes of stops making up the destination",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "area": {
+                        "type": "array",
+                        "title": "Destination area",
+                        "description": "A list of lat/lng coordinate pairs defining the destination area",
+                        "items": {
+                            "type": "object",
+                            "required": ["lng", "lat"],
+                            "properties": {
+                                "lng": {
+                                    "type": "number",
+                                    "title": "Longitude",
+                                    "maximum": 180,
+                                    "minumum": -180
+                                },
+                                "lat": {
+                                    "type": "number",
+                                    "title": "Latitude",
+                                    "maximum": 90,
+                                    "minimum": -90
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
