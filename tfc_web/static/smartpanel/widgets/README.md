@@ -98,7 +98,8 @@ are optional, but a widget with no files won't do anything.
 
         An example of such a file appears below. Non-local dependencies
         must be included using the object syntax even if they don't
-        have an "integrety" hash.
+        have an "integrety" hash. Non-local resources are
+        loaded before the corresponding local ones.
 
         A copy of jQuery will automatically be available and a request
         for this shouldn't appear in requirements.
