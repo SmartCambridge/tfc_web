@@ -35,8 +35,7 @@ function IframeArea(config, params) {
         var frame = $('<iframe>')
                 .attr('src', this.params.url)
         // 'scrolling=no' is deprecated but I can't find a cosponsoring CSS attribute
-                .attr('scrolling', 'no')
-                .addClass('iframe_area');
+                .attr('scrolling', 'no');
         // Use scale to make the iframe bigger, and then transform it back down to fit.
         if ((typeof this.params.scale !== 'undefined') && this.params.scale > 0) {
             this.log('Scale factor', this.params.scale);
