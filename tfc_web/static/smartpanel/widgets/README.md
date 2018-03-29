@@ -90,12 +90,15 @@ are optional, but a widget with no files won't do anything.
         and/or "stylesheets". Each of these must contain an array whose
         elements are either:
 
-        * Objects containing keys "src" and "integrity" (for scripts) or
-          "href" and "integrity" (for stylesheets) with apropriate
-          values, for non local dependencies; or
-        * local filenames
+        * Objects containing keys "src" and (optionally) "integrity"
+          (for scripts) or "href" and (optionally) "integrity" (for
+          stylesheets) with appropriate values, for non local
+          dependencies; or
+        * Strings containing local file names
 
-        An example of such a file appears below.
+        An example of such a file appears below. Non-local dependencies
+        must be included using the object syntax even if they don't
+        have an "integrety" hash.
 
         A copy of jQuery will automatically be available and a request
         for this shouldn't appear in requirements.
