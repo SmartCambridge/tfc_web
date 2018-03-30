@@ -162,7 +162,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
-LOGIN_REDIRECT_URL = 'csn-home'
+LOGIN_REDIRECT_URL = 'home'
 
 
 ######### Forum app (django-machina) configuration ##########

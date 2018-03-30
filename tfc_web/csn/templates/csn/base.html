@@ -1,2 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Cambridge Sensor Network{% endblock %}
+{% block header_menu %}
+    <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'csn-home' %}">CSN Home</a>
+    <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'forum:index' %}">Forum</a>
+{% endblock %}
+{% block navigation %}
+    <a class="mdl-navigation__link" href="{% url 'csn_applications' %}">Applications</a>
+    <a class="mdl-navigation__link" href="{% url 'csn_devices' %}">Devices</a>
+    <a class="mdl-navigation__link" href="{% url 'csn_network_info' %}">Network information</a>
+    <a class="mdl-navigation__link" href="{% url 'forum:index' %}">
+        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Forums
+    </a>
+{% endblock %}

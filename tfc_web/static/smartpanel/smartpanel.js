@@ -43,6 +43,7 @@ function box_html(box_content) {
         '<div class="inner">' +
         '<div class="controls">' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="1" data-h="2">1x2</a>' +
+        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="1" data-h="4">1x4</a>' +
         '<a href="#" class="selected resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="2" data-h="2">2x2</a>' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="2" data-h="4">2x4</a>' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="4" data-h="2">4x2</a>' +
