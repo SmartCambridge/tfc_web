@@ -90,12 +90,16 @@ are optional, but a widget with no files won't do anything.
         and/or "stylesheets". Each of these must contain an array whose
         elements are either:
 
-        * Objects containing keys "src" and "integrity" (for scripts) or
-          "href" and "integrity" (for stylesheets) with apropriate
-          values, for non local dependencies; or
-        * local filenames
+        * Objects containing keys "src" and (optionally) "integrity"
+          (for scripts) or "href" and (optionally) "integrity" (for
+          stylesheets) with appropriate values, for non local
+          dependencies; or
+        * Strings containing local file names
 
-        An example of such a file appears below.
+        An example of such a file appears below. Non-local dependencies
+        must be included using the object syntax even if they don't
+        have an "integrety" hash. Non-local resources are
+        loaded before the corresponding local ones.
 
         A copy of jQuery will automatically be available and a request
         for this shouldn't appear in requirements.
@@ -129,11 +133,11 @@ characteristics:
           is guaranteed to be unique within any particular
           SmartScreen instance and so can be used as a base for
           other globally-unique names if needed. This page element
-          will have a class of the widget's _`<name>`_ and the CSS
+          will have classes of 'widget' and the widget's _`<name>`_, and the CSS
           attribute `position: relative`.
 
-        * static_url: a URL coresponding to the widget directory (i.e.
-          the one containing the JavaScript file). This allow
+        * static_url: a URL corresponding to the widget directory (i.e.
+          the one containing the JavaScript file), including a trailing '/'. This allow
           the JavaScript to access other resources in the widget
           directory without having to hard-code URLs. Hard-coded URL's
           must not be used to allow SmartScreens to be setup

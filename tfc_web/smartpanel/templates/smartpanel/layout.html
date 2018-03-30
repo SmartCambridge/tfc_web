@@ -6,20 +6,20 @@
     <title>SmartCambridge SmartPanel</title>
     <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
     <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
-    {% for stylesheet in stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet }}">
-    {% endfor %}
     {% for stylesheet in external_stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
+    {% endfor %}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
     <script src="{% static 'js/rtmonitor_api.js' %}"></script>
-    {% for script in scripts %}
-        <script src="{{ script }}"></script>
-    {% endfor %}
     {% for script in external_scripts %}
         <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
+    {% endfor %}
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
     {% endfor %}
 </head>
 <body>
@@ -36,7 +36,7 @@
                 <li style="height: calc({{ value.design.h }}*100%/4);
                         width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
                         left: calc({{ value.design.x }}*100%/6);">
-                    <div id="widget-{{ key }}" class="{{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
+                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
                         {% if not value.configuration %}unconfigured{% endif %}</div></li>
             {% endfor %}
         </ul>
@@ -48,7 +48,7 @@
         {% for key, value in confdata.items %}
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
-                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}'},
+                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/'},
                 {{ value.configuration.data|safe }}
             ));
             {% endif %}
