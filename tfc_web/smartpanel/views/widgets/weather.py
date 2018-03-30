@@ -1,22 +1,39 @@
 import logging
-# for widget support views
 from django.core.cache import cache
 from django.conf import settings
 from django.shortcuts import render
-#    ... for weather
 import requests
 from collections import OrderedDict
-import datetime
+from datetime import datetime, time, timedelta
 import pytz
 import iso8601
-from django.contrib.staticfiles.templatetags.staticfiles import static
-
 
 logger = logging.getLogger(__name__)
 
-
 METOFFICE_API = 'http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/'
 
+uk_tz = pytz.timezone('Europe/London')
+utc_tz = pytz.utc
+
+# The forecasts to display
+forecast_breakpoints = [
+        # forecast_time: use the forecast nearest this time
+        # display_until: display this forecast until this time
+        # label: how to label the forecast
+        # [all these times are implicitly 'UK local']
+        {'forecast_time': time(hour=8, minute=30),
+         'display_until': time(hour=9, minute=30),
+         'label': 'morning'
+         },
+        {'forecast_time': time(hour=13, minute=0),
+         'display_until': time(hour=14, minute=0),
+         'label': 'lunchtime'
+         },
+        {'forecast_time': time(hour=17, minute=0),
+         'display_until': time(hour=18, minute=0),
+         'label': 'evening'
+         }
+    ]
 
 # Met Office 'Significant weather' code to text description
 weather_descriptions = {
@@ -114,34 +131,110 @@ def mph_to_descr(speed):
         return 'huricane'
 
 
-def extract_weather_results(data):
+def get_forecast_list(breakpoints):
     '''
-    Walk the (assumed date/time ordered) forecast data returned by the
-    Met Office API and finding the forecast dated immediately before
-    now and the next two, without making any assumptions about the
-    interval between forecasts
+    Given a list of display times, return a list of the forecasts
+    that should be displayed
     '''
-    previous = None
+
+    now = uk_tz.localize(datetime.now())
+    max_forecasts = 8
+
+    # Find the first breakpoint with display_until after now (wrapping
+    # to tomorrow if necessary)
+    row = 0
+    today = now.date()
+    while row < len(forecast_breakpoints):
+        display_until = uk_tz.localize(
+            datetime.combine(today, breakpoints[row]['display_until'])
+        )
+        if display_until > now:
+            break
+        row += 1
+    else:
+        row = 0
+        today = today + timedelta(days=1)
+
+    # Build and return an array of the UTC forecast times and corresponding
+    # labels that we want, starting at the row identified above and wrapping
+    # to tomorrow if necessary
     results = []
-    now = datetime.datetime.now(tz=pytz.UTC)
+    qualifier = 'this '
+    while len(results) < max_forecasts:
+        forecast_datetime = uk_tz.localize(
+            datetime.combine(today, breakpoints[row]['forecast_time'])
+        ).astimezone(utc_tz)
+        if forecast_datetime.date() == now.date():
+            qualifier = 'this'
+        elif forecast_datetime.date() == now.date() + timedelta(days=1):
+            qualifier = 'tomorrow'
+        else:
+            qualifier = forecast_datetime.strftime('%A')
+        results.append(
+            {'time': forecast_datetime,
+             'label': (qualifier + ' ' + breakpoints[row]['label']).capitalize()
+             }
+        )
+        row += 1
+        if row >= len(breakpoints):
+            row = 0
+            today = today + timedelta(days=1)
+
+    return results
+
+
+def extract_weather_results(forecasts, data):
+    '''
+    Walk the (assumed date/time ordered) forecasts returned by the
+    Met Office API and, for each entry in forecasts select the one that's
+    closest to the corresponding timestamp (without making any assumptions
+    about the timing of the forecasts or the interval between them
+    '''
+
+    results = [None] * len(forecasts)
+    current = None
+    now = datetime.now(tz=utc_tz)
+    # For each day...
     for period in data["SiteRep"]["DV"]["Location"]["Period"]:
-        day = iso8601.parse_date(period["value"][0:10],default_timezone=datetime.timezone.utc)
+        day = iso8601.parse_date(
+            period["value"][0:10], default_timezone=utc_tz
+        )
+        # ...for each forecast in that day
         for rep in period["Rep"]:
-            rep['description'] = weather_descriptions.get(rep['W'],'')
-            if weather_icon.get(rep['W'],''):
-                rep['icon'] = static('smartpanel/widgets/weather/icons/weather_icon-' +
-                              weather_icon.get(rep['W'],'') +'.png')
-            logger.info(rep['icon'])
-            rep['wind_desc'] = mph_to_descr(int(rep['S']))
-            timestamp = day + datetime.timedelta(minutes=int(rep["$"]))
-            if timestamp > now and not results:
-                results.append(previous)
-            if timestamp > now:
-                results.append((timestamp,rep))
-            if len(results) >= 3:
-                return(results)
-            previous = ((timestamp,rep))
-    return(results)
+            rep['day'] = day
+            rep['timestamp'] = day + timedelta(minutes=int(rep["$"]))
+            # ...see if it's a best match for a requested forecast
+            for counter, wanted in enumerate(forecasts):
+                if results[counter] is None:
+                    results[counter] = rep
+                else:
+                    if (abs(rep['timestamp'] - wanted['time']) <
+                       abs(results[counter]['timestamp'] - wanted['time'])):
+                        results[counter] = rep
+            # ...and see if it's a best match for 'now'
+            if current is None:
+                current = rep
+            else:
+                if (abs(rep['timestamp'] - now) < abs(current['timestamp'] - now)):
+                    current = rep
+
+    # Enhance the values being returned
+    for counter, rep in enumerate(results):
+        rep['description'] = weather_descriptions.get(rep['W'], '')
+        rep['icon'] = 'smartpanel/widgets/weather/icons/weather_icon-' + weather_icon.get(rep['W'], '') + '.png'
+        rep['wind_desc'] = mph_to_descr(int(rep['S']))
+        rep['title'] = forecasts[counter]['label']
+
+    # Push current on the front of results if it's different from the
+    # existing first result
+    if current['timestamp'] < results[0]['timestamp']:
+        current['description'] = weather_descriptions.get(current['W'], '')
+        current['icon'] = 'smartpanel/widgets/weather/icons/weather_icon-' + weather_icon.get(current['W'], '')  + '.png'
+        current['wind_desc'] = mph_to_descr(int(current['S']))
+        current['title'] = 'Now'
+        results.insert(0, current)
+
+    return results
 
 
 def weather(request):
@@ -152,7 +245,7 @@ def weather(request):
     location = request.GET.get('location', '')
     assert location, 'No location code found'
 
-    cache_key = "weather!{0}".format(location);
+    cache_key = "weather!{0}".format(location)
     data = cache.get(cache_key)
     if data:
         logger.info('Cache hit for %s', cache_key)
@@ -165,14 +258,17 @@ def weather(request):
         r.raise_for_status()
         # https://stackoverflow.com/questions/35042216/requests-module-return-json-with-items-unordered
         data = r.json(object_pairs_hook=OrderedDict)
-        cache.set(cache_key,data,timeout=500)
+        cache.set(cache_key, data, timeout=500)
 
-    results = extract_weather_results(data)
-
+    forecasts = get_forecast_list(forecast_breakpoints)
+    results = extract_weather_results(forecasts, data)
+    for result in results:
+        result['timestamp_text'] = result['timestamp'].astimezone(tz=None).strftime('%H:%M')
+    issued = iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]).astimezone(tz=None).strftime("%H:%M")
     logger.info(results)
-
     return render(request, 'smartpanel/weather.html', {
         "results": results,
-        "location": data["SiteRep"]["DV"]["Location"]["name"],
-        "issued": iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]),
-    })
+        "location": data["SiteRep"]["DV"]["Location"]["name"].title(),
+        "issued": issued
+        }
+    )

@@ -17,6 +17,7 @@
 .grid li {
     position: absolute;
     border: 1px solid black;
+    /*
     z-index: 1;
     font-weight: bold;
     line-height: 4em;
@@ -35,6 +36,7 @@
         height 0.1s,
         font-size 0.1s,
         line-height 0.1s;
+    */
 }
 
 .grid li .inner {

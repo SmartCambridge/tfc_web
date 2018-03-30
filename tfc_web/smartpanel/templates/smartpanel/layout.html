@@ -5,13 +5,16 @@
 <head>
     <title>SmartCambridge SmartPanel</title>
     <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
     {% for stylesheet in stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
     {% for stylesheet in external_stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
     {% endfor %}
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
@@ -20,31 +23,42 @@
     {% endfor %}
 </head>
 <body>
-    <div class="logos" style="height: 60px;">
+    <div class="logos" style="height: 60px; width: {{display_width|default:"1920px"}}; position: relative;">
         <div id="screen_clock"></div>
         <a href="http://www.connectingcambridgeshire.co.uk/smartcamb/"><img alt="Connecting Cambridgshire" src="{% static 'images/logo_sc_112.png' %}"></a>
         <a href="http://www.cam.ac.uk"><img alt="The University of Cambridge" src="{% static 'images/logo_uc_112.png' %}"></a>
-        <span>Adaptive Cities Platform</span>
+        <a href="https://www.greatercambridge.org.uk/"><img alt="Greater Cambridge Partnership" src="{% static 'images/logo_gcp_112.png' %}"></a>
+        <span>SmartPanel</span>
     </div>
-    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">
+    <div class="grid-container mdl-color--teal-900" style="height: calc(({{display_width|default:"1920px"}} * 0.5625) - 60px); width: {{display_width|default:"1920px"}}; overflow: hidden;">
         <ul id="grid" class="grid">
             {% for key, value in confdata.items %}
                 <li style="height: calc({{ value.design.h }}*100%/4);
                         width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
                         left: calc({{ value.design.x }}*100%/6);">
-                    <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;">
+                    <div id="widget-{{ key }}" class="{{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
                         {% if not value.configuration %}unconfigured{% endif %}</div></li>
             {% endfor %}
         </ul>
     </div>
     <script>
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI();
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
-            widget.push(new {{ value.configuration.widget|title|remove_underscore }}('widget-{{ key }}',
-                {{ value.configuration.data|safe }}, '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}'));
+            widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
+                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}'},
+                {{ value.configuration.data|safe }}
+            ));
             {% endif %}
         {% endfor %}
+
+        function reload_widgets () {
+            for (var i = 0; i < widget.length; i++)
+                if ('reload' in widget[i])
+                    widget[i].reload();
+        }
 
         function update_screen_clock() {
             var datetime = new Date();
@@ -74,6 +88,9 @@
             for (var i = 0; i < widget.length; i++)
                 if ('init' in widget[i])
                     widget[i].init();
+            // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
+            RTMONITOR_API.init();
+            setInterval(reload_widgets, 60000);
             {% if display %}
             setInterval(refresh_display, 60000);
             {% endif %}

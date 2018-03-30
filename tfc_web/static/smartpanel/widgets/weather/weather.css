@@ -1,69 +1,31 @@
-/* Styles for the station board widget */
-
-.weather {
-    height: 100%;
-    width: 100%;
-    padding: 0.5em;
-    position: relative;
-}
+/* Styles for the weather widget */
 
 .weather .content_area {
-    position: relative;
-}
-
-.weather .content_area {
-    border-bottom: 40px solid transparent;
     height: 100%;
     overflow: hidden;
+    padding: 0.5rem;
 }
 
-.weather .credit {
-    left: 0px;
-    bottom: 0.5em;
-    width: 100%;
-    height: 30px;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    position: absolute;
+.weather .title {
+    clear: both;
+    margin-bottom: 0.3rem;
+    margin-top: 0.9rem;
 }
 
-.weather .credit img {
-    height: 30px;
+.weather .title :first-child {
+    font-size: 1.3rem;
+    font-weight: bold;
 }
 
-.weather h1 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-
-.weather h2 {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
-
-.weather h2.time {
-    margin-top: 0.5em;
-    margin-bottom: 0px;
-}
-
-.weather img {
+.weather .icon {
     float: right;
-    height: 96px;
-    width: 96px;
+    height: 80px;
+    width: 80px;
 }
 
 .weather p {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+    margin-bottom: 1.3rem;
+    margin-left: 1rem;
+    margin-top: 0.1rem;
 }
 
-.weather .widget_error {
-    display: none;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    background: red;
-    text-align: center;
-    color: white;
-}
