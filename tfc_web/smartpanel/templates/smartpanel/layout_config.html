@@ -1,5 +1,6 @@
 {% extends 'smartpanel/base.html' %}
 {% load static %}
+{% load jsonify %}
 {% load remove_underscore %}
 {% block extra_head %}
     <link rel="stylesheet" href='https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/css/brutusin-json-forms.min.css'/>
@@ -39,7 +40,7 @@
                     </div>
                 </div>
             </div>
-            {% if debug %}<p>{{ value }}</p>{% endif %}
+            {% if debug %}<p>{{ value|jsonify|safe }}</p>{% endif %}
 
             {% if value.configuration %}
                 <form action="{% url 'smartpanel-layout-delete-widget' layout.id %}" method="post" style="margin-bottom: 20px;">
@@ -101,7 +102,7 @@
         {% for key, value in confdata.items %}
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}('widget-{{ key }}',
-                {{ value.configuration.data|safe }}));
+                {{ value.configuration.data|jsonify|safe }}));
             {% endif %}
         {% endfor %}
 
