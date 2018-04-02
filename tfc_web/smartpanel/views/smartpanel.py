@@ -53,8 +53,10 @@ def generate_dependencies_files_list(uwl):
     external_js_files_list = []
     external_css_files_list = []
     for widget in uwl:
-        js_files_list.append(static('smartpanel/widgets/%s/%s.js' % (widget, widget)))
-        css_files_list.append(static('smartpanel/widgets/%s/%s.css' % (widget, widget)))
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
+            js_files_list.append(static('smartpanel/widgets/%s/%s.js' % (widget, widget)))
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
+            css_files_list.append(static('smartpanel/widgets/%s/%s.css' % (widget, widget)))
         try:
             requirements_file = open(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/requirements.json'
                                                   % widget))
@@ -148,7 +150,7 @@ def layout_delete_widget(request, layout_id):
 def layout(request, layout_id, display=None):
     layout = get_object_or_404(Layout, id=layout_id)
     confdata = generate_layout_configuration(layout)
-    uwl = []
+    uwl = []  # unique widget list
     for key, value in confdata.items():
         if 'configuration' in value and value['configuration']['widget'] not in uwl:
             uwl.append(value['configuration']['widget'])
