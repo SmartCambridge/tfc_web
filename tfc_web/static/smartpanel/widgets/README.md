@@ -94,7 +94,8 @@ are optional, but a widget with no files won't do anything.
           (for scripts) or "href" and (optionally) "integrity" (for
           stylesheets) with appropriate values, for non local
           dependencies; or
-        * Strings containing local file names
+        * Strings containing local file names, resolved relative to
+          the widget directory
 
         An example of such a file appears below. Non-local dependencies
         must be included using the object syntax even if they don't
