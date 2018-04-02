@@ -12,14 +12,13 @@
         "title": {
             "type": "string",
             "title": "Map title",
-            "description": "Used as the title of the map display",
+            "description": "Title of the map display",
             "min": 1.0
         },
         "breadcrumbs": {
-            "type": "integer",
-            "enum": [0,1],
+            "type": "boolean",
             "title": "Breadcrumbs",
-            "description": "1 for breadcrumbs, 0 otherwise"
+            "description": "Show bus path with breadcrumbs?"
         },
         "lat": {
             "type": "number",
@@ -52,12 +51,12 @@
                 "properties": {
                     "stop_id": {
                         "type": "string",
-                        "title": "Bus stop ID",
-                        "description": "NaPTAN AtcoCodes of stops to mark"
+                        "title": "Stop ID",
+                        "description": "NaPTAN AtcoCode of stop to mark"
                     },
                     "common_name": {
                         "type": "string",
-                        "title": "Bus stop label",
+                        "title": "Stop label",
                         "description": "Label for stop"
                     },
                     "lat": {
