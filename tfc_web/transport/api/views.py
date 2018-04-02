@@ -61,8 +61,7 @@ def calculate_vehicle_journey(departure_time, bus_stop_id):
     if bank_holidays:
         query1 = Timetable.objects.filter(
             Q(stop_id=bus_stop_id), Q(time=departure_time.time()), Q(order=1),
-            Q(vehicle_journey__days_of_week__contains=
-              departure_time.date().strftime("%A") |
+            Q(Q(vehicle_journey__days_of_week__contains=departure_time.date().strftime("%A")) |
               reduce(lambda x, y: x | y, [Q(vehicle_journey__operation_bank_holidays__contains=bank_holiday)
                                           for bank_holiday in bank_holidays]))) \
         .values_list('vehicle_journey', flat=True)
@@ -159,8 +158,7 @@ def journeys_by_time_and_stop(request):
     if bank_holidays:
         query1 = Timetable.objects.filter(
             Q(stop_id=stop), Q(time__gte=datetime_from.time()),
-            Q(vehicle_journey__days_of_week__contains=
-              datetime_from.date().strftime("%A") |
+            Q(Q(vehicle_journey__days_of_week__contains=datetime_from.date().strftime("%A")) |
               reduce(lambda x, y: x | y, [Q(vehicle_journey__operation_bank_holidays__contains=bank_holiday)
                                           for bank_holiday in bank_holidays]))) \
         .values_list('vehicle_journey', flat=True)
