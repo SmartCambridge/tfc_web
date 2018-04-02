@@ -160,8 +160,7 @@ def journeys_by_time_and_stop(request):
             Q(stop_id=stop), Q(time__gte=datetime_from.time()),
             Q(Q(vehicle_journey__days_of_week__contains=datetime_from.date().strftime("%A")) |
               reduce(lambda x, y: x | y, [Q(vehicle_journey__operation_bank_holidays__contains=bank_holiday)
-                                          for bank_holiday in bank_holidays]))) \
-        .values_list('vehicle_journey', flat=True)
+                                          for bank_holiday in bank_holidays])))
     else:
         query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
                                           vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
