@@ -182,7 +182,7 @@ function StopTimetable(config, params) {
         img.setAttribute('src', config.static_url + 'bus.png');
         title.appendChild(img);
         title.appendChild(document.createTextNode(' '));
-        title.appendChild(document.createTextNode(params.common_name));
+        title.appendChild(document.createTextNode(params.title));
         content_area.appendChild(title);
 
         var connection_div = document.createElement('div');

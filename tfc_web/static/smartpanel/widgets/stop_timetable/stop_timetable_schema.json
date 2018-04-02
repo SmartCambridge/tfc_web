@@ -2,44 +2,47 @@
 
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://smartcambridge.org/schemas/widgets/stop_timetable.json",
-    "description": "Parameters for the ACP Stop Timetable widget",
+    "description": "Display a bus timetable",
     "title": "Bus stop timetable",
 
     "type": "object",
-    "required": ["stop_id", "common_name", "layout"],
+    "required": ["stop_id", "title", "layout"],
     "properties": {
+
+        "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Timetable title"
+        },
 
         "stop_id": {
             "type": "string",
             "title": "Bus stop ID",
-            "description": "The NaPTAN AtcoCode of the stop to display"
-        },
-
-        "common_name": {
-            "type": "string",
-            "title": "Stop name or description",
-            "description": "Used as the title of the timetable display"
+            "description": "The NaPTAN AtcoCode of the stop to display",
+            "format": "smartpanel:bus_stop",
+            "default": "0500CCITY424"
         },
 
         "offset": {
             "type": "integer",
             "title": "Timing offset",
-            "description": "Offset in minutes against the current time to provide the station board for",
+            "description": "Offset from now to the start of the timetable (minutes)",
             "minimum": -120,
-            "maximum": 120
+            "maximum": 120,
+            "default": 0
         },
 
         "layout": {
             "type": "string",
             "title": "Layout",
-            "description": "Required layout for the display",
+            "description": "Display layout",
             "enum": [ "simple", "multiline", "nextbus", "debug" ]
         },
 
         "destinations": {
             "type": "array",
             "title": "Destinations",
-            "description": "Additional destinations to include on the display",
+            "description": "Destinations to include in the timetable",
             "items": {
                 "type": "object",
                 "required": ["description"],
@@ -47,35 +50,39 @@
                     "description": {
                         "type": "string",
                         "title": "Description",
-                        "description": "Description of the destination"
+                        "description": "Description of the destination (e.g. 'City Centre')",
+                        "default": "City Centre"
                     },
                     "stop_ids": {
                         "type": "array",
-                        "title": "Destination bus stop IDs",
+                        "title": "Destination stops",
                         "description": "One or more NaPTAN AtcoCodes of stops making up the destination",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "smartpanel:bus_stop",
+                            "default": "0500CCITY419"
                         }
                     },
                     "area": {
                         "type": "array",
                         "title": "Destination area",
                         "description": "A list of lat/lng coordinate pairs defining the destination area",
+                        "format": "smartpanel:polygon",
                         "items": {
                             "type": "object",
-                            "required": ["lng", "lat"],
+                            "required": ["lat", "lng"],
                             "properties": {
-                                "lng": {
-                                    "type": "number",
-                                    "title": "Longitude",
-                                    "maximum": 180,
-                                    "minumum": -180
-                                },
                                 "lat": {
                                     "type": "number",
                                     "title": "Latitude",
                                     "maximum": 90,
                                     "minimum": -90
+                                },
+                                "lng": {
+                                    "type": "number",
+                                    "title": "Longitude",
+                                    "maximum": 180,
+                                    "minumum": -180
                                 }
                             }
                         }

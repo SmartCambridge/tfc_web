@@ -109,7 +109,7 @@ function StopBusMap(config, params) {
         map_div.setAttribute('id', config.container+'_map');
         container_el.appendChild(map_div);
 
-        map = L.map(map_div, { zoomControl:false }).setView([params.lat, params.lng], params.zoom);
+        map = L.map(map_div, { zoomControl:false }).setView([params.map.lat, params.map.lng], params.map.zoom);
         map_tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
