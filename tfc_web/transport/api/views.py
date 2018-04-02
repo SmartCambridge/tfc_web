@@ -1,10 +1,11 @@
 import json
-from datetime import date
 import coreapi
 import coreschema
 from dateutil.parser import parse
+from functools import reduce
 from os import listdir
 from pathlib import Path
+from django.db.models import Q
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
@@ -17,6 +18,7 @@ from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
     VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
+from transport.utils.transxchange import BANK_HOLIDAYS
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -50,12 +52,36 @@ def calculate_vehicle_journey(departure_time, bus_stop_id):
     :param bus_stop:
     :return: list of Vehicle Journeys
     """
-    query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time.time(), order=1,
-                                      vehicle_journey__days_of_week__contains=departure_time.date().strftime("%A")) \
+    bank_holidays = []
+    if departure_time.date() in BANK_HOLIDAYS:
+        bank_holidays.append('AllBankHolidays')
+        for bank_holiday_day in BANK_HOLIDAYS[departure_time.date()]:
+            bank_holidays.append(bank_holiday_day)
+
+    if bank_holidays:
+        query1 = Timetable.objects.filter(
+            Q(stop_id=bus_stop_id), Q(time=departure_time.time()), Q(order=1),
+            Q(vehicle_journey__days_of_week__contains=
+              departure_time.date().strftime("%A") |
+              reduce(lambda x, y: x | y, [Q(vehicle_journey__operation_bank_holidays__contains=bank_holiday)
+                                          for bank_holiday in bank_holidays]))) \
         .values_list('vehicle_journey', flat=True)
-    query2 = VehicleJourney.objects.filter(
-        id__in=query1, special_days_operation__days__contains=departure_time.date(),
-        special_days_operation__operates=False).values_list('id', flat=True)
+    else:
+        query1 = Timetable.objects.filter(stop_id=bus_stop_id, time=departure_time.time(), order=1,
+                                          vehicle_journey__days_of_week__contains=
+                                          departure_time.date().strftime("%A")) \
+        .values_list('vehicle_journey', flat=True)
+    if bank_holidays:
+        query2 = VehicleJourney.objects.filter(
+            Q(id__in=query1),
+            Q(Q(special_days_operation__days__contains=departure_time.date(), special_days_operation__operates=False) |
+              reduce(lambda x, y: x | y, [Q(nonoperation_bank_holidays__contains=bank_holiday)
+                                          for bank_holiday in bank_holidays])
+              )).values_list('id', flat=True)
+    else:
+        query2 = VehicleJourney.objects.filter(
+            id__in=query1, special_days_operation__days__contains=departure_time.date(),
+            special_days_operation__operates=False).values_list('id', flat=True)
     return list(query1.difference(query2))
 
 
@@ -122,11 +148,41 @@ def journeys_by_time_and_stop(request):
     except:
         return Response({"details": "nresults is not an int"}, status=400)
 
-    query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
-                                      vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
-    query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
-                                      vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
-                                      vehicle_journey__special_days_operation__operates=False)
+
+
+    bank_holidays = []
+    if datetime_from.date() in BANK_HOLIDAYS:
+        bank_holidays.append('AllBankHolidays')
+        for bank_holiday_day in BANK_HOLIDAYS[datetime_from.date()]:
+            bank_holidays.append(bank_holiday_day)
+
+    if bank_holidays:
+        query1 = Timetable.objects.filter(
+            Q(stop_id=stop), Q(time__gte=datetime_from.time()),
+            Q(vehicle_journey__days_of_week__contains=
+              datetime_from.date().strftime("%A") |
+              reduce(lambda x, y: x | y, [Q(vehicle_journey__operation_bank_holidays__contains=bank_holiday)
+                                          for bank_holiday in bank_holidays]))) \
+        .values_list('vehicle_journey', flat=True)
+    else:
+        query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
+                                          vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
+    if bank_holidays:
+        query2 = Timetable.objects.filter(
+            Q(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True)),
+            Q(Q(vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                vehicle_journey__special_days_operation__operates=False) |
+              reduce(lambda x, y: x | y, [Q(vehicle_journey__nonoperation_bank_holidays__contains=bank_holiday)
+                                          for bank_holiday in bank_holidays])))
+    else:
+        query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
+                                          vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                                          vehicle_journey__special_days_operation__operates=False)
+
+
+
+
+
     timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
                     .order_by('time')
 
