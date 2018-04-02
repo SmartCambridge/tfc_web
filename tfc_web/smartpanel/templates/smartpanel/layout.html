@@ -1,5 +1,6 @@
 {% load static %}
 {% load remove_underscore %}
+{% load jsonify %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -49,7 +50,7 @@
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
                 {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/'},
-                {{ value.configuration.data|safe }}
+                {{ value.configuration.data|jsonify|safe }}
             ));
             {% endif %}
         {% endfor %}
