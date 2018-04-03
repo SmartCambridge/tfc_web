@@ -3,8 +3,8 @@
 set -e
 
 # Bring whichever branch of tfc_web is currently checked out up to date,
-# update any Python requirements, run any database migrations, and then
-# stop and re-start Gunicorn
+# update any Python requirements, run any database migrations, collect
+# static files, and then stop and re-start Gunicorn
 
 # Run the following in a sub-shell to easily de-activate the venv
 
@@ -12,7 +12,7 @@ set -e
 
   source ${HOME}/tfc_web_venv/bin/activate
 
-  cd ${HOME}/tfc_web/
+  cd "${HOME}/tfc_web/"
 
   # Fetch git updates, merge changes but abort if a fast-forward isn't possible
   git fetch
@@ -24,6 +24,9 @@ set -e
 
   # Run migrations
   ./manage.py migrate
+
+  # Collect static files
+  ./manage.py collectstatic --no-input
 
   # Exit the sub-shell
 
