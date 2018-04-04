@@ -32,6 +32,10 @@
         </script>
     </head>
     <body>
+        <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
+            <div class="mdl-snackbar__text"></div>
+            <button type="button" class="mdl-snackbar__action"></button>
+        </div>
         <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
             <div class="header mdl-layout__header mdl-layout__header--waterfall">
                 <div class="mdl-layout__header-row">
@@ -118,6 +122,19 @@
                 </footer>
             </div>
         </div>
+    {% if messages %}
+        <script>
+            function r(f){/in/.test(document.readyState)?setTimeout('r('+f+')',9):f()}
+            r(function(){
+                var notification = document.querySelector('.mdl-js-snackbar');
+                {% for message in messages %}
+                    notification.MaterialSnackbar.showSnackbar({
+                        message: '{{ message }}'
+                    });
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
     </body>
 </html>
 

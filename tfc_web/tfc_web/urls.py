@@ -45,4 +45,7 @@ urlpatterns = [
 
     # Cambridge Sensor Network
     url(r'^csn/', include('csn.urls')),
+
+    # SmartPanel
+    url(r'^smartpanel/', include('smartpanel.urls')),
 ]

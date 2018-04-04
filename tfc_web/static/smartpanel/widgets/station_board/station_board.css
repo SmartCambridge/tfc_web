@@ -1,0 +1,28 @@
+/* Styles for the station board widget */
+
+.station_board {
+    height: 100%;
+    padding: 0.5em;
+    position: relative;
+    width: 100%;
+}
+
+.station_board .content_area {
+    border-bottom: 40px solid transparent;
+    height: 100%;
+    overflow: hidden;
+}
+
+.station_board .credit {
+    bottom: 0.5em;
+    height: 30px;
+    left: 0;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    position: absolute;
+    width: 100%;
+}
+
+.station_board .credit img {
+    height: 30px;
+}

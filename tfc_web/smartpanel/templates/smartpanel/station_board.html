@@ -1,0 +1,64 @@
+{% load static from staticfiles %}
+<!doctype html>
+<title>Station Board</title>
+<link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}">
+<link rel="stylesheet" href="{% static 'smartpanel/widgets/weather/weather.css' %}">
+<body>
+
+<div style="height: calc(1080px - 60px); width: 1920px; overflow: hidden;">
+
+<div style="height: calc(2*100%/4);
+            width: calc(1*100%/6);
+            top: calc(0*100%/4);
+            left: calc(0*100%/6);
+            overflow: hidden;">
+
+<div id="widget-1" class="station_board" style="height: 100%; width: 100%; background-color: white; overflow: hidden">
+
+<!-- Included content from here... -->
+
+<div class="content_area">
+
+<h1 class="widget_error">Connection issues</h1>
+
+<h1><img src="{% static 'smartpanel/widgets/station_board/train.png' %}"> {{ data.locationName }}</h1>
+<div class="timestamp">Updated {{ data.generatedAt }}</div>
+
+{% for message in data.messages %}
+    <div class="message">{{ message }}</div>
+{% endfor %}
+
+<table>
+  <tr>
+    <th class="time">Due</th>
+    <th class="time">Expected</th>
+    <th>Destination</th>
+  </tr>
+{% for service in data.services %}
+  {% if service.etd != 'On time' %}
+  <tr class="issue">
+  {% else %}
+  <tr>
+  {% endif %}
+    <td class="time key">{{ service.std }}</td>
+    <td class="time">{{ service.etd }}</td>
+    <td>{{ service.destination }}</td>
+  </tr>
+{% endfor %}
+</table>
+
+<div class="credit">
+    <a href="http://www.nationalrail.co.uk/"><img alt="Powered by National Rail Enquires" 
+      src="{% static 'smartpanel/widgets/station_board/NRE_Powered_logo.png' %}"></a>
+</div>
+
+</div>
+
+<!-- ... to here -->
+
+</div>
+
+</div>
+
+</body>
+

@@ -1,0 +1,69 @@
+{% extends "smartpanel/base.html" %}
+{% load static %}
+{% block content %}
+
+<h1>SmartPanels</h1>
+
+<p><em>Adaptive Cities</em> <strong>SmartPanels</strong> display travel
+information in the lobbies of public buildings to inform travel
+choices.</p>
+
+<p>These panels take advantage of the real-time processing capabilities
+of the <em>Adaptive Cities platform</em> to make up-to-the-minuite
+information available to the travelling public. Screens are geo-located
+to automatically display relevant information and can be further
+customised by local managers.</p>
+
+<p>SmartPanels are under active development, but can currently
+display:</p>
+
+<ul>
+  <li>Bus positions and timings</li>
+  <li>Bus departure times</li>
+  <li>Train departure times</li>
+  <li>Google traffic maps</li>
+  <li>Weather forecasts</li>
+  <li>Twitter timelines (in particular traffic-related feeds)</li>
+  <li>Static messages</li>
+  <li>Live copies of other web pages</li>
+</ul>
+
+<p>The <em>Adaptive Cities</em> program would be really interested to
+here your comments on these panels and on how they could be further
+developed. Please join in the conversation on the forum on the <a
+href="http://smartcambridge.org/csn/forum/forum/general-
+chat-1/">SmartCambridge.org web site</a> or contact us at  <a
+href="mailto:admin@smartcambridge.org">admin@smartcambridge.org</a>.
+
+<p>The <em>Adaptive Cities</em> program is part of <a
+href="http://smartcambridge.org/">Smart Cambridge</a> which is itself
+supported by <a href="http://www.cam.ac.uk">The University of Cambridge</a>, <a href="http://www.connectingcambridgeshire.co.uk/">Connecting Cambridgeshire</a> and
+<a href="https://www.greatercambridge.org.uk/">Greater Cambridge partnership.</a></p>
+
+<p>The SmaptPanel development makes use of a variety of third-party
+products and services, including:</p>
+
+<ul>
+
+    <li>Weather information from the
+        <a href="https://www.metoffice.gov.uk/datapoint">Met Office DataPoint Service</a>.
+        Contains public sector information licensed under the
+        Open Government Licence</li>
+
+    <li>Train departure information provided by
+        <a href="http://www.nationalrail.co.uk/">National Rail Enquiries</a>
+        under a modified Open Government Licence <img class="footer-logo" src="{% static 'smartpanel/NRE_Powered_logo.png'%}" alt="NRE Logo"/></li>
+
+    <li>Bus timetable and stop details from the 
+        <a href="http://www.travelinedata.org.uk/traveline-open-data/traveline-national-dataset/">Traveline National Dataset</a>
+        and from the 
+        <a href="http://www.travelinedata.org.uk/other-transport-open-data/transport-stops/">National Public Transport Access dataset</a> (NaPTAN)</li>
+
+    <li>Map data from <a href="https://www.openstreetmap.org">OpenStreetMap</a> 
+        &copy; OpenStreetMap contributors (see <a href="https://www.openstreetmap.org/copyright">details</a>)</li>
+
+    <li>Icons made by <a href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> are licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></li>
+
+</ul>
+
+{% endblock %}

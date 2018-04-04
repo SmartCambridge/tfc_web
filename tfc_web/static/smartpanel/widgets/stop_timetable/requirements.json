@@ -1,0 +1,13 @@
+{
+    "scripts": [
+        {  "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
+            "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
+        },
+        {  "src": "https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.14/moment-timezone-with-data.min.js",
+            "integrity": "sha256-FJZOELgwnfQRdG8KZUSWCYgucECDf4w5kfQdQSGbVpI="
+        },
+        { "src": "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"
+        },
+        "js/geo.js"
+    ]
+}
