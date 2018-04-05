@@ -1,6 +1,6 @@
 /* Message Area Widget for ACP Lobby Screen */
 
-/*global $, DEBUG, sanitizeHtml */
+/*global DEBUG, sanitizeHtml */
 
 /* exported MessageArea */
 
@@ -34,12 +34,21 @@ function MessageArea(config, params) {
     this.do_load = function () {
         this.log('Running do_load', this.container);
 
-        $('#' + this.container).html(
-            '<h1>' +
-            '<img src="' + config.static_url + 'black-bubble-speech.png" alt=""> '+
-            params.title +
-            '</h1>' +
-            safe(params.message));
+        var container = document.getElementById(this.container);
+
+        var title = document.createElement('h1');
+        var img = document.createElement('img');
+        img.setAttribute('src', config.static_url + 'black-bubble-speech.png');
+        img.setAttribute('alt', '');
+        title.appendChild(img);
+        title.appendChild(document.createTextNode(' '));
+        title.appendChild(document.createTextNode(params.title));
+        container.appendChild(title);
+
+        var message = document.createElement('div');
+        message.innerHTML = safe(params.message);
+        container.appendChild(message);
+
         this.log('do_load done', this.container);
     };
 
