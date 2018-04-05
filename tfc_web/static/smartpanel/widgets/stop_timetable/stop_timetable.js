@@ -188,7 +188,7 @@ function StopTimetable(config, params) {
         var connection_div = document.createElement('div');
         connection_div.setAttribute('class','widget_error');
         connection_div.setAttribute('id', id + '_connection');
-        connection_div.innerHTML = 'Connection issues';
+        connection_div.appendChild(document.createTextNode('Connection issues'));
         container.appendChild(connection_div);
 
         departure_div = document.createElement('div');
@@ -587,7 +587,7 @@ function StopTimetable(config, params) {
             if (result) {
                 var updated = document.createElement('div');
                 updated.classList.add('timestamp');
-                updated.innerHTML = 'Updated ' + moment().format('HH:mm');
+                updated.appendChild(document.createTextNode('Updated ' + moment().format('HH:mm')));
                 departure_div.append(updated);
                 departure_div.appendChild(result);
             }
@@ -612,20 +612,20 @@ function StopTimetable(config, params) {
 
         cell = document.createElement('th');
         cell.classList.add('time');
-        cell.innerHTML = 'Due';
+        cell.appendChild(document.createTextNode('Due'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
         cell.classList.add('time');
-        cell.innerHTML = 'Expected';
+        cell.appendChild(document.createTextNode('Expected'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
-        cell.innerHTML = 'Route';
+        cell.appendChild(document.createTextNode('Route'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
-        cell.innerHTML = 'Destination';
+        cell.appendChild(document.createTextNode('Destination'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
@@ -657,7 +657,7 @@ function StopTimetable(config, params) {
             cell = document.createElement('td');
             cell.classList.add('time');
             cell.classList.add('key');
-            cell.innerHTML = journey.due.format('HH:mm');
+            cell.appendChild(document.createTextNode(journey.due.format('HH:mm')));
             row.appendChild(cell);
 
             // ETA, providing most recent RT record in the last minute
@@ -665,20 +665,20 @@ function StopTimetable(config, params) {
             cell.classList.add('time');
             if (fresh_timestamp(journey)) {
                 if (journey.delay.asMinutes() <= 1.0) {
-                    cell.innerHTML = 'On time';
+                    cell.appendChild(document.createTextNode('On time'));
                 }
                 else {
-                    cell.innerHTML = journey.eta.format('HH:mm');
+                    cell.appendChild(document.createTextNode(journey.eta.format('HH:mm')));
                 }
             }
             else {
-                cell.innerHTML = '';
+                cell.appendChild(document.createTextNode(''));
             }
             row.appendChild(cell);
 
             // Line name and final stop
             cell = document.createElement('td');
-            cell.innerHTML = tidy_name(journey.timetable.line.line_name);
+            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
             row.appendChild(cell);
 
             cell = document.createElement('td');
@@ -689,7 +689,7 @@ function StopTimetable(config, params) {
             else {
                 text += ' (at ' + journey.last.due.format('HH:mm') +')';
             }
-            cell.innerHTML = text;
+            cell.appendChild(document.createTextNode(text));
             row.appendChild(cell);
 
             var url;
@@ -720,7 +720,7 @@ function StopTimetable(config, params) {
         if (nrows === 0) {
             var div = document.createElement('div');
             div.setAttribute('class','no-departures');
-            div.innerHTML = 'No more departures today';
+            div.appendChild(document.createTextNode('No more departures today'));
             return div;
         }
 
@@ -740,12 +740,11 @@ function StopTimetable(config, params) {
         if (rows.length === 0) {
             var div = document.createElement('div');
             div.setAttribute('class','no-departures');
-            div.innerHTML = 'No more departures today';
+            div.appendChild(document.createTextNode('No more departures today'));
             return div;
         }
 
         return display_multiline_render_dom(rows);
-        //return display_multiline_render_mustache(rows);
 
     }
 
@@ -836,53 +835,6 @@ function StopTimetable(config, params) {
         }
 
         return rows;
-
-    }
-
-
-    function display_multiline_render_mustache(rows) {
-
-        var source = `
-<table class="multiline">
-  {{#each rows}}
-  <tbody>
-    <tr>
-      <td rowspan="3" class="expected">{{this.due}}</td>
-      <td rowspan="3" class="line">{{this.line}}</td>
-      <td>to</td>
-      <td>{{this.destination.desc}} <span class="together">(at {{this.destination.time}})</span></td>
-      {{#if realtime}}
-      <td rowspan="3"><img src="{{../config.static_url}}/images/signal4.gif" alt="" /></td>
-      {{else}}
-      <td rowspan="3"><img src="{{../config.static_url}}/timetable-outline.png" alt="" /></td>
-      {{/if}}
-    </tr>
-    <tr class="via">
-      {{#if via}}
-      <td>via</td>
-      <td colspan="1">
-      {{#each via}}
-      {{this.desc}} ({{this.time}}){{#unless @last}}, {{/unless}}
-      {{/each}}
-      </td>
-      {{/if}}
-    </tr>
-    <tr class="timing">
-    {{#if this.delay.mark}}
-      <td colspan="3" class="issue">{{this.delay.text}}</td>
-    {{else}}
-      <td colspan="3">{{this.delay.text}}</td>
-    {{/if}}
-    </tr>
-  </tbody>
-  {{/each}}
-</table>
-`;
-        var template =Handlebars.compile(source);
-        var result = document.createElement('div');
-        result.innerHTML = template({rows: rows, config: config});
-
-        return result;
 
     }
 
@@ -1167,7 +1119,7 @@ function StopTimetable(config, params) {
         if (nrows === 0) {
             var div = document.createElement('div');
             div.setAttribute('class','no-departures');
-            div.innerHTML = 'No more departures today';
+            div.ppendChild(document.createTextNode('No more departures today'));
             return div;
         }
 
@@ -1190,22 +1142,22 @@ function StopTimetable(config, params) {
 
         cell = document.createElement('th');
         cell.classList.add('time');
-        cell.innerHTML = 'Due';
+        cell.appendChild(document.createTextNode('Due'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
         cell.classList.add('time');
-        cell.innerHTML = 'Expected';
+        cell.appendChild(document.createTextNode('Expected'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
         cell.classList.add('time');
-        cell.innerHTML = 'Route';
+        cell.appendChild(document.createTextNode('Route'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
         cell.classList.add('time');
-        cell.innerHTML = 'Arrives';
+        cell.appendChild(document.createTextNode('Arrives'));
         heading.appendChild(cell);
 
         cell = document.createElement('th');
@@ -1217,7 +1169,7 @@ function StopTimetable(config, params) {
             var nrows = 0;
 
             var h3 = document.createElement('h3');
-            h3.innerHTML = 'To ' + destination.description;
+            h3.appendChild(document.createTextNode('To ' + destination.description));
             result.appendChild(h3);
 
             var table = document.createElement('table');
@@ -1241,7 +1193,7 @@ function StopTimetable(config, params) {
                     cell = document.createElement('td');
                     cell.classList.add('time');
                     cell.classList.add('key');
-                    cell.innerHTML = journey.due.format('HH:mm');
+                    cell.appendChild(document.createTextNode(journey.due.format('HH:mm')));
                     row.append(cell);
 
                     // ETA
@@ -1249,30 +1201,30 @@ function StopTimetable(config, params) {
                     cell.classList.add('time');
                     if (fresh_timestamp(journey)) {
                         if (journey.delay.asMinutes() <= 1.0) {
-                           cell.innerHTML = 'On time';
+                           cell.appendChild(document.createTextNode('On time'));
                         }
                         else {
-                            cell.innerHTML = journey.eta.format('HH:mm');
+                            cell.appendChild(document.createTextNode(journey.eta.format('HH:mm')));
                         }
                     }
                     else {
-                        cell.innerHTML = '';
+                        cell.appendChild(document.createTextNode(''));
                     }
                     row.appendChild(cell);
 
                     // Line name
                     cell = document.createElement('td');
-                    cell.innerHTML = tidy_name(journey.timetable.line.line_name);
+                    cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
                     row.appendChild(cell);
 
                     // Expected arrival
                     cell = document.createElement('td');
                     cell.classList.add('time');
                     if (fresh_timestamp(journey)) {
-                        cell.innerHTML = arrival.clone().add(journey.delay).format('HH:mm');
+                        cell.appendChild(document.createTextNode(arrival.clone().add(journey.delay).format('HH:mm')));
                     }
                     else {
-                        cell.innerHTML = arrival.format('HH:mm');
+                        cell.appendChild(document.createTextNode(arrival.format('HH:mm')));
                     }
                     row.appendChild(cell);
 
@@ -1305,7 +1257,7 @@ function StopTimetable(config, params) {
             if (nrows === 0) {
                 var div = document.createElement('div');
                 div.setAttribute('class','no-departures');
-                div.innerHTML = 'No more departures today';
+                div.appendChild(document.createTextNode('No more departures today'));
                 result.appendChild(div);
             }
             else {
