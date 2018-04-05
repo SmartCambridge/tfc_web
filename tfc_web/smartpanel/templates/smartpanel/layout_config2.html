@@ -112,8 +112,10 @@
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
-            widget.push(new {{ value.configuration.widget|title|remove_underscore }}('widget-{{ key }}',
-                {{ value.configuration.data|jsonify|safe }}, '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}'));
+            widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
+                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/'},
+                JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
+            ));
             {% endif %}
         {% endfor %}
 
