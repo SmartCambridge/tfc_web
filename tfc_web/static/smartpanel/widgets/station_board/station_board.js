@@ -31,9 +31,13 @@ function StationBoard(config, params) {
 
     this.do_load = function () {
         this.log("Running StationBoard.do_load", this.container);
-        var self = this,
-            url = "../../station_board?station=" + this.params.station +
-                "&offset=" + this.params.offset + " .content_area";
+        var self = this;
+        var url = "../../station_board?station=" + this.params.station;
+        if (this.params.offset) {
+            url += "&offset=" + this.params.offset;
+        }
+        url += " .content_area";
+
         this.log("do_load URI", url);
         this.log("Container", '#' + this.container);
         $('#' + this.container).load(url, function (response, status, xhr) {

@@ -50,7 +50,7 @@
             {% if value.configuration %}
             widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
                 {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/'},
-                {{ value.configuration.data|jsonify|safe }}
+                JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
             ));
             {% endif %}
         {% endfor %}

@@ -7,7 +7,7 @@
     "title": "Station Board",
 
     "type": "object",
-    "required": ["station", "offset"],
+    "required": ["station"],
     "properties": {
 
         "station": {

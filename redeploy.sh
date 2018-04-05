@@ -30,4 +30,4 @@ pip3 install -r requirements.txt
 # Touch all of them to make sure we get the right one!
 touch tfc_web/settings*.py
 
-echo "Deployed commit [$(git rev-parse --short HEAD)]" >&2
+echo "Deployed commit $(git rev-parse --short HEAD) on branch $(git rev-parse --abbrev-ref HEAD)" >&2
