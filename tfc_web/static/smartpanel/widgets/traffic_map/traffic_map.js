@@ -62,8 +62,17 @@ function TrafficMap(config, params) {
         // Ledgend
         var ledgend = document.createElement('div');
         ledgend.classList.add('ledgend');
-        ledgend.innerHTML =
-           `Live traffic speed<br/><i>Fast</i> <img src="${config.static_url}traffic-legend.png" alt=""/> <i>Slow</i>`;
+        ledgend.appendChild(document.createTextNode('Live traffic speed'));
+        ledgend.appendChild(document.createElement('br'));
+        var fast = document.createElement('i');
+        fast.appendChild(document.createTextNode('Fast '));
+        ledgend.appendChild(fast);
+        var img2 = document.createElement('img');
+        img2.setAttribute('src', config.static_url + 'traffic-legend.png');
+        ledgend.appendChild(img2);
+        var slow = document.createElement('i');
+        slow.appendChild(document.createTextNode(' Slow'));
+        ledgend.appendChild(slow);
         widget_area.appendChild(ledgend);
 
         // Rotation logic
