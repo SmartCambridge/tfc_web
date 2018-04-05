@@ -1119,7 +1119,7 @@ function StopTimetable(config, params) {
         if (nrows === 0) {
             var div = document.createElement('div');
             div.setAttribute('class','no-departures');
-            div.ppendChild(document.createTextNode('No more departures today'));
+            div.appendChild(document.createTextNode('No more departures today'));
             return div;
         }
 
