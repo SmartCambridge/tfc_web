@@ -2,6 +2,7 @@
 
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://smartcambridge.org/schemas/widgets/stop_timetable.json",
+    "$comment": "The 'area' array should ideally have 'minItems: 3' so that the resulting polygon actually has an area. Unfortunately what appears to be a bug in Brutusin Json-Forms (https://github.com/brutusin/json-forms/issues/123) then causes a validation error even if no area is defined. Pending resolution, people will just have to work out for themselves that a two point polygon can have no content.",
     "description": "Display a bus timetable",
     "title": "Bus stop timetable",
 
