@@ -90,7 +90,7 @@ function StopBusMap(config, params) {
         var connection_div = document.createElement('div');
         connection_div.setAttribute('class','stop_bus_map_connection_div');
         connection_div.setAttribute('id', config.container+'_connection');
-        connection_div.innerHTML = "Connection issues";
+        connection_div.appendChild(document.createTextNode("Connection issues"));
         container_el.appendChild(connection_div);
 
         var title_h1 = document.createElement('h1');
