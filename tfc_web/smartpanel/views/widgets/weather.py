@@ -38,8 +38,8 @@ forecast_breakpoints = [
 # Met Office 'Significant weather' code to text description
 weather_descriptions = {
     "NA": "Not available",
-    "0": "Clear night",
-    "1": "Sunny day",
+    "0": "Clear",
+    "1": "Sunny",
     "2": "Partly cloudy",
     "3": "Partly cloudy",
     "4": "Not used",
