@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://smartcambridge.org/schemas/widgets/iframe_area.json",
     "$comment": "",
-    "description": "Parameters for the ACP Iframe Area widget",
+    "description": "Display the content of a selected web page",
     "title": "Iframe Area",
 
     "type": "object",
@@ -12,8 +12,9 @@
         "url": {
             "type": "string",
             "title": "URL",
-            "description": "The URL of the page to enbed",
-            "format": "url"
+            "description": "The URL of the page to display",
+            "format": "uri",
+            "default": "http://people.ds.cam.ac.uk/jw35/"
         },
         "scale": {
             "type": "number",

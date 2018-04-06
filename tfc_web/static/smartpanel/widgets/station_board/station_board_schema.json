@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://smartcambridge.org/schemas/widgets/station_board.json",
     "$comment": "A document mapping station names (and other information) to National Rail Enquiry CRS codes is available at http://www.nationalrail.co.uk/static/documents/content/station_codes.csv. While the widget will work with any valid station code there are UI advantages to only displaying (or at least promoting) stations 'local' to the display's location - perhaps just CBG and CMB for Cambridge",
-    "description": "Parameters for the ACP Station Board widget",
+    "description": "Display a train station departure board",
     "title": "Station Board",
 
     "type": "object",
@@ -12,16 +12,20 @@
 
         "station": {
             "type": "string",
+            "enum": ["CBG", "CMB"],
             "title": "Station code",
-            "format": "station_id"
+            "default": "CBG",
+            "description": "National Rail code for the station",
+            "format": "smartpanel:train_station"
         },
 
         "offset": {
             "type": "integer",
             "title": "Timing offset",
-            "description": "Offset in minutes against the current time to provide the station board for",
+            "description": "Offset from now to the start of the timetable (in minutes)",
             "minimum": -120,
-            "maximum": 120
+            "maximum": 120,
+            "default": 0
         }
     }
 }
