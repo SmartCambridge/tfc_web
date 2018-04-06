@@ -7,6 +7,25 @@
     <link rel="stylesheet" href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'/>
     <script src="{% static 'smartpanel/brutusin-json-forms.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/js/brutusin-json-forms-bootstrap.min.js"></script>
+    <script>
+        // Add support for a 'display' keyword to parallel 'enum'
+        // https://github.com/brutusin/json-forms/issues/85
+        brutusin["json-forms"].addDecorator(function (element, schema) {
+            if (element.tagName) {
+                var tagName = element.tagName.toLowerCase();
+                if (tagName === "select" && schema.display) {
+                    var opts = $(element)[0].options;
+                    $.each(opts, function (index, option) {
+                        var key = $(option).text();
+                        var value = schema.display[key];
+                        if (value) {
+                            $(option).text(value);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     {% for key, value in confdata.items %}
         {% if value.configuration %}
