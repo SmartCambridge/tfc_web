@@ -265,7 +265,7 @@ def weather(request):
     for result in results:
         result['timestamp_text'] = result['timestamp'].astimezone(tz=None).strftime('%H:%M')
     issued = iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]).astimezone(tz=None).strftime("%H:%M")
-    logger.info(results)
+    logger.debug(results)
     return render(request, 'smartpanel/weather.html', {
         "results": results,
         "location": data["SiteRep"]["DV"]["Location"]["name"].title(),
