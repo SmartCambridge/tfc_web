@@ -107,7 +107,7 @@ def layout_config(request, layout_id):
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
 @login_required
-def layout_config2(request, layout_id):
+def layout_config_overlay(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     if request.method == "POST" and 'data' in request.POST:
         data = json.loads(request.POST['data'])
@@ -122,7 +122,7 @@ def layout_config2(request, layout_id):
         if 'configuration' in value and value['configuration']['widget'] not in uwl:
             uwl.append(value['configuration']['widget'])
     dependencies_files_list = generate_dependencies_files_list(uwl)
-    return render(request, 'smartpanel/layout_config2.html',
+    return render(request, 'smartpanel/layout_config_overlay.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(),
                    'stylesheets': dependencies_files_list[0], 'scripts': dependencies_files_list[1],
