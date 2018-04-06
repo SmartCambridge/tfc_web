@@ -25,7 +25,7 @@ def station_board(request):
     assert station, 'No station code found'
     offset = int(request.GET.get('offset', 0))
 
-    cache_key = "station_board!{0} {1}".format(station, offset)
+    cache_key = "station_board!{0}!{1}".format(station, offset)
     data = cache.get(cache_key)
     if data:
         logger.info('Cache hit for %s', cache_key)
