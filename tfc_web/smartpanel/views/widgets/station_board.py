@@ -51,15 +51,16 @@ def station_board(request):
         if len(data['messages']) > 1:
             data['messages'] = ['Multiple travel alerts in force - see www.nationalrail.co.uk for details.']
 
-        for service in raw_data['trainServices']['service']:
-            this_service = {}
-            this_service['std'] = service['std']
-            this_service['etd'] = service['etd']
-            dest = service['destination']['location'][0]['locationName']
-            if dest in STATION_ABBREV:
-                dest = STATION_ABBREV[dest]
-            this_service['destination'] = dest
-            data['services'].append(this_service)
+        if raw_data['trainServices']:
+            for service in raw_data['trainServices']['service']:
+                this_service = {}
+                this_service['std'] = service['std']
+                this_service['etd'] = service['etd']
+                dest = service['destination']['location'][0]['locationName']
+                if dest in STATION_ABBREV:
+                    dest = STATION_ABBREV[dest]
+                this_service['destination'] = dest
+                data['services'].append(this_service)
 
         cache.set(cache_key, data, timeout=30)
 
