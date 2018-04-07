@@ -10,7 +10,9 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     {% for key, value in confdata.items %}
         {% if value.configuration %}
-        <script src="{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/{{ value.configuration.widget }}.js"></script>
+            {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/'|add:value.configuration.widget|add:'.js' as widget_js %}
+                <script src="{% static widget_js %}"></script>
+            {% endwith %}
         {% endif %}
     {% endfor %}
 {% endblock %}
@@ -20,7 +22,7 @@
     <div style="margin-bottom: 80px;">
         <h1>Layout</h1>
         <p>name: {{ layout.name }}</p>
-        {% if debug %}
+        {% if debug %}% static 'smartpanel/widgets' %}/{
         <p>design: {{ layout.design }}</p>
         <p>config: {{ layout.configuration }}</p>
         <p>confdata: {{ confdata }}</p>
@@ -101,10 +103,12 @@
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
-            widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
-                {'container': 'widget-{{ key }}', 'static_url': '{% static 'smartpanel/widgets' %}/{{ value.configuration.widget }}/'},
-                JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
-            ));
+                {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/' as widget_location %}
+                    widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
+                        {'container': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
+                        JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
+                    ));
+                {% endwith %}
             {% endif %}
         {% endfor %}
 
