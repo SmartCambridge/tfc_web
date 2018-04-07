@@ -85,7 +85,8 @@
                 </form>
                 <div style="height: calc({{ value.design.h }}*540px/4); width: calc({{ value.design.w }}*960px/6);
                         border: solid 1px black; box-sizing: border-box;">
-                    <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;"></div></div>
+                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative"></div>
+                </div>
             {% else %}
                 <select id="widget-{{ key }}" class="widget mdl-textfield__input" style="width: 200px;">
                     <option value="" selected disabled>Select a widget</option>
@@ -133,6 +134,8 @@
             }
         });
 
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI();
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
@@ -149,6 +152,8 @@
                     for (var i = 0; i < widget.length; i++)
                         if ('init' in widget[i])
                             widget[i].init();
+                    // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
+                    RTMONITOR_API.init();
                 }
             });
         });
