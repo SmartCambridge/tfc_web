@@ -3,10 +3,31 @@
 {% load jsonify %}
 {% load remove_underscore %}
 {% block extra_head %}
+    <!-- BRUTSIN dependencies -->
     <link rel="stylesheet" href='https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/css/brutusin-json-forms.min.css'/>
     <link rel="stylesheet" href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'/>
     <script src="{% static 'smartpanel/brutusin-json-forms.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/js/brutusin-json-forms-bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- BRUTSIN dependencies -->
+
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
+    {% endfor %}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet }}">
+    {% endfor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+    {% for script in external_scripts %}
+        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
+    {% endfor %}
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
+    {% endfor %}
+
     <script>
         // Add support for a 'display' keyword to parallel 'enum'
         // https://github.com/brutusin/json-forms/issues/85
@@ -26,20 +47,7 @@
             }
         });
     </script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    {% for stylesheet in stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet }}">
-    {% endfor %}
-    {% for stylesheet in external_stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
-    {% endfor %}
-    {% for script in scripts %}
-        <script src="{{ script }}"></script>
-    {% endfor %}
-    {% for script in external_scripts %}
-        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
-    {% endfor %}
 {% endblock %}
 
 
