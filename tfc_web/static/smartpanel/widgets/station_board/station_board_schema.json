@@ -2,7 +2,7 @@
 
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://smartcambridge.org/schemas/widgets/station_board.json",
-    "$comment": "A document mapping station names (and other information) to National Rail Enquiry CRS codes is available at http://www.nationalrail.co.uk/static/documents/content/station_codes.csv. While the widget will work with any valid station code there are UI advantages to only displaying (or at least promoting) stations 'local' to the display's location - perhaps just CBG and CMB for Cambridge",
+    "$comment": "A document mapping station names (and other information) to National Rail Enquiry CRS codes is available at http://www.nationalrail.co.uk/static/documents/content/station_codes.csv. A cached copy of this is included in the widget directory. This schema uses a brutusin-json-forms extension to display human-readable strings in select lists in place of raw enum values (see the 'display' property).",
     "description": "Display a train station departure board",
     "title": "Station Board",
 
@@ -12,10 +12,18 @@
 
         "station": {
             "type": "string",
-            "enum": ["CBG", "CMB"],
-            "title": "Station code",
-            "default": "CBG",
-            "description": "National Rail code for the station",
+            "enum": ["CBG", "CMB", "WBC", "SED", "WLF", "FXN", "STH"],
+            "display": {
+                "CBG": "Cambridge",
+                "CMB": "Cambridge North",
+                "WBC": "Waterbeach",
+                "SED": "Shelford",
+                "WLF": "Whittlesford",
+                "FXN": "Foxton",
+                "STH": "Shepreth"
+            },
+            "title": "Station",
+            "description": "Station name",
             "format": "smartpanel:train_station"
         },
 
