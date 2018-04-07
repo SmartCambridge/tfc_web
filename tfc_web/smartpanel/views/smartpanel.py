@@ -102,9 +102,17 @@ def layout_config(request, layout_id):
         for key, value in data.items():
             layout.configuration[key.strip("widget-")] = value
         layout.save()
+    confdata = generate_layout_configuration(layout)
+    uwl = []
+    for key, value in confdata.items():
+        if 'configuration' in value and value['configuration']['widget'] not in uwl:
+            uwl.append(value['configuration']['widget'])
+    dependencies_files_list = generate_dependencies_files_list(uwl)
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
-                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
+                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(),
+                   'stylesheets': dependencies_files_list[0], 'scripts': dependencies_files_list[1],
+                   'external_scripts': dependencies_files_list[2], 'external_stylesheets': dependencies_files_list[3]})
 
 @login_required
 def layout_config_overlay(request, layout_id):
