@@ -1,4 +1,5 @@
 {% load static %}
+{% load jsonify %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,6 +9,13 @@
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <script src="{% static 'smartpanel/gridList.js' %}"></script>
     <script src="{% static 'smartpanel/jquery.gridList.js' %}"></script>
+    <script>
+        var defaultGrid = {% if layout %}{{ layout.design|jsonify|safe }}{% else %}{
+            '0': {w: 2, h: 2, x: 0, y: 0},
+            '1': {w: 2, h: 2, x: 2, y: 0},
+            '2': {w: 2, h: 2, x: 0, y: 2}
+        }{% endif %};
+    </script>
     <script src="{% static 'smartpanel/smartpanel.js' %}"></script>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -16,15 +24,18 @@
 </head>
 <body>
     <div class="header" style="margin-left: 20px;">
-        <form id="smartpanel-design-form" action="{% url 'smartpanel-design' %}" method="post">
+        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-design-edit' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post">
             {% csrf_token %}
             <input id="design" name="design" type="text" hidden>
             <div class="mdl-textfield mdl-js-textfield" style="margin-right: 10px">
                 <label for="name" class="mdl-textfield__label">Layout name</label>
-                <input id="name" name="name" type="text" class="mdl-textfield__input">
+                <input id="name" name="name" type="text" required class="mdl-textfield__input"{% if layout %} value="{{ layout.name }}"{% endif %}>
             </div>
             <input id="save" type="submit" value="save configuration"
                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+        {% if layout %}
+            <a href="{% url 'smartpanel-layout-config' layout.id %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+        {% endif %}
             <a id="add-widget" href="#add-widget"
                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">add widget</a>
             <a href="{% url 'smartpanel-home' %}"

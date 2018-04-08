@@ -38,6 +38,18 @@ def design(request):
     return render(request, 'smartpanel/design.html')
 
 
+@login_required
+def design_edit(request, layout_id):
+    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
+    if request.method == "POST":
+        if 'name' in request.POST and 'design' in request.POST and request.POST['design']:
+            layout.name = request.POST['name']
+            layout.design = json.loads(request.POST['design'])
+            layout.save()
+            return redirect('smartpanel-layout-config', layout.id)
+    return render(request, 'smartpanel/design.html', {'layout': layout})
+
+
 def generate_layout_configuration(layout):
     confdata = {}
     for key, value in layout.design.items():
