@@ -2,7 +2,7 @@
 
     "$schema": "http://json-schema.org/draft-06/schema#",
     "$id": "http://smartcambridge.org/schemas/widgets/stop_timetable.json",
-    "$comment": "The 'area' array should ideally have 'minItems: 3' so that the resulting polygon actually has an area. Unfortunately what appears to be a bug in Brutusin Json-Forms (https://github.com/brutusin/json-forms/issues/123) then causes a validation error even if no area is defined. Pending resolution, people will just have to work out for themselves that a two point polygon can have no content.",
+    "$comment": "The 'area' array should ideally have 'minItems: 3' so that the resulting polygon actually has an area. Unfortunately what appears to be a bug in Brutusin Json-Forms (https://github.com/brutusin/json-forms/issues/123) then causes a validation error even if no area is defined. Pending resolution, people will just have to work out for themselves that a two point polygon can have no content. This schema uses a brutusin-json-forms extension to display human-readable strings in select lists in place of raw enum values (see the 'display' property).",
     "description": "Display a bus timetable",
     "title": "Bus stop timetable",
 
@@ -37,7 +37,13 @@
             "type": "string",
             "title": "Layout",
             "description": "Display layout",
-            "enum": [ "simple", "multiline", "nextbus", "debug" ]
+            "enum": [ "simple", "multiline", "nextbus", "debug" ],
+            "display": {
+                "simple": "One line per journey",
+                "multiline": "Multiple lines per journey; can include intermediate destinations",
+                "nextbus": "Next bus to selected destinations",
+                "debug": "Detailed troubleshooting display"
+            }
         },
 
         "destinations": {

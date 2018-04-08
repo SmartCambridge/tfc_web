@@ -3,18 +3,51 @@
 {% load jsonify %}
 {% load remove_underscore %}
 {% block extra_head %}
+    <!-- BRUTSIN dependencies -->
     <link rel="stylesheet" href='https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/css/brutusin-json-forms.min.css'/>
     <link rel="stylesheet" href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'/>
     <script src="{% static 'smartpanel/brutusin-json-forms.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/js/brutusin-json-forms-bootstrap.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    {% for key, value in confdata.items %}
-        {% if value.configuration %}
-            {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/'|add:value.configuration.widget|add:'.js' as widget_js %}
-                <script src="{% static widget_js %}"></script>
-            {% endwith %}
-        {% endif %}
+    <!-- BRUTSIN dependencies -->
+
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
     {% endfor %}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet }}">
+    {% endfor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+    {% for script in external_scripts %}
+        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
+    {% endfor %}
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
+    {% endfor %}
+
+    <script>
+        // Add support for a 'display' keyword to parallel 'enum'
+        // https://github.com/brutusin/json-forms/issues/85
+        brutusin["json-forms"].addDecorator(function (element, schema) {
+            if (element.tagName) {
+                var tagName = element.tagName.toLowerCase();
+                if (tagName === "select" && schema.display) {
+                    var opts = $(element)[0].options;
+                    $.each(opts, function (index, option) {
+                        var key = $(option).text();
+                        var value = schema.display[key];
+                        if (value) {
+                            $(option).text(value);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+
 {% endblock %}
 
 
@@ -52,7 +85,8 @@
                 </form>
                 <div style="height: calc({{ value.design.h }}*540px/4); width: calc({{ value.design.w }}*960px/6);
                         border: solid 1px black; box-sizing: border-box;">
-                    <div id="widget-{{ key }}" style="height: 100%; width: 100%; background-color: white;"></div></div>
+                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative"></div>
+                </div>
             {% else %}
                 <select id="widget-{{ key }}" class="widget mdl-textfield__input" style="width: 200px;">
                     <option value="" selected disabled>Select a widget</option>
@@ -100,6 +134,8 @@
             }
         });
 
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI();
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
@@ -118,6 +154,8 @@
                     for (var i = 0; i < widget.length; i++)
                         if ('init' in widget[i])
                             widget[i].init();
+                    // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
+                    RTMONITOR_API.init();
                 }
             });
         });
