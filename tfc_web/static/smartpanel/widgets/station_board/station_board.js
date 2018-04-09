@@ -32,7 +32,7 @@ function StationBoard(config, params) {
     this.do_load = function () {
         this.log("Running StationBoard.do_load", this.container);
         var self = this;
-        var url = "../../station_board?station=" + this.params.station;
+        var url = "/smartpanel/station_board?station=" + this.params.station;
         if (this.params.offset) {
             url += "&offset=" + this.params.offset;
         }
