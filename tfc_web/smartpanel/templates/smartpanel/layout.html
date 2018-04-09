@@ -45,6 +45,8 @@
     <script>
         // Note we must instatiate RTMonitorAPI before widgets
         var RTMONITOR_API = new RTMonitorAPI();
+        // Widget spec requires a DEBUG global
+        var DEBUG = '';
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
