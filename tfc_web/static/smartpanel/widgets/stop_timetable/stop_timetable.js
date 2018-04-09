@@ -276,15 +276,23 @@ function StopTimetable(config, params) {
         xhr.open('GET', uri, true);
         xhr.send();
         xhr.onreadystatechange = function() {
-            if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            if(xhr.readyState === XMLHttpRequest.DONE) {
                 var api_result = JSON.parse(xhr.responseText);
-                var added = add_journeys(iteration,api_result);
-                // If we added at least one new record then update the
-                // display and our subscriptions and recurse to get more
-                if (added) {
+                if (xhr.status !== 200) {
+                    log('get_journey_batch - API error, status', xhr.status, api_result.details);
+                }
+                else {
+                    var added = add_journeys(iteration,api_result);
+                    // Run refresh_display() unconditionally so it
+                    // can set up an empty display if there aren't any
+                    // relevant buses
                     refresh_display();
-                    refresh_subscriptions();
-                    get_journey_batch(++iteration);
+                    // If we added at least one new record then update
+                    // our subscriptions and recurse to get more
+                    if (added) {
+                        refresh_subscriptions();
+                        get_journey_batch(++iteration);
+                    }
                 }
             }
         };
@@ -584,11 +592,11 @@ function StopTimetable(config, params) {
             }
 
             empty(departure_div);
+            var updated = document.createElement('div');
+            updated.classList.add('timestamp');
+            updated.appendChild(document.createTextNode('Updated ' + moment().format('HH:mm')));
+            departure_div.append(updated);
             if (result) {
-                var updated = document.createElement('div');
-                updated.classList.add('timestamp');
-                updated.appendChild(document.createTextNode('Updated ' + moment().format('HH:mm')));
-                departure_div.append(updated);
                 departure_div.appendChild(result);
             }
 
