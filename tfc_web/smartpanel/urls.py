@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^display/list/', smartpanel.displays, name='smartpanel-list-displays'),
     url(r'^display/(?P<display_id>\d+)/', smartpanel.display, name='smartpanel-display'),
     url(r'^displays/debug/', smartpanel.displays_debug, name='smartpanel-displays-debug'),
+    url(r'^design/(?P<layout_id>\d+)/edit', smartpanel.design_edit, name='smartpanel-design-edit'),
     url(r'^design/', smartpanel.design, name='smartpanel-design'),
     url(r'^layout/my/$', smartpanel.my, name='smartpanel-layout-my'),
     url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),

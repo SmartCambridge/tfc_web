@@ -12,7 +12,7 @@
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Layout {{ smartpanel.name }}</h4>
                     </div>
-                    <div class="mdl-card__supporting-text">
+                    <div class="mdl-card__supporting-text" style="padding-bottom: 125px;">
                         <span class="mdl-typography--font-light mdl-typography--subhead">
                             {% if edit %}Edit my SmartPanel layout{% else %}View the SmartPanel layout{% endif %}
                         </span>
@@ -21,7 +21,12 @@
                     {% if edit %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
                            href="{% url 'smartpanel-layout-config' smartpanel.id %}">
-                            Edit
+                            Configure
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-design-edit' smartpanel.id %}">
+                            Edit design
                             <i class="material-icons">chevron_right</i>
                         </a>
                     {% endif %}

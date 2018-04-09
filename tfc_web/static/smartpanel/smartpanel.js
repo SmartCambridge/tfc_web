@@ -1,9 +1,3 @@
-var defaultGrid = {
-    '0': {w: 2, h: 2, x: 0, y: 0},
-    '1': {w: 2, h: 2, x: 2, y: 0},
-    '2': {w: 2, h: 2, x: 0, y: 2}
-};
-
 var nboxes = Object.keys(defaultGrid).length;
 
 function createGrid() {
@@ -50,9 +44,9 @@ function box_html(box_content) {
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="4" data-h="4">4x4</a>' +
         '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="6" data-h="2">6x2</a>' +
         '<a href="#" class="delete mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-del="true">del</a>' +
-        '</div>' +
+        '</div><p class="inner-box">' +
         box_content +
-        '</div>' +
+        '</p></div>' +
         '</li>'
 }
 
