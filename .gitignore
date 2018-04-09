@@ -97,6 +97,7 @@ ENV/
 secrets.py
 staticfiles/
 tfc_web/data/TNDS/*.zip
+tfc_web/data/TNDS_NEW/*.zip
 
 /media
 /tfc_web/media

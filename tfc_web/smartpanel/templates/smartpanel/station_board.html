@@ -2,7 +2,7 @@
 <!doctype html>
 <title>Station Board</title>
 <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}">
-<link rel="stylesheet" href="{% static 'smartpanel/widgets/weather/weather.css' %}">
+<link rel="stylesheet" href="{% static 'smartpanel/widgets/station_board/station_board.css' %}">
 <body>
 
 <div style="height: calc(1080px - 60px); width: 1920px; overflow: hidden;">
@@ -21,7 +21,7 @@
 
 <h1 class="widget_error">Connection issues</h1>
 
-<h1><img src="{% static 'smartpanel/widgets/station_board/train.png' %}"> {{ data.locationName }}</h1>
+<h1><img src="{% static 'smartpanel/widgets/station_board/br-logo.png' %}"> {{ data.locationName }}</h1>
 <div class="timestamp">Updated {{ data.generatedAt }}</div>
 
 {% for message in data.messages %}
