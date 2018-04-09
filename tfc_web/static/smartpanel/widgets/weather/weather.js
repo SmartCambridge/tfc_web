@@ -32,7 +32,7 @@ function Weather(config, params) {
     this.do_load = function () {
         this.log('Running Weather.do_load', this.container);
         var self = this,
-            url = '../../weather?location=' + this.params.location +
+            url = '/smartpanel/weather?location=' + this.params.location +
                 ' .content_area';
         this.log('do_load URI', url);
         this.log('Container', '#' + this.container);

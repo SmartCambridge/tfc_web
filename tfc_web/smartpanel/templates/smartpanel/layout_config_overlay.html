@@ -18,18 +18,21 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
+    {% endfor %}
     {% for stylesheet in stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet }}">
     {% endfor %}
-    {% for stylesheet in external_stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+    {% for script in external_scripts %}
+        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
     {% endfor %}
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
-    {% for script in external_scripts %}
-        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
-    {% endfor %}
+
 </head>
 <body>
     <div class="logos" style="height: 60px;">
@@ -109,6 +112,10 @@
             }
         });
 
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI();
+        // Widget spec requires a DEBUG global
+        var DEBUG = '';
         var widget = [];
         {% for key, value in confdata.items %}
             {% if value.configuration %}
@@ -125,6 +132,8 @@
             for (var i = 0; i < widget.length; i++)
                 if ('init' in widget[i])
                     widget[i].init();
+            // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
+            RTMONITOR_API.init();
         });
     </script>
 </body>
