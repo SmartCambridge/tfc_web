@@ -21,6 +21,25 @@ body {
     margin: 0.5rem 0;
 }
 
+/* Restore ul/ol/li functionality (removed by smartpanel.css) */
+.widget ul, .widget ol {
+    padding-left: 40px;
+}
+.widget ul {
+    list-style-type: disc;
+}
+.widget ul ul, .widget ol ul {
+    list-style-type: circle;
+}
+.widget ul ul, .widget ul ol, .widget ol ul, .widget ol ol {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.widget li {
+    border: none;
+    position: relative;
+}
+
 h1, h2 {
     margin-bottom: 0;
     margin-top: 0;
