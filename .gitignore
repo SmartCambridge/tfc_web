@@ -91,6 +91,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Editor backup files
+*.swp
+
 .idea
 .DS_Store
 *.sqlite3
