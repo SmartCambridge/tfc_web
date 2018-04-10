@@ -39,16 +39,31 @@ function StationBoard(config, params) {
         // The LAYOUT CONFIGURATION FRAMEWORK would be expected to do this
         // ***********************************************************
         // **                                                       **
-        if (!config_div)
+        if (!document.getElementById(config_id))
         {
+            var widget = document.getElementById(widget_id);
+
+            // get absolute coords of widget (so we can position 'edit' link)
+            var rect = widget.getBoundingClientRect();
+            var top = Math.round(rect.top);
+            var left = Math.round(rect.left);
+            var width = Math.round(widget.offsetWidth);
+
+            //self.log('top',Math.round(rect.top), 'right',Math.round(rect.right),'bottom', Math.round(rect.bottom), 'left',Math.round(rect.left));
+
+            // create 'edit' link
             var config_link = document.createElement('a');
-            var config_text = document.createTextNode('DEBUG Configure StationBoard');
+            var config_text = document.createTextNode('edit');
             config_link.appendChild(config_text);
             config_link.title = "Configure this widget";
             config_link.href = "#";
             config_link.onclick = click_configure;
+            config_link.style = 'position: absolute; z-index: 1001';
+            config_link.style.left = Math.round(rect.left+width - 50)+'px';
+            config_link.style.top = Math.round(rect.top)+'px';
             document.body.appendChild(config_link);
 
+            // create config div for properties form
             var config_div = document.createElement('div');
             config_div.setAttribute('id',config_id);
             config_div.setAttribute('class','station_board_config');
@@ -106,6 +121,36 @@ function StationBoard(config, params) {
 
         this.log('configuring widget', widget_id,'with', config_id);
 
+        var config_properties = '{                                              \
+            "properties": {                                                     \
+                                                                                \
+                "station": {                                                    \
+                    "type": "string",                                           \
+                    "enum": ["CBG", "CMB", "WBC", "SED", "WLF", "FXN", "STH"],  \
+                    "display": {                                                \
+                        "CBG": "Cambridge",                                     \
+                        "CMB": "Cambridge North",                               \
+                        "WBC": "Waterbeach",                                    \
+                        "SED": "Shelford",                                      \
+                        "WLF": "Whittlesford",                                  \
+                        "FXN": "Foxton",                                        \
+                        "STH": "Shepreth"                                       \
+                    },                                                          \
+                    "title": "Station",                                         \
+                    "description": "Station name",                              \
+                    "format": "smartpanel:train_station"                        \
+                },                                                              \
+                                                                                \
+                "offset": {                                                     \
+                    "type": "integer",                                          \
+                    "title": "Timing offset",                                   \
+                    "description": "Offset from now to the start of the timetable (in minutes)", \
+                    "minimum": -120,                                            \
+                    "maximum": 120,                                             \
+                    "default": 0                                                \
+                }                                                               \
+            }';
+
         var config_div = document.getElementById(config_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
@@ -121,12 +166,28 @@ function StationBoard(config, params) {
         config_title.innerHTML = 'Configure Station Board';
         config_div.appendChild(config_title);
 
+        var config_form = document.createElement('form');
+        var config_table = document.createElement('table');
+        var config_tbody = document.createElement('tbody');
+/*
+        var config_properties = {};
+
+        config_properties['station'].row = document.createElement('tr');
+        config_properties['station'].name = document.createElement('td');
+        config_properties['station'].name.class = 'station_board_config_property_name';
+        config_station_property_name.innerHTML =
+            '<label for="'+config_params_station+'" title="Station name">Station:<sup>*</sup></label>';
+        config_station_row.appendChild(config_station_property_name);
+*/
+
+        var config_params_station = config_id +'_params_station'; // DOM id for station select dropdown / label
+        var config_station_property_value = document.createElement('td');
+
         // Note - using innerHTML as a 'quick' development method.
         // Could replace this with document.createElement() and not need id's
         var form = '<table>'; // class="station_board_config_table">';
         form += '<tbody>';
 
-        var config_params_station = config_id +'_params_station'; // DOM id for station select dropdown / label
         form += '<tr>';
         form += '<td class="station_board_config_property_name">';
         form += '<label for="'+config_params_station+'" title="Station name">Station:<sup>*</sup></label>';
@@ -240,6 +301,10 @@ function StationBoard(config, params) {
             self.params = config_params;
 
             self.log(widget_id,'config reset params to',self.params);
+
+            // reset original widget background-color to WHITE
+            var widget = document.getElementById(widget_id);
+            if (widget) widget.style['background-color'] = 'white';
 
             // hide the config div
             var config = document.getElementById(config_id);
