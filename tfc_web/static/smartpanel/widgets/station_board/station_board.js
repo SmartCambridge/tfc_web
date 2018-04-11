@@ -169,66 +169,56 @@ function StationBoard(config, params) {
         var config_form = document.createElement('form');
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
+
+        // Stations select
+        //
+        var row = config_select( 'station',
+                                 { text: 'Station:',
+                                   title: 'Choose your station from the dropdown',
+                                   options: [ { value: 'CBG', text: 'Cambridge' },
+                                              { value: 'CMB', text: 'Cambridge North' },
+                                              { value: 'FXN', text: 'Foxton' },
+                                              { value: 'SED', text: 'Shelford' } ]
+                                 });
+        config_tbody.appendChild(row);
+
+        // offset input
+        //
+        row = config_input( 'offset',
+                            { text: 'Timing offset (mins):',
+                              title: 'Set an offset (mins) if you want times for *later* trains than now',
+                              type: 'number',
+                              step: 'any'
+                            });
+
 /*
-        var config_properties = {};
-
-        config_properties['station'].row = document.createElement('tr');
-        config_properties['station'].name = document.createElement('td');
-        config_properties['station'].name.class = 'station_board_config_property_name';
-        config_station_property_name.innerHTML =
-            '<label for="'+config_params_station+'" title="Station name">Station:<sup>*</sup></label>';
-        config_station_row.appendChild(config_station_property_name);
+        var id = config_id + '_offset';
+        row = document.createElement('tr');
+        var name = document.createElement('td');
+        name.class = 'config_property_name';
+        name.innerHTML =
+            '<label for="'+id+'"'+
+                 '" title="Timing offset - use this if you want times for *later* trains than now">'+
+                 'Timing offset (mins):'+
+            '</label>';
+        row.appendChild(name);
+        var value = document.createElement('td');
+        value.class = 'config_property_value';
+        var input = document.createElement('input');
+        input.id = id;
+        input.type = 'number';
+        input.step = 'any';
+        input.title = 'Timing offset (mins)';
+        config_params_elements['offset'] = input;
+        value.appendChild(input);
+        row.appendChild(value);
 */
+        config_tbody.appendChild(row);
 
-        var config_params_station = config_id +'_params_station'; // DOM id for station select dropdown / label
-        var config_station_property_value = document.createElement('td');
-
-        // Note - using innerHTML as a 'quick' development method.
-        // Could replace this with document.createElement() and not need id's
-        var form = '<table>'; // class="station_board_config_table">';
-        form += '<tbody>';
-
-        form += '<tr>';
-        form += '<td class="station_board_config_property_name">';
-        form += '<label for="'+config_params_station+'" title="Station name">Station:<sup>*</sup></label>';
-        form += '</td>';
-        form += '<td class="station_board_config_property_value">';
-        form += '<select title="Station name" id="'+config_params_station+'">';
-        form += '<option value="CBG">Cambridge</option>';
-        form += '<option value="CMB">Cambridge North</option>';
-        form += '<option value="FXN">Foxton</option>';
-        form += '<option value="SED">Shelford</option>';
-        form += '<option value="STH">Shepreth</option>';
-        form += '<option value="WBC">Waterbeach</option>';
-        form += '<option value="WLF">Whittlesford</option>';
-        form += '</select>';
-        form += '</td>';
-        form += '</tr>';
-
-        var config_params_offset = config_id+'_params_offset'; // DOM id for timing offset input / label
-        form += '<tr>';
-        form += '<td class="station_board_config_property_name">';
-        form += '<label for="'+config_params_offset+
-                     '" title="Timing offset - use this if you want times for *later* trains than now">'+
-                     'Timing offset (mins):'+
-                '</label>';
-        form += '</td>';
-        form += '<td class="station_board_config_property_value">';
-        form += '<input type="number" step="any" title="Timing offset (mins)" id="'+config_params_offset+'">';
-        form += '</td>';
-        form += '</tr>';
-
-        form += '</tbody>';
-        form += '</table>';
-        form += '</form>';
-
-        var config_form = document.createElement('form');
-        config_form.innerHTML = form;
+        config_table.appendChild(config_tbody);
+        config_form.appendChild(config_table);
 
         config_div.appendChild(config_form);
-
-        config_params_elements['station'] = document.getElementById(config_params_station);
-        config_params_elements['offset'] = document.getElementById(config_params_offset);
 
         // Add save / cancel buttons
 
@@ -313,6 +303,74 @@ function StationBoard(config, params) {
             self.init();
         }
 
+    }
+
+    // Configure: return a TABLE ROW containing a SELECT param input
+    // param_name: widget config parameter name, e.g. 'station'
+    // options: { text: text display before dropdown
+    //            title: helper text
+    //            options: [ { value: <key>, text: <displayname> } ... ]
+    //          }
+    function config_select(param_name, options) {
+        var id = config_id + '_' + param_name;
+        var row = document.createElement('tr');
+
+        // create td to hold 'name' prompt for field
+        var name = document.createElement('td');
+        name.class = 'config_property_name';
+        var label = document.createElement('label');
+        label.for = id;
+        label.title = options.title;
+        label.appendChild(document.createTextNode(options.text));
+        name.appendChild(label);
+        row.appendChild(name);
+        var value = document.createElement('td');
+        value.class = 'config_property_value';
+        var sel = document.createElement('select');
+        if (options.title) sel.title = options.title;
+        sel.id = id;
+        var select_options = options.options;
+        for (var i=0; i<select_options.length; i++) {
+            var opt = document.createElement('option');
+            opt.value = select_options[i].value;
+            opt.text = select_options[i].text;
+            sel.appendChild(opt);
+        }
+        config_params_elements[param_name] = sel; // add input element to global dict for Save
+        value.appendChild(sel);
+        row.appendChild(value);
+
+        return row;
+    }
+
+    // Return a table row with a simple input field
+    function config_input(param_name, options)
+    {
+        var id = config_id + '_' + param_name;
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var name = document.createElement('td');
+        name.class = 'config_property_name';
+        var label = document.createElement('label');
+        label.for = id;
+        label.title = options.title;
+        label.appendChild(document.createTextNode(options.text));
+        name.appendChild(label);
+        row.appendChild(name);
+        var value = document.createElement('td');
+        value.class = 'config_property_value';
+
+        var input = document.createElement('input');
+        input.id = id;
+        if (options.type) input.type = options.type;
+        if (options.step) input.step = options.step;
+        if (options.title) input.title = options.title;
+
+        config_params_elements[param_name] = input;
+        value.appendChild(input);
+        row.appendChild(value);
+
+        return row;
     }
 
     this.log("Instantiated StationBoard", widget_id, params);
