@@ -614,6 +614,7 @@ function StopTimetable(config, params) {
         //log('display_simple - running');
 
         var table = document.createElement('table');
+        table.classList.add('timetable');
         table.classList.add('simple');
         var heading = document.createElement('tr');
         var cell;
@@ -852,6 +853,7 @@ function StopTimetable(config, params) {
 //<table class="multiline">
 
         var table = document.createElement('table');
+        table.classList.add('timetable');
         table.classList.add('multiline');
 
         var tr, td;
@@ -987,6 +989,7 @@ function StopTimetable(config, params) {
         //log('display_debug - running');
 
         var table = document.createElement('table');
+        table.classList.add('timetable');
         var heading = document.createElement('tr');
         var cell;
 
@@ -1181,6 +1184,7 @@ function StopTimetable(config, params) {
             result.appendChild(h3);
 
             var table = document.createElement('table');
+            table.classList.add('timetable');
             table.appendChild(heading.cloneNode(true));
 
             // ...for each journey...

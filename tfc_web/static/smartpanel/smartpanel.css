@@ -101,6 +101,10 @@
     height: 35px;
 }
 
+.logos {
+  font-family: Arial, sans-serif;
+}
+
 .logos img {
     height: 50px;
     margin: 5px;

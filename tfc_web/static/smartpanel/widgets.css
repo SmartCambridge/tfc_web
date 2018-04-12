@@ -10,7 +10,7 @@
   box-sizing: border-box;
 }
 
-body {
+.widget {
   font-family: Arial, sans-serif;
 }
 
@@ -32,25 +32,25 @@ body {
     list-style-type: circle;
 }
 .widget ul ul, .widget ul ol, .widget ol ul, .widget ol ol {
-    margin-top: 0;
     margin-bottom: 0;
+    margin-top: 0;
 }
 .widget li {
     border: none;
     position: relative;
 }
 
-h1, h2 {
+.widget h1, .widget h2 {
     margin-bottom: 0;
     margin-top: 0;
 }
 
-h1 img {
+.widget h1 img {
     height: 0.8em;
 }
 
 /* Translucent box to left for labelling maps */
-h1.translucent {
+.widget h1.translucent {
     background-color: white;
     background-color: rgba(255, 255, 255, 0.7);
     color: black;
@@ -60,7 +60,7 @@ h1.translucent {
     top: 0;
 }
 
-table {
+.widget table.timetable {
     border-collapse: collapse;
     margin-left: auto;
     margin-right: auto;
@@ -68,14 +68,14 @@ table {
     overflow: hidden;
 }
 
-th, td {
+.widget .timetable th, .widget .timetable td {
     border-bottom: 1px solid #ddd;
     padding: 0.2rem;
     text-align: left;
     vertical-align: top;
 }
 
-td {
+.widget .timetable td {
     padding: 0.4rem 0.2rem 0.736px 0.2rem;
 }
 
@@ -83,7 +83,7 @@ td {
 /* The relative offset is a hack to get the content to */
 /* appear to align correctly with it's smaller-sized   */
 /* neighbours. Set by eye */
-th.key, td.key {
+.widget th.key, .widget td.key {
     font-size: 1.4rem;
     font-weight: normal;
     position: relative;
@@ -94,39 +94,39 @@ th.key, td.key {
 
 /* .timestamp for 'Last updated hh:mm', etc. */
 
-.timestamp {
+.widget .timestamp {
     font-size: 1.2em;
     font-weight: bold;
 }
 
 /* .message for 'message of the day' boxes, etc */
 
-.message {
+.widget .message {
     background-color: #fdd;
     margin-bottom: 0.5em;
     margin-top: 0.5em;
     padding: 0.5em;
 }
 
-.message p {
+.widget .message p {
     margin: 0;
 }
 
 /* .time for table cells containing HH:MM times */
 
-th.time, td.time {
+.widget th.time, .widget td.time {
     text-align: center;
 }
 
 /* .issue for highlighting things with issues, like late trains */
 
-.issue {
+.widget .issue {
     background-color: #fdd;
 }
 
 /* .widget_error for 'connection problems' banner */
 
-.widget_error {
+.widget .widget_error {
     background: red;
     color: white;
     display: none;
