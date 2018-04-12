@@ -29,10 +29,10 @@ function StationBoard(config, params) {
 
     var config_inputs = {}; // DOM id's (station, offset) for params form elements
 
-    var params = params;//this.params = params;
+    var params = params;
 
     this.init = function () {
-        this.log("Running init", widget_id, 'with params', params ); //this.params );
+        this.log("Running init", widget_id, 'with params', params );
 
         // debug - add a 'configure' link to the bottom of the page
         // and create an initially hidden config div for the widget to use.
@@ -49,8 +49,6 @@ function StationBoard(config, params) {
             var left = Math.round(rect.left);
             var width = Math.round(widget.offsetWidth);
 
-            //self.log('top',Math.round(rect.top), 'right',Math.round(rect.right),'bottom', Math.round(rect.bottom), 'left',Math.round(rect.left));
-
             // create 'edit' link
             var config_link = document.createElement('a');
             var config_text = document.createTextNode('edit');
@@ -66,7 +64,7 @@ function StationBoard(config, params) {
             // create config div for properties form
             var config_div = document.createElement('div');
             config_div.setAttribute('id',config_id);
-            config_div.setAttribute('class','station_board_config');
+            config_div.setAttribute('class','widget_config');
             document.body.appendChild(config_div);
         }
         // **                                                       **
@@ -83,9 +81,9 @@ function StationBoard(config, params) {
     this.do_load = function () {
         this.log("Running StationBoard.do_load", widget_id);
         //var self = this;
-        var url = "/smartpanel/station_board?station=" + params.station;//this.params.station;
+        var url = "/smartpanel/station_board?station=" + params.station;
         if (params.offset) { //(this.params.offset) {
-            url += "&offset=" + params.offset;// this.params.offset;
+            url += "&offset=" + params.offset;
         }
         url += " .content_area";
 
@@ -152,36 +150,38 @@ function StationBoard(config, params) {
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
 
-        // initialize global dictionary config_inputs
+        // initialize global dictionary config_inputs[<property name>] -> { value: function to return input data }
         config_inputs = {};
+
+        // Each config_input(...) will return a .value() callback function for the input data
 
         // Stations select
         //
         self.log('configure() calling config_input', 'station', 'with',params.station);
-        config_input( config_tbody,
-                      'station',
-                      'select',
-                      { text: 'Station:',
-                        title: 'Choose your station from the dropdown',
-                        options: [ { value: 'CBG', text: 'Cambridge' },
-                                   { value: 'CMB', text: 'Cambridge North' },
-                                   { value: 'FXN', text: 'Foxton' },
-                                   { value: 'SED', text: 'Shelford' } ]
-                      },
-                      params.station
-                    );
+        config_inputs['station'] = config_input(  config_tbody,
+                                                  'station',
+                                                  'select',
+                                                  { text: 'Station:',
+                                                    title: 'Choose your station from the dropdown',
+                                                    options: [ { value: 'CBG', text: 'Cambridge' },
+                                                               { value: 'CMB', text: 'Cambridge North' },
+                                                               { value: 'FXN', text: 'Foxton' },
+                                                               { value: 'SED', text: 'Shelford' } ]
+                                                  },
+                                                  params.station
+                                                );
 
         // offset input
         //
         self.log('configure() calling config_input', 'offset', 'with',params.offset);
-        config_input( config_tbody,
-                      'offset',
-                      'number',
-                      { text: 'Timing offset (mins):',
-                        title: 'Set an offset (mins) if you want times for *later* trains than now',
-                        step: 'any'
-                      },
-                      params.offset);
+        config_inputs['offset'] = config_input(   config_tbody,
+                                                  'offset',
+                                                  'number',
+                                                  { text: 'Timing offset (mins):',
+                                                    title: 'Set an offset (mins) if you want times for *later* trains than now',
+                                                    step: 'any'
+                                                  },
+                                                  params.offset);
 
         config_table.appendChild(config_tbody);
         config_form.appendChild(config_table);
@@ -191,7 +191,7 @@ function StationBoard(config, params) {
         // Add save / cancel buttons
 
         var save_button = document.createElement('button');
-        save_button.onclick = function () { return config_click_save(config); };
+        save_button.onclick = function () { return config_click_save(config, config_inputs); };
         save_button.innerHTML = 'Save';
         config_div.appendChild(save_button);
 
@@ -205,16 +205,13 @@ function StationBoard(config, params) {
     // user has clicked the 'Cancel' button
     function config_click_cancel(config) {
 
-        // HERE WE WILL CALL THE CONFIGURATION FRAMEWORK
+        // HERE'S WHERE WE CALL THE CONFIGURATION FRAMEWORK
 
-        // In the meantime, here is a 'shim' that updates the layout
-        // *************************************************************
-        //config_shim_cancel();
-        config.configuration_callback(null);
+        config.configuration_callback(config, null);
     }
 
     // user has clicked the 'Save' button
-    function config_click_save(config) {
+    function config_click_save(config, config_inputs) {
         self.log(config_id, 'save_button');
 
         var config_params = {};
@@ -224,17 +221,23 @@ function StationBoard(config, params) {
         // offset
         var offset = config_inputs['offset'].value();
         if (!isNaN(parseInt(offset)) && offset >= 0) {
-            config_params.offset = offset;
+            config_params.offset = parseInt(offset);
         }
 
         self.log(config.config_id,'returning params:',config_params);
 
-        // HERE IS WHERE WE WILL RETURN THE config_params TO THE WIDGET FRAMEWORK
+        // HERE IS WHERE WE RETURN THE config_params TO THE WIDGET FRAMEWORK
         // The framework should then deal with (close) the config div
+        config.configuration_callback(config, config_params);
+    }
 
-        // Alternatively, we'll 'shim' the 'save' function by updating in the layout
-        //config_shim_save(config_params);
-        config.configuration_callback(config_params);
+    // A 'shim' callback for the configuration results
+    function config_shim_callback(config, config_params) {
+        if (config_params) {
+            config_shim_save(self, config, config_params);
+        } else {
+            config_shim_cancel(self, config);
+        }
     }
 
     // ************************************************************************************
@@ -271,49 +274,48 @@ function StationBoard(config, params) {
     //            });
     function config_input(parent_el, param_name, param_type, param_options, param_current) {
         self.log('creating input', param_name, param_type, param_options, param_current);
-        config_inputs[param_name] = {};
-        config_inputs[param_name].type = param_type;
-        config_inputs[param_name].options = param_options;
+        var input_info = {}; // info to return, .value() = data callback
         switch (param_type) {
             case 'select':
-                parent_el.appendChild(config_select(param_name, param_options, param_current));
+                input_info.value = config_select(parent_el, param_name, param_options, param_current);
                 break;
 
             case 'string':
-                parent_el.appendChild(config_string(param_name, param_options, param_current));
+                input_info.value = config_string(parent_el, param_name, param_options, param_current);
                 break;
 
             case 'number':
-                parent_el.appendChild(config_number(param_name, param_options, param_current));
+                input_info.value = config_number(parent_el, param_name, param_options, param_current);
                 break;
 
             default:
+                input_info = null;
                 self.log(widget_id, 'bad param_type in config_input', param_type);
         }
 
-        return null;
+        return input_info;
     }
 
-    function config_select(param_name, options, param_current) {
+    function config_select(parent_el, param_name, param_options, param_current) {
         self.log('creating select element', param_name, 'with', param_current);
-        var id = config_id + '_' + param_name;
+        //var id = config_id + '_' + param_name;
         var row = document.createElement('tr');
 
         // create td to hold 'name' prompt for field
         var name = document.createElement('td');
-        name.class = 'config_property_name';
+        name.className = 'widget_config_property_name';
         var label = document.createElement('label');
-        label.for = id;
-        label.title = options.title;
-        label.appendChild(document.createTextNode(options.text));
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
         name.appendChild(label);
         row.appendChild(name);
         var value = document.createElement('td');
-        value.class = 'config_property_value';
+        value.className = 'config_property_value';
         var sel = document.createElement('select');
-        if (options.title) sel.title = options.title;
-        sel.id = id;
-        var select_options = options.options;
+        if (param_options.title) sel.title = param_options.title;
+        //sel.id = id;
+        var select_options = param_options.options;
         for (var i=0; i<select_options.length; i++) {
             var opt = document.createElement('option');
             opt.value = select_options[i].value;
@@ -322,95 +324,82 @@ function StationBoard(config, params) {
         }
         // set default value of input to value provided in param_current
         if (param_current) sel.value = param_current;
-        config_inputs[param_name].element = sel; // add input element to global dict for Save
-        config_inputs[param_name].value = function () { return sel.value; };
+        //config_inputs[param_name].element = sel; // add input element to global dict for Save
         value.appendChild(sel);
         row.appendChild(value);
+        parent_el.appendChild(row);
 
-        return row;
+        return function () { return sel.value; };
     }
 
-    function config_number(param_name, param_options, param_current) {
+    function config_number(parent_el, param_name, param_options, param_current) {
         if (!param_options.type) param_options.type = 'number';
-        return config_string(param_name, param_options, param_current);
+        return config_string(parent_el, param_name, param_options, param_current);
     }
 
     // Return a table row with a simple input field
-    function config_string(param_name, options, param_current)
+    function config_string(parent_el, param_name, param_options, param_current)
     {
-        var id = config_id + '_' + param_name;
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
         var name = document.createElement('td');
-        name.class = 'config_property_name';
+        name.className = 'widget_config_property_name';
         var label = document.createElement('label');
-        label.for = id;
-        label.title = options.title;
-        label.appendChild(document.createTextNode(options.text));
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
         name.appendChild(label);
         row.appendChild(name);
         var value = document.createElement('td');
-        value.class = 'config_property_value';
+        value.className = 'config_property_value';
 
         var input = document.createElement('input');
-        input.id = id;
-        if (options.type) input.type = options.type;
-        if (options.step) input.step = options.step;
-        if (options.title) input.title = options.title;
+
+        if (param_options.type) input.type = param_options.type;
+        if (param_options.step) input.step = param_options.step;
+        if (param_options.title) input.title = param_options.title;
 
         // set default value of input to value provided in param_current
         self.log(param_name,'default set to',param_current);
         if (param_current) input.value = param_current;
 
-        config_inputs[param_name].element = input;
-        config_inputs[param_name].value = function() { return input.value; };
         value.appendChild(input);
         row.appendChild(value);
 
-        return row;
-    }
+        parent_el.appendChild(row);
 
-    // A 'shim' callback for the configuration results
-    function config_shim_callback(config_params) {
-        if (config_params) {
-            config_shim_save(config_params);
-        } else {
-            config_shim_cancel();
-        }
+        return function() { return input.value; };
     }
 
     // A shim function to provide the 'config cancel' in the active layout
-    function config_shim_cancel() {
-        // **                                                         **
+    function config_shim_cancel(self, config) {
         // reset original widget background-color to WHITE
-        var widget = document.getElementById(widget_id);
+        var widget = document.getElementById(config.widget_id);
         if (widget) widget.style['background-color'] = 'white';
 
         // hide the config div
-        var config = document.getElementById(config_id);
-        config.style.display = 'none';
-        // **                                                         **
-        // *************************************************************
+        var config_div = document.getElementById(config.config_id);
+        config_div.style.display = 'none';
 
-        self.log(config_id, 'cancel button');
+        self.log(config.config_id, 'cancel button');
     }
 
     // A shim function to provide the 'config save' in the active layout
-    function config_shim_save(config_params) {
+    function config_shim_save(self, config, config_params) {
         // Here we update the existing widget 'in-place', not expected in production
 
         params = config_params; //self.params = config_params;
 
-        self.log(widget_id,'config reset params to',params);//self.params);
+        self.log(config.widget_id,'config reset params to',params);//self.params);
 
-        var widget = document.getElementById(widget_id);
+        var widget = document.getElementById(config.widget_id);
 
         // reset original widget background-color to WHITE
         widget.style['background-color'] = 'white';
 
         // hide the config div
-        var config = document.getElementById(config_id);
-        config.style.display = 'none';
+        var config_div = document.getElementById(config_id);
+        config_div.style.display = 'none';
 
         self.init();
     }
