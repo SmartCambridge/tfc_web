@@ -753,7 +753,7 @@ function StopTimetable(config, params) {
             return div;
         }
 
-        return display_multiline_render_dom(rows);
+        return display_multiline_render(rows);
 
     }
 
@@ -848,9 +848,7 @@ function StopTimetable(config, params) {
     }
 
 
-    function display_multiline_render_dom(rows) {
-
-//<table class="multiline">
+    function display_multiline_render(rows) {
 
         var table = document.createElement('table');
         table.classList.add('timetable');
@@ -858,18 +856,16 @@ function StopTimetable(config, params) {
 
         var tr, td;
 
-//{{#each rows}}
+        // For each row in the result set
         for (var r = 0; r < rows.length; r++) {
             var row = rows[r];
-//  <tbody>
             var tbody = document.createElement('tbody');
             table.appendChild(tbody);
 
-//    <tr>
+            // Build the top row
             tr = document.createElement('tr');
             tbody.appendChild(tr);
 
-//      <td rowspan="3" class="expected">{{this.due}}</td>
             td = document.createElement('td');
             tr.appendChild(td);
             td.classList.add('expected');
@@ -877,19 +873,16 @@ function StopTimetable(config, params) {
             td.setAttribute('rowspan', row.rows);
             td.textContent = row.due;
 
-//      <td rowspan="3" class="line">{{this.line}}</td>
             td = document.createElement('td');
             tr.appendChild(td);
             td.classList.add('line');
             td.setAttribute('rowspan', row.rows);
             td.textContent = row.line;
 
-//      <td>to</td>
             td = document.createElement('td');
             tr.appendChild(td);
             td.textContent = 'to';
 
-//      <td>{{this.destination.desc}} <span class="together">(at {{this.destination.time}})</span></td>
             td = document.createElement('td');
             tr.appendChild(td);
             td.textContent = row.destination.desc + ' ';
@@ -898,11 +891,6 @@ function StopTimetable(config, params) {
             span.classList.add('together');
             span.textContent = '(' + row.destination.time +')';
 
-//      {{#if realtime}}
-//      <td rowspan="3"><img src="{{../config.static_url}}/clock-with-white-face.png" alt="" /></td>
-//      {{else}}
-//      <td rowspan="3"><img src="{{../config.static_url}}/timetable-outline.png" alt="" /></td>
-//      {{/if}}
             var url;
             if (row.realtime) {
                 url = config.static_url + '/images/signal6.gif';
@@ -919,50 +907,35 @@ function StopTimetable(config, params) {
             img.setAttribute('src', url);
             img.setAttribute('alt', '');
 
-//    </tr>
-//    <tr class="via">
-//      {{#if via}}
+            // Build the 'via' row if needed
             if (row.via && row.via.length > 0) {
                 tr = document.createElement('tr');
                 tbody.appendChild(tr);
                 tr.classList.add('via');
 
-//      <td>via</td>
                 td = document.createElement('td');
                 tr.appendChild(td);
                 td.textContent = 'via';
 
-//      <td colspan="1">
                 td = document.createElement('td');
                 tr.appendChild(td);
 
-//      {{#each via}}
                 var text = '';
                 for (var v = 0; v < row.via.length; v++) {
                     var via = row.via[v];
-
-//      {{this.desc}} ({{this.time}}){{#unless @last}}, {{/unless}}
                     if (v > 0) {
                         text = text + ', ';
                     }
                     text = text + via.desc + ' (' + via.time + ')';
-//      {{/each}}
                 }
                 td.textContent = text;
-//      </td>
-//      {{/if}}
             }
-//    </tr>
-//    <tr class="timing">
+
+            // Build the 'delay' row if needed
             if (row.delay.text) {
                 tr = document.createElement('tr');
                 tbody.appendChild(tr);
                 tr.classList.add('timing');
-//    {{#if this.delay.mark}}
-//      <td colspan="3" class="issue">{{this.delay.text}}</td>
-//    {{else}}
-//      <td colspan="3">{{this.delay.text}}</td>
-//    {{/if}}
                 td = document.createElement('td');
                 tr.appendChild(td);
                 td.setAttribute('colspan', '3');
@@ -970,12 +943,8 @@ function StopTimetable(config, params) {
                     td.classList.add('issue');
                 }
                 td.textContent = row.delay.text;
-//    </tr>
-///  </tbody>
             }
         }
-//  {{/each}}
-//</table>
 
         return table;
 
