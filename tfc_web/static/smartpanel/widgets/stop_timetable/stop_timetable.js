@@ -56,16 +56,22 @@ function StopTimetable(config, params) {
 
     'use strict';
 
-    // Backwards compatibility or first argument
-    var container;
-    if (typeof(config) === 'string') {
-        container = config;
-    }
-    else {
-        this.config = config;
-        container = config.container;
-    }
-    this.container = container;
+    var self = this;
+
+    var widget_id = config.container;
+
+    this.container = widget_id; // will remove when we migrate framework to provide widget_id
+
+    // *****************************************************************************
+    // ******** CONFIG DEMO ********************************************************
+    var config_id = widget_id+'_config'; // DOM id of config div
+
+    var CONFIG_COLOR = '#ffffe6';
+
+    // *****************************************************************************
+
+    var config_inputs = {}; // DOM id's (station, offset) for params form elements
+
     this.params = params;
 
     // Symbolic constants
@@ -124,7 +130,7 @@ function StopTimetable(config, params) {
 
     this.init = function() {
 
-        log('Running StopTimetable.init', container);
+        log('Running StopTimetable.init', widget_id);
 
         // Register handlers for connect/disconnect
         RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
@@ -134,13 +140,46 @@ function StopTimetable(config, params) {
         add_box_to_params_destinations_areas();
 
         // Set up the HTML skeleton of the container
-        initialise_container(container);
+        initialise_container(widget_id);
 
         // Populate the journey table. As a side effect, this updates
         // the display, starts the refresh timer and subscribes to
         // real-time updates
         populate_journeys();
 
+
+        // ***********************************************************
+        // **   CONFIG DEMO                                         **
+        if (!document.getElementById(config_id))
+        {
+            var widget = document.getElementById(widget_id);
+
+            // get absolute coords of widget (so we can position 'edit' link)
+            var rect = widget.getBoundingClientRect();
+            var top = Math.round(rect.top);
+            var left = Math.round(rect.left);
+            var width = Math.round(widget.offsetWidth);
+
+            // create 'edit' link
+            var config_link = document.createElement('a');
+            var config_text = document.createTextNode('edit');
+            config_link.appendChild(config_text);
+            config_link.title = "Configure this widget";
+            config_link.href = "#";
+            config_link.onclick = shim_click_configure;
+            config_link.style = 'position: absolute; z-index: 1001';
+            config_link.style.left = Math.round(rect.left+width - 50)+'px';
+            config_link.style.top = Math.round(rect.top)+'px';
+            document.body.appendChild(config_link);
+
+            // create config div for properties form
+            var config_div = document.createElement('div');
+            config_div.setAttribute('id',config_id);
+            config_div.setAttribute('class','widget_config');
+            document.body.appendChild(config_div);
+        }
+        // **                                                       **
+        // ***********************************************************
     };
 
 
@@ -228,10 +267,10 @@ function StopTimetable(config, params) {
             //     than 02:00 or later than 22:00
             var minutes = Math.random()*60;
             var tomorrow = moment().add(1, 'd').hour(4).minute(minutes);
-            console.log('[' + container + ']', 'Scheduling next populate_journeys for', tomorrow.format());
+            console.log('[' + widget_id + ']', 'Scheduling next populate_journeys for', tomorrow.format());
             var timer = window.setInterval(function () {
                 if (moment().isAfter(tomorrow)) {
-                    console.log('[' + container + ']', 'Re-running populate_journeys');
+                    console.log('[' + widget_id + ']', 'Re-running populate_journeys');
                     clearInterval(timer);
                     populate_journeys();
                 }
@@ -418,7 +457,7 @@ function StopTimetable(config, params) {
     function rtmonitor_disconnected() {
         // this function is called by RTMonitorAPI if it DISCONNECTS from server
         log('stop_timetable rtmonitor_disconnected');
-        document.getElementById(container+'_connection').style.display = 'inline-block';
+        document.getElementById(widget_id+'_connection').style.display = 'inline-block';
         // Drop our record of the subscriptions that just evaporated
         for (var i = 0; i < journey_table.length; i++) {
             var journey = journey_table[i];
@@ -430,7 +469,7 @@ function StopTimetable(config, params) {
     function rtmonitor_connected() {
         // this function is called by RTMonitorAPI each time it has CONNECTED to server
         log('stop_timetable rtmonitor_connected');
-        document.getElementById(container+'_connection').style.display = 'none';
+        document.getElementById(widget_id+'_connection').style.display = 'none';
         // Re-establish all the subscriptions that we need
         refresh_subscriptions();
     }
@@ -489,7 +528,7 @@ function StopTimetable(config, params) {
         var timetable_time = time.clone().tz(TIMETABLE_TIMEZONE);
         var realtime_time = time.clone().tz(REALTIME_TIMEZONE);
         var request_id = stop_id+'_'+timetable_time.format('HH:mm:ss');
-        log('subscribe - caller '+container+' subscribing to', request_id);
+        log('subscribe - caller '+widget_id+' subscribing to', request_id);
 
         var request_obj = {
                 filters:
@@ -507,7 +546,7 @@ function StopTimetable(config, params) {
                     ]
             };
 
-        var request_status = RTMONITOR_API.subscribe(container, request_id, request_obj, handle_message);
+        var request_status = RTMONITOR_API.subscribe(widget_id, request_id, request_obj, handle_message);
 
         if (request_status.status !== 'rt_ok') {
             log('subscribe failed ', JSON.stringify(request_status));
@@ -600,6 +639,9 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************* DISPLAY SIMPLE     ********************************************************
+    // *****************************************************************************************
     function display_simple() {
         // Basic departure board layout
 
@@ -729,6 +771,9 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************ DISPLAY MULTILINE   ********************************************************
+    // *****************************************************************************************
     function display_multiline() {
         // Multiline departure board layout
 
@@ -972,6 +1017,9 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************ DISPLAY DEBUG       ********************************************************
+    // *****************************************************************************************
 
     function display_debug() {
         // Debug display board with internal data
@@ -1128,6 +1176,9 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************ DISPLAY NEXTBUS      *******************************************************
+    // *****************************************************************************************
     function display_nextbus() {
         // Layout showing next bus to selected destinations
 
@@ -1277,7 +1328,7 @@ function StopTimetable(config, params) {
     function log() {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('stop_timetable_log') >= 0) {
             var args = [].slice.call(arguments);
-            args.unshift('[' + container + ']');
+            args.unshift('[' + widget_id + ']');
             console.log.apply(console, args);
         }
     }
@@ -1379,11 +1430,146 @@ function StopTimetable(config, params) {
     }
 
 
-    log('Instantiated StopTimetable', container, params);
+    // ************************************************************************************
+    // *****************  Widget Configuration ********************************************
+    // ************************************************************************************
+    //
 
-    // END of 'class' StopTimetable
+    // user has clicked the (debug) 'Configure' button
+    // This is a 'shim' for the call from the Widget Framework
+    function shim_click_configure() {
+        var widget = document.getElementById(widget_id);
+        widget.style['background-color'] = CONFIG_COLOR;
+        self.configure( { widget_id: widget_id,
+                          config_id: config_id,
+                          configuration_callback: config_shim_callback
+                        },
+                        self.params);
+    }
 
-}
+    this.log = function() {
+        if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('station_board_log') >= 0) {
+            console.log.apply(console, arguments);
+        }
+    };
+
+    // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
+    this.configure = function (config, params) {
+
+        this.log('configuring widget', config.widget_id,'with', config.config_id);
+
+        var config_div = document.getElementById(config.config_id);
+
+        // Empty the 'container' div (i.e. remove loading GIF or prior content)
+        while (config_div.firstChild) {
+                config_div.removeChild(config_div.firstChild);
+        }
+
+        config_div.style.display = 'block';
+
+        // Create HTML for configuration form
+        //
+        var config_title = document.createElement('h1');
+        config_title.innerHTML = 'Configure Station Board';
+        config_div.appendChild(config_title);
+
+        var config_form = document.createElement('form');
+        var config_table = document.createElement('table');
+        var config_tbody = document.createElement('tbody');
+
+        // initialize global dictionary config_inputs[<property name>] -> { value: function to return input data }
+        config_inputs = {};
+
+        // Each config_input(...) will return a .value() callback function for the input data
+
+        // Stations select
+        //
+        self.log('configure() calling config_input', 'station', 'with',params.station);
+        config_inputs['station'] = config_input(  config_tbody,
+                                                  'station',
+                                                  'select',
+                                                  { text: 'Station:',
+                                                    title: 'Choose your station from the dropdown',
+                                                    options: [ { value: 'CBG', text: 'Cambridge' },
+                                                               { value: 'CMB', text: 'Cambridge North' },
+                                                               { value: 'FXN', text: 'Foxton' },
+                                                               { value: 'SED', text: 'Shelford' } ]
+                                                  },
+                                                  params.station
+                                                );
+
+        // offset input
+        //
+        self.log('configure() calling config_input', 'offset', 'with',params.offset);
+        config_inputs['offset'] = config_input(   config_tbody,
+                                                  'offset',
+                                                  'number',
+                                                  { text: 'Timing offset (mins):',
+                                                    title: 'Set an offset (mins) if you want times for *later* trains than now',
+                                                    step: 'any'
+                                                  },
+                                                  params.offset);
+
+        config_table.appendChild(config_tbody);
+        config_form.appendChild(config_table);
+
+        config_div.appendChild(config_form);
+
+        // Add save / cancel buttons
+
+        var save_button = document.createElement('button');
+        save_button.onclick = function () { return config_click_save(config, config_inputs); };
+        save_button.innerHTML = 'Save';
+        config_div.appendChild(save_button);
+
+        var cancel_button = document.createElement('button');
+        cancel_button.onclick = function () { return config_click_cancel(config); };
+        cancel_button.innerHTML = 'Cancel';
+        config_div.appendChild(cancel_button);
+
+    }// end this.configure()
+
+    // user has clicked the 'Cancel' button
+    function config_click_cancel(config) {
+
+        // HERE'S WHERE WE CALL THE CONFIGURATION FRAMEWORK
+
+        config.configuration_callback(config, null);
+    }
+
+    // user has clicked the 'Save' button
+    function config_click_save(config, config_inputs) {
+        self.log(config.config_id, 'save_button');
+
+        var config_params = {};
+        // station
+        config_params.station = config_inputs['station'].value();
+
+        // offset
+        var offset = config_inputs['offset'].value();
+        if (!isNaN(parseInt(offset)) && offset >= 0) {
+            config_params.offset = parseInt(offset);
+        }
+
+        self.log(config.config_id,'returning params:',config_params);
+
+        // HERE IS WHERE WE RETURN THE config_params TO THE WIDGET FRAMEWORK
+        // The framework should then deal with (close) the config div
+        config.configuration_callback(config, config_params);
+    }
+
+    // A 'shim' callback for the configuration results
+    function config_shim_callback(config, config_params) {
+        if (config_params) {
+            config_shim_save(self, config, config_params);
+        } else {
+            config_shim_cancel(self, config);
+        }
+    }
+
+    log('Instantiated StopTimetable', widget_id, params);
+
+}    // END of 'class' StopTimetable
 
 /*
 

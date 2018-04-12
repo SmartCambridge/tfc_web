@@ -12,20 +12,17 @@ function StationBoard(config, params) {
 
     var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
+    var widget_id = config.container;
+
+    this.container = widget_id; // will remove when we migrate framework to provide widget_id
+
+    // *****************************************************************************
+    // ******** CONFIG DEMO ********************************************************
+    var config_id = widget_id+'_config'; // DOM id of config div
+
     var CONFIG_COLOR = '#ffffe6';
 
-    // Backwards compatibility or first argument
-    var widget_id;
-    if (typeof(config) === 'string') {
-        widget_id = config;
-    }
-    else {
-        this.config = config;
-        widget_id = config.container;
-    }
-    this.container = widget_id;
-
-    var config_id = widget_id+'_config'; // DOM id of config div
+    // *****************************************************************************
 
     var config_inputs = {}; // DOM id's (station, offset) for params form elements
 
