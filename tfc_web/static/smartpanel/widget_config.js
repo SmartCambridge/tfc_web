@@ -14,7 +14,6 @@
     //
     // config_input(
     //   parent_el:     DOM object to append input element (tbody)
-    //   param_name:    property name for widget, e.g. 'station'.
     //   param_type:    'select' | 'string' | 'number'
     //   param_options: options needed for each input type
     //   param_current: current value of property (for edit)
@@ -32,20 +31,20 @@
     //              title:
     //              step: 'any' *[OPTIONAL]
     //            });
-    function config_input(parent_el, param_name, param_type, param_options, param_current) {
+    function config_input(parent_el, param_type, param_options, param_current) {
         //self.log('creating input', param_name, param_type, param_options, param_current);
         var input_info = {}; // info to return, .value() = data callback
         switch (param_type) {
             case 'select':
-                input_info.value = config_select(parent_el, param_name, param_options, param_current);
+                input_info.value = config_select(parent_el, param_options, param_current);
                 break;
 
             case 'string':
-                input_info.value = config_string(parent_el, param_name, param_options, param_current);
+                input_info.value = config_string(parent_el, param_options, param_current);
                 break;
 
             case 'number':
-                input_info.value = config_number(parent_el, param_name, param_options, param_current);
+                input_info.value = config_number(parent_el, param_options, param_current);
                 break;
 
             default:
@@ -56,7 +55,8 @@
         return input_info;
     }
 
-    function config_select(parent_el, param_name, param_options, param_current) {
+    // Append a row containing <td>TITLE</td><td>SELECT</td>
+    function config_select(parent_el, param_options, param_current) {
         //self.log('creating select element', param_name, 'with', param_current);
         //var id = config_id + '_' + param_name;
         var row = document.createElement('tr');
@@ -73,8 +73,19 @@
         var value = document.createElement('td');
         value.className = 'config_property_value';
         var sel = document.createElement('select');
+
+        // set select.title
         if (param_options.title) sel.title = param_options.title;
-        //sel.id = id;
+
+        // set select.onchange
+        if (param_options.onchange) {
+            console.log('config_select: setting onchange');
+            sel.onchange = function () { param_options.onchange({ value: this.value,
+                                                                  parent: parent_el
+                                                                }); } ;
+        }
+
+        // set the select dropdown options
         var select_options = param_options.options;
         for (var i=0; i<select_options.length; i++) {
             var opt = document.createElement('option');
@@ -82,9 +93,10 @@
             opt.text = select_options[i].text;
             sel.appendChild(opt);
         }
+
         // set default value of input to value provided in param_current
         if (param_current) sel.value = param_current;
-        //config_inputs[param_name].element = sel; // add input element to global dict for Save
+
         value.appendChild(sel);
         row.appendChild(value);
         parent_el.appendChild(row);
@@ -92,26 +104,26 @@
         return function () { return sel.value; };
     }
 
-    function config_number(parent_el, param_name, param_options, param_current) {
+    function config_number(parent_el, param_options, param_current) {
         if (!param_options.type) param_options.type = 'number';
-        return config_string(parent_el, param_name, param_options, param_current);
+        return config_string(parent_el, param_options, param_current);
     }
 
-    // Return a table row with a simple input field
-    function config_string(parent_el, param_name, param_options, param_current)
+    //  Append a table row with a simple input field
+    function config_string(parent_el, param_options, param_current)
     {
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
-        var name = document.createElement('td');
-        name.className = 'widget_config_property_name';
+        var td_name = document.createElement('td');
+        td_name.className = 'config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
         label.title = param_options.title;
         label.appendChild(document.createTextNode(param_options.text));
-        name.appendChild(label);
-        row.appendChild(name);
-        var value = document.createElement('td');
-        value.className = 'config_property_value';
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'config_property_value';
 
         var input = document.createElement('input');
 
@@ -123,8 +135,8 @@
         //self.log(param_name,'default set to',param_current);
         if (param_current) input.value = param_current;
 
-        value.appendChild(input);
-        row.appendChild(value);
+        td_value.appendChild(input);
+        row.appendChild(td_value);
 
         parent_el.appendChild(row);
 

@@ -156,7 +156,6 @@ function StationBoard(config, params) {
         //
         self.log('configure() calling config_input', 'station', 'with',params.station);
         config_inputs['station'] = config_input(  config_tbody,
-                                                  'station',
                                                   'select',
                                                   { text: 'Station:',
                                                     title: 'Choose your station from the dropdown',
@@ -172,7 +171,6 @@ function StationBoard(config, params) {
         //
         self.log('configure() calling config_input', 'offset', 'with',params.offset);
         config_inputs['offset'] = config_input(   config_tbody,
-                                                  'offset',
                                                   'number',
                                                   { text: 'Timing offset (mins):',
                                                     title: 'Set an offset (mins) if you want times for *later* trains than now',

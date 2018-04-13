@@ -813,7 +813,7 @@ function StopTimetable(config, params) {
             // Is the last stop itself in a destination?
             if (journey.last_is_destination !== undefined) {
                 last = journey.destinations[journey.last_is_destination];
-                last_desc = params.destinations[journey.last_is_destination].description;
+                last_desc = self.params.destinations[journey.last_is_destination].description;
             }
             row.destination = {
                 desc: tidy_name(last_desc),
@@ -825,12 +825,12 @@ function StopTimetable(config, params) {
 
             // Via
             row.via = [];
-            if (params.destinations) {
+            if (self.params.destinations) {
                 row.rows += 1;
-                for (var d = 0; d < params.destinations.length; d++) {
+                for (var d = 0; d < self.params.destinations.length; d++) {
                     if (journey.destinations[d] && d !== journey.last_is_destination) {
                         row.via.push({
-                            desc: params.destinations[d].description,
+                            desc: self.params.destinations[d].description,
                             time: apply_delay(journey.destinations[d].due, journey).format('HH:mm')
                         });
                     }
@@ -1201,8 +1201,8 @@ function StopTimetable(config, params) {
         heading.appendChild(cell);
 
         // For each destination...
-        for (var d = 0; d < params.destinations.length; d++) {
-            var destination = params.destinations[d];
+        for (var d = 0; d < self.params.destinations.length; d++) {
+            var destination = self.params.destinations[d];
             var nrows = 0;
 
             var h3 = document.createElement('h3');
@@ -1388,7 +1388,7 @@ function StopTimetable(config, params) {
 
     function get_now() {
         // Return the current time offset by params.offset or 0
-        var offset = params.offset || 0;
+        var offset = self.params.offset || 0;
         return moment().add(offset, 'minutes');
     }
 
@@ -1442,7 +1442,6 @@ function StopTimetable(config, params) {
     // In this.configure(), by default a <table> is added to the config_div.
     // A helper function is provided:
     //   config_input( parent_element, (the DOM element to add input element to, typically a tbody)
-    //                 property_name,  (e.g. 'title', i.e. the property that will appear as params.title)
     //                 property_type,  ( select | number | string ),
     //                 input_options,  (configuration parameters for the input field, such as text, title)
     //                 default_value   (typically the existing 'params' value if editting an existing widget)
@@ -1485,7 +1484,6 @@ function StopTimetable(config, params) {
         // TITLE
         //
         config_inputs['title'] = config_input( config_tbody,
-                                               'title',
                                                'string',
                                                   { text: 'Title',
                                                     title: 'The main title at the top of the widget, e.g. bus stop name',
@@ -1495,7 +1493,6 @@ function StopTimetable(config, params) {
         // TITLE
         //
         config_inputs['stop_id'] = config_input( config_tbody,
-                                               'stop_id',
                                                'string',
                                                   { text: 'Stop ID',
                                                     title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
@@ -1506,7 +1503,6 @@ function StopTimetable(config, params) {
         //
         self.log('configure() calling config_input', 'offset', 'with',params.offset);
         config_inputs['offset'] = config_input(   config_tbody,
-                                                  'offset',
                                                   'number',
                                                   { text: 'Timing offset (mins):',
                                                     title: 'Set an offset (mins) if you want times for *later* trains than now',
@@ -1518,14 +1514,14 @@ function StopTimetable(config, params) {
         //
         self.log('configure() calling config_input', 'layout', 'with',params.layout);
         config_inputs['layout'] = config_input(  config_tbody,
-                                                  'layout',
                                                   'select',
                                                   { text: 'Layout:',
                                                     title: 'Choose your widget layout style from the dropdown',
                                                     options: [ { value: 'simple', text: 'Simple' },
                                                                { value: 'multiline', text: 'Multi-line' },
                                                                { value: 'nextbus', text: 'NextBus' },
-                                                               { value: 'debug', text: 'Debug' } ]
+                                                               { value: 'debug', text: 'Debug' } ],
+                                                    onchange: config_layout_onchange // callback when input changes
 
                                                    /* "simple": "One line per journey",
                 "multiline": "Multiple lines per journey; can include intermediate destinations",
@@ -1554,11 +1550,66 @@ function StopTimetable(config, params) {
 
     }// end this.configure()
 
+    // local function to be called if user updates 'layout' input value
+    // input_change is { value: <new value of property>,
+    //                   parent: DOM object the contains select input row (i.e. typically a tbody)
+    function config_layout_onchange(input_change) {
+        self.log('config_layout_onchange: layout changed to:',input_change.value);
+        switch (input_change.value) {
+            case 'multiline':
+                config_inputs['destinations'] = config_input_destinations(input_change.parent);
+                break;
+
+            default:
+                self.log('config_layout_onchange: change ignored');
+        }
+    }
+
+    // Add a 'destinations' input to the main config table
+    function config_input_destinations(parent_el) {
+        self.log('config_input_destinations called');
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = 'Enter your destinations ach as a set of stops or an area on a map';
+        label.appendChild(document.createTextNode('Destinations:'));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'config_property_value';
+
+        var destinations_table = document.createElement('table');
+        var tbody = document.createElement('tbody');
+
+        var destination_value_fn = config_input_destination(tbody);
+
+        destinations_table.appendChild(tbody);
+        td_value.appendChild(destinations_table);
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+
+        return { value: function () { return [ { description: 'Addenbrookes..', stop_ids: [ '0500CCITY517' ] } ] } };
+    }
+
+    // Add a 'destination' input (as a row in a 'destinations' table)
+    function config_input_destination(parent_el) {
+        self.log('config_input_destination called');
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.innerHTML = 'destination'; // DEBUG need to add a table here
+        tr.appendChild(td);
+        parent_el.appendChild(tr);
+        return { value: function () { return 'foo'; } };
+    }
+
     // user has clicked the 'Cancel' button
     function config_click_cancel(config) {
-
         // HERE'S WHERE WE CALL THE CONFIGURATION FRAMEWORK
-
         config.configuration_callback(config, null);
     }
 
@@ -1579,6 +1630,10 @@ function StopTimetable(config, params) {
         // layout
         config_params.layout = config_inputs['layout'].value();
 
+        // destinations
+        if (config_inputs['destinations']) {
+            config_params.destinations = config_inputs['destinations'].value();
+        }
 
         self.log(config.config_id,'returning params:',config_params);
 
