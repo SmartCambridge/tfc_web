@@ -8,7 +8,7 @@ function StationBoard(config, params) {
 
     var self = this;
 
-    var DEBUG = ' station_board_log';
+    //var DEBUG = ' station_board_log';
 
     var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
@@ -126,7 +126,7 @@ function StationBoard(config, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
-        this.log('configuring widget', config.widget_id,'with', config.config_id);
+        self.log('configuring widget', config.widget_id,'with', config.config_id);
 
         var config_div = document.getElementById(config.config_id);
 

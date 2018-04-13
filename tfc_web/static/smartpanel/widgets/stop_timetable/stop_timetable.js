@@ -56,6 +56,8 @@ function StopTimetable(config, params) {
 
     'use strict';
 
+    var DEBUG = ' stop_timetable_log';
+
     var self = this;
 
     var widget_id = config.container;
@@ -130,7 +132,15 @@ function StopTimetable(config, params) {
 
     this.init = function() {
 
-        log('Running StopTimetable.init', widget_id);
+        self.log('Running StopTimetable.init', widget_id, 'with', self.params);
+
+        journey_table = [];
+
+        journey_index = {};
+
+        clearInterval(display_timer_id);
+
+        clearInterval(subscription_timer_id);
 
         // Register handlers for connect/disconnect
         RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
@@ -152,31 +162,7 @@ function StopTimetable(config, params) {
         // **   CONFIG DEMO                                         **
         if (!document.getElementById(config_id))
         {
-            var widget = document.getElementById(widget_id);
-
-            // get absolute coords of widget (so we can position 'edit' link)
-            var rect = widget.getBoundingClientRect();
-            var top = Math.round(rect.top);
-            var left = Math.round(rect.left);
-            var width = Math.round(widget.offsetWidth);
-
-            // create 'edit' link
-            var config_link = document.createElement('a');
-            var config_text = document.createTextNode('edit');
-            config_link.appendChild(config_text);
-            config_link.title = "Configure this widget";
-            config_link.href = "#";
-            config_link.onclick = shim_click_configure;
-            config_link.style = 'position: absolute; z-index: 1001';
-            config_link.style.left = Math.round(rect.left+width - 50)+'px';
-            config_link.style.top = Math.round(rect.top)+'px';
-            document.body.appendChild(config_link);
-
-            // create config div for properties form
-            var config_div = document.createElement('div');
-            config_div.setAttribute('id',config_id);
-            config_div.setAttribute('class','widget_config');
-            document.body.appendChild(config_div);
+            config_shim_link_and_div(widget_id, config_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -190,13 +176,13 @@ function StopTimetable(config, params) {
     // the bounding lat/longs of the polygon as an optimization for geo.js is_inside.
     function add_box_to_params_destinations_areas()
     {
-        if (!params.destinations) {
+        if (!self.params.destinations) {
             return;
         }
 
-        for (var i=0; i<params.destinations.length; i++) {
-            if (params.destinations[i].area) {
-                params.destinations[i].box = get_box(params.destinations[i].area);
+        for (var i=0; i<self.params.destinations.length; i++) {
+            if (self.params.destinations[i].area) {
+                self.params.destinations[i].box = get_box(self.params.destinations[i].area);
                 // console.log('get_box '+JSON.stringify(params.destinations[i].box));
                 //log('Destination', i);
                 //log('           ', JSON.stringify(params.destinations[i].area));
@@ -221,7 +207,7 @@ function StopTimetable(config, params) {
         img.setAttribute('src', config.static_url + 'bus.png');
         title.appendChild(img);
         title.appendChild(document.createTextNode(' '));
-        title.appendChild(document.createTextNode(params.title));
+        title.appendChild(document.createTextNode(self.params.title));
         content_area.appendChild(title);
 
         var connection_div = document.createElement('div');
@@ -247,7 +233,7 @@ function StopTimetable(config, params) {
             for (var i = 0; i < journey_table.length; i++) {
                 var journey = journey_table[i];
                 if (journey.rtsub) {
-                    log('populate_journeys - un-subscribing', journey.rtsub);
+                    self.log('populate_journeys - un-subscribing', journey.rtsub);
                     RTMONITOR_API.unsubscribe(journey.rtsub);
                 }
             }
@@ -283,10 +269,10 @@ function StopTimetable(config, params) {
     function get_journey_batch(iteration) {
         // Trigger retrieval of a batch of journey records
 
-        log('get_journey_batch - iteration', iteration);
+        self.log('get_journey_batch - iteration', iteration);
         // This shouldn't happen
         if (iteration > 100) {
-            log('Excessive recursion in get_journey_batch');
+            self.log('Excessive recursion in get_journey_batch');
             return;
         }
 
@@ -301,15 +287,15 @@ function StopTimetable(config, params) {
             var last_journey = journey_table[journey_table.length - 1];
             start_time = last_journey.timetable.time;
         }
-        log('get_journey_batch - start_time:', start_time);
+        self.log('get_journey_batch - start_time:', start_time);
 
-        var qs = '?stop_id='+encodeURIComponent(params.stop_id);
+        var qs = '?stop_id='+encodeURIComponent(self.params.stop_id);
         qs += '&datetime_from='+encodeURIComponent(start_time);
         qs += '&expand_journey=true';
         qs += '&nresults='+encodeURIComponent(JOURNEY_BATCH_SIZE);
 
         var uri = TIMETABLE_URI + '/journeys_by_time_and_stop/' + qs;
-        log('get_journey_batch - fetching', uri);
+        self.log('get_journey_batch - fetching', uri);
 
         var xhr = new XMLHttpRequest();
         xhr.open('GET', uri, true);
@@ -335,7 +321,7 @@ function StopTimetable(config, params) {
         // Add new journeys to journey_table. Return the number of
         // records actually added
 
-        log('add_journeys - got', data.results.length, 'results');
+        self.log('add_journeys - got', data.results.length, 'results');
 
         var added = 0;
 
@@ -351,11 +337,11 @@ function StopTimetable(config, params) {
 
             // Have we seen it before?
             if (journey_index.hasOwnProperty(journey_key)) {
-                log('add_journeys - skipping', journey_key, result.time);
+                self.log('add_journeys - skipping', journey_key, result.time);
                 continue;
             }
 
-            log('add_journeys - adding', journey_key, result.time);
+            self.log('add_journeys - adding', journey_key, result.time);
             added++;
 
             // See if this journey goes to any of our destinations
@@ -380,7 +366,7 @@ function StopTimetable(config, params) {
 
         }
 
-        log('add_journeys - actually added', added, 'journeys');
+        self.log('add_journeys - actually added', added, 'journeys');
 
         return added;
 
@@ -393,9 +379,9 @@ function StopTimetable(config, params) {
         var last_is_destination;
 
         // For each supplied destination (if we have any)...
-        if (params.destinations) {
-            for (var d = 0; d < params.destinations.length; d++) {
-                var destination = params.destinations[d];
+        if (self.params.destinations) {
+            for (var d = 0; d < self.params.destinations.length; d++) {
+                var destination = self.params.destinations[d];
                 var seen_self = false;
 
                 //log('Doing destination', d, destination.description);
@@ -427,7 +413,7 @@ function StopTimetable(config, params) {
                     }
 
                     // Is this timetable entry 'us'?
-                    if (timetable_entry.stop.atco_code === params.stop_id) {
+                    if (timetable_entry.stop.atco_code === self.params.stop_id) {
                         seen_self = true;
                     }
 
@@ -456,7 +442,7 @@ function StopTimetable(config, params) {
 
     function rtmonitor_disconnected() {
         // this function is called by RTMonitorAPI if it DISCONNECTS from server
-        log('stop_timetable rtmonitor_disconnected');
+        self.log('stop_timetable rtmonitor_disconnected');
         document.getElementById(widget_id+'_connection').style.display = 'inline-block';
         // Drop our record of the subscriptions that just evaporated
         for (var i = 0; i < journey_table.length; i++) {
@@ -468,7 +454,7 @@ function StopTimetable(config, params) {
 
     function rtmonitor_connected() {
         // this function is called by RTMonitorAPI each time it has CONNECTED to server
-        log('stop_timetable rtmonitor_connected');
+        self.log('stop_timetable rtmonitor_connected');
         document.getElementById(widget_id+'_connection').style.display = 'none';
         // Re-establish all the subscriptions that we need
         refresh_subscriptions();
@@ -482,7 +468,7 @@ function StopTimetable(config, params) {
 
         var now = get_now();
 
-        log('refresh_subscriptions - running for', now.toISOString());
+        self.log('refresh_subscriptions - running for', now.toISOString());
 
         // Cancel the update timer if it's running
         if (subscription_timer_id) {
@@ -499,7 +485,7 @@ function StopTimetable(config, params) {
                       journey.due.isAfter(now.add(60, 'minutes'))) ) {
 
                     if (journey.rtsub) {
-                        log('refresh_subscriptions - unsubscribing', journey.rtsub);
+                        self.log('refresh_subscriptions - unsubscribing', journey.rtsub);
                         RTMONITOR_API.unsubscribe(journey.rtsub);
                         journey.rtsub = undefined;
                     }
@@ -528,7 +514,7 @@ function StopTimetable(config, params) {
         var timetable_time = time.clone().tz(TIMETABLE_TIMEZONE);
         var realtime_time = time.clone().tz(REALTIME_TIMEZONE);
         var request_id = stop_id+'_'+timetable_time.format('HH:mm:ss');
-        log('subscribe - caller '+widget_id+' subscribing to', request_id);
+        self.log('subscribe - caller '+widget_id+' subscribing to', request_id);
 
         var request_obj = {
                 filters:
@@ -549,7 +535,7 @@ function StopTimetable(config, params) {
         var request_status = RTMONITOR_API.subscribe(widget_id, request_id, request_obj, handle_message);
 
         if (request_status.status !== 'rt_ok') {
-            log('subscribe failed ', JSON.stringify(request_status));
+            self.log('subscribe failed ', JSON.stringify(request_status));
             return undefined;
         }
 
@@ -579,7 +565,7 @@ function StopTimetable(config, params) {
             }
             else {
                 /// This shouldn't happen
-                log('handle_records - message', key, 'no match');
+                self.log('handle_records - message', key, 'no match');
             }
         }
 
@@ -594,7 +580,7 @@ function StopTimetable(config, params) {
         // Update (actually recreate and replace) the display by
         // walking the journey_table
 
-        //log('refresh_display - running');
+        self.log('refresh_display - running with','self.params:',self.params);
 
         // Cancel the update timer if it's running
         if (display_timer_id) {
@@ -605,7 +591,7 @@ function StopTimetable(config, params) {
         try {
 
             var result;
-            switch (params.layout) {
+            switch (self.params.layout) {
                 case 'debug':
                     result = display_debug();
                     break;
@@ -616,8 +602,8 @@ function StopTimetable(config, params) {
                     result = display_nextbus();
                     break;
                 default:
-                    if (params.layout !== 'simple') {
-                        log('refresh_display - unexpected layout', params.layout, 'using \'simple\'');
+                    if (self.params.layout !== 'simple') {
+                        self.log('refresh_display - unexpected layout', self.params.layout, 'using \'simple\'');
                     }
                     result = display_simple();
             }
@@ -777,7 +763,7 @@ function StopTimetable(config, params) {
     function display_multiline() {
         // Multiline departure board layout
 
-        log('display_multiline - running');
+        self.log('display_multiline - running');
 
         var rows = display_multiline_view();
 
@@ -1182,7 +1168,7 @@ function StopTimetable(config, params) {
     function display_nextbus() {
         // Layout showing next bus to selected destinations
 
-        log('display_nextbus - running');
+        self.log('display_nextbus - running');
 
         var result = document.createElement('div');
         result.classList.add('nextbus');
@@ -1325,7 +1311,7 @@ function StopTimetable(config, params) {
     //==== Utilities ===================================================
 
 
-    function log() {
+    this.log = function () {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('stop_timetable_log') >= 0) {
             var args = [].slice.call(arguments);
             args.unshift('[' + widget_id + ']');
@@ -1434,29 +1420,43 @@ function StopTimetable(config, params) {
     // *****************  Widget Configuration ********************************************
     // ************************************************************************************
     //
-
-    // user has clicked the (debug) 'Configure' button
-    // This is a 'shim' for the call from the Widget Framework
-    function shim_click_configure() {
-        var widget = document.getElementById(widget_id);
-        widget.style['background-color'] = CONFIG_COLOR;
-        self.configure( { widget_id: widget_id,
-                          config_id: config_id,
-                          configuration_callback: config_shim_callback
-                        },
-                        self.params);
-    }
-
-    this.log = function() {
-        if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('station_board_log') >= 0) {
-            console.log.apply(console, arguments);
-        }
-    };
+    // For widget configuration, the layout_framework will call the widget:
+    //   widget.configure(config, params)
+    //   where:
+    //
+    //     config: will be an object including
+    //         widget_id: (currently container) - the DOM Id of the widget element
+    //         config_id: the DOM Id of the DIV toi use for the configuration form
+    //         configuration_callback: a function (config,params) the widget will call
+    //                                 on configuration save or cancel.
+    //                                 On cancel, params will be null.
+    //
+    //     params: these are the *current* widget parameters to use as initial defaults on
+    //             the config form input elements, so existing config can be editted.
+    //
+    // For 'production' configure you need to edit:
+    //   this.configure(config, params)
+    //   config_click_cancel(config)
+    //   config_click_save(config, params)
+    //
+    // In this.configure(), by default a <table> is added to the config_div.
+    // A helper function is provided:
+    //   config_input( parent_element, (the DOM element to add input element to, typically a tbody)
+    //                 property_name,  (e.g. 'title', i.e. the property that will appear as params.title)
+    //                 property_type,  ( select | number | string ),
+    //                 input_options,  (configuration parameters for the input field, such as text, title)
+    //                 default_value   (typically the existing 'params' value if editting an existing widget)
+    //               )
+    //  config_input(..) will return an object:
+    //    {
+    //      value: function () -> the property value entered on the form
+    //    }
+    //
 
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
-        this.log('configuring widget', config.widget_id,'with', config.config_id);
+        self.log('configuring widget', config.widget_id,'with', config.config_id);
 
         var config_div = document.getElementById(config.config_id);
 
@@ -1470,7 +1470,7 @@ function StopTimetable(config, params) {
         // Create HTML for configuration form
         //
         var config_title = document.createElement('h1');
-        config_title.innerHTML = 'Configure Station Board';
+        config_title.innerHTML = 'Configure Bus Stop Display';
         config_div.appendChild(config_title);
 
         var config_form = document.createElement('form');
@@ -1482,21 +1482,25 @@ function StopTimetable(config, params) {
 
         // Each config_input(...) will return a .value() callback function for the input data
 
-        // Stations select
+        // TITLE
         //
-        self.log('configure() calling config_input', 'station', 'with',params.station);
-        config_inputs['station'] = config_input(  config_tbody,
-                                                  'station',
-                                                  'select',
-                                                  { text: 'Station:',
-                                                    title: 'Choose your station from the dropdown',
-                                                    options: [ { value: 'CBG', text: 'Cambridge' },
-                                                               { value: 'CMB', text: 'Cambridge North' },
-                                                               { value: 'FXN', text: 'Foxton' },
-                                                               { value: 'SED', text: 'Shelford' } ]
+        config_inputs['title'] = config_input( config_tbody,
+                                               'title',
+                                               'string',
+                                                  { text: 'Title',
+                                                    title: 'The main title at the top of the widget, e.g. bus stop name',
                                                   },
-                                                  params.station
-                                                );
+                                                  params.title);
+
+        // TITLE
+        //
+        config_inputs['stop_id'] = config_input( config_tbody,
+                                               'stop_id',
+                                               'string',
+                                                  { text: 'Stop ID',
+                                                    title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
+                                               },
+                                               params.stop_id);
 
         // offset input
         //
@@ -1509,6 +1513,27 @@ function StopTimetable(config, params) {
                                                     step: 'any'
                                                   },
                                                   params.offset);
+
+        // Layout select
+        //
+        self.log('configure() calling config_input', 'layout', 'with',params.layout);
+        config_inputs['layout'] = config_input(  config_tbody,
+                                                  'layout',
+                                                  'select',
+                                                  { text: 'Layout:',
+                                                    title: 'Choose your widget layout style from the dropdown',
+                                                    options: [ { value: 'simple', text: 'Simple' },
+                                                               { value: 'multiline', text: 'Multi-line' },
+                                                               { value: 'nextbus', text: 'NextBus' },
+                                                               { value: 'debug', text: 'Debug' } ]
+
+                                                   /* "simple": "One line per journey",
+                "multiline": "Multiple lines per journey; can include intermediate destinations",
+                "nextbus": "Next bus to selected destinations",
+                "debug": "Detailed troubleshooting display" */
+                                                  },
+                                                  params.layout
+                                                );
 
         config_table.appendChild(config_tbody);
         config_form.appendChild(config_table);
@@ -1542,20 +1567,70 @@ function StopTimetable(config, params) {
         self.log(config.config_id, 'save_button');
 
         var config_params = {};
-        // station
-        config_params.station = config_inputs['station'].value();
-
+        // title
+        config_params.title = config_inputs['title'].value();
+        // stop_id
+        config_params.stop_id = config_inputs['stop_id'].value();
         // offset
         var offset = config_inputs['offset'].value();
         if (!isNaN(parseInt(offset)) && offset >= 0) {
             config_params.offset = parseInt(offset);
         }
+        // layout
+        config_params.layout = config_inputs['layout'].value();
+
 
         self.log(config.config_id,'returning params:',config_params);
 
         // HERE IS WHERE WE RETURN THE config_params TO THE WIDGET FRAMEWORK
         // The framework should then deal with (close) the config div
         config.configuration_callback(config, config_params);
+    }
+
+    // *****************************************************************************
+    // ********** Below is the config 'shim' code needed to include config in  *****
+    // ********** active layout                                                *****
+
+    // This adds the 'edit' link and the 'config' div to the widget
+    function config_shim_link_and_div(widget_id,config_id)
+    {
+        var widget = document.getElementById(widget_id);
+
+        // get absolute coords of widget (so we can position 'edit' link)
+        var rect = widget.getBoundingClientRect();
+        var top = Math.round(rect.top);
+        var left = Math.round(rect.left);
+        var width = Math.round(widget.offsetWidth);
+
+        // create 'edit' link
+        var config_link = document.createElement('a');
+        var config_text = document.createTextNode('edit');
+        config_link.appendChild(config_text);
+        config_link.title = "Configure this widget";
+        config_link.href = "#";
+        config_link.onclick = config_shim_click_configure;
+        config_link.style = 'position: absolute; z-index: 1001';
+        config_link.style.left = Math.round(rect.left+width - 50)+'px';
+        config_link.style.top = Math.round(rect.top)+'px';
+        document.body.appendChild(config_link);
+
+        // create config div for properties form
+        var config_div = document.createElement('div');
+        config_div.setAttribute('id',config_id);
+        config_div.setAttribute('class','widget_config');
+        document.body.appendChild(config_div);
+    }
+
+    // user has clicked the (debug) 'Configure' button
+    // This is a 'shim' for the call from the Widget Framework
+    function config_shim_click_configure() {
+        var widget = document.getElementById(widget_id);
+        widget.style['background-color'] = CONFIG_COLOR;
+        self.configure( { widget_id: widget_id,
+                          config_id: config_id,
+                          configuration_callback: config_shim_callback
+                        },
+                        self.params);
     }
 
     // A 'shim' callback for the configuration results
@@ -1567,7 +1642,7 @@ function StopTimetable(config, params) {
         }
     }
 
-    log('Instantiated StopTimetable', widget_id, params);
+    self.log('Instantiated StopTimetable', widget_id, params);
 
 }    // END of 'class' StopTimetable
 
