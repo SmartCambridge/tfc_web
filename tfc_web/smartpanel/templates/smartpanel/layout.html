@@ -5,7 +5,7 @@
 <html>
 <head>
     <title>SmartCambridge SmartPanel</title>
-    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/layout.css' %}"/>
     <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
     {% for stylesheet in external_stylesheets %}
         <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
