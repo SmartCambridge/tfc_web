@@ -351,7 +351,7 @@ class StopList(generics.ListAPIView):
     pagination_class = Pagination
 
     def get_queryset(self):
-        queryset = Stop.objects.all()
+        queryset = Stop.objects.all().order_by('atco_code')
         bbox = self.request.query_params.get('bbox', None)
         if bbox is not None:
             match = re.match(r'^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$', bbox)
