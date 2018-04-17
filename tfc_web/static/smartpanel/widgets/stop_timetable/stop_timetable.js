@@ -66,13 +66,10 @@ function StopTimetable(config, params) {
 
     // *****************************************************************************
     // ******** CONFIG DEMO ********************************************************
-    var config_id = widget_id+'_config'; // DOM id of config div
-
+    var CONFIG_SHIM = true;
     var CONFIG_COLOR = '#ffffe6';
 
     // *****************************************************************************
-
-    var config_inputs = {}; // DOM id's (station, offset) for params form elements
 
     this.params = params;
 
@@ -160,9 +157,9 @@ function StopTimetable(config, params) {
 
         // ***********************************************************
         // **   CONFIG DEMO                                         **
-        if (!document.getElementById(config_id))
+        if (CONFIG_SHIM)
         {
-            config_shim_link_and_div(widget_id, config_id);
+            shim_link(self, widget_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -1455,7 +1452,7 @@ function StopTimetable(config, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
-        self.log('configuring widget', config.widget_id,'with', config.config_id);
+        self.log('StopTimetable configuring widget with', config.config_id);
 
         var config_div = document.getElementById(config.config_id);
 
@@ -1473,91 +1470,115 @@ function StopTimetable(config, params) {
         config_div.appendChild(config_title);
 
         var config_form = document.createElement('form');
+
+        var input_result = input_stop_timetable(config_form, params);
+
+        config_div.appendChild(config_form);
+
+        return input_result;
+    }
+
+    // Input the StopTimetable parameters
+    function input_stop_timetable(parent_el,params) {
+
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
-
-        // initialize global dictionary config_inputs[<property name>] -> { value: function to return input data }
-        config_inputs = {};
 
         // Each config_input(...) will return a .value() callback function for the input data
 
         // TITLE
         //
-        config_inputs['title'] = config_input( config_tbody,
-                                               'string',
-                                                  { text: 'Title',
-                                                    title: 'The main title at the top of the widget, e.g. bus stop name',
-                                                  },
-                                                  params.title);
+        var title_result = config_input( parent_el,
+                                         'string',
+                                         { text: 'Title',
+                                           title: 'The main title at the top of the widget, e.g. bus stop name',
+                                         },
+                                         params.title);
 
-        // TITLE
+        // STOP_ID
         //
-        config_inputs['stop_id'] = config_input( config_tbody,
-                                               'string',
-                                                  { text: 'Stop ID',
-                                                    title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
-                                               },
-                                               params.stop_id);
+        var stop_id_result = config_input( parent_el,
+                                           'string',
+                                           { text: 'Stop ID',
+                                             title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
+                                           },
+                                           params.stop_id);
 
         // offset input
         //
         self.log('configure() calling config_input', 'offset', 'with',params.offset);
-        config_inputs['offset'] = config_input(   config_tbody,
-                                                  'number',
-                                                  { text: 'Timing offset (mins):',
-                                                    title: 'Set an offset (mins) if you want times for *later* trains than now',
-                                                    step: 'any'
-                                                  },
-                                                  params.offset);
+        var offset_result = config_input( parent_el,
+                                          'number',
+                                          { text: 'Timing offset (mins):',
+                                            title: 'Set an offset (mins) if you want times for *later* trains than now',
+                                            step: 'any'
+                                          },
+                                          params.offset);
+
+        var destinations_result = null; // placeholder
 
         // Layout select
         //
         self.log('configure() calling config_input', 'layout', 'with',params.layout);
-        config_inputs['layout'] = config_input(  config_tbody,
-                                                  'select',
-                                                  { text: 'Layout:',
-                                                    title: 'Choose your widget layout style from the dropdown',
-                                                    options: [ { value: 'simple', text: 'Simple' },
-                                                               { value: 'multiline', text: 'Multi-line' },
-                                                               { value: 'nextbus', text: 'NextBus' },
-                                                               { value: 'debug', text: 'Debug' } ],
-                                                    onchange: config_layout_onchange // callback when input changes
+        var layout_result = config_input( parent_el,
+                                          'select',
+                                          { text: 'Layout:',
+                                            title: 'Choose your widget layout style from the dropdown',
+                                            options: [ { value: 'simple', text: 'Simple' },
+                                                       { value: 'multiline', text: 'Multi-line' },
+                                                       { value: 'nextbus', text: 'NextBus' },
+                                                       { value: 'debug', text: 'Debug' } ],
+                                            onchange: function (el) { input_layout_onchange(el, destinations_result, parent_el, params); }
 
-                                                   /* "simple": "One line per journey",
+             /* "simple": "One line per journey",
                 "multiline": "Multiple lines per journey; can include intermediate destinations",
                 "nextbus": "Next bus to selected destinations",
                 "debug": "Detailed troubleshooting display" */
-                                                  },
-                                                  params.layout
-                                                );
+                                          },
+                                          params.layout
+                                        );
 
         config_table.appendChild(config_tbody);
-        config_form.appendChild(config_table);
+        parent_el.appendChild(config_table);
 
-        config_div.appendChild(config_form);
+        // value() is the function for this input element that returns its value
+        var value = function () {
+            var config_params = {};
+            // title
+            config_params.title = title_result.value();
+            // stop_id
+            config_params.stop_id = stop_id_result.value();
+            // offset
+            var offset = offset_result.value();
+            if (!isNaN(parseInt(offset)) && offset >= 0) {
+                config_params.offset = parseInt(offset);
+            }
+            // layout
+            config_params.layout = layout_result.value();
 
-        // Add save / cancel buttons
+            // destinations
+            if (destinations_result) {
+                config_params.destinations = destinations_result.value();
+            }
 
-        var save_button = document.createElement('button');
-        save_button.onclick = function () { return config_click_save(config, config_inputs); };
-        save_button.innerHTML = 'Save';
-        config_div.appendChild(save_button);
+            self.log(config.config_id,'returning params:',config_params);
 
-        var cancel_button = document.createElement('button');
-        cancel_button.onclick = function () { return config_click_cancel(config); };
-        cancel_button.innerHTML = 'Cancel';
-        config_div.appendChild(cancel_button);
+            return config_params;
+        }
 
-    }// end this.configure()
+        return { valid: function () { return true; }, //debug - still to be implemented,
+                 value: value };
+
+    }// end input_stop-timetable()
 
     // local function to be called if user updates 'layout' input value
     // input_change is { value: <new value of property>,
     //                   parent: DOM object the contains select input row (i.e. typically a tbody)
-    function config_layout_onchange(input_change) {
-        self.log('config_layout_onchange: layout changed to:',input_change.value);
-        switch (input_change.value) {
+    function input_layout_onchange(layout_el, destinations_result, parent_el, params) {
+        self.log('config_layout_onchange: layout changed to:',layout_el.value);
+        switch (layout_el.value) {
             case 'multiline':
-                config_inputs['destinations'] = config_input_destinations(input_change.parent);
+                destinations_result = input_destinations(parent_el, params.destinations);
                 break;
 
             default:
@@ -1566,8 +1587,8 @@ function StopTimetable(config, params) {
     }
 
     // Add a 'destinations' input to the main config table
-    function config_input_destinations(parent_el) {
-        self.log('config_input_destinations called');
+    function input_destinations(parent_el, destinations) {
+        self.log('config_input_destinations called with', destinations);
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
         var td_name = document.createElement('td');
@@ -1584,7 +1605,9 @@ function StopTimetable(config, params) {
         var destinations_table = document.createElement('table');
         var tbody = document.createElement('tbody');
 
-        var destination_value_fn = config_input_destination(tbody);
+        var destination = (destinations && destinations[0]) ? destinations[0] : null;
+
+        var destination_value = input_destination(tbody, destination);
 
         destinations_table.appendChild(tbody);
         td_value.appendChild(destinations_table);
@@ -1592,110 +1615,54 @@ function StopTimetable(config, params) {
 
         parent_el.appendChild(row);
 
+        function value () { //debug this will iterate the table rows
+            return [ { description: 'Addenbrookes..', stop_ids: [ '0500CCITY517' ] } ]
+        };
 
-        return { value: function () { return [ { description: 'Addenbrookes..', stop_ids: [ '0500CCITY517' ] } ] } };
-    }
+        return { value: value,
+                 valid: function () { return true; }
+               };
+
+    } // end config_input_destinations
 
     // Add a 'destination' input (as a row in a 'destinations' table)
-    function config_input_destination(parent_el) {
-        self.log('config_input_destination called');
+    function input_destination(parent_el, destination) {
+        self.log('config_input_destination called with',destination);
         var tr = document.createElement('tr');
         var td = document.createElement('td');
         td.innerHTML = 'destination'; // DEBUG need to add a table here
         tr.appendChild(td);
         parent_el.appendChild(tr);
-        return { value: function () { return 'foo'; } };
+        return { value: function () { return 'foo'; },
+                 valid: function () { return true; }
+               };
     }
 
-    // user has clicked the 'Cancel' button
-    function config_click_cancel(config) {
-        // HERE'S WHERE WE CALL THE CONFIGURATION FRAMEWORK
-        config.configuration_callback(config, null);
-    }
+    // input a list of stops as a comma-separated string
+    function input_stop_list(parent_el, stop_ids) {
 
-    // user has clicked the 'Save' button
-    function config_click_save(config, config_inputs) {
-        self.log(config.config_id, 'save_button');
-
-        var config_params = {};
-        // title
-        config_params.title = config_inputs['title'].value();
-        // stop_id
-        config_params.stop_id = config_inputs['stop_id'].value();
-        // offset
-        var offset = config_inputs['offset'].value();
-        if (!isNaN(parseInt(offset)) && offset >= 0) {
-            config_params.offset = parseInt(offset);
+        var stops = '';
+        if (stop_ids) {
+            for (var i=0; i<stop_ids.length; i++) {
+                stops += (i==0) ? stop_ids[0] : ','+stop_ids[i];
+            }
         }
-        // layout
-        config_params.layout = config_inputs['layout'].value();
+        var stop_ids_result = config_input( parent_el,
+                                           'string',
+                                           { text: 'Stop ID list',
+                                             title: 'Atco codes of the stops of interest, e.g. 0500CCITY424,0500CCITY425',
+                                           },
+                                           stops);
 
-        // destinations
-        if (config_inputs['destinations']) {
-            config_params.destinations = config_inputs['destinations'].value();
+        function value() {
+            var stops = stop_ids_result.value();
+            var stop_ids = stops.split(',');
+            return stop_ids;
         }
 
-        self.log(config.config_id,'returning params:',config_params);
-
-        // HERE IS WHERE WE RETURN THE config_params TO THE WIDGET FRAMEWORK
-        // The framework should then deal with (close) the config div
-        config.configuration_callback(config, config_params);
-    }
-
-    // *****************************************************************************
-    // ********** Below is the config 'shim' code needed to include config in  *****
-    // ********** active layout                                                *****
-
-    // This adds the 'edit' link and the 'config' div to the widget
-    function config_shim_link_and_div(widget_id,config_id)
-    {
-        var widget = document.getElementById(widget_id);
-
-        // get absolute coords of widget (so we can position 'edit' link)
-        var rect = widget.getBoundingClientRect();
-        var top = Math.round(rect.top);
-        var left = Math.round(rect.left);
-        var width = Math.round(widget.offsetWidth);
-
-        // create 'edit' link
-        var config_link = document.createElement('a');
-        var config_text = document.createTextNode('edit');
-        config_link.appendChild(config_text);
-        config_link.title = "Configure this widget";
-        config_link.href = "#";
-        config_link.onclick = config_shim_click_configure;
-        config_link.style = 'position: absolute; z-index: 1001';
-        config_link.style.left = Math.round(rect.left+width - 50)+'px';
-        config_link.style.top = Math.round(rect.top)+'px';
-        document.body.appendChild(config_link);
-
-        // create config div for properties form
-        var config_div = document.createElement('div');
-        config_div.setAttribute('id',config_id);
-        config_div.setAttribute('class','widget_config');
-        document.body.appendChild(config_div);
-    }
-
-    // user has clicked the (debug) 'Configure' button
-    // This is a 'shim' for the call from the Widget Framework
-    function config_shim_click_configure() {
-        var widget = document.getElementById(widget_id);
-        widget.style['background-color'] = CONFIG_COLOR;
-        self.configure( { widget_id: widget_id,
-                          config_id: config_id,
-                          configuration_callback: config_shim_callback
-                        },
-                        self.params);
-    }
-
-    // A 'shim' callback for the configuration results
-    function config_shim_callback(config, config_params) {
-        if (config_params) {
-            config_shim_save(self, config, config_params);
-        } else {
-            config_shim_cancel(self, config);
-        }
-    }
+        return { value: value,
+                 valid: function () { return true; } };
+    } // end input_stop_list
 
     self.log('Instantiated StopTimetable', widget_id, params);
 

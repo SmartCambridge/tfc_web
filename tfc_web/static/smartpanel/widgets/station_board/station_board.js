@@ -8,7 +8,7 @@ function StationBoard(config, params) {
 
     var self = this;
 
-    //var DEBUG = ' station_board_log';
+    var DEBUG = ' station_board_log';
 
     var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
@@ -18,51 +18,22 @@ function StationBoard(config, params) {
 
     // *****************************************************************************
     // ******** CONFIG DEMO ********************************************************
-    var config_id = widget_id+'_config'; // DOM id of config div
-
+    var CONFIG_SHIM = true;
     var CONFIG_COLOR = '#ffffe6';
 
     // *****************************************************************************
 
-    var config_inputs = {}; // DOM id's (station, offset) for params form elements
-
     self.params = params;
 
     this.init = function () {
+
         this.log("Running init", widget_id, 'with params', self.params );
 
-        // debug - add a 'configure' link to the bottom of the page
-        // and create an initially hidden config div for the widget to use.
-        // The LAYOUT CONFIGURATION FRAMEWORK would be expected to do this
         // ***********************************************************
-        // **                                                       **
-        if (!document.getElementById(config_id))
+        // **   CONFIG DEMO                                         **
+        if (CONFIG_SHIM)
         {
-            var widget = document.getElementById(widget_id);
-
-            // get absolute coords of widget (so we can position 'edit' link)
-            var rect = widget.getBoundingClientRect();
-            var top = Math.round(rect.top);
-            var left = Math.round(rect.left);
-            var width = Math.round(widget.offsetWidth);
-
-            // create 'edit' link
-            var config_link = document.createElement('a');
-            var config_text = document.createTextNode('edit');
-            config_link.appendChild(config_text);
-            config_link.title = "Configure this widget";
-            config_link.href = "#";
-            config_link.onclick = shim_click_configure;
-            config_link.style = 'position: absolute; z-index: 1001';
-            config_link.style.left = Math.round(rect.left+width - 50)+'px';
-            config_link.style.top = Math.round(rect.top)+'px';
-            document.body.appendChild(config_link);
-
-            // create config div for properties form
-            var config_div = document.createElement('div');
-            config_div.setAttribute('id',config_id);
-            config_div.setAttribute('class','widget_config');
-            document.body.appendChild(config_div);
+            shim_link(self, widget_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -100,18 +71,6 @@ function StationBoard(config, params) {
         this.log("do_load done", widget_id);
     };
 
-    // user has clicked the (debug) 'Configure' button
-    // This is a 'shim' for the call from the Widget Framework
-    function shim_click_configure() {
-        var widget = document.getElementById(widget_id);
-        widget.style['background-color'] = CONFIG_COLOR;
-        self.configure( { widget_id: widget_id,
-                          config_id: config_id,
-                          configuration_callback: config_shim_callback
-                        },
-                        self.params);
-    }
-
     this.log = function() {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('station_board_log') >= 0) {
             console.log.apply(console, arguments);
@@ -126,7 +85,7 @@ function StationBoard(config, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
-        self.log('configuring widget', config.widget_id,'with', config.config_id);
+        self.log('StationBoard configuring widget with', config.config_id, params);
 
         var config_div = document.getElementById(config.config_id);
 
@@ -140,100 +99,76 @@ function StationBoard(config, params) {
         // Create HTML for configuration form
         //
         var config_title = document.createElement('h1');
-        config_title.innerHTML = 'Configure Station Board';
+        config_title.innerHTML = 'Configure Bus Stop Display';
         config_div.appendChild(config_title);
 
         var config_form = document.createElement('form');
+
+        var input_result = input_station_board(config_form, params);
+
+        config_div.appendChild(config_form);
+
+        return input_result;
+    } // end this.configure()
+
+    // Input the StopTimetable parameters
+    function input_station_board(parent_el, params) {
+
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
-
-        // initialize global dictionary config_inputs[<property name>] -> { value: function to return input data }
-        config_inputs = {};
-
-        // Each config_input(...) will return a .value() callback function for the input data
 
         // Stations select
         //
         self.log('configure() calling config_input', 'station', 'with',params.station);
-        config_inputs['station'] = config_input(  config_tbody,
-                                                  'select',
-                                                  { text: 'Station:',
-                                                    title: 'Choose your station from the dropdown',
-                                                    options: [ { value: 'CBG', text: 'Cambridge' },
-                                                               { value: 'CMB', text: 'Cambridge North' },
-                                                               { value: 'FXN', text: 'Foxton' },
-                                                               { value: 'SED', text: 'Shelford' } ]
-                                                  },
-                                                  params.station
-                                                );
+        var station_result = config_input(  parent_el,
+                                            'select',
+                                            { text: 'Station:',
+                                              title: 'Choose your station from the dropdown',
+                                              options: [ { value: 'CBG', text: 'Cambridge' },
+                                                         { value: 'CMB', text: 'Cambridge North' },
+                                                         { value: 'FXN', text: 'Foxton' },
+                                                         { value: 'SED', text: 'Shelford' } ]
+                                            },
+                                            params.station
+                                         );
 
         // offset input
         //
         self.log('configure() calling config_input', 'offset', 'with',params.offset);
-        config_inputs['offset'] = config_input(   config_tbody,
-                                                  'number',
-                                                  { text: 'Timing offset (mins):',
-                                                    title: 'Set an offset (mins) if you want times for *later* trains than now',
-                                                    step: 'any'
-                                                  },
-                                                  params.offset);
+        var offset_result = config_input( parent_el,
+                                          'number',
+                                          { text: 'Timing offset (mins):',
+                                            title: 'Set an offset (mins) if you want times for *later* trains than now',
+                                            step: 'any'
+                                          },
+                                          params.offset);
 
         config_table.appendChild(config_tbody);
-        config_form.appendChild(config_table);
 
-        config_div.appendChild(config_form);
+        // append this input table to the DOM object originally given in parent_el
+        parent_el.appendChild(config_table);
 
-        // Add save / cancel buttons
+        // value() is the function for this input element that returns its value
+        var value = function () {
+            var config_params = {};
+            // station
+            config_params.station = station_result.value();
 
-        var save_button = document.createElement('button');
-        save_button.onclick = function () { return config_click_save(config, config_inputs); };
-        save_button.innerHTML = 'Save';
-        config_div.appendChild(save_button);
+            // offset
+            var offset = offset_result.value();
+            if (!isNaN(parseInt(offset)) && offset >= 0) {
+                config_params.offset = parseInt(offset);
+            }
 
-        var cancel_button = document.createElement('button');
-        cancel_button.onclick = function () { return config_click_cancel(config); };
-        cancel_button.innerHTML = 'Cancel';
-        config_div.appendChild(cancel_button);
+            self.log(widget_id,'returning params:',config_params);
 
-    }// end this.configure()
+            return config_params;
+        };
 
-    // user has clicked the 'Cancel' button
-    function config_click_cancel(config) {
+        return { valid: function () { return true; }, //debug - still to be implemented,
+                 value: value };
 
-        // HERE'S WHERE WE CALL THE CONFIGURATION FRAMEWORK
-
-        config.configuration_callback(config, null);
-    }
-
-    // user has clicked the 'Save' button
-    function config_click_save(config, config_inputs) {
-        self.log(config.config_id, 'save_button');
-
-        var config_params = {};
-        // station
-        config_params.station = config_inputs['station'].value();
-
-        // offset
-        var offset = config_inputs['offset'].value();
-        if (!isNaN(parseInt(offset)) && offset >= 0) {
-            config_params.offset = parseInt(offset);
-        }
-
-        self.log(config.config_id,'returning params:',config_params);
-
-        // HERE IS WHERE WE RETURN THE config_params TO THE WIDGET FRAMEWORK
-        // The framework should then deal with (close) the config div
-        config.configuration_callback(config, config_params);
-    }
-
-    // A 'shim' callback for the configuration results
-    function config_shim_callback(config, config_params) {
-        if (config_params) {
-            config_shim_save(self, config, config_params);
-        } else {
-            config_shim_cancel(self, config);
-        }
-    }
+    }// end input_station_board()
 
     this.log("Instantiated StationBoard", widget_id, params);
 

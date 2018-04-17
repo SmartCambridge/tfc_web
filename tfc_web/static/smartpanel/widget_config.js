@@ -31,20 +31,24 @@
     //              title:
     //              step: 'any' *[OPTIONAL]
     //            });
+    //
+    //
+    var CONFIG_COLOR = '#ffffe6';
+
     function config_input(parent_el, param_type, param_options, param_current) {
         //self.log('creating input', param_name, param_type, param_options, param_current);
-        var input_info = {}; // info to return, .value() = data callback
+        var input_info = null; // info to return, .value() = data callback
         switch (param_type) {
             case 'select':
-                input_info.value = config_select(parent_el, param_options, param_current);
+                input_info = config_select(parent_el, param_options, param_current);
                 break;
 
             case 'string':
-                input_info.value = config_string(parent_el, param_options, param_current);
+                input_info = config_string(parent_el, param_options, param_current);
                 break;
 
             case 'number':
-                input_info.value = config_number(parent_el, param_options, param_current);
+                input_info = config_number(parent_el, param_options, param_current);
                 break;
 
             default:
@@ -101,7 +105,9 @@
         row.appendChild(value);
         parent_el.appendChild(row);
 
-        return function () { return sel.value; };
+        return { value: function () { return sel.value; },
+                 valid: function () { return true; }
+               };
     }
 
     function config_number(parent_el, param_options, param_current) {
@@ -140,38 +146,102 @@
 
         parent_el.appendChild(row);
 
-        return function() { return input.value; };
+        return { value: function() { return input.value; },
+                 valid: function () { return true; }
+            };
+    }
+
+    // *****************************************************************************
+    // ********** Below is the config 'shim' code needed to include config in  *****
+    // ********** active layout                                                *****
+
+    // This adds the 'edit' link and the 'config' div to the widget
+    function shim_link(self, widget_id)
+    {
+        var widget = document.getElementById(widget_id);
+
+        // get absolute coords of widget (so we can position 'edit' link)
+        var rect = widget.getBoundingClientRect();
+        var top = Math.round(rect.top);
+        var left = Math.round(rect.left);
+        var width = Math.round(widget.offsetWidth);
+
+        // create 'edit' link
+        var config_link = document.createElement('a');
+        var config_text = document.createTextNode('edit');
+        config_link.appendChild(config_text);
+        config_link.title = "Configure this widget";
+        config_link.href = "#";
+        config_link.onclick = function () { shim_edit(self, widget_id) };
+        config_link.style = 'position: absolute; z-index: 1001';
+        config_link.style.left = Math.round(rect.left+width - 50)+'px';
+        config_link.style.top = Math.round(rect.top)+'px';
+        document.body.appendChild(config_link);
+
+    }
+
+    // user has clicked the (debug) 'Configure' button
+    // This is a 'shim' for the call from the Widget Framework
+    function shim_edit(self, widget_id) {
+        var widget = document.getElementById(widget_id);
+        widget.style['background-color'] = CONFIG_COLOR;
+
+        // create config div for properties form
+        var config_window = document.createElement('div');
+        config_window.setAttribute('class','widget_config');
+
+        var config_div = document.createElement('div');
+        var config_id = widget_id + '_config';
+        config_div.setAttribute('id', config_id);
+        config_window.appendChild(config_div);
+
+        document.body.appendChild(config_window);
+
+        self.log(widget_id,'calling configure with',self.params);
+
+        var configure_result = self.configure( { config_id: config_id,
+                                               },
+                                               self.params);
+
+        var save_button = document.createElement('button');
+        save_button.onclick = function () { shim_save(self, widget_id, config_window, configure_result); };
+        save_button.innerHTML = 'Save';
+        config_window.appendChild(save_button);
+
+        var cancel_button = document.createElement('button');
+        cancel_button.onclick = function () { shim_cancel(self, widget_id, config_window); };
+        cancel_button.innerHTML = 'Cancel';
+        config_window.appendChild(cancel_button);
+
     }
 
     // A shim function to provide the 'config cancel' in the active layout
-    function config_shim_cancel(self, config) {
+    function shim_cancel(self, widget_id, config_window) {
         // reset original widget background-color to WHITE
-        var widget = document.getElementById(config.widget_id);
+        var widget = document.getElementById(widget_id);
         if (widget) widget.style['background-color'] = 'white';
 
-        // hide the config div
-        var config_div = document.getElementById(config.config_id);
-        config_div.style.display = 'none';
+        // remove the the config window
+        config_window.parentNode.removeChild(config_window);
 
-        self.log(config.config_id, 'cancel button');
+        self.log(widget_id, 'cancel button');
     }
 
     // A shim function to provide the 'config save' in the active layout
-    function config_shim_save(self, config, config_params) {
+    function shim_save(self, widget_id, config_window, configure_result) {
         // Here we update the existing widget 'in-place', not expected in production
 
-        self.params = config_params; //self.params = config_params;
+        self.params = configure_result.value(); //self.params = config_params;
 
-        self.log(config.widget_id,'config reset params to',self.params);//self.params);
+        self.log('config reset params to',self.params);//self.params);
 
-        var widget = document.getElementById(config.widget_id);
+        var widget = document.getElementById(widget_id);
 
         // reset original widget background-color to WHITE
         widget.style['background-color'] = 'white';
 
-        // hide the config div
-        var config_div = document.getElementById(config.config_id);
-        config_div.style.display = 'none';
+        // remove the the config window
+        config_window.parentNode.removeChild(config_window);
 
         self.init();
     }
