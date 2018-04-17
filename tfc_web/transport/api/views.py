@@ -8,6 +8,7 @@ from pathlib import Path
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
+from django.http import Http404
 from rest_framework import generics
 from rest_framework.decorators import api_view, renderer_classes, schema, parser_classes
 from rest_framework.pagination import PageNumberPagination
@@ -19,6 +20,7 @@ from transport.api.serializers import VehicleJourneySerializer, LineSerializer, 
     VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
 from urllib.parse import quote
+import re
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -347,6 +349,21 @@ class StopList(generics.ListAPIView):
     queryset = Stop.objects.all()
     serializer_class = StopSerializer
     pagination_class = Pagination
+
+    def get_queryset(self):
+        queryset = Stop.objects.all()
+        bbox = self.request.query_params.get('bbox', None)
+        if bbox is not None:
+            match = re.match(r'^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$', bbox)
+            if match:
+                w = float(match.group(1))
+                s = float(match.group(2))
+                e = float(match.group(3))
+                n = float(match.group(4))
+                queryset = queryset.filter(latitude__range=(s, n), longitude__range=(w, e))
+            else:
+                raise Http404
+        return queryset
 
 
 class StopRetrieve(generics.RetrieveAPIView):
