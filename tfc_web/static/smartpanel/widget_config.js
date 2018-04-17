@@ -51,6 +51,10 @@
                 input_info = config_number(parent_el, param_options, param_current);
                 break;
 
+            case 'bus_stops':
+                input_info = config_bus_stops(parent_el, param_options, param_current);
+                break;
+
             default:
                 input_info = null;
                 //self.log(widget_id, 'bad param_type in config_input', param_type);
@@ -179,6 +183,46 @@
                  valid: function () { return true; }
             };
     }
+
+    // populate a table row with a bus stop input widget
+    function config_bus_stops(parent_el, param_options, param_current)
+    {
+
+        'use strict';
+
+        var width = param_options.width || "500px";
+        var height = param_options.height || "500px";
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+
+        var name = document.createElement('td');
+        name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        name.appendChild(label);
+        row.appendChild(name);
+
+        var value = document.createElement('td');
+        value.className = 'widget_config_property_value';
+        value.style.height = height;
+        value.style.width = width;
+        row.appendChild(value);
+
+        parent_el.appendChild(row);
+
+        var chooser = BusStopChooser.create(param_options);
+        chooser.render(value, param_current.stops);
+
+        return {
+            value: chooser.getData,
+            valid: function () { return true; }
+        };
+
+    }
+
 
     // *****************************************************************************
     // ********** Below is the config 'shim' code needed to include config in  *****

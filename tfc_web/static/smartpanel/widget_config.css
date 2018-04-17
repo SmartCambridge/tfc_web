@@ -37,6 +37,28 @@
 .widget_config_property_value {
     vertical-align: top;
     text-align: left;
+    position: relative;
+}
+
+.widget_config_map_warning {
+    left: 50%;
+    top:50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    position:absolute;
+    background: white;
+    padding: 6px 8px;
+    z-index: 1000;
+}
+
+.widget_config_map_spinner {
+    right: 10px;
+    top: 10px;
+    padding: 1%;
+    position:absolute;
+    background: white;
+    z-index: 1001;
 }
 
 .widget_config input {

@@ -1,0 +1,41 @@
+
+.bus_stop_chooser_warning {
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 4px;
+    left: 50%;
+    padding: 6px 8px;
+    position:absolute;
+    top:10%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+}
+
+.bus_stop_chooser_spinner {
+    background-color: white;
+    background-image: url("indicator-lite.gif");
+    background-origin: content-box;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    height: 32px;
+    padding: 5px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 32px;
+    z-index: 1001;
+}
+
+.bus_stop_chooser_stop {
+    background-image: url("bus_stop_S.png");
+    background-repeat: no-repeat;
+    background-size: 20px 40px;
+}
+
+.bus_stop_chooser_stop_selected {
+    background-image: url("bus_stop_S_green.png");
+    background-repeat: no-repeat;
+    background-size: 20px 40px;
+}

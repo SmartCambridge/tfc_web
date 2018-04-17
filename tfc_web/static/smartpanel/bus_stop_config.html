@@ -1,0 +1,113 @@
+<html>
+
+<head>
+
+    <title>Bus Stop Config</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.1/leaflet.css" integrity="sha256-B5Af7a59HZfTwOlorb6pQSEj6l8I3jj785fgpPiLnx4="  crossorigin="anonymous">
+
+    <link rel="stylesheet" href="bus_stop_chooser/bus_stop_chooser.css"/>
+
+    <link rel="stylesheet" href="widget_config.css"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.1/leaflet.js" integrity="sha256-CX9/BWJ5F1oC8mbqO5CMChjvkuoBQF8FTujU6xO5eB0="  crossorigin="anonymous"></script>
+
+    <script src="bus_stop_chooser/bus_stop_chooser.js"></script>
+
+    <script src="widget_config.js"></script>
+
+    <script>
+
+    $().ready(function () {
+
+        var config_tbody = document.getElementById("body");
+        var input_info = config_input(config_tbody,
+                                    'bus_stops',
+                                    { text: 'Bus Stops',
+                                      title: 'Choose bus stops',
+                                      multi_select: true,
+                                      //width: "1000px",
+                                      //lat:
+                                      //lng:
+                                      //zoom:
+                                    },
+                                    { stops: [
+  {
+    "id": "0500CCITY002",
+    "stop_id": "0500CCITY002",
+    "atco_code": "0500CCITY002",
+    "naptan_code": "CMBDADAG",
+    "common_name": "Great St Mary's Church",
+    "indicator": "near",
+    "locality_name": "Cambridge",
+    "longitude": 0.11798986495,
+    "latitude": 52.2056312981
+  },
+  {
+    "id": "0500SCAMB020",
+    "stop_id": "0500SCAMB020",
+    "atco_code": "0500SCAMB020",
+    "naptan_code": "CMBGMGWM",
+    "common_name": "Play Area",
+    "indicator": "near",
+    "locality_name": "Upper Cambourne",
+    "longitude": -0.0607340131,
+    "latitude": 52.2198629227
+  },
+  {
+    "id": "0500CCITY111",
+    "stop_id": "0500CCITY111",
+    "atco_code": "0500CCITY111",
+    "naptan_code": "CMBDAJDM",
+    "common_name": "Christ's College",
+    "indicator": "opp",
+    "locality_name": "Cambridge",
+    "longitude": 0.12152333326,
+    "latitude": 52.2063770821
+  },
+  {
+    "id": "0500CCITY440",
+    "stop_id": "0500CCITY440",
+    "atco_code": "0500CCITY440",
+    "naptan_code": "CMBDGDTP",
+    "common_name": "Bene't Street",
+    "indicator": "opp",
+    "locality_name": "Cambridge",
+    "longitude": 0.11902718402,
+    "latitude": 52.2043627963
+  }
+]
+                                     }
+        );
+
+        console.log("input info", input_info);
+
+        $('#save').click(function() {
+            var data = JSON.stringify(input_info.value(), null, 2);
+            console.log("Retrieved data", data);
+            $("#results").text(data);
+
+        });
+
+    });
+
+    </script>
+
+</head>
+
+<body >
+
+    <table>
+        <tbody id="body">
+        </tbody>
+    </table>
+
+    <button id="save" name="button">Click me</button>
+
+    <pre id="results">Aardvark</pre>
+
+</body>
+
+</html>
