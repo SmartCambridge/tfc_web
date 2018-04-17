@@ -1528,7 +1528,8 @@ function StopTimetable(config, params) {
                                                        { value: 'multiline', text: 'Multi-line' },
                                                        { value: 'nextbus', text: 'NextBus' },
                                                        { value: 'debug', text: 'Debug' } ],
-                                            onchange: function (el) { input_layout_onchange(el, destinations_result, parent_el, params); }
+                                            onchange: function (el) {
+                                                destinations_result = input_layout_onchange(el, parent_el, params); }
 
              /* "simple": "One line per journey",
                 "multiline": "Multiple lines per journey; can include intermediate destinations",
@@ -1561,7 +1562,7 @@ function StopTimetable(config, params) {
                 config_params.destinations = destinations_result.value();
             }
 
-            self.log(config.config_id,'returning params:',config_params);
+            self.log(widget_id,'input_stop_timetable returning params:',config_params);
 
             return config_params;
         }
@@ -1574,11 +1575,11 @@ function StopTimetable(config, params) {
     // local function to be called if user updates 'layout' input value
     // input_change is { value: <new value of property>,
     //                   parent: DOM object the contains select input row (i.e. typically a tbody)
-    function input_layout_onchange(layout_el, destinations_result, parent_el, params) {
+    function input_layout_onchange(layout_el, parent_el, params) {
         self.log('config_layout_onchange: layout changed to:',layout_el.value);
         switch (layout_el.value) {
             case 'multiline':
-                destinations_result = input_destinations(parent_el, params.destinations);
+                return input_destinations(parent_el, params.destinations);
                 break;
 
             default:
@@ -1605,9 +1606,16 @@ function StopTimetable(config, params) {
         var destinations_table = document.createElement('table');
         var tbody = document.createElement('tbody');
 
-        var destination = (destinations && destinations[0]) ? destinations[0] : null;
+        var destinations_values = [];
 
-        var destination_value = input_destination(tbody, destination);
+        if (destinations) {
+            for (var i=0; i<destinations.length; i++) {
+                var destination = destinations[i];
+                destinations_values.push(input_destination(tbody, destination));
+            }
+        } else {
+            destinations_values.push(input_destination(tbody, null));
+        }
 
         destinations_table.appendChild(tbody);
         td_value.appendChild(destinations_table);
@@ -1628,12 +1636,23 @@ function StopTimetable(config, params) {
     // Add a 'destination' input (as a row in a 'destinations' table)
     function input_destination(parent_el, destination) {
         self.log('config_input_destination called with',destination);
-        var tr = document.createElement('tr');
-        var td = document.createElement('td');
-        td.innerHTML = 'destination'; // DEBUG need to add a table here
-        tr.appendChild(td);
-        parent_el.appendChild(tr);
-        return { value: function () { return 'foo'; },
+
+        var description_result = config_input( parent_el,
+                                              'string',
+                                               { text: 'Description',
+                                                 title: 'Short display name of the destination, e.g. City Centre',
+                                               },
+                                               destination.description);
+
+        var stop_ids_result = input_stop_list( parent_el, destination.stop_ids);
+
+        function value() {
+            return { description: description_result.value(),
+                     stop_ids: stop_ids_result.value()
+                   };
+        }
+
+        return { value: value,
                  valid: function () { return true; }
                };
     }
