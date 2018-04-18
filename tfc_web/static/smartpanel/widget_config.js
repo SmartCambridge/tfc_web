@@ -75,7 +75,7 @@
         name.appendChild(label);
         row.appendChild(name);
         var value = document.createElement('td');
-        value.className = 'config_property_value';
+        value.className = 'widget_config_property_value';
         var sel = document.createElement('select');
 
         // set select.title
@@ -121,7 +121,7 @@
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
         var td_name = document.createElement('td');
-        td_name.className = 'config_property_name';
+        td_name.className = 'widget_config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
         label.title = param_options.title;
@@ -129,7 +129,7 @@
         td_name.appendChild(label);
         row.appendChild(td_name);
         var td_value = document.createElement('td');
-        td_value.className = 'config_property_value';
+        td_value.className = 'widget_config_property_value';
 
         var input = document.createElement('input');
 

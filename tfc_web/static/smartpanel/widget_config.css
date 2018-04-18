@@ -55,3 +55,19 @@
     margin: 4px;
 }
 
+.widget_config_plus {
+    float: right;
+    margin: 4px;
+}
+
+.widget_config_x {
+    float: right;
+    margin: 4px;
+}
+
+.widget_config_repeating_element {
+    border: 1px solid lightblue;
+    border-radius: 5px;
+    padding: 2px;
+}
+
