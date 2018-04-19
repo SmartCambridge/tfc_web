@@ -1590,6 +1590,7 @@ function StopTimetable(config, params) {
     }
 
     // Add a 'destinations' input to the main config table
+    // parent_el is assumed to be a tbody, to which this fn appends a <tr>
     function input_destination_list(parent_el, destinations) {
         self.log('config_input_destinations called with', destinations);
         var row = document.createElement('tr');
@@ -1615,16 +1616,16 @@ function StopTimetable(config, params) {
 
         var tbody = document.createElement('tbody');
 
-        var destinations_values = [];
+        var destination_values = [];
 
         if (destinations) {
             for (var i=0; i<destinations.length; i++) {
                 var destination = destinations[i];
 
-                destinations_values.push(input_destination(tbody, destination));
+                destination_values.push(input_destination(tbody, destination));
             }
         } else {
-            destinations_values.push(input_destination(tbody, null));
+            destination_values.push(input_destination(tbody, null));
         }
 
         destinations_table.appendChild(tbody);
@@ -1637,7 +1638,7 @@ function StopTimetable(config, params) {
         plus_img.setAttribute('alt', 'Add');
         plus_img.setAttribute('title', 'Add another destination');
         plus_img.className = 'widget_config_plus';
-        // now set the onlcilick callback for the (+) button to add another destination input element
+        // now set the onlclick callback for the (+) button to add another destination input element
         var plus_onclick = function () {
             self.log(widget_id,'plus_onclick called');
             destinations_values.push(input_destination(tbody,null));
@@ -1650,15 +1651,22 @@ function StopTimetable(config, params) {
 
         parent_el.appendChild(row);
 
-        function value () { //debug this will iterate the table rows
-            return [ { description: 'Addenbrookes..', stop_ids: [ '0500CCITY517' ] } ]
+        function value () { //debugi this wilil iterate the table rows
+            var list_result = [];
+            for (var i=0; i<destination_values.length; i++) {
+                if (destination_values[i].value()) {
+                    list_result.push(destination_values[i].value());
+                }
+            }
+
+            return list_result;
         };
 
         return { value: value,
                  valid: function () { return true; }
                };
 
-    } // end config_input_destinations
+    } // end input_destination_list
 
     // Add a 'destination' input (as a row in a 'destinations' table)
     function input_destination(parent_el, destination) {
@@ -1675,6 +1683,17 @@ function StopTimetable(config, params) {
         x_img.setAttribute('alt', 'Delete');
         x_img.setAttribute('title', 'Delete this destination');
         x_img.className= 'widget_config_x';
+        // add onclick fn to remove this input
+        //
+        var removed = false;
+
+        var x_onclick = function () {
+            self.log(widget_id,'x_onclick called');
+            removed = true;
+            tr.remove();
+        }
+        x_img.onclick = x_onclick;
+
         td.appendChild(x_img);
 
         var table = document.createElement('table');
@@ -1695,9 +1714,13 @@ function StopTimetable(config, params) {
         parent_el.appendChild(tr);
 
         function value() {
-            return { description: description_result.value(),
-                     stop_ids: stop_ids_result.value()
-                   };
+            if (removed) {
+                return null;
+            } else {
+                return { description: description_result.value(),
+                         stop_ids: stop_ids_result.value()
+                       };
+            }
         }
 
         return { value: value,
