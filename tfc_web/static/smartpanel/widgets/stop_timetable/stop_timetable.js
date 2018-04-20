@@ -1517,10 +1517,10 @@ function StopTimetable(config, params) {
                                           },
                                           params.offset);
 
-        var destinations_result = null; // placeholder
-
         // Layout select
         //
+        var layout_value = params.layout;
+
         self.log('configure() calling config_input', 'layout', 'with',params.layout);
         var layout_result = config_input( config_tbody,
                                           'select',
@@ -1530,9 +1530,7 @@ function StopTimetable(config, params) {
                                                        { value: 'multiline', text: 'Multi-line' },
                                                        { value: 'nextbus', text: 'NextBus' },
                                                        { value: 'debug', text: 'Debug' } ],
-                                            onchange: function (layout_el) {
-                                                destinations_result = input_layout_onchange(layout_el, config_tbody, params); }
-
+                                            onchange: input_layout_onchange
              /* "simple": "One line per journey",
                 "multiline": "Multiple lines per journey; can include intermediate destinations",
                 "nextbus": "Next bus to selected destinations",
@@ -1541,8 +1539,50 @@ function StopTimetable(config, params) {
                                           params.layout
                                         );
 
+        // destinations input
+        var destinations_result = null; // placeholder
+        var destinations_element = null; // placeholder for the DOM element (row) that will contain the input
+        var destinations_cache = null; // cache destinations so they are not lost completely when changing from
+                                       // nextbus -> simple for example, and can be reloaded
+
+        if (params.destinations) {
+            destinations_cache = JSON.parse(JSON.stringify(params.destinations)); // copy list
+            destinations_result = input_destination_list(config_tbody, params.destinations);
+            destinations_element = destinations_result.element;  // this is the DOM (row) element containing this input
+        }
+
         config_table.appendChild(config_tbody);
         parent_el.appendChild(config_table);
+
+        // local function to be called if user updates 'layout' input value
+        // input_change is { value: <new value of property>,
+        //                   parent: DOM object the contains select input row (i.e. typically a tbody)
+        function input_layout_onchange(layout_el) {
+            self.log('input_layout_onchange: layout changed from:',layout_value,'to:',layout_el.value);
+            switch (layout_el.value) {
+                case 'multiline':
+                case 'nextbus':
+                    if (!destinations_result) {
+                        // add 'destinations' input list to the page if it isn't already there
+                        destinations_result = input_destination_list(config_tbody, params.destinations);
+                        destinations_element = destinations_result.element;  // this is the DOM (row) element containing this input
+                    }
+                    break;
+
+                case 'simple':
+                case 'debug':
+                    // if a 'layout' that doesn't require a destinations property is selected then
+                    // remove the return object and the DOM object containing the input
+                    destinations_result = null;
+                    if (destinations_element) {
+                        destinations_element.remove();
+                    }
+                    break;
+
+                default:
+                    self.log('config_layout_onchange: change to',layout_el.value,'ignored');
+            }
+        }
 
         // value() is the function for this input element that returns its value
         var value = function () {
@@ -1574,25 +1614,10 @@ function StopTimetable(config, params) {
 
     }// end input_stop-timetable()
 
-    // local function to be called if user updates 'layout' input value
-    // input_change is { value: <new value of property>,
-    //                   parent: DOM object the contains select input row (i.e. typically a tbody)
-    function input_layout_onchange(layout_el, parent_el, params) {
-        self.log('config_layout_onchange: layout changed to:',layout_el.value);
-        switch (layout_el.value) {
-            case 'multiline':
-                return input_destination_list(parent_el, params.destinations);
-                break;
-
-            default:
-                self.log('config_layout_onchange: change ignored');
-        }
-    }
-
     // Add a 'destinations' input to the main config table
     // parent_el is assumed to be a tbody, to which this fn appends a <tr>
     function input_destination_list(parent_el, destinations) {
-        self.log('config_input_destinations called with', destinations);
+        self.log('input_destination_list called with', destinations);
         var row = document.createElement('tr');
 
         // create TD to hold 'name' prompt for field
@@ -1641,7 +1666,7 @@ function StopTimetable(config, params) {
         // now set the onlclick callback for the (+) button to add another destination input element
         var plus_onclick = function () {
             self.log(widget_id,'plus_onclick called');
-            destinations_values.push(input_destination(tbody,null));
+            destination_values.push(input_destination(tbody,null));
         }
         plus_img.onclick = plus_onclick;
 
@@ -1651,7 +1676,7 @@ function StopTimetable(config, params) {
 
         parent_el.appendChild(row);
 
-        function value () { //debugi this wilil iterate the table rows
+        function value () {
             var list_result = [];
             for (var i=0; i<destination_values.length; i++) {
                 if (destination_values[i].value()) {
@@ -1663,7 +1688,8 @@ function StopTimetable(config, params) {
         };
 
         return { value: value,
-                 valid: function () { return true; }
+                 valid: function () { return true; },
+                 element: row
                };
 
     } // end input_destination_list
