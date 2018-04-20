@@ -173,7 +173,7 @@ function StationBoard(config, params) {
 
     } // end input_widget()
 
-    this.log("Instantiated StationBoard", widget_id, params);
+    this.log("Instantiated StationBoard", widget_id, self.params);
 
 } // end StationBoard
 

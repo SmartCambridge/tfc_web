@@ -56,7 +56,7 @@ function StopTimetable(config, params) {
 
     'use strict';
 
-    var DEBUG = ' stop_timetable_log';
+    //var DEBUG = ' stop_timetable_log';
 
     var self = this;
 

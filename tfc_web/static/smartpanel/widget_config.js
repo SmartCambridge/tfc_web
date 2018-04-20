@@ -61,21 +61,22 @@
 
     // Append a row containing <td>TITLE</td><td>SELECT</td>
     function config_select(parent_el, param_options, param_current) {
-        //self.log('creating select element', param_name, 'with', param_current);
         //var id = config_id + '_' + param_name;
         var row = document.createElement('tr');
 
         // create td to hold 'name' prompt for field
-        var name = document.createElement('td');
-        name.className = 'widget_config_property_name';
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
         label.title = param_options.title;
         label.appendChild(document.createTextNode(param_options.text));
-        name.appendChild(label);
-        row.appendChild(name);
-        var value = document.createElement('td');
-        value.className = 'widget_config_property_value';
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+
+        // create td to hold select dropdown
+        var td_select = document.createElement('td');
+        td_select.className = 'widget_config_property_value';
         var sel = document.createElement('select');
 
         // set select.title
@@ -83,7 +84,6 @@
 
         // set select.onchange
         if (param_options.onchange) {
-            console.log('config_select: setting onchange');
             sel.onchange = function () { param_options.onchange({ value: this.value,
                                                                   parent: parent_el
                                                                 }); } ;
@@ -99,13 +99,27 @@
         }
 
         // set default value of input to value provided in param_current
-        if (param_current) sel.value = param_current;
+        // include support for format: 'boolean'
+        if (param_options.format == 'boolean') {
+            sel.value = param_current ? 'true' : 'false';
+        } else {
+            sel.value = param_current;
+        }
 
-        value.appendChild(sel);
-        row.appendChild(value);
+        td_select.appendChild(sel);
+        row.appendChild(td_select);
+
         parent_el.appendChild(row);
 
-        return { value: function () { return sel.value; },
+        var value = function () {
+            // return sel.value, including support for format: 'boolean'
+            if (param_options.format == 'boolean') {
+                return sel.value == 'true';
+            }
+            return sel.value;
+        }
+
+        return { value: value,
                  valid: function () { return true; }
                };
     }
