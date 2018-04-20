@@ -8,7 +8,7 @@ function StationBoard(config, params) {
 
     var self = this;
 
-    var DEBUG = ' station_board_log';
+    //var DEBUG = ' station_board_log';
 
     var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
@@ -85,6 +85,8 @@ function StationBoard(config, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
+        var CONFIG_TITLE = 'Configure Train Station Info';
+
         self.log('StationBoard configuring widget with', config.config_id, params);
 
         var config_div = document.getElementById(config.config_id);
@@ -98,13 +100,14 @@ function StationBoard(config, params) {
 
         // Create HTML for configuration form
         //
-        var config_title = document.createElement('h1');
-        config_title.innerHTML = 'Configure Bus Stop Display';
-        config_div.appendChild(config_title);
+        var title = document.createElement('h1');
+        title.innerHTML = CONFIG_TITLE;
+
+        config_div.appendChild(title);
 
         var config_form = document.createElement('form');
 
-        var input_result = input_station_board(config_form, params);
+        var input_result = input_widget(config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -112,7 +115,7 @@ function StationBoard(config, params) {
     } // end this.configure()
 
     // Input the StopTimetable parameters
-    function input_station_board(parent_el, params) {
+    function input_widget(parent_el, params) {
 
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
@@ -168,7 +171,7 @@ function StationBoard(config, params) {
         return { valid: function () { return true; }, //debug - still to be implemented,
                  value: value };
 
-    }// end input_station_board()
+    } // end input_widget()
 
     this.log("Instantiated StationBoard", widget_id, params);
 

@@ -50,6 +50,12 @@
     border-radius: 4px;
 }
 
+.widget_config textarea {
+    height: 500px;
+    width:  600px;
+    padding: 10px;
+}
+
 .widget_config button {
     float: right;
     margin: 4px;

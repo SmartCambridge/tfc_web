@@ -116,6 +116,9 @@
     }
 
     //  Append a table row with a simple input field
+    //  By default this will be 'input type='text'
+    //  If param_options has 'format: 'textarea' then a textarea will be used
+    //
     function config_string(parent_el, param_options, param_current)
     {
         var row = document.createElement('tr');
@@ -131,7 +134,19 @@
         var td_value = document.createElement('td');
         td_value.className = 'widget_config_property_value';
 
-        var input = document.createElement('input');
+        var input;
+
+        var format = param_options.format ? param_options.format : 'text';
+
+        switch (format) {
+            case 'textarea':
+                 input = document.createElement('textarea');
+                 break;
+
+            default:
+                 input = document.createElement('input');
+                 break;
+        }
 
         if (param_options.type) input.type = param_options.type;
         if (param_options.step) input.step = param_options.step;
