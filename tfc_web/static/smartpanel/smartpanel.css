@@ -125,3 +125,19 @@
     margin-left: 20px;
     vertical-align: top;
 }
+
+.grid-stack-item {
+    background-color: white;
+    border: black solid 1px;
+    box-sizing: border-box;
+}
+
+.grid-stack-item-content {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.widget_id_p {
+    padding-top: 30px;
+    font-size: 26px;
+}
