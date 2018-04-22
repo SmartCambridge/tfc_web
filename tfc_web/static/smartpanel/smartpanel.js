@@ -12,7 +12,7 @@ $(function () {
         verticalMargin: 0,
         removable: true,
         resizable: {
-            handles: 'e, se, s, sw, w'
+            handles: 'n, ne, e, se, s, sw, w, nw'
         }
     });
     var grid = $('.grid-stack').data('gridstack');
