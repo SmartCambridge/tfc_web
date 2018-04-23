@@ -67,8 +67,10 @@ class Command(BaseCommand):
                             # Operator
                             operator = content['TransXChange']['Operators']['Operator']
                             bus_operator, created = Operator.objects.get_or_create(
-                                id=operator['@id'], code=operator['OperatorCode'],
-                                short_name=operator['OperatorShortName'], trading_name=operator['TradingName'])
+                                id=operator['@id'],
+                                defaults={'code': operator['OperatorCode'],
+                                          'short_name': operator['OperatorShortName'],
+                                          'trading_name': operator['TradingName']})
 
                             # Service / Line
                             service = content['TransXChange']['Services']['Service']
