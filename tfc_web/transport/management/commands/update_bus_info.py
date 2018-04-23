@@ -85,10 +85,15 @@ class Command(BaseCommand):
                                 end_date=service['OperatingPeriod']['EndDate'],
                                 regular_days_of_week=
                                     list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
-                                if 'OperatingProfile' in service and 'RegularDayType' in service['OperatingProfile'] and 'DaysOfWeek' in service['OperatingProfile']['RegularDayType'] else ('MondayToFriday',),
+                                if 'OperatingProfile' in service and
+                                   'RegularDayType' in service['OperatingProfile'] and
+                                   'DaysOfWeek' in service['OperatingProfile']['RegularDayType']
+                                    else ('MondayToFriday',),
                                 bank_holiday_operation=
                                     list(service['OperatingProfile']['BankHolidayOperation']['DaysOfOperation'].keys())
-                                if 'OperatingProfile' in service and 'BankHolidayOperation' in service['OperatingProfile'] and 'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
+                                if 'OperatingProfile' in service and
+                                   'BankHolidayOperation' in service['OperatingProfile'] and
+                                   'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
                             )
 
                             # Routes
