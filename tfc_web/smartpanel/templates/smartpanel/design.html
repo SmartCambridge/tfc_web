@@ -4,16 +4,26 @@
 <html>
 <head>
     <title>SmartCambridge SmartPanel</title>
-    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-    <script src="{% static 'smartpanel/gridList.js' %}"></script>
-    <script src="{% static 'smartpanel/jquery.gridList.js' %}"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous"></script>
+
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack-extra.min.css" />
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.js'></script>
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.jQueryUI.min.js'></script>
+
+
     <script>
         var defaultGrid = {% if layout %}{{ layout.design|jsonify|safe }}{% else %}{
-            '0': {w: 2, h: 2, x: 0, y: 0},
-            '1': {w: 2, h: 2, x: 2, y: 0},
-            '2': {w: 2, h: 2, x: 0, y: 2}
+            '0': {w: 1, h: 2, x: 0, y: 0}
         }{% endif %};
     </script>
     <script src="{% static 'smartpanel/smartpanel.js' %}"></script>
@@ -21,9 +31,11 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-green.min.css">
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
 </head>
 <body>
-    <div class="header" style="margin-left: 20px;">
+    <div class="header" style="height: 60px; margin-left: 20px;">
         <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-design-edit' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post">
             {% csrf_token %}
             <input id="design" name="design" type="text" hidden>
@@ -42,9 +54,9 @@
                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Home Page</a>
         </form>
     </div>
-    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">
-        <ul id="grid" class="grid">
-        </ul>
+    <div class="grid-container mdl-color--teal-900" style="width: 1920px; height: 1020px; padding: 1px 1px 2px 1px; overflow: hidden;">
+        <div class="grid-stack grid-stack-6">
+        </div>
     </div>
 </body>
 </html>

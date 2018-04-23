@@ -1,136 +1,73 @@
-var nboxes = Object.keys(defaultGrid).length;
-
-function createGrid() {
-    $('#grid').gridList({
-        lanes: SmartCamGrid.currentSize,
-        direction: SmartCamGrid.direction,
-        widthHeightRatio: SmartCamGrid.widthHeightRatio,
-        heightToFontSizeRatio: SmartCamGrid.heightToFontSizeRatio
-    });
-}
-
-function assing_resize_binding() {
-    $('#grid li .resize').click(function (e) {
-        e.preventDefault();
-        $(e.currentTarget).closest('div').children().removeClass('selected');
-        $(e.currentTarget).addClass('selected');
-        var itemElement = $(e.currentTarget).closest('li'),
-            itemWidth = $(e.currentTarget).data('w'),
-            itemHeight = $(e.currentTarget).data('h');
-        itemElement.attr('data-w', itemWidth);
-        itemElement.attr('data-h', itemHeight);
-        $('#grid').gridList('resizeItem', itemElement, {
-            w: itemWidth,
-            h: itemHeight
-        });
-    });
-    $('#grid li .delete').click(function (e) {
-        e.preventDefault();
-        if ($(e.currentTarget).data('del') == true) {
-            $(e.currentTarget).closest('li').remove();
-        }
-    });
-}
-
-function box_html(box_content) {
-    return '<li>' +
-        '<div class="inner">' +
-        '<div class="controls">' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="1" data-h="2">1x2</a>' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="1" data-h="4">1x4</a>' +
-        '<a href="#" class="selected resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="2" data-h="2">2x2</a>' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="2" data-h="4">2x4</a>' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="4" data-h="2">4x2</a>' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="4" data-h="4">4x4</a>' +
-        '<a href="#" class="resize mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-w="6" data-h="2">6x2</a>' +
-        '<a href="#" class="delete mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-del="true">del</a>' +
-        '</div><p class="inner-box">' +
-        box_content +
-        '</p></div>' +
-        '</li>'
-}
-
-var SmartCamGrid = {
-    currentSize: 6,
-    direction: 'vertical',
-    widthHeightRatio: (1920 / (1080-60)) * (2 / 3),
-    heightToFontSizeRatio: 0.25,
-    buildElements: function ($gridContainer, dict) {
-        Object.keys(dict).forEach(function(key) {
-            var item = dict[key];
-            $item = $(box_html(key));
-            $item.attr({
-                'data-w': item.w,
-                'data-h': item.h,
-                'data-x': item.x,
-                'data-y': item.y
-            });
-            $gridContainer.append($item);
-        });
-    },
-    appendElement: function ($gridContainer, item) {
-        $item = $(box_html(nboxes));
-        nboxes += 1;
-        $item.attr({
-            'data-w': item.w,
-            'data-h': item.h,
-            'data-x': item.x,
-            'data-y': item.y
-        });
-        $gridContainer.append($item);
-        createGrid();
-        assing_resize_binding();
-    }
-};
-
-$(window).resize(function () {
-    $('#grid').gridList('reflow');
-});
-
-$.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^]*)').exec(window.location.href);
-    if (results == null) {
-        return null;
-    }
-    else {
-        return results[1] || 0;
-    }
-};
 
 $(function () {
-    var grid = $('#grid');
+    
+    var nboxes = Math.max.apply(null, Object.keys(defaultGrid).map(function(elem){ return parseInt(elem) })) + 1;
 
-    if ($.urlParam('grid') === null) {
-        SmartCamGrid.buildElements($('#grid'), defaultGrid);
-    } else {
-        defaultGridParams = JSON.parse(decodeURIComponent($.urlParam("grid")));
-        nboxes = Object.keys(defaultGridParams).length;
-        SmartCamGrid.buildElements($('#grid'), defaultGridParams);
+    $('.grid-stack').gridstack({
+        width: 6,
+        height: 4,
+        float: true,
+        cellHeight: 255,
+        disableOneColumnMode: true,
+        verticalMargin: 0,
+        removable: true,
+        resizable: {
+            handles: 'n, ne, e, se, s, sw, w, nw'
+        }
+    });
+    var grid = $('.grid-stack').data('gridstack');
+
+    function widget_el(id) {
+        return $('<div><div class="grid-stack-item-content"><a class="delete-widget mdl-button mdl-js-button ' +
+            'mdl-button--raised mdl-js-ripple-effect mdl-button--colored">delete widget</a>' +
+            '<p class="widget_id_p">'+id+'</p></div></div>')
     }
 
-    grid.gridList({
-        lanes: SmartCamGrid.currentSize,
-        direction: SmartCamGrid.direction,
-        widthHeightRatio: SmartCamGrid.widthHeightRatio,
-        heightToFontSizeRatio: SmartCamGrid.heightToFontSizeRatio
-    });
+    function add_new_widget() {
+        new_widget = grid.addWidget(widget_el(nboxes),
+            null, null, 1, 1, true, null, null, null, null, nboxes);
+        nboxes += 1;
+        new_widget.find('.delete-widget').click(function (e) {
+            e.preventDefault();
+            grid.removeWidget($(this).parent().parent());
+        });
+    }
 
-    createGrid();
-    assing_resize_binding();
+    function add_existing_widget(x, y, width, height, id) {
+        new_widget = grid.addWidget(widget_el(id),
+            x, y, width, height, false, null, null, null, null, id);
+        new_widget.find('.delete-widget').click(function (e) {
+            e.preventDefault();
+            grid.removeWidget($(this).parent().parent());
+        });
+    }
+
+    Object.keys(defaultGrid).forEach(function(key) {
+        add_existing_widget(defaultGrid[key]['x'], defaultGrid[key]['y'],
+            defaultGrid[key]['w'], defaultGrid[key]['h'], key)
+    });
 
     $('#add-widget').click(function (e) {
         e.preventDefault();
-        SmartCamGrid.appendElement(grid, {w: 2, h: 2, x: 0, y: 0});
-        grid.gridList('resize', SmartCamGrid.currentSize); // refresh the grid to reallocate spaces
+        if (grid.willItFit(null, null, 1, 1, true)) {
+            add_new_widget();
+        }
+        else {
+            alert('Not enough free space to place a new widget');
+        }
     });
 
-    $('#smartpanel-design-form').submit(function (e) {
-        var grid_items = $.extend({}, $("#grid").data('_gridList').gridList.items);
-        for (i = 0; i < Object.keys(grid_items).length; i++) {
-            delete grid_items[i].$element;
-            delete grid_items[i].id;
-            delete grid_items[i].autoSize;
-        }
-        $('input[name=design]').val(JSON.stringify(grid_items));
+    $('#smartpanel-design-form').submit(function() {
+        var serializedData = {};
+        $('.grid-stack > .grid-stack-item:visible').each(function() {
+            var node = $(this).data('_gridstack_node');
+            serializedData[node.id] = {
+                x: node.x,
+                y: node.y,
+                w: node.width,
+                h: node.height
+            };
+        });
+        $('input[name=design]').val(JSON.stringify(serializedData));
     });
 });
