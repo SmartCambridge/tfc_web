@@ -74,7 +74,7 @@ class Command(BaseCommand):
 
                             # Service / Line
                             service = content['TransXChange']['Services']['Service']
-                            bus_line = Line.objects.create(id=tnds_zone.lower()+"_"+service['Lines']['Line']['@id'],
+                            bus_line = Line.objects.create(id=content['TransXChange']['@FileName'],
                                 area=tnds_zone,
                                 line_name=service['Lines']['Line']['LineName'],
                                 description=service['Description'],
