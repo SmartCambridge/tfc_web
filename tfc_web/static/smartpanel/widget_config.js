@@ -63,6 +63,10 @@
                 input_info = config_google_map(parent_el, param_options, param_current);
                 break;
 
+            case 'polygon':
+                input_info = config_polygon(parent_el, param_options, param_current);
+                break;
+
             default:
                 input_info = null;
                 //self.log(widget_id, 'bad param_type in config_input', param_type);
@@ -377,6 +381,111 @@
                         zoom: map.getZoom(),
                     }
                 };
+            },
+            valid: function () { return true; }
+        };
+
+    }
+
+    // populate a table row with a Leaflet map polygon input widget
+    function config_polygon(parent_el, param_options, param_current)
+    {
+
+        'use strict';
+
+        console.log('Called config_polygon');
+
+        var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var OSM_MAX_ZOOM = 19;
+        var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
+        'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
+
+        var title = param_options.title;
+        var text = param_options.text;
+        var width = param_options.width || "500px";
+        var height = param_options.height || "500px";
+        var lat = param_options.lat || 52.204;
+        var lng = param_options.lng || 0.124;
+        var zoom = param_options.zoom || 15;
+
+        // Setup HTML
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var name = document.createElement('td');
+        name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = title;
+        label.appendChild(document.createTextNode(text));
+        name.appendChild(label);
+        row.appendChild(name);
+
+        var value = document.createElement('td');
+        value.className = 'widget_config_property_value';
+        value.style.height = height;
+        value.style.width = width;
+        row.appendChild(value);
+
+        parent_el.appendChild(row);
+
+        // Create a map
+        var osm = new L.TileLayer(OSM_TILES,
+            { attribution: OSM_ATTRIBUTION,
+              maxZoom: OSM_MAX_ZOOM
+            }
+        );
+
+        var map = new L.Map(value).addLayer(osm);
+        var drawing_layer = new L.FeatureGroup();
+        map.addLayer(drawing_layer);
+
+        // Add current data (if available) and scale/zoom
+        if (param_current && param_current.length > 0){
+            param_current.forEach(function (coords) {
+                L.polygon(coords).addTo(drawing_layer);
+            });
+            var bounds = drawing_layer.getBounds().pad(0.2);
+            map.fitBounds(bounds);
+        }
+        else {
+            map.setView([lat, lng], zoom);
+        }
+
+        // Setup Leaflet-Draaw
+        // https://jsfiddle.net/user2314737/324h2d9q/
+        var drawPluginOptions = {
+            position: 'topright',
+            draw: {
+                polygon: {
+                },
+                // disable toolbar item by setting it to false
+                polyline: false,
+                circle: false, // Turns off this drawing tool
+                rectangle: false,
+                marker: false,
+                circlemarker: false,
+                },
+            edit: {
+                featureGroup: drawing_layer, //REQUIRED!!
+            }
+        };
+
+        // Initialise the draw control
+        var drawControl = new L.Control.Draw(drawPluginOptions);
+        map.addControl(drawControl);
+
+        map.on('draw:created', function(e) {
+            var layer = e.layer;
+            drawing_layer.addLayer(layer);
+        });
+
+        return {
+            value: function() {
+                var results = [];
+                drawing_layer.eachLayer(function (polygon) {
+                    results.push(polygon.getLatLngs()[0]);
+                });
+                return results;
             },
             valid: function () { return true; }
         };
