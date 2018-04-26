@@ -55,6 +55,14 @@
                 input_info = config_bus_stops(parent_el, param_options, param_current);
                 break;
 
+            case 'leaflet_map':
+                input_info = config_leaflet_map(parent_el, param_options, param_current);
+                break;
+
+            case 'google_map':
+                input_info = config_google_map(parent_el, param_options, param_current);
+                break;
+
             default:
                 input_info = null;
                 //self.log(widget_id, 'bad param_type in config_input', param_type);
@@ -190,6 +198,10 @@
 
         'use strict';
 
+        console.log('Called config_bus_stops');
+
+        var title = param_options.title;
+        var text = param_options.text;
         var width = param_options.width || "500px";
         var height = param_options.height || "500px";
 
@@ -200,8 +212,8 @@
         name.className = 'widget_config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
-        label.title = param_options.title;
-        label.appendChild(document.createTextNode(param_options.text));
+        label.title = title;
+        label.appendChild(document.createTextNode(text));
         name.appendChild(label);
         row.appendChild(name);
 
@@ -218,6 +230,154 @@
 
         return {
             value: chooser.getData,
+            valid: function () { return true; }
+        };
+
+    }
+
+    // populate a table row with a Leaflet map input widget
+    function config_leaflet_map(parent_el, param_options, param_current)
+    {
+
+        'use strict';
+
+        console.log('Called config_leflet_map');
+
+        var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var OSM_MAX_ZOOM = 19;
+        var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
+        'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
+
+        var title = param_options.title;
+        var text = param_options.text;
+        var width = param_options.width || "500px";
+        var height = param_options.height || "500px";
+        var lat = param_options.lat || 52.204;
+        var lng = param_options.lng || 0.124;
+        var zoom = param_options.zoom || 15;
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+
+        var name = document.createElement('td');
+        name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = title;
+        label.appendChild(document.createTextNode(text));
+        name.appendChild(label);
+        row.appendChild(name);
+
+        var value = document.createElement('td');
+        value.className = 'widget_config_property_value';
+        value.style.height = height;
+        value.style.width = width;
+        row.appendChild(value);
+
+        parent_el.appendChild(row);
+
+        var osm = new L.TileLayer(OSM_TILES,
+            { attribution: OSM_ATTRIBUTION,
+              maxZoom: OSM_MAX_ZOOM
+            }
+        );
+
+        var map = new L.Map(value).addLayer(osm);
+
+        if (param_current && param_current.map ) {
+            map.setView([param_current.map.lat, param_current.map.lng],
+                         param_current.map.zoom);
+        }
+        else {
+            map.setView([lat, lng], zoom);
+        }
+
+
+        return {
+            value: function() {
+                return {
+                    map: {
+                        lng: map.getCenter().lng,
+                        lat: map.getCenter().lat,
+                        zoom: map.getZoom(),
+                    }
+                };
+            },
+            valid: function () { return true; }
+        };
+
+    }
+
+    // populate a table row with a Google map input widget
+    function config_google_map(parent_el, param_options, param_current)
+    {
+
+        'use strict';
+
+        console.log('Called config_google_map');
+
+        var title = param_options.title;
+        var text = param_options.text;
+        var width = param_options.width || "500px";
+        var height = param_options.height || "500px";
+        var show_traffic = param_options.show_traffic || false;
+        var lat = param_options.lat || 52.204;
+        var lng = param_options.lng || 0.124;
+        var zoom = param_options.zoom || 15;
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+
+        var name = document.createElement('td');
+        name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = title;
+        label.appendChild(document.createTextNode(text));
+        name.appendChild(label);
+        row.appendChild(name);
+
+        var value = document.createElement('td');
+        value.className = 'widget_config_property_value';
+        value.style.height = height;
+        value.style.width = width;
+        row.appendChild(value);
+
+        parent_el.appendChild(row);
+
+        var map = new google.maps.Map(value, {
+            disableDefaultUI: true,
+            zoomControl: true,
+            zoomControlOptions: { position: google.maps.ControlPosition.TOP_LEFT },
+            clickableIcons: false,
+        });
+        if (show_traffic) {
+            var trafficLayer = new google.maps.TrafficLayer({
+                autoRefresh: true
+            });
+            trafficLayer.setMap(map);
+        }
+
+        if (param_current && param_current.map ) {
+            map.setCenter({lat: param_current.map.lat, lng: param_current.map.lng});
+            map.setZoom(param_current.map.zoom);
+        }
+        else {
+            map.setCenter({lat: lat, lng: lng});
+            map.setZoom(zoom);
+        }
+
+
+        return {
+            value: function() {
+                return {
+                    map: {
+                        lng: map.getCenter().lng(),
+                        lat: map.getCenter().lat(),
+                        zoom: map.getZoom(),
+                    }
+                };
+            },
             valid: function () { return true; }
         };
 
