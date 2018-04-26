@@ -17,3 +17,4 @@ markdown
 django-cors-headers
 iso8601
 zeep
+django-filter
