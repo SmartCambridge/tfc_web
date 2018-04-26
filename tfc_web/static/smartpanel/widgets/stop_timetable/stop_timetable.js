@@ -56,16 +56,21 @@ function StopTimetable(config, params) {
 
     'use strict';
 
-    // Backwards compatibility or first argument
-    var container;
-    if (typeof(config) === 'string') {
-        container = config;
-    }
-    else {
-        this.config = config;
-        container = config.container;
-    }
-    this.container = container;
+    //var DEBUG = ' stop_timetable_log';
+
+    var self = this;
+
+    var widget_id = config.container;
+
+    this.container = widget_id; // will remove when we migrate framework to provide widget_id
+
+    // *****************************************************************************
+    // ******** CONFIG DEMO ********************************************************
+    var CONFIG_SHIM = true;
+    var CONFIG_COLOR = '#ffffe6';
+
+    // *****************************************************************************
+
     this.params = params;
 
     // Symbolic constants
@@ -124,7 +129,15 @@ function StopTimetable(config, params) {
 
     this.init = function() {
 
-        log('Running StopTimetable.init', container);
+        self.log('Running StopTimetable.init', widget_id, 'with', self.params);
+
+        journey_table = [];
+
+        journey_index = {};
+
+        clearInterval(display_timer_id);
+
+        clearInterval(subscription_timer_id);
 
         // Register handlers for connect/disconnect
         RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
@@ -134,13 +147,22 @@ function StopTimetable(config, params) {
         add_box_to_params_destinations_areas();
 
         // Set up the HTML skeleton of the container
-        initialise_container(container);
+        initialise_container(widget_id);
 
         // Populate the journey table. As a side effect, this updates
         // the display, starts the refresh timer and subscribes to
         // real-time updates
         populate_journeys();
 
+
+        // ***********************************************************
+        // **   CONFIG DEMO                                         **
+        if (CONFIG_SHIM)
+        {
+            shim_link(self, widget_id);
+        }
+        // **                                                       **
+        // ***********************************************************
     };
 
 
@@ -151,13 +173,13 @@ function StopTimetable(config, params) {
     // the bounding lat/longs of the polygon as an optimization for geo.js is_inside.
     function add_box_to_params_destinations_areas()
     {
-        if (!params.destinations) {
+        if (!self.params.destinations) {
             return;
         }
 
-        for (var i=0; i<params.destinations.length; i++) {
-            if (params.destinations[i].area) {
-                params.destinations[i].box = get_box(params.destinations[i].area);
+        for (var i=0; i<self.params.destinations.length; i++) {
+            if (self.params.destinations[i].area) {
+                self.params.destinations[i].box = get_box(self.params.destinations[i].area);
                 // console.log('get_box '+JSON.stringify(params.destinations[i].box));
                 //log('Destination', i);
                 //log('           ', JSON.stringify(params.destinations[i].area));
@@ -182,7 +204,7 @@ function StopTimetable(config, params) {
         img.setAttribute('src', config.static_url + 'bus.png');
         title.appendChild(img);
         title.appendChild(document.createTextNode(' '));
-        title.appendChild(document.createTextNode(params.title));
+        title.appendChild(document.createTextNode(self.params.title));
         content_area.appendChild(title);
 
         var connection_div = document.createElement('div');
@@ -208,7 +230,7 @@ function StopTimetable(config, params) {
             for (var i = 0; i < journey_table.length; i++) {
                 var journey = journey_table[i];
                 if (journey.rtsub) {
-                    log('populate_journeys - un-subscribing', journey.rtsub);
+                    self.log('populate_journeys - un-subscribing', journey.rtsub);
                     RTMONITOR_API.unsubscribe(journey.rtsub);
                 }
             }
@@ -228,10 +250,10 @@ function StopTimetable(config, params) {
             //     than 02:00 or later than 22:00
             var minutes = Math.random()*60;
             var tomorrow = moment().add(1, 'd').hour(4).minute(minutes);
-            console.log('[' + container + ']', 'Scheduling next populate_journeys for', tomorrow.format());
+            console.log('[' + widget_id + ']', 'Scheduling next populate_journeys for', tomorrow.format());
             var timer = window.setInterval(function () {
                 if (moment().isAfter(tomorrow)) {
-                    console.log('[' + container + ']', 'Re-running populate_journeys');
+                    console.log('[' + widget_id + ']', 'Re-running populate_journeys');
                     clearInterval(timer);
                     populate_journeys();
                 }
@@ -244,10 +266,10 @@ function StopTimetable(config, params) {
     function get_journey_batch(iteration) {
         // Trigger retrieval of a batch of journey records
 
-        log('get_journey_batch - iteration', iteration);
+        self.log('get_journey_batch - iteration', iteration);
         // This shouldn't happen
         if (iteration > 100) {
-            log('Excessive recursion in get_journey_batch');
+            self.log('Excessive recursion in get_journey_batch');
             return;
         }
 
@@ -262,15 +284,15 @@ function StopTimetable(config, params) {
             var last_journey = journey_table[journey_table.length - 1];
             start_time = last_journey.timetable.time;
         }
-        log('get_journey_batch - start_time:', start_time);
+        self.log('get_journey_batch - start_time:', start_time);
 
-        var qs = '?stop_id='+encodeURIComponent(params.stop_id);
+        var qs = '?stop_id='+encodeURIComponent(self.params.stop_id);
         qs += '&datetime_from='+encodeURIComponent(start_time);
         qs += '&expand_journey=true';
         qs += '&nresults='+encodeURIComponent(JOURNEY_BATCH_SIZE);
 
         var uri = TIMETABLE_URI + '/journeys_by_time_and_stop/' + qs;
-        log('get_journey_batch - fetching', uri);
+        self.log('get_journey_batch - fetching', uri);
 
         var xhr = new XMLHttpRequest();
         xhr.open('GET', uri, true);
@@ -304,7 +326,7 @@ function StopTimetable(config, params) {
         // Add new journeys to journey_table. Return the number of
         // records actually added
 
-        log('add_journeys - got', data.results.length, 'results');
+        self.log('add_journeys - got', data.results.length, 'results');
 
         var added = 0;
 
@@ -320,11 +342,11 @@ function StopTimetable(config, params) {
 
             // Have we seen it before?
             if (journey_index.hasOwnProperty(journey_key)) {
-                log('add_journeys - skipping', journey_key, result.time);
+                self.log('add_journeys - skipping', journey_key, result.time);
                 continue;
             }
 
-            log('add_journeys - adding', journey_key, result.time);
+            self.log('add_journeys - adding', journey_key, result.time);
             added++;
 
             // See if this journey goes to any of our destinations
@@ -349,7 +371,7 @@ function StopTimetable(config, params) {
 
         }
 
-        log('add_journeys - actually added', added, 'journeys');
+        self.log('add_journeys - actually added', added, 'journeys');
 
         return added;
 
@@ -362,9 +384,9 @@ function StopTimetable(config, params) {
         var last_is_destination;
 
         // For each supplied destination (if we have any)...
-        if (params.destinations) {
-            for (var d = 0; d < params.destinations.length; d++) {
-                var destination = params.destinations[d];
+        if (self.params.destinations) {
+            for (var d = 0; d < self.params.destinations.length; d++) {
+                var destination = self.params.destinations[d];
                 var seen_self = false;
 
                 //log('Doing destination', d, destination.description);
@@ -396,7 +418,7 @@ function StopTimetable(config, params) {
                     }
 
                     // Is this timetable entry 'us'?
-                    if (timetable_entry.stop.atco_code === params.stop_id) {
+                    if (timetable_entry.stop.atco_code === self.params.stop_id) {
                         seen_self = true;
                     }
 
@@ -425,8 +447,8 @@ function StopTimetable(config, params) {
 
     function rtmonitor_disconnected() {
         // this function is called by RTMonitorAPI if it DISCONNECTS from server
-        log('stop_timetable rtmonitor_disconnected');
-        document.getElementById(container+'_connection').style.display = 'inline-block';
+        self.log('stop_timetable rtmonitor_disconnected');
+        document.getElementById(widget_id+'_connection').style.display = 'inline-block';
         // Drop our record of the subscriptions that just evaporated
         for (var i = 0; i < journey_table.length; i++) {
             var journey = journey_table[i];
@@ -437,8 +459,8 @@ function StopTimetable(config, params) {
 
     function rtmonitor_connected() {
         // this function is called by RTMonitorAPI each time it has CONNECTED to server
-        log('stop_timetable rtmonitor_connected');
-        document.getElementById(container+'_connection').style.display = 'none';
+        self.log('stop_timetable rtmonitor_connected');
+        document.getElementById(widget_id+'_connection').style.display = 'none';
         // Re-establish all the subscriptions that we need
         refresh_subscriptions();
     }
@@ -451,7 +473,7 @@ function StopTimetable(config, params) {
 
         var now = get_now();
 
-        log('refresh_subscriptions - running for', now.toISOString());
+        self.log('refresh_subscriptions - running for', now.toISOString());
 
         // Cancel the update timer if it's running
         if (subscription_timer_id) {
@@ -468,7 +490,7 @@ function StopTimetable(config, params) {
                       journey.due.isAfter(now.add(60, 'minutes'))) ) {
 
                     if (journey.rtsub) {
-                        log('refresh_subscriptions - unsubscribing', journey.rtsub);
+                        self.log('refresh_subscriptions - unsubscribing', journey.rtsub);
                         RTMONITOR_API.unsubscribe(journey.rtsub);
                         journey.rtsub = undefined;
                     }
@@ -497,7 +519,7 @@ function StopTimetable(config, params) {
         var timetable_time = time.clone().tz(TIMETABLE_TIMEZONE);
         var realtime_time = time.clone().tz(REALTIME_TIMEZONE);
         var request_id = stop_id+'_'+timetable_time.format('HH:mm:ss');
-        log('subscribe - caller '+container+' subscribing to', request_id);
+        self.log('subscribe - caller '+widget_id+' subscribing to', request_id);
 
         var request_obj = {
                 filters:
@@ -515,10 +537,10 @@ function StopTimetable(config, params) {
                     ]
             };
 
-        var request_status = RTMONITOR_API.subscribe(container, request_id, request_obj, handle_message);
+        var request_status = RTMONITOR_API.subscribe(widget_id, request_id, request_obj, handle_message);
 
         if (request_status.status !== 'rt_ok') {
-            log('subscribe failed ', JSON.stringify(request_status));
+            self.log('subscribe failed ', JSON.stringify(request_status));
             return undefined;
         }
 
@@ -548,7 +570,7 @@ function StopTimetable(config, params) {
             }
             else {
                 /// This shouldn't happen
-                log('handle_records - message', key, 'no match');
+                self.log('handle_records - message', key, 'no match');
             }
         }
 
@@ -563,7 +585,7 @@ function StopTimetable(config, params) {
         // Update (actually recreate and replace) the display by
         // walking the journey_table
 
-        //log('refresh_display - running');
+        self.log('refresh_display - running with','self.params:',self.params);
 
         // Cancel the update timer if it's running
         if (display_timer_id) {
@@ -574,7 +596,7 @@ function StopTimetable(config, params) {
         try {
 
             var result;
-            switch (params.layout) {
+            switch (self.params.layout) {
                 case 'debug':
                     result = display_debug();
                     break;
@@ -585,8 +607,8 @@ function StopTimetable(config, params) {
                     result = display_nextbus();
                     break;
                 default:
-                    if (params.layout !== 'simple') {
-                        log('refresh_display - unexpected layout', params.layout, 'using \'simple\'');
+                    if (self.params.layout !== 'simple') {
+                        self.log('refresh_display - unexpected layout', self.params.layout, 'using \'simple\'');
                     }
                     result = display_simple();
             }
@@ -608,6 +630,9 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************* DISPLAY SIMPLE     ********************************************************
+    // *****************************************************************************************
     function display_simple() {
         // Basic departure board layout
 
@@ -738,10 +763,13 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************ DISPLAY MULTILINE   ********************************************************
+    // *****************************************************************************************
     function display_multiline() {
         // Multiline departure board layout
 
-        log('display_multiline - running');
+        self.log('display_multiline - running');
 
         var rows = display_multiline_view();
 
@@ -791,7 +819,7 @@ function StopTimetable(config, params) {
             // Is the last stop itself in a destination?
             if (journey.last_is_destination !== undefined) {
                 last = journey.destinations[journey.last_is_destination];
-                last_desc = params.destinations[journey.last_is_destination].description;
+                last_desc = self.params.destinations[journey.last_is_destination].description;
             }
             row.destination = {
                 desc: tidy_name(last_desc),
@@ -803,12 +831,12 @@ function StopTimetable(config, params) {
 
             // Via
             row.via = [];
-            if (params.destinations) {
+            if (self.params.destinations) {
                 row.rows += 1;
-                for (var d = 0; d < params.destinations.length; d++) {
+                for (var d = 0; d < self.params.destinations.length; d++) {
                     if (journey.destinations[d] && d !== journey.last_is_destination) {
                         row.via.push({
-                            desc: params.destinations[d].description,
+                            desc: self.params.destinations[d].description,
                             time: apply_delay(journey.destinations[d].due, journey).format('HH:mm')
                         });
                     }
@@ -951,6 +979,9 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************ DISPLAY DEBUG       ********************************************************
+    // *****************************************************************************************
 
     function display_debug() {
         // Debug display board with internal data
@@ -1108,10 +1139,13 @@ function StopTimetable(config, params) {
     }
 
 
+    // *****************************************************************************************
+    // ************ DISPLAY NEXTBUS      *******************************************************
+    // *****************************************************************************************
     function display_nextbus() {
         // Layout showing next bus to selected destinations
 
-        log('display_nextbus - running');
+        self.log('display_nextbus - running');
 
         var result = document.createElement('div');
         result.classList.add('nextbus');
@@ -1144,8 +1178,8 @@ function StopTimetable(config, params) {
         heading.appendChild(cell);
 
         // For each destination...
-        for (var d = 0; d < params.destinations.length; d++) {
-            var destination = params.destinations[d];
+        for (var d = 0; d < self.params.destinations.length; d++) {
+            var destination = self.params.destinations[d];
             var nrows = 0;
 
             var h3 = document.createElement('h3');
@@ -1255,10 +1289,10 @@ function StopTimetable(config, params) {
     //==== Utilities ===================================================
 
 
-    function log() {
+    this.log = function () {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('stop_timetable_log') >= 0) {
             var args = [].slice.call(arguments);
-            args.unshift('[' + container + ']');
+            args.unshift('[' + widget_id + ']');
             console.log.apply(console, args);
         }
     }
@@ -1332,7 +1366,7 @@ function StopTimetable(config, params) {
 
     function get_now() {
         // Return the current time offset by params.offset or 0
-        var offset = params.offset || 0;
+        var offset = self.params.offset || 0;
         return moment().add(offset, 'minutes');
     }
 
@@ -1360,11 +1394,376 @@ function StopTimetable(config, params) {
     }
 
 
-    log('Instantiated StopTimetable', container, params);
+    // ************************************************************************************
+    // *****************  Widget Configuration ********************************************
+    // ************************************************************************************
+    //
+    // For widget configuration, the layout_framework will call the widget:
+    //   widget.configure(config, params)
+    //   where:
+    //
+    //     config: will be an object including
+    //         widget_id: (currently container) - the DOM Id of the widget element
+    //         config_id: the DOM Id of the DIV toi use for the configuration form
+    //         configuration_callback: a function (config,params) the widget will call
+    //                                 on configuration save or cancel.
+    //                                 On cancel, params will be null.
+    //
+    //     params: these are the *current* widget parameters to use as initial defaults on
+    //             the config form input elements, so existing config can be editted.
+    //
+    // For 'production' configure you need to edit:
+    //   this.configure(config, params)
+    //   config_click_cancel(config)
+    //   config_click_save(config, params)
+    //
+    // In this.configure(), by default a <table> is added to the config_div.
+    // A helper function is provided:
+    //   config_input( parent_element, (the DOM element to add input element to, typically a tbody)
+    //                 property_type,  ( select | number | string ),
+    //                 input_options,  (configuration parameters for the input field, such as text, title)
+    //                 default_value   (typically the existing 'params' value if editting an existing widget)
+    //               )
+    //  config_input(..) will return an object:
+    //    {
+    //      value: function () -> the property value entered on the form
+    //    }
+    //
 
-    // END of 'class' StopTimetable
+    // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
+    this.configure = function (config, params) {
 
-}
+        self.log('StopTimetable configuring widget with', config.config_id);
+
+        var config_div = document.getElementById(config.config_id);
+
+        // Empty the 'container' div (i.e. remove loading GIF or prior content)
+        while (config_div.firstChild) {
+                config_div.removeChild(config_div.firstChild);
+        }
+
+        config_div.style.display = 'block';
+
+        // Create HTML for configuration form
+        //
+        var config_title = document.createElement('h1');
+        config_title.innerHTML = 'Configure Bus Stop Display';
+        config_div.appendChild(config_title);
+
+        var config_form = document.createElement('form');
+
+        var input_result = input_stop_timetable(config_form, params);
+
+        config_div.appendChild(config_form);
+
+        return input_result;
+    }
+
+    // Input the StopTimetable parameters
+    function input_stop_timetable(parent_el,params) {
+
+        var config_table = document.createElement('table');
+        config_table.className = 'config_input_stop_timetable';
+
+        var config_tbody = document.createElement('tbody');
+
+        // Each config_input(...) will return a .value() callback function for the input data
+
+        // TITLE
+        //
+        var title_result = config_input( config_tbody,
+                                         'string',
+                                         { text: 'Title:',
+                                           title: 'The main title at the top of the widget, e.g. bus stop name',
+                                         },
+                                         params.title);
+
+        // STOP_ID
+        //
+        var stop_id_result = config_input( config_tbody,
+                                           'string',
+                                           { text: 'Stop ID:',
+                                             title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
+                                           },
+                                           params.stop_id);
+
+        // offset input
+        //
+        self.log('configure() calling config_input', 'offset', 'with',params.offset);
+        var offset_result = config_input( config_tbody,
+                                          'number',
+                                          { text: 'Timing offset (mins):',
+                                            title: 'Set an offset (mins) if you want times for *later* trains than now',
+                                            step: 'any'
+                                          },
+                                          params.offset);
+
+        // Layout select
+        //
+        var layout_value = params.layout;
+
+        self.log('configure() calling config_input', 'layout', 'with',params.layout);
+        var layout_result = config_input( config_tbody,
+                                          'select',
+                                          { text: 'Layout:',
+                                            title: 'Choose your widget layout style from the dropdown',
+                                            options: [ { value: 'simple', text: 'Simple' },
+                                                       { value: 'multiline', text: 'Multi-line' },
+                                                       { value: 'nextbus', text: 'NextBus' },
+                                                       { value: 'debug', text: 'Debug' } ],
+                                            onchange: input_layout_onchange
+             /* "simple": "One line per journey",
+                "multiline": "Multiple lines per journey; can include intermediate destinations",
+                "nextbus": "Next bus to selected destinations",
+                "debug": "Detailed troubleshooting display" */
+                                          },
+                                          params.layout
+                                        );
+
+        // destinations input
+        var destinations_result = null; // placeholder
+        var destinations_element = null; // placeholder for the DOM element (row) that will contain the input
+        var destinations_cache = null; // cache destinations so they are not lost completely when changing from
+                                       // nextbus -> simple for example, and can be reloaded
+
+        if (params.destinations) {
+            destinations_cache = JSON.parse(JSON.stringify(params.destinations)); // copy list
+            destinations_result = input_destination_list(config_tbody, params.destinations);
+            destinations_element = destinations_result.element;  // this is the DOM (row) element containing this input
+        }
+
+        config_table.appendChild(config_tbody);
+        parent_el.appendChild(config_table);
+
+        // local function to be called if user updates 'layout' input value
+        // input_change is { value: <new value of property>,
+        //                   parent: DOM object the contains select input row (i.e. typically a tbody)
+        function input_layout_onchange(layout_el) {
+            self.log('input_layout_onchange: layout changed from:',layout_value,'to:',layout_el.value);
+            switch (layout_el.value) {
+                case 'multiline':
+                case 'nextbus':
+                    if (!destinations_result) {
+                        // add 'destinations' input list to the page if it isn't already there
+                        destinations_result = input_destination_list(config_tbody, params.destinations);
+                        destinations_element = destinations_result.element;  // this is the DOM (row) element containing this input
+                    }
+                    break;
+
+                case 'simple':
+                case 'debug':
+                    // if a 'layout' that doesn't require a destinations property is selected then
+                    // remove the return object and the DOM object containing the input
+                    destinations_result = null;
+                    if (destinations_element) {
+                        destinations_element.remove();
+                    }
+                    break;
+
+                default:
+                    self.log('config_layout_onchange: change to',layout_el.value,'ignored');
+            }
+        }
+
+        // value() is the function for this input element that returns its value
+        var value = function () {
+            var config_params = {};
+            // title
+            config_params.title = title_result.value();
+            // stop_id
+            config_params.stop_id = stop_id_result.value();
+            // offset
+            var offset = offset_result.value();
+            if (!isNaN(parseInt(offset)) && offset >= 0) {
+                config_params.offset = parseInt(offset);
+            }
+            // layout
+            config_params.layout = layout_result.value();
+
+            // destinations
+            if (destinations_result) {
+                config_params.destinations = destinations_result.value();
+            }
+
+            self.log(widget_id,'input_stop_timetable returning params:',config_params);
+
+            return config_params;
+        }
+
+        return { valid: function () { return true; }, //debug - still to be implemented,
+                 value: value };
+
+    }// end input_stop-timetable()
+
+    // Add a 'destinations' input to the main config table
+    // parent_el is assumed to be a tbody, to which this fn appends a <tr>
+    function input_destination_list(parent_el, destinations) {
+        self.log('input_destination_list called with', destinations);
+        var row = document.createElement('tr');
+
+        // create TD to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = 'Enter your destinations each as a set of stops or an area on a map';
+        label.appendChild(document.createTextNode('Destinations:'));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+
+        // create TD to hold 'value' destination_list
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var destinations_table = document.createElement('table');
+        destinations_table.className = 'config_destinations_table';
+        destinations_table.style['border-collapse'] = 'separate';
+        destinations_table.style['padding'] = '5px';
+
+        var tbody = document.createElement('tbody');
+
+        var destination_values = [];
+
+        if (destinations) {
+            for (var i=0; i<destinations.length; i++) {
+                var destination = destinations[i];
+
+                destination_values.push(input_destination(tbody, destination));
+            }
+        } else {
+            destination_values.push(input_destination(tbody, null));
+        }
+
+        destinations_table.appendChild(tbody);
+        td_value.appendChild(destinations_table);
+
+        // create (+) add an element button
+        var plus_url = config.static_url + 'images/plus.png';
+        var plus_img = document.createElement('img');
+        plus_img.setAttribute('src', plus_url);
+        plus_img.setAttribute('alt', 'Add');
+        plus_img.setAttribute('title', 'Add another destination');
+        plus_img.className = 'widget_config_plus';
+        // now set the onlclick callback for the (+) button to add another destination input element
+        var plus_onclick = function () {
+            self.log(widget_id,'plus_onclick called');
+            destination_values.push(input_destination(tbody,null));
+        }
+        plus_img.onclick = plus_onclick;
+
+        td_value.appendChild(plus_img);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        function value () {
+            var list_result = [];
+            for (var i=0; i<destination_values.length; i++) {
+                if (destination_values[i].value()) {
+                    list_result.push(destination_values[i].value());
+                }
+            }
+
+            return list_result;
+        };
+
+        return { value: value,
+                 valid: function () { return true; },
+                 element: row
+               };
+
+    } // end input_destination_list
+
+    // Add a 'destination' input (as a row in a 'destinations' table)
+    function input_destination(parent_el, destination) {
+        self.log('config_input_destination called with',destination);
+
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.className = 'widget_config_repeating_element';
+
+        // create (x) delete this element button
+        var x_url = config.static_url + 'images/x.png';
+        var x_img = document.createElement('img');
+        x_img.setAttribute('src', x_url);
+        x_img.setAttribute('alt', 'Delete');
+        x_img.setAttribute('title', 'Delete this destination');
+        x_img.className= 'widget_config_x';
+        // add onclick fn to remove this input
+        //
+        var removed = false;
+
+        var x_onclick = function () {
+            self.log(widget_id,'x_onclick called');
+            removed = true;
+            tr.remove();
+        }
+        x_img.onclick = x_onclick;
+
+        td.appendChild(x_img);
+
+        var table = document.createElement('table');
+        var tbody = document.createElement('tbody');
+
+        var description_result = config_input( tbody,
+                                              'string',
+                                               { text: 'Description:',
+                                                 title: 'Short display name of the destination, e.g. City Centre',
+                                               },
+                                               destination ? destination.description : null);
+
+        var stop_ids_result = input_stop_list( tbody, destination ? destination.stop_ids : null);
+
+        table.appendChild(tbody);
+        td.appendChild(table);
+        tr.appendChild(td);
+        parent_el.appendChild(tr);
+
+        function value() {
+            if (removed) {
+                return null;
+            } else {
+                return { description: description_result.value(),
+                         stop_ids: stop_ids_result.value()
+                       };
+            }
+        }
+
+        return { value: value,
+                 valid: function () { return true; }
+               };
+    }
+
+    // input a list of stops as a comma-separated string
+    function input_stop_list(parent_el, stop_ids) {
+
+        var stops = '';
+        if (stop_ids) {
+            for (var i=0; i<stop_ids.length; i++) {
+                stops += (i==0) ? stop_ids[0] : ','+stop_ids[i];
+            }
+        }
+        var stop_ids_result = config_input( parent_el,
+                                           'string',
+                                           { text: 'Stop ID list:',
+                                             title: 'Atco codes of the stops of interest, e.g. 0500CCITY424,0500CCITY425',
+                                           },
+                                           stops);
+
+        function value() {
+            var stops = stop_ids_result.value();
+            var stop_ids = stops.split(',');
+            return stop_ids;
+        }
+
+        return { value: value,
+                 valid: function () { return true; } };
+    } // end input_stop_list
+
+    self.log('Instantiated StopTimetable', widget_id, params);
+
+}    // END of 'class' StopTimetable
 
 /*
 
