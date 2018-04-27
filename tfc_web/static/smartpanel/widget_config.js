@@ -230,7 +230,7 @@
         parent_el.appendChild(row);
 
         var chooser = BusStopChooser.create(param_options);
-        chooser.render(value, param_current.stops);
+        chooser.render(value, param_current);
 
         return {
             value: chooser.getData,
@@ -481,6 +481,11 @@
 
         return {
             value: function() {
+                var map = {
+                    lng: map.getCenter().lng,
+                    lat: map.getCenter().lat,
+                    zoom: map.getZoom(),
+                };
                 var results = [];
                 drawing_layer.eachLayer(function (polygon) {
                     results.push(polygon.getLatLngs()[0]);
