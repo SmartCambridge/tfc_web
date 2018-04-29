@@ -8,7 +8,7 @@ from pathlib import Path
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import generics
+from rest_framework import generics, filters
 from rest_framework.decorators import api_view, renderer_classes, schema, parser_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
@@ -19,6 +19,7 @@ from transport.api.serializers import VehicleJourneySerializer, LineSerializer, 
     VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
 from urllib.parse import quote
+import re
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -344,9 +345,66 @@ class StopList(generics.ListAPIView):
     """
     Return a list of all the existing Stops.
     """
-    queryset = Stop.objects.all()
     serializer_class = StopSerializer
     pagination_class = Pagination
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    ordering_fields = ('atco_code', 'common_name', 'locality_name')
+    ordering = ('atco_code', )
+    search_fields = ('atco_code', 'common_name', 'locality_name')
+
+    schema = AutoSchema(
+        manual_fields=[
+            coreapi.Field(
+                "bounding_box",
+                required=False,
+                location="query",
+                schema=coreschema.String(
+                    description="Limit results to stops within a bounding "
+                                "box, specified as "
+                                "'southwest_lng,southwest_lat,northeast_lng,"
+                                "northeast_lat' (matching Leaflet's "
+                                "toBBoxString() method"
+                    ),
+                description="Limit results to stops within a bounding "
+                            "box, specified as "
+                            "'southwest_lng,southwest_lat,northeast_lng,"
+                            "northeast_lat' (matching Leaflet's "
+                            "toBBoxString() method"
+            )
+        ]
+    )
+
+    def list(self, request, *args, **kwargs):
+        # Retrieve the bounding box from the list of GET parameters
+        bounding_box = self.request.query_params.get('bounding_box', None)
+        if bounding_box is not None:
+            match = match = re.match(r'^([^,]+),([^,]+),([^,]+),([^,]+)$',
+                                     bounding_box)
+            if match:
+                try:
+                    self.bounding_box = {
+                        'west': float(match.group(1)),
+                        'south': float(match.group(2)),
+                        'east': float(match.group(3)),
+                        'north': float(match.group(4))
+                    }
+                except ValueError:
+                    return Response({"details": "bouding_box coordinates not "
+                                     "properly formatted"}, status=500)
+            else:
+                return Response({"details": "bouding_box parameter not "
+                                 "properly formatted"}, status=500)
+        return super().list(self, request, *args, **kwargs)
+
+    def get_queryset(self):
+        try:
+            return Stop.objects.filter(
+                latitude__range=(self.bounding_box['south'],
+                                 self.bounding_box['north']),
+                longitude__range=(self.bounding_box['west'],
+                                  self.bounding_box['east']))
+        except AttributeError:
+            return Stop.objects.all()
 
 
 class StopRetrieve(generics.RetrieveAPIView):
