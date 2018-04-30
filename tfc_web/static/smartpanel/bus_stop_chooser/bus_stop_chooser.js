@@ -7,7 +7,7 @@ var BusStopChooser = (function() {
     'use strict';
 
     // TODO: Move to smartcambridge.org when available there (#1)
-    var STOPS_API_ENDPOINT = 'http://tfc-app4.cl.cam.ac.uk/transport/api/stops';
+    var DEFAULT_ENDPOINT = 'http://tfc-app4.cl.cam.ac.uk/transport/api';
 
     var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var OSM_MAX_ZOOM = 19;
@@ -69,6 +69,7 @@ var BusStopChooser = (function() {
             var zoom = params.zoom || 15;
             var multi_select = params.multi_select || false;
             var zoom_threshold = params.zoom_threshold || 15;
+            var api_endpoint = params.api_endpoint || DEFAULT_ENDPOINT;
 
             var map;
             var osm = new L.TileLayer(OSM_TILES,
@@ -220,7 +221,7 @@ var BusStopChooser = (function() {
                     var bounds = map.getBounds().pad(0.7).toBBoxString();
                     var qs = '?bounding_box=' + encodeURIComponent(bounds);
                     qs += '&page_size='+encodeURIComponent(50);
-                    uri = STOPS_API_ENDPOINT + qs;
+                    uri = api_endpoint + '/stops' + qs;
                 }
                 if (!new_stops) {
                     new_stops = [];
@@ -230,19 +231,24 @@ var BusStopChooser = (function() {
                 xhr.open('GET', uri, true);
                 xhr.send();
                 xhr.onreadystatechange = function() {
-                    if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                        var api_response = JSON.parse(xhr.responseText);
-                        //debug_log('got', api_response.results.length, 'results');
-                        new_stops = new_stops.concat(api_response.results);
-                        //debug_log('accumulated', new_stops.length, 'results');
-                        // Keep going if there are more...
-                        if (api_response.next) {
-                            get_bus_stops(callback, api_response.next, new_stops);
+                    if(xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status !== 200) {
+                            console.warn('BusStopChooser: API error:', xhr.status, xhr.statusText);
                         }
-                        // Otherwise
                         else {
-                            add_stops(new_stops, false);
-                            callback();
+                            var api_response = JSON.parse(xhr.responseText);
+                            //debug_log('got', api_response.results.length, 'results');
+                            new_stops = new_stops.concat(api_response.results);
+                            //debug_log('accumulated', new_stops.length, 'results');
+                            // Keep going if there are more...
+                            if (api_response.next) {
+                                get_bus_stops(callback, api_response.next, new_stops);
+                            }
+                            // Otherwise
+                            else {
+                                add_stops(new_stops, false);
+                                callback();
+                            }
                         }
                     }
                 };

@@ -209,6 +209,10 @@
         var width = param_options.width || "500px";
         var height = param_options.height || "500px";
 
+        if (param_options.settings && param_options.settings.SMARTPANEL_TRANSPORT_API) {
+            param_options.api_endpoint = param_options.settings.SMARTPANEL_TRANSPORT_API;
+        }
+
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
 
