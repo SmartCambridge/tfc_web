@@ -4,7 +4,11 @@ from datetime import date, timedelta, datetime
 from urllib.request import urlopen
 from django.conf import settings
 from django.shortcuts import render
+from django.http import JsonResponse
+import re
+import logging
 
+logger = logging.getLogger(__name__)
 
 #############################################################################
 ########   parking/plot/<parking_id>?date=YYYY-MM-DD  #######################
@@ -61,14 +65,19 @@ def parking_plot(request, parking_id):
     MM   = user_date[5:7]
     DD   = user_date[8:10]
 
-    return render(request, 'parking/parking_plot.html', {
-        'config_date':  user_date,
-        'config_parking_id': parking_id,
-        'config_YYYY' : YYYY,
-        'config_MM':    MM,
-        'config_DD':    DD,
-        'config_parking_data': json.dumps(parking_json),
-        'config_parking_config': json.dumps(parking_config)
+    if 'application/json' in re.split(r', *', request.META['HTTP_ACCEPT']):
+        logger.info("JSON requested")
+        return JsonResponse({ 'data': parking_json, 'config': parking_config })
+    else:
+        logger.info("JSON NOT requested")
+        return render(request, 'parking/parking_plot.html', {
+            'config_date':  user_date,
+            'config_parking_id': parking_id,
+            'config_YYYY' : YYYY,
+            'config_MM':    MM,
+            'config_DD':    DD,
+            'config_parking_data': json.dumps(parking_json),
+            'config_parking_config': json.dumps(parking_config)
     })
 
 
