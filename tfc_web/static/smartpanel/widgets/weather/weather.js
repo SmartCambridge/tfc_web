@@ -3,35 +3,48 @@
 /* global $, DEBUG */
 /* exported Weather */
 
-function Weather(config, params) {
+// 'widget_id' can be config object
+// 'params' only for backwards compatibility with previous layout framework
+function Weather(widget_id, params) {
 
     'use strict';
 
+    //var DEBUG = ' weather_log';
+
     var CONFIG_SHIM = true;
+
     var self = this;
 
-    // Backwards compatibility or first argument
-    var container;
-    if (typeof(config) === 'string') {
-        container = config;
+    if (typeof(widget_id) === 'string') {
+        self.widget_id = widget_id;
     }
     else {
-        this.config = config;
-        container = config.container;
+        // Backwards compatibility
+        self.config = widget_id;
+        self.widget_id = self.config.container;
+        self.config.container_id = self.config.container;
+        self.params = params;
     }
-    this.container = container;
 
-    var widget_id = config.container;
-
-    this.params = params;
-
+    // backwards compatibility init() function
     this.init = function () {
-        this.log('Running init', this.container);
+        this.log('Running init', self.widget_id);
+
+        this.display(self.config, self.params);
+
+    };
+
+    this.display = function(config, params) {
+
+        self.config = config;
+
+        self.params = params;
+
         // ***********************************************************
         // **   CONFIG DEMO                                         **
         if (CONFIG_SHIM)
         {
-            shim_link(self, widget_id);
+            shim_link(self, self.config.container_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -45,23 +58,22 @@ function Weather(config, params) {
     }*/
 
     this.do_load = function () {
-        this.log('Running Weather.do_load', this.container);
-        var self = this,
-            url = '/smartpanel/weather?location=' + this.params.location +
+        self.log(self.widget_id, 'Running Weather.do_load');
+        var url = '/smartpanel/weather?location=' + this.params.location +
                 ' .content_area';
-        this.log('do_load URI', url);
-        this.log('Container', '#' + this.container);
-        $('#' + this.container).load(url, function (response, status, xhr) {
+        self.log(self.widget_id, 'do_load URI', url);
+        self.log('Container', '#' + self.config.container_id);
+        $('#' + self.config.container_id).load(url, function (response, status, xhr) {
             if (status === 'error') {
-                self.log('Error loading station board', xhr.status, xhr.statusText);
-                $('#' + self.container + ' .widget_error').show();
+                self.log(self.widget_id,'Error loading station board', xhr.status, xhr.statusText);
+                $('#' + self.config.container_id + ' .widget_error').show();
             }
             else {
-                $('#' + self.container + ' .widget_error').hide();
+                $('#' + self.config.container_id + ' .widget_error').hide();
             }
             setTimeout(function () { self.do_load(); }, 60000);
         });
-        this.log('do_load done', this.container);
+        self.log(self.widget_id,'do_load done');
     };
 
     this.log = function() {
@@ -76,9 +88,27 @@ function Weather(config, params) {
     //
 
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
+    //
+    // config:
+    //      container_id
+    //      static_url
+    //      height
+    //      width
+    //      settings:
+    //          SMARTPANEL_TRANSPORT_API
+    //
+    // params:
+    //      ( as needed by the active widget )
+    //
+    // returns
+    //  {   valid: function () -> true,
+    //      value: function () -> params as provided by user,
+    //      config: function () -> { title: suitable title for config layout }
+    //  }
+    //
     this.configure = function (config, params) {
 
-        var config_div = document.getElementById(config.config_id);
+        var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (config_div.firstChild) {
@@ -129,21 +159,26 @@ function Weather(config, params) {
         parent_el.appendChild(config_table);
 
         // value() is the function for this input element that returns its value
-        var value = function () {
+        var value_fn = function () {
             var config_params = {};
             // location
             config_params.location = location_result.value();
 
-            self.log(widget_id,'returning params:',config_params);
+            self.log(self.widget_id,'returning params:',config_params);
 
             return config_params;
         };
 
+        var config_fn = function () {
+            return { title: location_result.value() + " Weather" };
+        };
+
         return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
+                 config: config_fn,
+                 value: value_fn };
 
     }// end input_weather()
 
-    this.log('Instantiated Weather', container, params);
+    self.log(self.widget_id, 'Instantiated Weather', params);
 
 }

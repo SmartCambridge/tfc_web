@@ -2,38 +2,48 @@
 
 /*global $ */
 
-function StationBoard(config, params) {
+function StationBoard(widget_id, params) {
 
     'use strict';
 
-    var self = this;
-
     //var DEBUG = ' station_board_log';
+
+    var CONFIG_SHIM = true;
+
+    var self = this;
 
     var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
-    var widget_id = config.container;
+    if (typeof(widget_id) === 'string') {
+        self.widget_id = widget_id;
+    }
+    else {
+        // Backwards compatibility
+        self.config = widget_id;
+        self.widget_id = self.config.container;
+        self.config.container_id = self.config.container;
+        self.params = params;
+    }
 
-    this.container = widget_id; // will remove when we migrate framework to provide widget_id
-
-    // *****************************************************************************
-    // ******** CONFIG DEMO ********************************************************
-    var CONFIG_SHIM = true;
-    var CONFIG_COLOR = '#ffffe6';
-
-    // *****************************************************************************
-
-    self.params = params;
-
+    // backwards compatibility init() function
     this.init = function () {
+        this.log(self.widget_id, 'Running StationBoard.init');
 
-        this.log("Running init", widget_id, 'with params', self.params );
+        this.display(self.config, self.params);
+
+    };
+
+    this.display = function(config, params) {
+
+        self.config = config;
+
+        self.params = params;
 
         // ***********************************************************
         // **   CONFIG DEMO                                         **
         if (CONFIG_SHIM)
         {
-            shim_link(self, widget_id);
+            shim_link(self, self.config.container_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -47,7 +57,7 @@ function StationBoard(config, params) {
     }*/
 
     this.do_load = function () {
-        this.log("Running StationBoard.do_load", widget_id);
+        this.log(self.widget_id, "Running StationBoard.do_load");
         //var self = this;
         var url = "/smartpanel/station_board?station=" + self.params.station;
         if (self.params.offset) {
@@ -55,20 +65,20 @@ function StationBoard(config, params) {
         }
         url += " .content_area";
 
-        this.log("do_load URI", url);
-        this.log("Container", '#' + widget_id);
-        $('#' + widget_id).load(url, function (response, status, xhr) {
+        this.log(self.widget_id, "do_load URI", url);
+        this.log(self.widget_id, "Container", '#' + self.config.container_id);
+        $('#' + self.config.container_id).load(url, function (response, status, xhr) {
             if (status === 'error') {
-                self.log("Error loading station board", xhr.status, xhr.statusText);
-                $('#' + widget_id + ' .widget_error').show();
+                self.log(self.widget_id, "Error loading station board", xhr.status, xhr.statusText);
+                $('#' + self.config.container_id + ' .widget_error').show();
             }
             else {
-                $('#' + widget_id + ' .widget_error').hide();
+                $('#' + self.config.container_id + ' .widget_error').hide();
             }
             setTimeout(function () { self.do_load(); }, 60 * SECONDS);
         });
 
-        this.log("do_load done", widget_id);
+        this.log(self.widget_id, "do_load done");
     };
 
     this.log = function() {
@@ -87,9 +97,9 @@ function StationBoard(config, params) {
 
         var CONFIG_TITLE = 'Configure Train Station Info';
 
-        self.log('StationBoard configuring widget with', config.config_id, params);
+        self.log(self.widget_id, 'StationBoard configuring widget with', config.container_id, params);
 
-        var config_div = document.getElementById(config.config_id);
+        var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (config_div.firstChild) {
@@ -122,7 +132,7 @@ function StationBoard(config, params) {
 
         // Stations select
         //
-        self.log('configure() calling config_input', 'station', 'with',params.station);
+        self.log(self.widget_id, 'configure() calling config_input', 'station', 'with',params.station);
         var station_result = config_input(  parent_el,
                                             'select',
                                             { text: 'Station:',
@@ -137,7 +147,7 @@ function StationBoard(config, params) {
 
         // offset input
         //
-        self.log('configure() calling config_input', 'offset', 'with',params.offset);
+        self.log(self.widget_id, 'configure() calling config_input', 'offset', 'with',params.offset);
         var offset_result = config_input( parent_el,
                                           'number',
                                           { text: 'Timing offset (mins):',
@@ -152,7 +162,7 @@ function StationBoard(config, params) {
         parent_el.appendChild(config_table);
 
         // value() is the function for this input element that returns its value
-        var value = function () {
+        var value_fn = function () {
             var config_params = {};
             // station
             config_params.station = station_result.value();
@@ -163,17 +173,20 @@ function StationBoard(config, params) {
                 config_params.offset = parseInt(offset);
             }
 
-            self.log(widget_id,'returning params:',config_params);
+            self.log(self.widget_id,'returning params:',config_params);
 
             return config_params;
         };
 
-        return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
+        var config_fn = function () { return { title: station_result.value()+' Station' }; };
+
+        return { valid: function () { return true; }, //debug - still to be implemeinted,
+                 config: config_fn,
+                 value: value_fn };
 
     } // end input_widget()
 
-    this.log("Instantiated StationBoard", widget_id, self.params);
+    this.log(self.widget_id, "Instantiated StationBoard", self.params);
 
 } // end StationBoard
 

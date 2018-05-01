@@ -4,36 +4,48 @@
 
 /* exported MessageArea */
 
-function MessageArea(config, params) {
+function MessageArea(widget_id, params) {
 
     'use strict';
 
-    var self = this;
-
     var DEBUG = ' message_area_log';
 
-    var widget_id = config.container;
-
-    this.container = widget_id; // will remove when we migrate framework to provide widget_id
-
-    // *****************************************************************************
-    // ******** CONFIG DEMO ********************************************************
     var CONFIG_SHIM = true;
-    var CONFIG_COLOR = '#ffffe6';
 
-    // *****************************************************************************
+    var self = this;
 
-    self.params = params;
+    var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
+    if (typeof(widget_id) === 'string') {
+        self.widget_id = widget_id;
+    }
+    else {
+        // Backwards compatibility
+        self.config = widget_id; // widget_id actually contains the 'config' object in legacy mode
+        self.widget_id = self.config.container;
+        self.config.container_id = self.config.container;
+        self.params = params;
+    }
+
+    // backwards compatibility init() function
     this.init = function () {
+        this.log(self.widget_id, 'Running MessageArea.init');
 
-        this.log("Running init", widget_id, 'with params', self.params );
+        this.display(self.config, self.params);
+
+    };
+
+    this.display = function(config, params) {
+
+        self.config = config;
+
+        self.params = params;
 
         // ***********************************************************
         // **   CONFIG DEMO                                         **
         if (CONFIG_SHIM)
         {
-            shim_link(self, widget_id);
+            shim_link(self, self.config.container_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -47,9 +59,9 @@ function MessageArea(config, params) {
     }*/
 
     this.do_load = function () {
-        this.log('Running do_load', widget_id);
+        this.log(self.widget_id, 'Running MessageArea.do_load');
 
-        var container = document.getElementById(this.container);
+        var container = document.getElementById(self.config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (container.firstChild) {
@@ -58,7 +70,7 @@ function MessageArea(config, params) {
 
         var title = document.createElement('h1');
         var img = document.createElement('img');
-        img.setAttribute('src', config.static_url + 'black-bubble-speech.png');
+        img.setAttribute('src', self.config.static_url + 'black-bubble-speech.png');
         img.setAttribute('alt', '');
         title.appendChild(img);
         title.appendChild(document.createTextNode(' '));
@@ -69,7 +81,7 @@ function MessageArea(config, params) {
         message.innerHTML = safe(self.params.message);
         container.appendChild(message);
 
-        this.log(widget_id,'do_load done');
+        this.log(self.widget_id,'do_load done');
     };
 
     function safe(dirty) {
@@ -100,9 +112,9 @@ function MessageArea(config, params) {
 
         var CONFIG_TITLE = 'Configure Message Info';
 
-        self.log('StationBoard configuring widget with', config.config_id, params);
+        self.log(self.widget_id, 'StationBoard configuring widget with', config.container_id, params);
 
-        var config_div = document.getElementById(config.config_id);
+        var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (config_div.firstChild) {
@@ -158,7 +170,7 @@ function MessageArea(config, params) {
         parent_el.appendChild(config_table);
 
         // value() is the function for this input element that returns its value
-        var value = function () {
+        var value_fn = function () {
             var config_params = {};
             // title
             config_params.title = title_result.value();
@@ -166,13 +178,18 @@ function MessageArea(config, params) {
             // message
             config_params.message = message_result.value();
 
-            self.log(widget_id,'returning params:',config_params);
+            self.log(self.widget_id,'returning params:',config_params);
 
             return config_params;
         };
 
+        var config_fn = function () {
+            return { title: title_result.value() };
+        };
+
         return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
+                 config: config_fn,
+                 value: value_fn };
 
     }// end input_widget()
 
