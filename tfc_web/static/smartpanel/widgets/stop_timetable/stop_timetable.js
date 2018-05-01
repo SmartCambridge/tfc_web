@@ -52,26 +52,26 @@ not rerun before then for other reasons.
 
 */
 
-function StopTimetable(config, params) {
+function StopTimetable(widget_id, params) {
 
     'use strict';
 
-    //var DEBUG = ' stop_timetable_log';
+    var DEBUG = ' stop_timetable_log';
+
+    var CONFIG_SHIM = true;
 
     var self = this;
 
-    var widget_id = config.container;
-
-    this.container = widget_id; // will remove when we migrate framework to provide widget_id
-
-    // *****************************************************************************
-    // ******** CONFIG DEMO ********************************************************
-    var CONFIG_SHIM = true;
-    var CONFIG_COLOR = '#ffffe6';
-
-    // *****************************************************************************
-
-    this.params = params;
+    if (typeof(widget_id) === 'string') {
+        self.widget_id = widget_id;
+    }
+    else {
+        // Backwards compatibility
+        self.config = widget_id; // widget_id actually contains the 'config' object in legacy mode
+        self.widget_id = self.config.container;
+        self.config.container_id = self.config.container;
+        self.params = params;
+    }
 
     // Symbolic constants
 
@@ -127,9 +127,20 @@ function StopTimetable(config, params) {
 
     // ==== Initialisation/startup functions ===========================
 
-    this.init = function() {
+    // backwards compatibility init() function
+    this.init = function () {
+        self.log('Running StopTimetable.init with', self.params);
 
-        self.log('Running StopTimetable.init', widget_id, 'with', self.params);
+        self.display(self.config, self.params);
+    };
+
+    this.display = function(config, params) {
+
+        self.config = config;
+
+        self.params = params;
+
+        self.log('Running StopTimetable.display with', self.params);
 
         journey_table = [];
 
@@ -147,7 +158,7 @@ function StopTimetable(config, params) {
         add_box_to_params_destinations_areas();
 
         // Set up the HTML skeleton of the container
-        initialise_container(widget_id);
+        initialise_container(self.config.container_id);
 
         // Populate the journey table. As a side effect, this updates
         // the display, starts the refresh timer and subscribes to
@@ -159,7 +170,7 @@ function StopTimetable(config, params) {
         // **   CONFIG DEMO                                         **
         if (CONFIG_SHIM)
         {
-            shim_link(self, widget_id);
+            shim_link(self, self.config.container_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -201,7 +212,7 @@ function StopTimetable(config, params) {
 
         var title = document.createElement('h1');
         var img = document.createElement('img');
-        img.setAttribute('src', config.static_url + 'bus.png');
+        img.setAttribute('src', self.config.static_url + 'bus.png');
         title.appendChild(img);
         title.appendChild(document.createTextNode(' '));
         title.appendChild(document.createTextNode(self.params.title));
@@ -250,10 +261,10 @@ function StopTimetable(config, params) {
             //     than 02:00 or later than 22:00
             var minutes = Math.random()*60;
             var tomorrow = moment().add(1, 'd').hour(4).minute(minutes);
-            console.log('[' + widget_id + ']', 'Scheduling next populate_journeys for', tomorrow.format());
+            console.log('[' + self.widget_id + ']', 'Scheduling next populate_journeys for', tomorrow.format());
             var timer = window.setInterval(function () {
                 if (moment().isAfter(tomorrow)) {
-                    console.log('[' + widget_id + ']', 'Re-running populate_journeys');
+                    console.log('[' + self.widget_id + ']', 'Re-running populate_journeys');
                     clearInterval(timer);
                     populate_journeys();
                 }
@@ -301,7 +312,7 @@ function StopTimetable(config, params) {
             if(xhr.readyState === XMLHttpRequest.DONE) {
                 var api_result = JSON.parse(xhr.responseText);
                 if (xhr.status !== 200) {
-                    log('get_journey_batch - API error, status', xhr.status, api_result.details);
+                    self.log('get_journey_batch - API error, status', xhr.status, api_result.details);
                 }
                 else {
                     var added = add_journeys(iteration,api_result);
@@ -448,7 +459,7 @@ function StopTimetable(config, params) {
     function rtmonitor_disconnected() {
         // this function is called by RTMonitorAPI if it DISCONNECTS from server
         self.log('stop_timetable rtmonitor_disconnected');
-        document.getElementById(widget_id+'_connection').style.display = 'inline-block';
+        document.getElementById(self.config.container_id+'_connection').style.display = 'inline-block';
         // Drop our record of the subscriptions that just evaporated
         for (var i = 0; i < journey_table.length; i++) {
             var journey = journey_table[i];
@@ -460,7 +471,7 @@ function StopTimetable(config, params) {
     function rtmonitor_connected() {
         // this function is called by RTMonitorAPI each time it has CONNECTED to server
         self.log('stop_timetable rtmonitor_connected');
-        document.getElementById(widget_id+'_connection').style.display = 'none';
+        document.getElementById(self.config.container_id+'_connection').style.display = 'none';
         // Re-establish all the subscriptions that we need
         refresh_subscriptions();
     }
@@ -519,7 +530,7 @@ function StopTimetable(config, params) {
         var timetable_time = time.clone().tz(TIMETABLE_TIMEZONE);
         var realtime_time = time.clone().tz(REALTIME_TIMEZONE);
         var request_id = stop_id+'_'+timetable_time.format('HH:mm:ss');
-        self.log('subscribe - caller '+widget_id+' subscribing to', request_id);
+        self.log('subscribe - caller '+self.widget_id+' subscribing to', request_id);
 
         var request_obj = {
                 filters:
@@ -537,7 +548,7 @@ function StopTimetable(config, params) {
                     ]
             };
 
-        var request_status = RTMONITOR_API.subscribe(widget_id, request_id, request_obj, handle_message);
+        var request_status = RTMONITOR_API.subscribe(self.widget_id, request_id, request_obj, handle_message);
 
         if (request_status.status !== 'rt_ok') {
             self.log('subscribe failed ', JSON.stringify(request_status));
@@ -728,10 +739,10 @@ function StopTimetable(config, params) {
 
             var url;
             if (fresh_timestamp(journey)) {
-                url = config.static_url + '/images/signal6.gif';
+                url = self.config.static_url + 'images/signal6.gif';
             }
             else {
-                url = config.static_url + '/timetable-outline.png';
+                url = self.config.static_url + 'timetable-outline.png';
             }
             cell = document.createElement('td');
             cell.classList.add('icon');
@@ -921,10 +932,10 @@ function StopTimetable(config, params) {
 
             var url;
             if (row.realtime) {
-                url = config.static_url + '/images/signal6.gif';
+                url = self.config.static_url + 'images/signal6.gif';
             }
             else {
-                url = config.static_url + '/timetable-outline.png';
+                url = self.config.static_url + 'timetable-outline.png';
             }
             td = document.createElement('td');
             td.classList.add('icon');
@@ -1246,10 +1257,10 @@ function StopTimetable(config, params) {
                     // Realtime indicator
                     var url;
                     if (fresh_timestamp(journey)) {
-                        url = config.static_url + '/images/signal6.gif';
+                        url = self.config.static_url + 'images/signal6.gif';
                     }
                     else {
-                        url = config.static_url + '/timetable-outline.png';
+                        url = self.config.static_url + 'timetable-outline.png';
                     }
                     cell = document.createElement('td');
                     cell.classList.add('icon');
@@ -1292,7 +1303,7 @@ function StopTimetable(config, params) {
     this.log = function () {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('stop_timetable_log') >= 0) {
             var args = [].slice.call(arguments);
-            args.unshift('[' + widget_id + ']');
+            args.unshift('[' + self.widget_id + ']');
             console.log.apply(console, args);
         }
     }
@@ -1433,9 +1444,9 @@ function StopTimetable(config, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
-        self.log('StopTimetable configuring widget with', config.config_id);
+        self.log('StopTimetable configuring widget with', config.container_id);
 
-        var config_div = document.getElementById(config.config_id);
+        var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (config_div.firstChild) {
@@ -1566,7 +1577,7 @@ function StopTimetable(config, params) {
         }
 
         // value() is the function for this input element that returns its value
-        var value = function () {
+        var value_fn = function () {
             var config_params = {};
             // title
             config_params.title = title_result.value();
@@ -1590,8 +1601,13 @@ function StopTimetable(config, params) {
             return config_params;
         }
 
+        var config_fn = function () {
+            return { title: title_result.value() };
+        };
+
         return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
+                 config: config_fn,
+                 value: value_fn };
 
     }// end input_stop-timetable()
 
@@ -1638,7 +1654,7 @@ function StopTimetable(config, params) {
         td_value.appendChild(destinations_table);
 
         // create (+) add an element button
-        var plus_url = config.static_url + 'images/plus.png';
+        var plus_url = self.config.static_url + 'images/plus.png';
         var plus_img = document.createElement('img');
         plus_img.setAttribute('src', plus_url);
         plus_img.setAttribute('alt', 'Add');
@@ -1646,7 +1662,7 @@ function StopTimetable(config, params) {
         plus_img.className = 'widget_config_plus';
         // now set the onlclick callback for the (+) button to add another destination input element
         var plus_onclick = function () {
-            self.log(widget_id,'plus_onclick called');
+            self.log('plus_onclick called');
             destination_values.push(input_destination(tbody,null));
         }
         plus_img.onclick = plus_onclick;
@@ -1684,7 +1700,7 @@ function StopTimetable(config, params) {
         td.className = 'widget_config_repeating_element';
 
         // create (x) delete this element button
-        var x_url = config.static_url + 'images/x.png';
+        var x_url = self.config.static_url + 'images/x.png';
         var x_img = document.createElement('img');
         x_img.setAttribute('src', x_url);
         x_img.setAttribute('alt', 'Delete');
@@ -1695,7 +1711,7 @@ function StopTimetable(config, params) {
         var removed = false;
 
         var x_onclick = function () {
-            self.log(widget_id,'x_onclick called');
+            self.log('x_onclick called');
             removed = true;
             tr.remove();
         }
@@ -1761,7 +1777,7 @@ function StopTimetable(config, params) {
                  valid: function () { return true; } };
     } // end input_stop_list
 
-    self.log('Instantiated StopTimetable', widget_id, params);
+    self.log('Instantiated StopTimetable', params);
 
 }    // END of 'class' StopTimetable
 

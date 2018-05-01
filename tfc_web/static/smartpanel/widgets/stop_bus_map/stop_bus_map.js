@@ -15,30 +15,26 @@
 //                       zoom: 15,
 //                       stops: [  { lat:, lng:, common_name: } ... ]
 //
-function StopBusMap(config, params) {
+function StopBusMap(widget_id, params) {
+
+    'use strict';
+
+    //var DEBUG = ' stop_bus_map_log';
+
+    var CONFIG_SHIM = true;
 
     var self = this;
 
-    var STATIC_URL;
-
-    STATIC_URL = config.static_url;
-
-    var DEBUG = ' stop_bus_map_log';
-
-    var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
-
-    var widget_id = config.container;
-
-    this.container = widget_id; // will remove when we migrate framework to provide widget_id
-
-    // *****************************************************************************
-    // ******** CONFIG DEMO ********************************************************
-    var CONFIG_SHIM = true;
-    var CONFIG_COLOR = '#ffffe6';
-
-    // *****************************************************************************
-
-    self.params = params;
+    if (typeof(widget_id) === 'string') {
+        self.widget_id = widget_id;
+    }
+    else {
+        // Backwards compatibility
+        self.config = widget_id; // widget_id actually contains the 'config' object in legacy mode
+        self.widget_id = self.config.container;
+        self.config.container_id = self.config.container;
+        self.params = params;
+    }
 
     var sensors = {};
 
@@ -48,6 +44,11 @@ function StopBusMap(config, params) {
 
     var progress_indicators = {}; // dictionary by VehicleRef
 
+    var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
+
+    var oldsensorIcon;
+
+
     var OLD_DATA_RECORD = 70; // time (s) threshold where a data record is considered 'old'
 
     var OBSOLETE_DATA_RECORD = 140; // at this age, we discard the sensor
@@ -55,6 +56,8 @@ function StopBusMap(config, params) {
     var PROGRESS_MIN_DISTANCE = 20;
 
     var CRUMB_COUNT = 400; // how many breadcrumbs to keep on the page
+
+    var BUS_SPEED = 7; // m/s speed of buses for 'pac-man' bus position indicator
 
     // Here we define the 'data record format' of the incoming websocket feed
     var RECORD_INDEX = 'VehicleRef';  // data record property that is primary key
@@ -67,14 +70,8 @@ function StopBusMap(config, params) {
 
     // *****************
     //
-    var ICON_URL = STATIC_URL+'/images/bus-logo.png';
 
     var icon_size = 'L';
-
-    var oldsensorIcon = L.icon({
-        iconUrl: ICON_URL,
-        iconSize: [20, 20]
-    });
 
     var crumbs = []; // array to hold breadcrumbs as they are drawn
 
@@ -82,14 +79,29 @@ function StopBusMap(config, params) {
 
     var connected = false; // global to record state of connection to rt_monitor real-time data
 
-    this.init = function() {
-        self.log(widget_id,"init()", self.params);
+    // backwards compatibility init() function
+    this.init = function () {
+        self.log(self.widget_id, 'Running BusStopMap.init');
+
+        self.display(self.config, self.params);
+    };
+
+    this.display = function(config, params) {
+
+        self.config = config;
+
+        self.params = params;
+
+        oldsensorIcon = L.icon({
+            iconUrl: self.config.static_url+'images/bus-logo.png',
+            iconSize: [20, 20]
+        });
 
         sensors = {}; // this is the array of buses seen so far
 
         progress_indicators = {}; // these are the 'pac-man' indicators showing bus progress
 
-        var container_el = document.getElementById(config.container);
+        var container_el = document.getElementById(self.config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF)
         while (container_el.firstChild) {
@@ -98,15 +110,15 @@ function StopBusMap(config, params) {
 
         var connection_div = document.createElement('div');
         connection_div.setAttribute('class','stop_bus_map_connection_div');
-        connection_div.setAttribute('id', config.container+'_connection');
+        connection_div.setAttribute('id', self.config.container_id+'_connection');
         connection_div.appendChild(document.createTextNode("Connection issues"));
         container_el.appendChild(connection_div);
 
         var title_h1 = document.createElement('h1');
         title_h1.setAttribute('class', 'stop_bus_map_title_h1');
-        title_h1.setAttribute('id', config.container+'_title_h1');
+        title_h1.setAttribute('id', self.config.container_id+'_title_h1');
         var img = document.createElement('img');
-        img.setAttribute('src', config.static_url + 'images/bus.png');
+        img.setAttribute('src', self.config.static_url + 'images/bus.png');
         title_h1.appendChild(img);
         title_h1.appendChild(document.createTextNode(' '));
         title_h1.appendChild(document.createTextNode(self.params.title));
@@ -115,7 +127,7 @@ function StopBusMap(config, params) {
 
         var map_div = document.createElement('div');
         map_div.setAttribute('class','stop_bus_map_div');
-        map_div.setAttribute('id', config.container+'_map');
+        map_div.setAttribute('id', self.config.container_id+'_map');
         container_el.appendChild(map_div);
 
         map = L.map(map_div, { zoomControl:false }).setView([self.params.map.lat, self.params.map.lng], self.params.map.zoom);
@@ -129,10 +141,10 @@ function StopBusMap(config, params) {
 
         // if we're already connected to rt_monitor perhaps this is a re-init of existing widget
         if (connected) {
-            self.log(widget_id, 'init() already connected to rt_monitor');
+            self.log(self.widget_id, 'init() already connected to rt_monitor');
             subscribe();
         } else {
-            self.log(widget_id, 'init() not connected to rt_monitor');
+            self.log(self.widget_id, 'init() not connected to rt_monitor');
         }
 
         draw_stops(self.params.stops);
@@ -144,12 +156,11 @@ function StopBusMap(config, params) {
         // **   CONFIG DEMO                                         **
         if (CONFIG_SHIM)
         {
-            shim_link(self, widget_id);
+            shim_link(self, self.config.container_id);
         }
         // **                                                       **
         // ***********************************************************
 
-        do_load();
     };
 
     /*this.reload = function() {
@@ -157,29 +168,24 @@ function StopBusMap(config, params) {
         this.do_load();
     }*/
 
-function do_load()
-{
-    self.log(widget_id, "Running StopBusMap.do_load");
-}
-
 function rtmonitor_disconnected()
 {
-    self.log(widget_id, 'stop_bus_map rtmonitor_disconnected (connected was',connected,')');
+    self.log(self.widget_id, 'stop_bus_map rtmonitor_disconnected (connected was',connected,')');
     connected = false;
-    document.getElementById(config.container+'_connection').style.display = 'inline-block';
+    document.getElementById(self.config.container_id+'_connection').style.display = 'inline-block';
 }
 
 function rtmonitor_connected()
 {
-    self.log(widget_id, 'stop_busi_map rtmonitor_connected (connected was',connected,')');
+    self.log(self.widget_id, 'stop_busi_map rtmonitor_connected (connected was',connected,')');
     connected = true;
-    document.getElementById(config.container+'_connection').style.display = 'none';
+    document.getElementById(self.config.container_id+'_connection').style.display = 'none';
     subscribe();
 }
 
 function subscribe()
 {
-    self.log(widget_id, 'subscribe() sending request');
+    self.log(self.widget_id, 'subscribe() sending request');
 
     var map_bounds = map.getBounds();
 
@@ -210,19 +216,19 @@ function subscribe()
                                   ]
                         } ] };
 
-    var request_status = RTMONITOR_API.subscribe(config.container,
+    var request_status = RTMONITOR_API.subscribe(self.widget_id,
                                                  request_id,
                                                  request,
                                                  handle_records);
 
-    self.log(widget_id, 'request_status '+request_status.status);
+    self.log(self.widget_id, 'request_status '+request_status.status);
 }
 
 // We have received data from a previously unseen sensor, so initialize
 function create_sensor(msg, clock_time)
 {
     // new sensor, create marker
-    self.log('stop_bus_map ** New '+msg[RECORD_INDEX]);
+    self.log(self.widget_id, 'stop_bus_map ** New '+msg[RECORD_INDEX]);
 
     var sensor_id = msg[RECORD_INDEX];
 
@@ -233,9 +239,9 @@ function create_sensor(msg, clock_time)
     var marker_icon = create_sensor_icon(msg);
 
     sensor['marker'] = L.Marker.movingMarker([[msg[RECORD_LAT], msg[RECORD_LNG]],
-                                                   [msg[RECORD_LAT], msg[RECORD_LNG]]],
-                                                  [1000],
-                                                  {icon: marker_icon});
+                                              [msg[RECORD_LAT], msg[RECORD_LNG]]],
+                                             [1 * SECONDS],
+                                             {icon: marker_icon});
     sensor['marker']
         .addTo(map)
         .bindPopup(popup_content(msg), { className: "sensor-popup"})
@@ -284,7 +290,7 @@ function update_sensor(msg, clock_time)
             }
 
             var marker = sensors[sensor_id].marker;
-		    marker.moveTo([pos.lat, pos.lng], [1000] );
+		    marker.moveTo([pos.lat, pos.lng], [1 * SECONDS] );
 		    marker.resume();
 
             // update tooltip and popup
@@ -309,7 +315,7 @@ function timer_update()
     {
         if (sensors.hasOwnProperty(sensor_id) && sensors[sensor_id].state.obsolete)
         {
-            self.log('culling '+sensor_id);
+            self.log(self.widget_id, 'culling '+sensor_id);
             delete sensors[sensor_id];
 
             if (progress_indicators[sensor_id])
@@ -367,11 +373,9 @@ function draw_progress_indicator(sensor)
 
         //self.log(sensor_id+' at '+(new Date())+' vs '+msg.received_timestamp);
 
-        var bus_speed = 7; // m/s
-
         var time_delta = ((new Date()).getTime() - sensor.msg.received_timestamp.getTime()) / 1000;
 
-        var progress_distance = Math.max(20, time_delta * bus_speed);
+        var progress_distance = Math.max(20, time_delta * BUS_SPEED);
 
         //self.log('progress_distance '+sensor_id+' '+Math.round(time_delta*10)/10+'s '+Math.round(progress_distance)+'m';
 
@@ -451,7 +455,7 @@ function update_old_status(sensor, clock_time)
             return;
         }
         // set the 'old' flag on this record and update icon
-        self.log('update_old_status OLD '+sensor.msg[RECORD_INDEX]);
+        self.log(self.widget_id, 'update_old_status OLD '+sensor.msg[RECORD_INDEX]);
         sensor.state.old = true;
         sensor.marker.setIcon(oldsensorIcon);
     }
@@ -675,7 +679,7 @@ function more_content(sensor_id)
 function handle_records(incoming_data)
 {
     //var incoming_data = JSON.parse(websock_data);
-    self.log('handle_records'+incoming_data['request_data'].length);
+    self.log(self.widget_id, 'handle_records'+incoming_data['request_data'].length);
     for (var i = 0; i < incoming_data[RECORDS_ARRAY].length; i++)
     {
 	    handle_msg(incoming_data[RECORDS_ARRAY][i], new Date());
@@ -761,9 +765,9 @@ function draw_stop(stop)
 
         var CONFIG_TITLE = 'Configure Real-Time Bus Map';
 
-        self.log('StopBusMap configuring widget with', config.config_id, params);
+        self.log(self.widget_id, 'StopBusMap configuring widget with', config.container_id, params);
 
-        var config_div = document.getElementById(config.config_id);
+        var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (config_div.firstChild) {
@@ -796,7 +800,7 @@ function draw_stop(stop)
 
         // Title input
         //
-        self.log('configure() calling config_input', 'title', 'with',params.title);
+        self.log(self.widget_id, 'configure() calling config_input', 'title', 'with',params.title);
         var title_result = config_input( parent_el,
                                           'string',
                                           { text: 'Title:',
@@ -804,12 +808,12 @@ function draw_stop(stop)
                                           },
                                           params.title);
 
-        self.log('configure() calling input_map', 'map', 'with',params.map);
+        self.log(self.widget_id, 'configure() calling input_map', 'map', 'with',params.map);
         var map_result = input_map( parent_el, params.map);
 
         // Breadcrumbs  select BOOLEAN
         //
-        self.log('configure() calling config_input', 'breadcrumbs', 'with',params.breadcrumbs);
+        self.log(self.widget_id, 'configure() calling config_input', 'breadcrumbs', 'with',params.breadcrumbs);
         var breadcrumbs_result = config_input(  parent_el,
                                             'select',
                                             { text: 'Breadcrumbs:',
@@ -830,7 +834,7 @@ function draw_stop(stop)
         parent_el.appendChild(config_table);
 
         // value() is the function for this input element that returns its value
-        var value = function () {
+        var value_fn = function () {
             var config_params = {};
             // title
             config_params.title = title_result.value(); // string
@@ -844,13 +848,18 @@ function draw_stop(stop)
             // stops
             config_params.stops = stops_result.value(); // [ { lat:, lng:, common_name: } .. ]
 
-            self.log(widget_id,'input_widget returning params:',config_params);
+            self.log(self.widget_id,'input_widget returning params:',config_params);
 
             return config_params;
         };
 
+        var config_fn = function () {
+            return { title: title_result.value() };
+        };
+
         return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
+                 config: config_fn,
+                 value: value_fn };
 
     } // end input_widget()i
 
@@ -894,11 +903,11 @@ function draw_stop(stop)
             if (!isNaN(zoom) && zoom >= 0 && zoom <= 18) {
                 config_params.zoom = zoom;
             } else {
-                self.log(widget_id,'input_map bad zoom value');
+                self.log(self.widget_id,'input_map bad zoom value');
                 config_params.zoom = 15;
             }
 
-            self.log(widget_id,'input_map returning params:',config_params);
+            self.log(self.widget_id,'input_map returning params:',config_params);
 
             return config_params;
         };
@@ -908,12 +917,13 @@ function draw_stop(stop)
 
     } // end input_map
 
+    //DEBUG this is a stub
     function input_stops(parent_el, stops_param) {
 
         var value = function () {
             var config_params = [ { lat: 52.21129, lng: 0.09107, common_name: 'Gates Bldg' } ];
 
-            self.log(widget_id,'input_stops returning params:',config_params);
+            self.log(self.widget_id,'input_stops returning params:',config_params);
 
             return config_params;
 
