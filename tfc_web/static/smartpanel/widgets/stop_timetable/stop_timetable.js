@@ -1414,8 +1414,7 @@ function StopTimetable(widget_id, params) {
     //   where:
     //
     //     config: will be an object including
-    //         widget_id: (currently container) - the DOM Id of the widget element
-    //         config_id: the DOM Id of the DIV toi use for the configuration form
+    //         container_id: the DOM Id of the DIV toi use for the configuration form
     //         configuration_callback: a function (config,params) the widget will call
     //                                 on configuration save or cancel.
     //                                 On cancel, params will be null.
@@ -1596,7 +1595,7 @@ function StopTimetable(widget_id, params) {
                 config_params.destinations = destinations_result.value();
             }
 
-            self.log(widget_id,'input_stop_timetable returning params:',config_params);
+            self.log(self.widget_id,'input_stop_timetable returning params:',config_params);
 
             return config_params;
         }
