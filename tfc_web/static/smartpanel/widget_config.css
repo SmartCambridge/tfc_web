@@ -8,15 +8,16 @@
     position: absolute;
     top: 100px;
     left: 800px;
+    font-family: Arial, sans-serif;
     /* display: none; */
 }
 
-.widget_config > h1 {
+.widget_config h1 {
     text-align: center;
     margin: 5px;
 }
 
-.widget_config > form {
+.widget_config form {
     padding: 4px;
     font-size:  14px;
     color: #333;

@@ -3,37 +3,48 @@
 /*global $, DEBUG */
 /* exported TwitterTimeline */
 
-function TwitterTimeline(config, params) {
+function TwitterTimeline(widget_id, params) {
 
     'use strict';
 
-    var self = this;
+    //var DEBUG = ' twitter_timeline_log';
 
-    //var DEBUG = ' station_board_log';
+    var CONFIG_SHIM = true;
+
+    var self = this;
 
     var SECONDS = 1000; // '000 milliseconds for setTimeout/setInterval
 
-    var widget_id = config.container;
+    if (typeof(widget_id) === 'string') {
+        self.widget_id = widget_id;
+    }
+    else {
+        // Backwards compatibility
+        self.config = widget_id; // widget_id actually contains the 'config' object in legacy mode
+        self.widget_id = self.config.container;
+        self.config.container_id = self.config.container;
+        self.params = params;
+    }
 
-    this.container = widget_id; // will remove when we migrate framework to provide widget_id
-
-    // *****************************************************************************
-    // ******** CONFIG DEMO ********************************************************
-    var CONFIG_SHIM = true;
-    var CONFIG_COLOR = '#ffffe6';
-
-    // *****************************************************************************
-
-    this.params = params;
-
+    // backwards compatibility init() function
     this.init = function () {
-        this.log('Running init', this.container);
+        this.log(self.widget_id, 'Running TwitterTimeline.init');
+
+        this.display(self.config, self.params);
+
+    };
+
+    this.display = function(config, params) {
+
+        self.config = config;
+
+        self.params = params;
 
         // ***********************************************************
         // **   CONFIG DEMO                                         **
         if (CONFIG_SHIM)
         {
-            shim_link(self, widget_id);
+            shim_link(self, self.config.container_id);
         }
         // **                                                       **
         // ***********************************************************
@@ -47,20 +58,20 @@ function TwitterTimeline(config, params) {
     }*/
 
     this.do_load = function () {
-        this.log('Running do_load', this.container);
-        var container_width = $('#' + this.container).width(),
-            container_height = $('#' + this.container).height(),
+        self.log(self.widget_id, 'Running do_load');
+        var container_width = $('#' + self.config.container_id).width(),
+            container_height = $('#' + self.config.container_id).height(),
             tag = $('<a class="twitter-timeline" ' +
                 'data-lang="en" ' +
                 'data-width="' + container_width + '" ' +
                 'data-height="' + container_height + '" ' +
                 'data-dnt="true" ' +
                 'data-link-color="#000000"' +
-                'href="https://twitter.com/' + this.params.who + '">Tweets by ' + this.params.who + ' </a>' +
+                'href="https://twitter.com/' + self.params.who + '">Tweets by ' + self.params.who + ' </a>' +
                 '<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>');
         this.log('do_load (height,width)', container_height, container_width);
-        $('#' + this.container).empty().append(tag);
-        this.log('do_load done', this.container);
+        $('#' + self.config.container_id).empty().append(tag);
+        this.log(self.widget_id, 'do_load done');
     };
 
     this.log = function() {
@@ -79,7 +90,7 @@ function TwitterTimeline(config, params) {
 
         var CONFIG_TITLE = 'Configure Twitter Timeline';
 
-        var config_div = document.getElementById(config.config_id);
+        var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
         while (config_div.firstChild) {
@@ -124,21 +135,26 @@ function TwitterTimeline(config, params) {
         parent_el.appendChild(config_table);
 
         // value() is the function for this input element that returns its value
-        var value = function () {
+        var value_fn = function () {
             var config_params = {};
             // station
             config_params.who = who_result.value();
 
-            self.log(widget_id,'returning params:',config_params);
+            self.log(self.widget_id,'returning params:',config_params);
 
             return config_params;
         };
 
+        var config_fn = function () {
+            return { title: who_result.value() + " Tweets" };
+        };
+
         return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
+                 config: config_fn,
+                 value: value_fn };
 
     }// end input_twitter_timeline()
 
-    this.log('Instantiated TwitterTimeline',widget_id,params);
+    this.log(self.widget_id,'Instantiated TwitterTimeline',params);
 
 }
