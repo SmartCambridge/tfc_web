@@ -36,23 +36,29 @@
 </head>
 <body>
     <div class="header" style="height: 60px; margin-left: 20px;">
-        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-design-edit' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post">
+        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-design-edit' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-top: 10px; margin-left: 10px;">
             {% csrf_token %}
             <input id="design" name="design" type="text" hidden>
-            <div class="mdl-textfield mdl-js-textfield" style="margin-right: 10px">
+            <div class="mdl-textfield mdl-js-textfield" style="padding: 0;">
                 <label for="name" class="mdl-textfield__label">Layout name</label>
                 <input id="name" name="name" type="text" required class="mdl-textfield__input"{% if layout %} value="{{ layout.name }}"{% endif %}>
             </div>
             <input id="save" type="submit" value="save configuration"
                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
-        {% if layout %}
-            <a href="{% url 'smartpanel-layout-config' layout.id %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
-        {% endif %}
-            <a id="add-widget" href="#add-widget"
-               class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">add widget</a>
-            <a href="{% url 'smartpanel-home' %}"
-               class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Home Page</a>
         </form>
+        <a id="add-widget" href="#add-widget" style="float: left; margin-top: 10px; margin-left: 10px;"
+           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">add widget</a>
+        {% if layout %}
+            <form action="{% url 'smartpanel-layout-delete' layout.id %}" method="post" style="float: left; margin-top: 10px; margin-left: 10px;">
+                {% csrf_token %}
+                <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete Design">
+            </form>
+            <a href="{% url 'smartpanel-layout-my' %}" style="float: left; margin-top: 10px; margin-left: 10px;"
+               class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+        {% else %}
+            <a href="{% url 'smartpanel-home' %}" style="float: left; margin-top: 10px; margin-left: 10px;"
+               class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Home Page</a>
+        {% endif %}
     </div>
     <div class="grid-container mdl-color--teal-900" style="width: 1920px; height: 1020px; padding: 1px 1px 2px 1px; overflow: hidden;">
         <div class="grid-stack grid-stack-6">
