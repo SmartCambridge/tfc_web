@@ -120,7 +120,7 @@ def layout_config(request, layout_id):
         if 'configuration' in value and value['configuration']['widget'] not in uwl:
             uwl.append(value['configuration']['widget'])
     dependencies_files_list = generate_dependencies_files_list(uwl)
-    return render(request, 'smartpanel/layout_config.html',
+    return render(request, 'smartpanel/layout_config_new.html',
                   {'layout': layout, 'confdata': generate_layout_configuration(layout),
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(),
                    'stylesheets': dependencies_files_list[0], 'scripts': dependencies_files_list[1],

@@ -145,3 +145,31 @@
     padding-top: 30px;
     font-size: 26px;
 }
+
+#overlay-configure-widget {
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+    background-color: rgba(0,0,0,0.75);
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#configuration-widget-div {
+    height: 50%;
+    min-height: 400px;
+    width: 50%;
+    min-width: 600px;
+    background-color: white;
+    padding: 10px;
+}
+
+#configuration-widget-form {
+    height: 100%;
+    margin-bottom: -40px;
+    overflow: scroll;
+}
