@@ -165,15 +165,6 @@ function StopTimetable(widget_id, params) {
         // real-time updates
         populate_journeys();
 
-
-        // ***********************************************************
-        // **   CONFIG DEMO                                         **
-        if (CONFIG_SHIM)
-        {
-            shim_link(self, self.config.container_id);
-        }
-        // **                                                       **
-        // ***********************************************************
     };
 
 

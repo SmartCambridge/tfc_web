@@ -40,15 +40,6 @@ function TwitterTimeline(widget_id, params) {
 
         self.params = params;
 
-        // ***********************************************************
-        // **   CONFIG DEMO                                         **
-        if (CONFIG_SHIM)
-        {
-            shim_link(self, self.config.container_id);
-        }
-        // **                                                       **
-        // ***********************************************************
-
         this.do_load();
     };
 

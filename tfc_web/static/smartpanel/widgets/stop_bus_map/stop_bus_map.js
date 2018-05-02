@@ -152,15 +152,6 @@ function StopBusMap(widget_id, params) {
         // create a timer to update the progress indicators every second
         progress_timer = setInterval( timer_update, SECONDS);
 
-        // ***********************************************************
-        // **   CONFIG DEMO                                         **
-        if (CONFIG_SHIM)
-        {
-            shim_link(self, self.config.container_id);
-        }
-        // **                                                       **
-        // ***********************************************************
-
     };
 
     /*this.reload = function() {
