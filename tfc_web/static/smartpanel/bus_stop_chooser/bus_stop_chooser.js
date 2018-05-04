@@ -7,7 +7,7 @@ var BusStopChooser = (function() {
     'use strict';
 
     // TODO: Move to smartcambridge.org when available there (#1)
-    var STOPS_API_ENDPOINT = 'http://tfc-app4.cl.cam.ac.uk/transport/api/stops';
+    var DEFAULT_ENDPOINT = 'http://tfc-app4.cl.cam.ac.uk/transport/api';
 
     var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var OSM_MAX_ZOOM = 19;
@@ -69,6 +69,7 @@ var BusStopChooser = (function() {
             var zoom = params.zoom || 15;
             var multi_select = params.multi_select || false;
             var zoom_threshold = params.zoom_threshold || 15;
+            var api_endpoint = params.api_endpoint || DEFAULT_ENDPOINT;
 
             var map;
             var osm = new L.TileLayer(OSM_TILES,
@@ -93,12 +94,12 @@ var BusStopChooser = (function() {
             spinner_img.style.display = 'none';
 
 
-            function render(id, current_stops) {
+            function render(id, current) {
                 // Draw chooser into container and let the user interact with it
                 var container = id;
-                var current;
-                if (current_stops) {
-                    var current = current_stops.slice();
+                var current_stops = [];
+                if (current && current.stops) {
+                    current_stops = current.stops.slice();
                 }
 
                 if (typeof container === 'string') {
@@ -108,13 +109,13 @@ var BusStopChooser = (function() {
                 // Catch some annoying problems
                 debug_log("width", container.clientWidth, "height", container.clientHeight, (container.clientHeight));
                 if ((container.clientWidth < 10) || (container.clientHeight < 10)) {
-                    console.warn("BusStopChooser container has small or zero height or width so may not display");
+                    console.warn("BusStopChooser: container has small or zero height or width so may not display");
                 }
-                debug_log("multi_select", multi_select, "current", current);
-                if ((!multi_select) && current && current.length > 1) {
-                    console.warn("BusStopChooser got multiple current stops with multi_select=false");
-                    console.warn("BusStopChooser using only the first current stop");
-                    current.splice(1);
+                debug_log("multi_select", multi_select, "current stops", current_stops);
+                if ((!multi_select) && current_stops && current_stops.length > 1) {
+                    console.warn("BusStopChooser: got multiple current stops with multi_select=false");
+                    console.warn("BusStopChooser: using only the first current stop");
+                    current_stops.splice(1);
                 }
 
                 container.append(map_div);
@@ -125,14 +126,25 @@ var BusStopChooser = (function() {
                 selected_stops.addTo(map);
                 other_stops.addTo(map);
 
-                if (current && current.length > 0) {
-                    debug_log("Got", current.length, "Initial stops");
-                    add_stops(current, true);
+                // Add any current stops
+                if (current_stops.length > 0) {
+                    debug_log("Got", current_stops.length, "Initial stops");
+                    add_stops(current_stops, true);
+                }
+
+                // Set initial view from current.map, else current.stops, else params
+                if (current && current.map ) {
+                    debug_log("Setting view from current.map");
+                    map.setView([current.map.lat, current.map.lng],
+                                 current.map.zoom);
+                }
+                else if (selected_stops.getLayers().length > 0) {
+                    debug_log("Setting view from current.stops");
                     var bounds = selected_stops.getBounds().pad(0.2);
                     map.fitBounds(bounds);
                 }
                 else {
-                    debug_log("No initial stops");
+                    debug_log("Setting view from parameters or default");
                     map.setView([lat, lng], zoom);
                 }
 
@@ -209,7 +221,7 @@ var BusStopChooser = (function() {
                     var bounds = map.getBounds().pad(0.7).toBBoxString();
                     var qs = '?bounding_box=' + encodeURIComponent(bounds);
                     qs += '&page_size='+encodeURIComponent(50);
-                    uri = STOPS_API_ENDPOINT + qs;
+                    uri = api_endpoint + '/stops' + qs;
                 }
                 if (!new_stops) {
                     new_stops = [];
@@ -219,19 +231,24 @@ var BusStopChooser = (function() {
                 xhr.open('GET', uri, true);
                 xhr.send();
                 xhr.onreadystatechange = function() {
-                    if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                        var api_response = JSON.parse(xhr.responseText);
-                        //debug_log('got', api_response.results.length, 'results');
-                        new_stops = new_stops.concat(api_response.results);
-                        //debug_log('accumulated', new_stops.length, 'results');
-                        // Keep going if there are more...
-                        if (api_response.next) {
-                            get_bus_stops(callback, api_response.next, new_stops);
+                    if(xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status !== 200) {
+                            console.warn('BusStopChooser: API error:', xhr.status, xhr.statusText);
                         }
-                        // Otherwise
                         else {
-                            add_stops(new_stops, false);
-                            callback();
+                            var api_response = JSON.parse(xhr.responseText);
+                            //debug_log('got', api_response.results.length, 'results');
+                            new_stops = new_stops.concat(api_response.results);
+                            //debug_log('accumulated', new_stops.length, 'results');
+                            // Keep going if there are more...
+                            if (api_response.next) {
+                                get_bus_stops(callback, api_response.next, new_stops);
+                            }
+                            // Otherwise
+                            else {
+                                add_stops(new_stops, false);
+                                callback();
+                            }
                         }
                     }
                 };
@@ -245,34 +262,38 @@ var BusStopChooser = (function() {
                 // Add new stops, remove any too far off the map
 
                 debug_log("Processing", stops.length, "stops, selected", add_selected);
-                var seen_atco_codes = [];
+                var seen_stop_ids = [];
 
-                // Get all the atco_codes we already know about
-                var displayed_atco_codes = [];
+                // Get all the stop_ids we already know about
+                var displayed_stop_ids = [];
                 selected_stops.eachLayer(function(marker) {
-                    displayed_atco_codes.push(marker.properties.stop.atco_code);
+                    displayed_stop_ids.push(marker.properties.stop.stop_id);
                 });
                 other_stops.eachLayer(function(marker) {
-                    displayed_atco_codes.push(marker.properties.stop.atco_code);
+                    displayed_stop_ids.push(marker.properties.stop.stop_id);
                 });
-                debug_log("Currently displaying", displayed_atco_codes);
+                debug_log("Currently displaying", displayed_stop_ids);
 
                 // Add markers for stops we aren't currently displaying
                 for (var ctr = 0; ctr < stops.length; ctr++) {
 
                     var stop = stops[ctr];
-                    debug_log("Processing", stop.atco_code);
-                    seen_atco_codes.push(stop.atco_code);
+                    debug_log("Processing", stop.stop_id);
+                    seen_stop_ids.push(stop.stop_id);
 
                     // Ignore it if it's already displayed
-                    if (displayed_atco_codes.indexOf(stop.atco_code) !== -1) {
-                        debug_log("Stop", stop.atco_code, "already displayed - ignoring");
+                    if (displayed_stop_ids.indexOf(stop.stop_id) !== -1) {
+                        debug_log("Stop", stop.stop_id, "already displayed - ignoring");
                         continue;
                     }
 
-                    debug_log("Adding", stop.atco_code);
-                    var marker = L.marker([stop.latitude, stop.longitude])
-                      .bindTooltip(stop.atco_code + ': ' + stop.common_name)
+                    //Add 'lng' and 'lat' aliases pending addition to API
+                    if (!stop.hasOwnProperty('lng')) stop.lng = stop.longitude;
+                    if (!stop.hasOwnProperty('lat')) stop.lat = stop.latitude;
+
+                    debug_log("Adding", stop.stop_id);
+                    var marker = L.marker([stop.lat, stop.lng])
+                      .bindTooltip(stop.stop_id + ': ' + stop.common_name)
                       .on('click', process_stop_click);
                     marker.properties = { 'stop': stop };
                     if (add_selected) {
@@ -285,10 +306,10 @@ var BusStopChooser = (function() {
                 }
 
                 // Delete anything we are displaying that we didn't see
-                debug_log("seen_atco_codes", seen_atco_codes);
+                debug_log("seen_stop_ids", seen_stop_ids);
                 other_stops.eachLayer(function(marker) {
-                    if (seen_atco_codes.indexOf(marker.properties.stop.atco_code) === -1) {
-                        debug_log("Removing", marker.properties.stop.atco_code);
+                    if (seen_stop_ids.indexOf(marker.properties.stop.stop_id) === -1) {
+                        debug_log("Removing", marker.properties.stop.stop_id);
                         other_stops.removeLayer(marker);
                     }
                 });
@@ -345,10 +366,10 @@ var BusStopChooser = (function() {
             }
 
             function list_selected_stops() {
-                // Return the atco_codes of currently selected stops
+                // Return the stop_ids of currently selected stops
                 var codes = [];
                 selected_stops.eachLayer(function(marker) {
-                    codes.push(marker.properties.stop.atco_code);
+                    codes.push(marker.properties.stop.stop_id);
                 });
                 return codes;
             }

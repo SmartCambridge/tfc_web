@@ -63,8 +63,8 @@
                 input_info = config_google_map(parent_el, param_options, param_current);
                 break;
 
-            case 'polygon':
-                input_info = config_polygon(parent_el, param_options, param_current);
+            case 'area':
+                input_info = config_area(parent_el, param_options, param_current);
                 break;
 
             default:
@@ -209,6 +209,10 @@
         var width = param_options.width || "500px";
         var height = param_options.height || "500px";
 
+        if (param_options.settings && param_options.settings.SMARTPANEL_TRANSPORT_API) {
+            param_options.api_endpoint = param_options.settings.SMARTPANEL_TRANSPORT_API;
+        }
+
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
 
@@ -230,7 +234,7 @@
         parent_el.appendChild(row);
 
         var chooser = BusStopChooser.create(param_options);
-        chooser.render(value, param_current.stops);
+        chooser.render(value, param_current);
 
         return {
             value: chooser.getData,
@@ -387,13 +391,13 @@
 
     }
 
-    // populate a table row with a Leaflet map polygon input widget
-    function config_polygon(parent_el, param_options, param_current)
+    // populate a table row with a Leaflet map area input widget
+    function config_area(parent_el, param_options, param_current)
     {
 
         'use strict';
 
-        console.log('Called config_polygon');
+        console.log('Called config_area');
 
         var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         var OSM_MAX_ZOOM = 19;
@@ -440,10 +444,19 @@
         map.addLayer(drawing_layer);
 
         // Add current data (if available) and scale/zoom
-        if (param_current && param_current.length > 0){
-            param_current.forEach(function (coords) {
+        if (param_current && param_current.areas && param_current.areas.length > 0){
+            param_current.areas.forEach(function (coords) {
                 L.polygon(coords).addTo(drawing_layer);
             });
+        }
+
+        // Set initial view from param_current.map, else param_current.stops,
+        // else param_options
+        if (param_current && param_current.map) {
+            map.setView([param_current.map.lat, param_current.map.lng],
+                         param_current.map.zoom);
+        }
+        else if (drawing_layer.getLayers().length > 0) {
             var bounds = drawing_layer.getBounds().pad(0.2);
             map.fitBounds(bounds);
         }
@@ -481,11 +494,16 @@
 
         return {
             value: function() {
-                var results = [];
+                var current_map = {
+                    lng: map.getCenter().lng,
+                    lat: map.getCenter().lat,
+                    zoom: map.getZoom(),
+                };
+                var areas = [];
                 drawing_layer.eachLayer(function (polygon) {
-                    results.push(polygon.getLatLngs()[0]);
+                    areas.push(polygon.getLatLngs()[0]);
                 });
-                return results;
+                return { map: current_map, areas: areas };
             },
             valid: function () { return true; }
         };
