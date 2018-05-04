@@ -10,7 +10,6 @@ function Weather(widget_id, params) {
     'use strict';
 
     //var DEBUG = ' weather_log';
-
     var CONFIG_SHIM = true;
 
     var self = this;
@@ -25,6 +24,14 @@ function Weather(widget_id, params) {
         self.config.container_id = self.config.container;
         self.params = params;
     }
+
+
+    var WEATHER_OPTIONS = [ { value: '310042', text: 'Cambridge' },
+                            { value: '351524', text: 'Fulbourn' },
+                            { value: '310105', text: 'Luton' },
+                            { value: '310120', text: 'Peterborough' },
+                            { value: '353656', text: 'Stansted' }
+                          ];
 
     // backwards compatibility init() function
     this.init = function () {
@@ -135,11 +142,7 @@ function Weather(widget_id, params) {
                                             'select',
                                             { text: 'Location:',
                                               title: 'Choose your weather location from the dropdown',
-                                              options: [ { value: '310042', text: 'Cambridge' },
-                                                         { value: '310105', text: 'Luton' },
-                                                         { value: '310120', text: 'Peterborough' },
-                                                         { value: '353656', text: 'Stansted' }
-                                                       ]
+                                              options: WEATHER_OPTIONS
                                             },
                                             params.location
                                          );
@@ -161,7 +164,15 @@ function Weather(widget_id, params) {
         };
 
         var config_fn = function () {
-            return { title: location_result.value() + " Weather" };
+            var weather_text = 'Location';
+            var weather_value = location_result.value();
+            for (var i=0; i<WEATHER_OPTIONS.length; i++) {
+                if (WEATHER_OPTIONS[i].value === weather_value) {
+                    weather_text = WEATHER_OPTIONS[i].text;
+                    break;
+                }
+            }
+            return { title: weather_text + " Weather" };
         };
 
         return { valid: function () { return true; }, //debug - still to be implemented,
