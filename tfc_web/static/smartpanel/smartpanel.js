@@ -147,6 +147,15 @@ $(function () {
         $.data( save_button, "valid", widget_conf.valid );
         $.data( save_button, "config", widget_conf.config );
         $.data( save_button, "value", widget_conf.value );
+
+        // ENTER key in input fields in the configuration form should be save not cancel
+        $("#configuration-widget-form input").on("keypress", function(e) {
+            /* ENTER key */
+            if (e.keyCode === 13) {
+                e.preventDefault();
+                $('#configuration-widget-save-button').trigger("click");
+            }
+        });
     });
 
     $('#configuration-widget-save-button').click(function (e) {
