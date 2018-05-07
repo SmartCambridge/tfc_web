@@ -20,7 +20,7 @@ $(function () {
 
     function widget_el(id, title, text) {
         if( typeof title == 'undefined' || title === null ) {
-            title = "Unconfigured"
+            title = "Widget unconfigured, click configure button to configure it"
         }
         if( typeof text == 'undefined' || text === null ) {
             text = ""
@@ -28,10 +28,14 @@ $(function () {
         return $(
             '<div><div id="section-'+id+'" class="grid-stack-item-content">\n' +
             '    <div style="width: 100%; text-align: center; padding-top: 10px; padding-bottom: 10px">\n' +
-            '        <a class="edit-widget mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect ' +
-            'mdl-button--colored" data-widget-id="'+id+'" ><i class="material-icons">build</i></a>\n' +
-            '        <a class="delete-widget mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect ' +
-            'mdl-button--colored" data-widget-id="'+id+'" ><i class="material-icons">delete</i></a>\n' +
+            '        <a id="edit-widget-button-'+id+'" class="edit-widget mdl-button mdl-js-button ' +
+            'mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-widget-id="'+id+'" >\n' +
+            '            <i class="material-icons">build</i></a>\n' +
+            '        <div class="mdl-tooltip" data-mdl-for="edit-widget-button-'+id+'">Configure widget</div>\n' +
+            '        <a id="delete-widget-button-'+id+'" class="delete-widget mdl-button mdl-js-button ' +
+            'mdl-button--raised mdl-js-ripple-effect mdl-button--colored" data-widget-id="'+id+'" >\n' +
+            '            <i class="material-icons">delete</i></a>\n' +
+            '        <div class="mdl-tooltip" data-mdl-for="delete-widget-button-'+id+'">Delete widget</div>\n' +
             '    </div>\n' +
             '    <div id="widget-'+id+'" class="widget-configured-text"><h1>'+title+'</h1><p>'+text+'</p></div>\n' +
             '</div></div>')
@@ -42,7 +46,7 @@ $(function () {
             e.preventDefault();
             var widget_id = $(e.currentTarget).data('widget-id').toString();
             delete data[widget_id];
-            grid.removeWidget($(this).parent().parent());
+            grid.removeWidget($("#section-"+widget_id).parent());
         });
     }
 
@@ -61,9 +65,11 @@ $(function () {
     function add_new_widget() {
         new_widget = grid.addWidget(widget_el(nboxes, null, null),
             null, null, 1, 1, true, null, null, null, null, nboxes);
-        nboxes += 1;
         setup_delete_button(new_widget);
         setup_edit_button(new_widget);
+        // Draw tooltips
+        componentHandler.upgradeDom();
+        nboxes += 1;
     }
 
     function add_existing_widget(x, y, width, height, id, title, text) {
@@ -71,6 +77,8 @@ $(function () {
             x, y, width, height, false, null, null, null, null, id);
         setup_delete_button(new_widget);
         setup_edit_button(new_widget);
+        // Draw tooltips
+        componentHandler.upgradeDom();
     }
 
     Object.keys(defaultGrid).forEach(function(key) {
