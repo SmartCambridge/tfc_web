@@ -1,5 +1,6 @@
 
 $(function () {
+    const idx = (props, object) => props.reduce((prefix, val) => (prefix && prefix[val]) ? prefix[val] : null, object);
     
     var nboxes = Math.max.apply(null, Object.keys(defaultGrid).map(function(elem){ return parseInt(elem) })) + 1;
 
@@ -17,34 +18,65 @@ $(function () {
     });
     var grid = $('.grid-stack').data('gridstack');
 
-    function widget_el(id) {
-        return $('<div><div class="grid-stack-item-content"><a class="delete-widget mdl-button mdl-js-button ' +
-            'mdl-button--raised mdl-js-ripple-effect mdl-button--colored">delete widget</a>' +
-            '<p class="widget_id_p">'+id+'</p></div></div>')
+    function widget_el(id, title, text) {
+        if( typeof title == 'undefined' || title === null ) {
+            title = "Unconfigured"
+        }
+        if( typeof text == 'undefined' || text === null ) {
+            text = ""
+        }
+        return $(
+            '<div><div id="section-'+id+'" class="grid-stack-item-content">\n' +
+            '    <div style="width: 100%; text-align: center; padding-top: 10px; padding-bottom: 10px">\n' +
+            '        <a class="edit-widget mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect ' +
+            'mdl-button--colored" data-widget-id="'+id+'" ><i class="material-icons">build</i></a>\n' +
+            '        <a class="delete-widget mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect ' +
+            'mdl-button--colored" data-widget-id="'+id+'" ><i class="material-icons">delete</i></a>\n' +
+            '    </div>\n' +
+            '    <div id="widget-'+id+'" class="widget-configured-text"><h1>'+title+'</h1><p>'+text+'</p></div>\n' +
+            '</div></div>')
+    }
+
+    function setup_delete_button(widget) {
+        widget.find('.delete-widget').click(function (e) {
+            e.preventDefault();
+            var widget_id = $(e.currentTarget).data('widget-id').toString();
+            delete data[widget_id];
+            grid.removeWidget($(this).parent().parent());
+        });
+    }
+
+    function setup_edit_button(widget) {
+        widget.find('.edit-widget').click(function (e) {
+            active_widget_id = $(e.currentTarget).data('widget-id').toString();
+            // We check if the widget has already a configuration
+            if (Object.keys(data).indexOf(active_widget_id) > -1)
+                $("#widget-selector").val(data[active_widget_id]['widget']).trigger("change");
+            else
+                $("#widget-selector").prop('selectedIndex', 0);
+            $('#overlay-configure-widget').css( "display", "flex" );
+        });
     }
 
     function add_new_widget() {
-        new_widget = grid.addWidget(widget_el(nboxes),
+        new_widget = grid.addWidget(widget_el(nboxes, null, null),
             null, null, 1, 1, true, null, null, null, null, nboxes);
         nboxes += 1;
-        new_widget.find('.delete-widget').click(function (e) {
-            e.preventDefault();
-            grid.removeWidget($(this).parent().parent());
-        });
+        setup_delete_button(new_widget);
+        setup_edit_button(new_widget);
     }
 
-    function add_existing_widget(x, y, width, height, id) {
-        new_widget = grid.addWidget(widget_el(id),
+    function add_existing_widget(x, y, width, height, id, title, text) {
+        new_widget = grid.addWidget(widget_el(id, title, text),
             x, y, width, height, false, null, null, null, null, id);
-        new_widget.find('.delete-widget').click(function (e) {
-            e.preventDefault();
-            grid.removeWidget($(this).parent().parent());
-        });
+        setup_delete_button(new_widget);
+        setup_edit_button(new_widget);
     }
 
     Object.keys(defaultGrid).forEach(function(key) {
         add_existing_widget(defaultGrid[key]['x'], defaultGrid[key]['y'],
-            defaultGrid[key]['w'], defaultGrid[key]['h'], key)
+            defaultGrid[key]['w'], defaultGrid[key]['h'], key, idx(['placeholder', 'title'], defaultGrid[key]),
+            idx(['placeholder', 'text'], defaultGrid[key]))
     });
 
     $('#add-widget').click(function (e) {
@@ -69,5 +101,67 @@ $(function () {
             };
         });
         $('input[name=design]').val(JSON.stringify(serializedData));
+        $('#form-data').val(JSON.stringify(data));
     });
+
+    // WIDGET CONFIGURATION
+
+    var active_widget_id;
+
+    function functionalise(str) {
+        frags = str.split('_');
+        for (i=0; i<frags.length; i++) {
+            frags[i] = frags[i].charAt(0).toUpperCase() + frags[i].slice(1);
+        }
+        return frags.join('');
+    }
+
+    $("#widget-selector").change(function (e) {
+        var widget_name = $(this).val();
+        // Initialise the Widget passing widget_id
+        var widget = new window[functionalise(widget_name)](active_widget_id);
+        var params = {};
+        if (Object.keys(data).indexOf(active_widget_id) > -1)
+            params = data[active_widget_id]['data'];
+        // Call widget configuration script with config and preexisting params (if any).
+        // It will return a dictionary with three functions:
+        // valid() [to validate the form], value() [to retrieve the data from the form],
+        // and config() [to show data in the config square]
+        widget_conf = widget.configure(
+            {
+                'container_id': 'configuration-widget-form',
+                'static_url': widget_location
+            },
+            params);
+        var save_button = document.getElementById('configuration-widget-save-button');
+        $.data( save_button, "widget_id", active_widget_id );
+        $.data( save_button, "widget_name", widget_name );
+        $.data( save_button, "valid", widget_conf.valid );
+        $.data( save_button, "config", widget_conf.config );
+        $.data( save_button, "value", widget_conf.value );
+    });
+
+    $('#configuration-widget-save-button').click(function (e) {
+        var save_button = $(this);
+        if (save_button.data("valid")() === true) {
+            $("#overlay-configure-widget").hide();
+            $("#configuration-widget-form").empty();
+            var placeholder = save_button.data("config")();
+            data[save_button.data("widget_id")] = {
+                "widget": save_button.data("widget_name"),
+                "data": save_button.data("value")(),
+                "placeholder": placeholder
+            };
+            // Retrieve the widget conf space to replace it with the results from the widget conf
+            $("#widget-"+save_button.data("widget_id")+" h1").text(placeholder.title);
+            $("#widget-"+save_button.data("widget_id")+" p").text(placeholder.text);
+        }
+    });
+
+    $('#configuration-widget-cancel-button').click(function (e) {
+        $("#overlay-configure-widget").hide();
+        $("#configuration-widget-form").empty();
+        $("#widget-selector").prop('selectedIndex', 0);
+    });
+
 });

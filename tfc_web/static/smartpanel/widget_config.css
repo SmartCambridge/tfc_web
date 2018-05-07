@@ -1,20 +1,13 @@
 /* Widget configuration CSS */
 
 .widget_config {
-    border-style: ridge;
-    border-width: thick;
-    background-color: #ffffe6;
-    z-index: 1001;
-    position: absolute;
-    top: 100px;
-    left: 800px;
     font-family: Arial, sans-serif;
-    /* display: none; */
 }
 
 .widget_config h1 {
     text-align: center;
     margin: 5px;
+    font-size: 26px;
 }
 
 .widget_config form {
@@ -31,12 +24,11 @@
 }
 
 .widget_config_property_name {
-    vertical-align: top;
     text-align: right;
+    padding-right: 5px;
 }
 
 .widget_config_property_value {
-    vertical-align: top;
     text-align: left;
     position: relative;
 }
