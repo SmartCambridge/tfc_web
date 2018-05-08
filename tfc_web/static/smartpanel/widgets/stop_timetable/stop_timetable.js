@@ -1436,6 +1436,8 @@ function StopTimetable(widget_id, params) {
 
         self.log('StopTimetable configuring widget with', config.container_id);
 
+        self.config = config;
+
         var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
@@ -1461,7 +1463,7 @@ function StopTimetable(widget_id, params) {
     }
 
     // Input the StopTimetable parameters
-    function input_stop_timetable(parent_el,params) {
+    function input_stop_timetable(parent_el, params) {
 
         var config_table = document.createElement('table');
         config_table.className = 'config_input_stop_timetable';
@@ -1508,10 +1510,10 @@ function StopTimetable(widget_id, params) {
                                           'select',
                                           { text: 'Layout:',
                                             title: 'Choose your widget layout style from the dropdown',
-                                            options: [ { value: 'simple', text: 'Simple' },
-                                                       { value: 'multiline', text: 'Multi-line' },
-                                                       { value: 'nextbus', text: 'NextBus' },
-                                                       { value: 'debug', text: 'Debug' } ],
+                                            options: [ { value: 'simple', text: 'Simple - bus times at stop with destination' },
+                                                       { value: 'multiline', text: "Multi-line - simple plus 'via' locations on route" },
+                                                       { value: 'nextbus', text: 'Show buses to each destination area' }
+                                                     ],
                                             onchange: input_layout_onchange
              /* "simple": "One line per journey",
                 "multiline": "Multiple lines per journey; can include intermediate destinations",
