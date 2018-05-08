@@ -139,6 +139,7 @@
 .grid-stack-item-content {
     text-align: center;
     padding-top: 10px;
+    background-color: white;
 }
 
 .widget_id_p {
@@ -165,11 +166,27 @@
     width: 50%;
     min-width: 600px;
     background-color: white;
-    padding: 10px;
+    padding: 20px 10px 40px 10px;
 }
 
 #configuration-widget-form {
-    height: 100%;
-    margin-bottom: -40px;
+    height: 320px;
     overflow: scroll;
+    padding-bottom: 45px;
+}
+
+#configuration-widget-buttons {
+    margin-top: 5px;
+}
+
+.widget-configured-text {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.widget-configured-text h1 {
+    font-size: 26px;
+    line-height: 1;
+    letter-spacing: 0;
+    margin: 10px 0;
 }

@@ -34,12 +34,12 @@
     </div>
     <div class="grid-container mdl-color--teal-900" style="height: calc(({{display_width|default:"1920px"}} * 0.5625) - 60px); width: {{display_width|default:"1920px"}}; overflow: hidden;">
         <ul id="grid" class="grid">
-            {% for key, value in confdata.items %}
-                <li style="height: calc({{ value.design.h }}*100%/4);
-                        width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
-                        left: calc({{ value.design.x }}*100%/6);">
-                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
-                        {% if not value.configuration %}unconfigured{% endif %}</div></li>
+            {% for key, value in layout.design.items %}
+                <li style="height: calc({{ value.h }}*100%/4);
+                        width: calc({{ value.w }}*100%/6); top: calc({{ value.y }}*100%/4);
+                        left: calc({{ value.x }}*100%/6);">
+                    <div id="widget-{{ key }}" class="widget {{ value.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
+                        {% if not value.widget %}Unconfigured{% endif %}</div></li>
             {% endfor %}
         </ul>
     </div>
@@ -49,12 +49,12 @@
         // Widget spec requires a DEBUG global
         var DEBUG = '';
         var widget = [];
-        {% for key, value in confdata.items %}
-            {% if value.configuration %}
-                {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/' as widget_location %}
-                    widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
+        {% for key, value in layout.design.items %}
+            {% if value.widget %}
+                {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
+                    widget.push(new {{ value.widget|title|remove_underscore }}(
                         {'container': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
-                        JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
+                        JSON.parse("{{ value.data|jsonify|escapejs }}")
                     ));
                 {% endwith %}
             {% endif %}
