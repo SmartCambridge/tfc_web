@@ -14,7 +14,7 @@ var BusStopChooser = (function() {
     var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
     'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
 
-    var DEBUG;
+    var DEBUG = true;
 
     var stop_icon = L.divIcon({
         className: 'bus_stop_chooser_stop',
@@ -81,9 +81,10 @@ var BusStopChooser = (function() {
             var other_stops = L.featureGroup();
 
             var map_div = document.createElement('div');
-            map_div.style.height = "100%";
-            map_div.style.width = "100%";
-            map_div.style.position = "relative";
+            //map_div.setAttribute('style', 'height: 100%; width: 100%; position: relative; flex: 1');
+            //map_div.style.height = "100%";
+            //map_div.style.width =  "100%";
+            //map_div.style.position = "relative";
 
             var warning_div = document.createElement('div');
             warning_div.className = 'bus_stop_chooser_warning';
@@ -94,22 +95,17 @@ var BusStopChooser = (function() {
             spinner_img.style.display = 'none';
 
 
-            function render(id, current) {
-                // Draw chooser into container and let the user interact with it
-                var container = id;
+            function render(parent_el, current) {
+
                 var current_stops = [];
                 if (current && current.stops) {
                     current_stops = current.stops.slice();
                 }
 
-                if (typeof container === 'string') {
-                    container = document.getElementById(container);
-                }
-
                 // Catch some annoying problems
-                debug_log("width", container.clientWidth, "height", container.clientHeight, (container.clientHeight));
-                if ((container.clientWidth < 10) || (container.clientHeight < 10)) {
-                    console.warn("BusStopChooser: container has small or zero height or width so may not display");
+                debug_log("width", parent_el.clientWidth, "height", parent_el.clientHeight, (parent_el.clientHeight));
+                if ((parent_el.clientWidth < 10) || (parent_el.clientHeight < 10)) {
+                    console.warn("BusStopChooser: parent_el has small or zero height or width so may not display");
                 }
                 debug_log("multi_select", multi_select, "current stops", current_stops);
                 if ((!multi_select) && current_stops && current_stops.length > 1) {
@@ -118,11 +114,12 @@ var BusStopChooser = (function() {
                     current_stops.splice(1);
                 }
 
-                container.append(map_div);
-                map_div.append(warning_div);
-                map_div.append(spinner_img);
+                map_div.setAttribute('style', 'height: 350px; width: 350px; position: relative; flex: 1');
+                parent_el.appendChild(map_div);
+                map_div.appendChild(warning_div);
+                map_div.appendChild(spinner_img);
 
-                map = new L.Map(container).addLayer(osm);
+                map = new L.Map(map_div).addLayer(osm);
                 selected_stops.addTo(map);
                 other_stops.addTo(map);
 

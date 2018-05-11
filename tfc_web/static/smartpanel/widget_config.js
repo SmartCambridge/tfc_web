@@ -33,9 +33,13 @@
     //            });
     //
     //
+function WidgetConfig(config) {
+
     var CONFIG_COLOR = '#ffffe6';
 
-    function config_input(parent_el, param_type, param_options, param_current) {
+    this.config = config;
+
+    this.input = function (parent_el, param_type, param_options, param_current) {
         //self.log('creating input', param_name, param_type, param_options, param_current);
         var input_info = null; // info to return, .value() = data callback
         switch (param_type) {
@@ -73,7 +77,7 @@
         }
 
         return input_info;
-    }
+    } // end this.input
 
     // Append a row containing <td>TITLE</td><td>SELECT</td>
     function config_select(parent_el, param_options, param_current) {
@@ -138,12 +142,12 @@
         return { value: value,
                  valid: function () { return true; }
                };
-    }
+    } // end config_select
 
     function config_number(parent_el, param_options, param_current) {
         if (!param_options.type) param_options.type = 'number';
         return config_string(parent_el, param_options, param_current);
-    }
+    } // end config_number
 
     //  Append a table row with a simple input field
     //  By default this will be 'input type='text'
@@ -187,6 +191,17 @@
         if (param_current) input.value = param_current;
 
         td_value.appendChild(input);
+
+        // if a 'chooser' function has been provided, add as onclick call
+        if (param_options.chooser)
+        {
+            var chooser_link = document.createElement('a');
+            chooser_link.setAttribute('href', '#');
+            chooser_link.innerHTML = 'choose';
+            chooser_link.onclick = param_options.chooser;
+            td_value.appendChild(chooser_link);
+        }
+
         row.appendChild(td_value);
 
         parent_el.appendChild(row);
@@ -194,7 +209,7 @@
         return { value: function() { return input.value; },
                  valid: function () { return true; }
             };
-    }
+    } // end config_string
 
     // populate a table row with a bus stop input widget
     function config_bus_stops(parent_el, param_options, param_current)
@@ -202,7 +217,7 @@
 
         'use strict';
 
-        console.log('Called config_bus_stops');
+        console.log('Called config_bus_stops with',param_options);
 
         var title = param_options.title;
         var text = param_options.text;
@@ -216,32 +231,44 @@
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
 
-        var name = document.createElement('td');
-        name.className = 'widget_config_property_name';
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
         label.title = title;
         label.appendChild(document.createTextNode(text));
-        name.appendChild(label);
-        row.appendChild(name);
+        td_name.appendChild(label);
+        row.appendChild(td_name);
 
-        var value = document.createElement('td');
-        value.className = 'widget_config_property_value';
-        value.style.height = height;
-        value.style.width = width;
-        row.appendChild(value);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+        var value_div = document.createElement('div');
+        value_div.setAttribute('style', 'height: 400px; width: 400px; background-color: lightblue; display: block;'); //debug ijl20
+
+        //value_div.innerHTML = "<p>sdf sfd dg sdg sdfg sd fg sdfg sd fgsd fg sdfg sdfg sd fg g sdfg sd fg sdfg sdfg sd fg sdfg sd fgs dfg sdfg sd fgs gh s hsf gh fg hdf</p>";
+        //value_div.style.height = height;
+        //value_div.style.width = width;
+        //value_div.setAttribute("width", "550");
+        //value_div.setAttribute("height", "550");
+
+        td_value.appendChild(value_div);
+
+        row.appendChild(td_value);
 
         parent_el.appendChild(row);
 
         var chooser = BusStopChooser.create(param_options);
-        chooser.render(value, param_current);
+        //debug
+        console.log('config_bus_stops value_div clientWidth:',value_div.clientWidth,'offsetWdth', value_div.offsetWidth, 'style.width',value_div.style.width);
+
+        chooser.render(value_div, param_current);
 
         return {
-            value: chooser.getData,
+            value: null, //chooser.getData,
             valid: function () { return true; }
         };
 
-    }
+    } // end config_bus_stops
 
     // populate a table row with a Leaflet map input widget
     function config_leaflet_map(parent_el, param_options, param_current)
@@ -314,7 +341,7 @@
             valid: function () { return true; }
         };
 
-    }
+    } // end config_leaflet_map
 
     // populate a table row with a Google map input widget
     function config_google_map(parent_el, param_options, param_current)
@@ -389,7 +416,7 @@
             valid: function () { return true; }
         };
 
-    }
+    } // end config_google_map
 
     // populate a table row with a Leaflet map area input widget
     function config_area(parent_el, param_options, param_current)
@@ -508,106 +535,7 @@
             valid: function () { return true; }
         };
 
-    }
+    } // end config_area
 
-
-    // *****************************************************************************
-    // ********** Below is the config 'shim' code needed to include config in  *****
-    // ********** active layout                                                *****
-
-    // This adds the 'edit' link and the 'config' div to the widget
-    function shim_link(self, container_id)
-    {
-        var widget_el = document.getElementById(container_id);
-
-        // get absolute coords of widget (so we can position 'edit' link)
-        var rect = widget_el.getBoundingClientRect();
-        var top = Math.round(rect.top);
-        var left = Math.round(rect.left);
-        var width = Math.round(widget_el.offsetWidth);
-
-        // create 'edit' link
-        var config_link = document.createElement('a');
-        var config_text = document.createTextNode('edit');
-        config_link.appendChild(config_text);
-        config_link.title = "Configure this widget";
-        config_link.href = "#";
-        config_link.onclick = function () { shim_edit(self, container_id) };
-        config_link.style = 'position: absolute; z-index: 1001';
-        config_link.style.left = Math.round(rect.left+width - 50)+'px';
-        config_link.style.top = Math.round(rect.top)+'px';
-        document.body.appendChild(config_link);
-
-    }
-
-    // user has clicked the (debug) 'Configure' button
-    // This is a 'shim' for the call from the Widget Framework
-    function shim_edit(self, container_id) {
-        var widget_el = document.getElementById(container_id);
-        widget_el.style['background-color'] = CONFIG_COLOR;
-
-        // create config div for properties form
-        var config_window = document.createElement('div');
-        config_window.setAttribute('class','widget_config');
-
-        var config_div = document.createElement('div');
-        var config_container_id = container_id + '_config';
-        config_div.setAttribute('id', config_container_id);
-        config_window.appendChild(config_div);
-
-        document.body.appendChild(config_window);
-
-        self.log(self.widget_id,'calling configure with',self.params);
-
-        // configure_result:
-        //      { valid: function () -> true // WIP
-        //        value: function () -> params
-        //        config: function () -> { title: CONFIG_TITLE }
-        //
-        var configure_result = self.configure( { container_id: config_container_id,
-                                               },
-                                               self.params);
-
-        var save_button = document.createElement('button');
-        save_button.onclick = function () { shim_save(self, container_id, config_window, configure_result); };
-        save_button.innerHTML = 'Save';
-        config_window.appendChild(save_button);
-
-        var cancel_button = document.createElement('button');
-        cancel_button.onclick = function () { shim_cancel(self, container_id, config_window); };
-        cancel_button.innerHTML = 'Cancel';
-        config_window.appendChild(cancel_button);
-
-    }
-
-    // A shim function to provide the 'config cancel' in the active layout
-    function shim_cancel(self, container_id, config_window) {
-        // reset original widget background-color to WHITE
-        var widget_el = document.getElementById(container_id);
-        widget_el.style['background-color'] = 'white';
-
-        // remove the the config window
-        config_window.parentNode.removeChild(config_window);
-
-        self.log(self.widget_id, 'cancel button');
-    }
-
-    // A shim function to provide the 'config save' in the active layout
-    function shim_save(self, container_id, config_window, configure_result) {
-        // Here we update the existing widget 'in-place', not expected in production
-
-        self.params = configure_result.value(); //self.params = config_params;
-
-        self.log(container_id,'config reset params to',self.params);//self.params);
-
-        var widget_el = document.getElementById(container_id);
-
-        // reset original widget background-color to WHITE
-        widget_el.style['background-color'] = 'white';
-
-        // remove the the config window
-        config_window.parentNode.removeChild(config_window);
-
-        self.display(self.config, self.params);
-    }
+} // end WidgetConfig()
 

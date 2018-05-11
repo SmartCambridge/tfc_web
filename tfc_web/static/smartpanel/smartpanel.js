@@ -1,7 +1,7 @@
 
 $(function () {
     const idx = (props, object) => props.reduce((prefix, val) => (prefix && prefix[val]) ? prefix[val] : null, object);
-    
+
     var nboxes = Math.max.apply(null, Object.keys(defaultGrid).map(function(elem){ return parseInt(elem) })) + 1;
 
     $('.grid-stack').gridstack({

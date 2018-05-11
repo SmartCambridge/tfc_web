@@ -14,17 +14,7 @@ function Weather(widget_id, params) {
 
     var self = this;
 
-    if (typeof(widget_id) === 'string') {
-        self.widget_id = widget_id;
-    }
-    else {
-        // Backwards compatibility
-        self.config = widget_id;
-        self.widget_id = self.config.container;
-        self.config.container_id = self.config.container;
-        self.params = params;
-    }
-
+    self.widget_id = widget_id;
 
     var WEATHER_OPTIONS = [ { value: '310042', text: 'Cambridge' },
                             { value: '351524', text: 'Fulbourn' },
@@ -32,14 +22,6 @@ function Weather(widget_id, params) {
                             { value: '310120', text: 'Peterborough' },
                             { value: '353656', text: 'Stansted' }
                           ];
-
-    // backwards compatibility init() function
-    this.init = function () {
-        this.log('Running init', self.widget_id);
-
-        this.display(self.config, self.params);
-
-    };
 
     this.display = function(config, params) {
 
@@ -106,6 +88,8 @@ function Weather(widget_id, params) {
     //
     this.configure = function (config, params) {
 
+        var widget_configure = new WidgetConfig(config);
+
         var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
@@ -123,7 +107,7 @@ function Weather(widget_id, params) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_weather(config_form, params);
+        var input_result = input_weather(widget_configure, config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -131,14 +115,14 @@ function Weather(widget_id, params) {
     } // end this.configure()
 
     // Input the Weather parameters
-    function input_weather(parent_el, params) {
+    function input_weather(widget_configure, parent_el, params) {
 
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
 
         // Location select
         //
-        var location_result = config_input(  parent_el,
+        var location_result = widget_configure.input(  parent_el,
                                             'select',
                                             { text: 'Location:',
                                               title: 'Choose your weather location from the dropdown',
@@ -181,6 +165,6 @@ function Weather(widget_id, params) {
 
     }// end input_weather()
 
-    self.log(self.widget_id, 'Instantiated Weather', params);
+    self.log(self.widget_id, 'Instantiated Weather');
 
 }

@@ -161,16 +161,16 @@
 }
 
 #configuration-widget-div {
-    height: 50%;
+    height: 75%;
     min-height: 400px;
-    width: 50%;
+    width: 75%;
     min-width: 600px;
     background-color: white;
     padding: 20px 10px 40px 10px;
 }
 
 #configuration-widget-form {
-    height: 320px;
+    /* height: 320px; */
     overflow: scroll;
     padding-bottom: 45px;
 }

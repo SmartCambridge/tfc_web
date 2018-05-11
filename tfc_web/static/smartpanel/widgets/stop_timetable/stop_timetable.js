@@ -52,26 +52,15 @@ not rerun before then for other reasons.
 
 */
 
-function StopTimetable(widget_id, params) {
+function StopTimetable(widget_id) {
 
     'use strict';
 
     var DEBUG = ' stop_timetable_log';
 
-    var CONFIG_SHIM = true;
-
     var self = this;
 
-    if (typeof(widget_id) === 'string') {
-        self.widget_id = widget_id;
-    }
-    else {
-        // Backwards compatibility
-        self.config = widget_id; // widget_id actually contains the 'config' object in legacy mode
-        self.widget_id = self.config.container;
-        self.config.container_id = self.config.container;
-        self.params = params;
-    }
+    self.widget_id = widget_id;
 
     // Symbolic constants
 
@@ -93,6 +82,12 @@ function StopTimetable(widget_id, params) {
         TIMETABLE_TIMEZONE            = 'Europe/London',
         // The time zone needed for real time subscription requests
         REALTIME_TIMEZONE             = 'Europe/London',
+
+        PARAMS_DEFAULT                = { title: 'Bus Timetable',
+                                          stop_id: '0500CCITY424',
+                                          offset: 0,
+                                          layout: 'simple'
+                                        },
 
    // Global state
 
@@ -126,13 +121,6 @@ function StopTimetable(widget_id, params) {
 
 
     // ==== Initialisation/startup functions ===========================
-
-    // backwards compatibility init() function
-    this.init = function () {
-        self.log('Running StopTimetable.init with', self.params);
-
-        self.display(self.config, self.params);
-    };
 
     this.display = function(config, params) {
 
@@ -587,7 +575,7 @@ function StopTimetable(widget_id, params) {
         // Update (actually recreate and replace) the display by
         // walking the journey_table
 
-        self.log('refresh_display - running with','self.params:',self.params);
+        //self.log('refresh_display - running with','self.params:',self.params);
 
         // Cancel the update timer if it's running
         if (display_timer_id) {
@@ -1434,6 +1422,8 @@ function StopTimetable(widget_id, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
+        var widget_config = new WidgetConfig(config);
+
         self.log('StopTimetable configuring widget with', config.container_id);
 
         self.config = config;
@@ -1455,7 +1445,7 @@ function StopTimetable(widget_id, params) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_stop_timetable(config_form, params);
+        var input_result = input_stop_timetable(widget_config, config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -1463,7 +1453,7 @@ function StopTimetable(widget_id, params) {
     }
 
     // Input the StopTimetable parameters
-    function input_stop_timetable(parent_el, params) {
+    function input_stop_timetable(widget_config, parent_el, params) {
 
         var config_table = document.createElement('table');
         config_table.className = 'config_input_stop_timetable';
@@ -1474,26 +1464,70 @@ function StopTimetable(widget_id, params) {
 
         // TITLE
         //
-        var title_result = config_input( config_tbody,
+        var title_result = widget_config.input( config_tbody,
                                          'string',
                                          { text: 'Title:',
-                                           title: 'The main title at the top of the widget, e.g. bus stop name',
+                                           title: 'The main title at the top of the widget, e.g. bus stop name'
                                          },
                                          params.title);
 
         // STOP_ID
         //
-        var stop_id_result = config_input( config_tbody,
+        // create the 'stop_id' chooser creator function
+        var chooser_stop_id = function () {
+            // create outermos chooser div
+            var chooser_div = document.createElement('div');
+            chooser_div.style.height = '600px';
+            chooser_div.style.width = '600px';
+            parent_el.appendChild(chooser_div);
+            // create div chooser will use for input, e.g. show map
+            var input_table = document.createElement('table');
+            chooser_div.appendChild(input_table);
+
+            var input_tbody = document.createElement('tbody');
+            input_table.appendChild(input_tbody);
+
+            //input_div.style.height = '300px';
+            //input_div.style.width = '400px';
+            var chooser_result = widget_config.input( input_tbody,
+                                                      'bus_stops',
+                                                      { text: 'Bus stop',
+                                                        title: 'Choose bus stop',
+                                                        width: '500px',
+                                                        height: '500px',
+                                                        multi_select: false,
+                                                        zoom_threshold: 15,
+                                                        lat: 52.204,
+                                                        lng: 0.124,
+                                                        zoom: 15
+                                                      },
+                                                      null
+                                                    );
+            //chooser_div.appendChild(input_table);
+            //TODO add save, cancel onclick callbacks
+            // add 'cancel', 'save' buttons
+            var cancel_button = document.createElement('button');
+            cancel_button.innerHTML = 'Cancel';
+            chooser_div.appendChild(cancel_button);
+            var save_button = document.createElement('button');
+            save_button.innerHTML = 'Save';
+            chooser_div.appendChild(save_button);
+        };
+
+        //
+        var stop_id_result = widget_config.input( config_tbody,
                                            'string',
                                            { text: 'Stop ID:',
                                              title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
+                                             chooser: chooser_stop_id
+                                             // TODO add chooser icon
                                            },
                                            params.stop_id);
 
         // offset input
         //
-        self.log('configure() calling config_input', 'offset', 'with',params.offset);
-        var offset_result = config_input( config_tbody,
+        self.log('configure() calling widget_config.input', 'offset', 'with',params.offset);
+        var offset_result = widget_config.input( config_tbody,
                                           'number',
                                           { text: 'Timing offset (mins):',
                                             title: 'Set an offset (mins) if you want times for *later* trains than now',
@@ -1506,7 +1540,7 @@ function StopTimetable(widget_id, params) {
         var layout_value = params.layout;
 
         self.log('configure() calling config_input', 'layout', 'with',params.layout);
-        var layout_result = config_input( config_tbody,
+        var layout_result = widget_config.input( config_tbody,
                                           'select',
                                           { text: 'Layout:',
                                             title: 'Choose your widget layout style from the dropdown',
@@ -1531,7 +1565,7 @@ function StopTimetable(widget_id, params) {
 
         if (params.destinations) {
             destinations_cache = JSON.parse(JSON.stringify(params.destinations)); // copy list
-            destinations_result = input_destination_list(config_tbody, params.destinations);
+            destinations_result = input_destination_list(widget_config, config_tbody, params.destinations);
             destinations_element = destinations_result.element;  // this is the DOM (row) element containing this input
         }
 
@@ -1548,7 +1582,7 @@ function StopTimetable(widget_id, params) {
                 case 'nextbus':
                     if (!destinations_result) {
                         // add 'destinations' input list to the page if it isn't already there
-                        destinations_result = input_destination_list(config_tbody, params.destinations);
+                        destinations_result = input_destination_list(widget_config, config_tbody, params.destinations);
                         destinations_element = destinations_result.element;  // this is the DOM (row) element containing this input
                     }
                     break;
@@ -1605,7 +1639,7 @@ function StopTimetable(widget_id, params) {
 
     // Add a 'destinations' input to the main config table
     // parent_el is assumed to be a tbody, to which this fn appends a <tr>
-    function input_destination_list(parent_el, destinations) {
+    function input_destination_list(widget_config, parent_el, destinations) {
         self.log('input_destination_list called with', destinations);
         var row = document.createElement('tr');
 
@@ -1636,10 +1670,10 @@ function StopTimetable(widget_id, params) {
             for (var i=0; i<destinations.length; i++) {
                 var destination = destinations[i];
 
-                destination_values.push(input_destination(tbody, destination));
+                destination_values.push(input_destination(widget_config, tbody, destination));
             }
         } else {
-            destination_values.push(input_destination(tbody, null));
+            destination_values.push(input_destination(widget_config, tbody, null));
         }
 
         destinations_table.appendChild(tbody);
@@ -1655,7 +1689,7 @@ function StopTimetable(widget_id, params) {
         // now set the onlclick callback for the (+) button to add another destination input element
         var plus_onclick = function () {
             self.log('plus_onclick called');
-            destination_values.push(input_destination(tbody,null));
+            destination_values.push(input_destination(widget_config, tbody,null));
         }
         plus_img.onclick = plus_onclick;
 
@@ -1684,7 +1718,7 @@ function StopTimetable(widget_id, params) {
     } // end input_destination_list
 
     // Add a 'destination' input (as a row in a 'destinations' table)
-    function input_destination(parent_el, destination) {
+    function input_destination(widget_config, parent_el, destination) {
         self.log('config_input_destination called with',destination);
 
         var tr = document.createElement('tr');
@@ -1714,14 +1748,14 @@ function StopTimetable(widget_id, params) {
         var table = document.createElement('table');
         var tbody = document.createElement('tbody');
 
-        var description_result = config_input( tbody,
+        var description_result = widget_config.input( tbody,
                                               'string',
                                                { text: 'Description:',
                                                  title: 'Short display name of the destination, e.g. City Centre',
                                                },
                                                destination ? destination.description : null);
 
-        var stop_ids_result = input_stop_list( tbody, destination ? destination.stop_ids : null);
+        var stop_ids_result = input_stop_list( widget_config, tbody, destination ? destination.stop_ids : null);
 
         table.appendChild(tbody);
         td.appendChild(table);
@@ -1744,7 +1778,7 @@ function StopTimetable(widget_id, params) {
     }
 
     // input a list of stops as a comma-separated string
-    function input_stop_list(parent_el, stop_ids) {
+    function input_stop_list(widget_config, parent_el, stop_ids) {
 
         var stops = '';
         if (stop_ids) {
@@ -1752,7 +1786,7 @@ function StopTimetable(widget_id, params) {
                 stops += (i==0) ? stop_ids[0] : ','+stop_ids[i];
             }
         }
-        var stop_ids_result = config_input( parent_el,
+        var stop_ids_result = widget_config.input( parent_el,
                                            'string',
                                            { text: 'Stop ID list:',
                                              title: 'Atco codes of the stops of interest, e.g. 0500CCITY424,0500CCITY425',
@@ -1769,7 +1803,7 @@ function StopTimetable(widget_id, params) {
                  valid: function () { return true; } };
     } // end input_stop_list
 
-    self.log('Instantiated StopTimetable', params);
+    self.log('Instantiated StopTimetable');
 
 }    // END of 'class' StopTimetable
 

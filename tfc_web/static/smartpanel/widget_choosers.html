@@ -155,10 +155,12 @@
 
     $().ready(function () {
 
+        var widget_config = new WidgetConfig({});
+
         var config_tbody = document.getElementById("body");
 
         console.log("Before call");
-        var bus_stops = config_input(config_tbody,
+        var bus_stops = widget_config.input(config_tbody,
                                     'bus_stops',
                                     { text: 'Bus Stops',
                                       title: 'Choose bus stops',
@@ -177,7 +179,7 @@
         );
         console.log("Before call");
 
-        var leaflet_map = config_input(config_tbody,
+        var leaflet_map = widget_config.input(config_tbody,
                                        'leaflet_map',
                                        {
                                            text: 'Leaflet map',
@@ -191,7 +193,7 @@
                                        {}
         );
 
-        var google_map = config_input(config_tbody,
+        var google_map = widget_config.input(config_tbody,
                                        'google_map',
                                        {
                                            text: 'Google map',
@@ -206,7 +208,7 @@
                                        {}
         );
 
-        var polygon = config_input(config_tbody,
+        var polygon = widget_config.input(config_tbody,
                                        'area',
                                        {
                                            text: 'Area',
