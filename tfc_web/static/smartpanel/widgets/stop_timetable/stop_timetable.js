@@ -1475,11 +1475,13 @@ function StopTimetable(widget_id) {
         //
         // create the 'stop_id' chooser creator function
         var chooser_stop_id = function () {
-            // create outermos chooser div
+            // create outermost chooser div
             var chooser_div = document.createElement('div');
-            chooser_div.style.height = '600px';
-            chooser_div.style.width = '600px';
+            //chooser_div.style.height = '600px';
+            //chooser_div.style.width = '600px';
             parent_el.appendChild(chooser_div);
+
+            /*
             // create div chooser will use for input, e.g. show map
             var input_table = document.createElement('table');
             chooser_div.appendChild(input_table);
@@ -1488,8 +1490,18 @@ function StopTimetable(widget_id) {
             input_table.appendChild(input_tbody);
 
             //input_div.style.height = '300px';
-            //input_div.style.width = '400px';
-            var chooser_result = widget_config.input( input_tbody,
+            //iinput_div.style.width = '400px';
+            */
+
+            var input_div = document.createElement('div');
+            chooser_div.appendChild(input_div);
+            var input_div_style = 'width: 500px; height: 500px;';
+            input_div_style += ' position: absolute; top: 0px; left: 0px;';
+            input_div_style += ' border: 4px ridge;';
+
+            input_div.setAttribute('style', input_div_style);
+
+            var chooser_result = widget_config.choose( input_div,
                                                       'bus_stops',
                                                       { text: 'Bus stop',
                                                         title: 'Choose bus stop',
@@ -1503,12 +1515,13 @@ function StopTimetable(widget_id) {
                                                       },
                                                       null
                                                     );
-            //chooser_div.appendChild(input_table);
             //TODO add save, cancel onclick callbacks
+
             // add 'cancel', 'save' buttons
             var cancel_button = document.createElement('button');
             cancel_button.innerHTML = 'Cancel';
             chooser_div.appendChild(cancel_button);
+
             var save_button = document.createElement('button');
             save_button.innerHTML = 'Save';
             chooser_div.appendChild(save_button);
@@ -1530,7 +1543,7 @@ function StopTimetable(widget_id) {
         var offset_result = widget_config.input( config_tbody,
                                           'number',
                                           { text: 'Timing offset (mins):',
-                                            title: 'Set an offset (mins) if you want times for *later* trains than now',
+                                            title: 'Set an offset (mins) if you want times for *later* buses than now',
                                             step: 'any'
                                           },
                                           params.offset);
@@ -1541,21 +1554,17 @@ function StopTimetable(widget_id) {
 
         self.log('configure() calling config_input', 'layout', 'with',params.layout);
         var layout_result = widget_config.input( config_tbody,
-                                          'select',
-                                          { text: 'Layout:',
-                                            title: 'Choose your widget layout style from the dropdown',
-                                            options: [ { value: 'simple', text: 'Simple - bus times at stop with destination' },
-                                                       { value: 'multiline', text: "Multi-line - simple plus 'via' locations on route" },
-                                                       { value: 'nextbus', text: 'Show buses to each destination area' }
-                                                     ],
-                                            onchange: input_layout_onchange
-             /* "simple": "One line per journey",
-                "multiline": "Multiple lines per journey; can include intermediate destinations",
-                "nextbus": "Next bus to selected destinations",
-                "debug": "Detailed troubleshooting display" */
-                                          },
-                                          params.layout
-                                        );
+              'select',
+              { text: 'Layout:',
+                title: 'Choose your widget layout style from the dropdown',
+                options: [ { value: 'simple', text: 'Simple - bus times at stop with destination' },
+                           { value: 'multiline', text: "Multi-line - simple plus 'via' locations on route" },
+                           { value: 'nextbus', text: 'Show buses to each destination area' }
+                         ],
+                onchange: input_layout_onchange
+              },
+              params.layout
+            );
 
         // destinations input
         var destinations_result = null; // placeholder

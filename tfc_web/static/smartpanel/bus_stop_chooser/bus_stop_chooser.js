@@ -80,7 +80,7 @@ var BusStopChooser = (function() {
             var selected_stops = L.featureGroup();
             var other_stops = L.featureGroup();
 
-            var map_div = document.createElement('div');
+            //var map_div = document.createElement('div');
             //map_div.setAttribute('style', 'height: 100%; width: 100%; position: relative; flex: 1');
             //map_div.style.height = "100%";
             //map_div.style.width =  "100%";
@@ -114,12 +114,12 @@ var BusStopChooser = (function() {
                     current_stops.splice(1);
                 }
 
-                map_div.setAttribute('style', 'height: 350px; width: 350px; position: relative; flex: 1');
-                parent_el.appendChild(map_div);
-                map_div.appendChild(warning_div);
-                map_div.appendChild(spinner_img);
+                //map_div.setAttribute('style', 'height: 350px; width: 350px; position: relative; flex: 1');
+                //parent_el.appendChild(map_div);
+                parent_el.appendChild(warning_div);
+                parent_el.appendChild(spinner_img);
 
-                map = new L.Map(map_div).addLayer(osm);
+                map = new L.Map(parent_el).addLayer(osm);
                 selected_stops.addTo(map);
                 other_stops.addTo(map);
 

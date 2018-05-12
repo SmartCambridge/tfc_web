@@ -12,7 +12,7 @@
     //                               options: param_options,
     //                               value: a function that returns the value }
     //
-    // config_input(
+    // this.input(
     //   parent_el:     DOM object to append input element (tbody)
     //   param_type:    'select' | 'string' | 'number'
     //   param_options: options needed for each input type
@@ -78,6 +78,22 @@ function WidgetConfig(config) {
 
         return input_info;
     } // end this.input
+
+    this.choose = function(parent_el, param_type, param_options, param_current)
+    {
+        //self.log('creating input', param_name, param_type, param_options, param_current);
+        var chooser_return = null; // info to return, .value() = data callback
+        switch (param_type) {
+            case 'bus_stops':
+                chooser_return = choose_bus_stops(parent_el, param_options, param_current);
+                break;
+
+            default:
+                chooser_return = null;
+        }
+
+        return chooser_return;
+    }
 
     // Append a row containing <td>TITLE</td><td>SELECT</td>
     function config_select(parent_el, param_options, param_current) {
@@ -245,23 +261,13 @@ function WidgetConfig(config) {
         var value_div = document.createElement('div');
         value_div.setAttribute('style', 'height: 400px; width: 400px; background-color: lightblue; display: block;'); //debug ijl20
 
-        //value_div.innerHTML = "<p>sdf sfd dg sdg sdfg sd fg sdfg sd fgsd fg sdfg sdfg sd fg g sdfg sd fg sdfg sdfg sd fg sdfg sd fgs dfg sdfg sd fgs gh s hsf gh fg hdf</p>";
-        //value_div.style.height = height;
-        //value_div.style.width = width;
-        //value_div.setAttribute("width", "550");
-        //value_div.setAttribute("height", "550");
-
         td_value.appendChild(value_div);
 
         row.appendChild(td_value);
 
         parent_el.appendChild(row);
 
-        var chooser = BusStopChooser.create(param_options);
-        //debug
-        console.log('config_bus_stops value_div clientWidth:',value_div.clientWidth,'offsetWdth', value_div.offsetWidth, 'style.width',value_div.style.width);
-
-        chooser.render(value_div, param_current);
+        var chooser = choose_bus_stops(value_div, param_options, param_current);
 
         return {
             value: null, //chooser.getData,
@@ -269,6 +275,13 @@ function WidgetConfig(config) {
         };
 
     } // end config_bus_stops
+
+    function choose_bus_stops(parent_el, param_options, param_current)
+    {
+        var chooser = BusStopChooser.create(param_options);
+        chooser.render(parent_el, param_current);
+        return chooser;
+    }
 
     // populate a table row with a Leaflet map input widget
     function config_leaflet_map(parent_el, param_options, param_current)
