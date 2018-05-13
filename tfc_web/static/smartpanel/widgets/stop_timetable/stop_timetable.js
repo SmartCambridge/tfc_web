@@ -1424,7 +1424,9 @@ function StopTimetable(widget_id) {
 
         var widget_config = new WidgetConfig(config);
 
-        self.log('StopTimetable configuring widget with', config.container_id);
+        self.log('StopTimetable configuring widget with', config, params);
+
+        //debug we need to plan for config.width and height
 
         self.config = config;
 
@@ -1473,58 +1475,24 @@ function StopTimetable(widget_id) {
 
         // STOP_ID
         //
-        // create the 'stop_id' chooser creator function
-        var chooser_stop_id = function () {
-            // create outermost chooser div
-            var chooser_div = document.createElement('div');
-            //chooser_div.style.height = '600px';
-            //chooser_div.style.width = '600px';
-            parent_el.appendChild(chooser_div);
+        // First create the 'stop_id' chooser function.
+        // This 'chooser function' will be passed the element within which this chooser is to be drawn.
+        var chooser_stop_id = function (input_div) {
 
-            /*
-            // create div chooser will use for input, e.g. show map
-            var input_table = document.createElement('table');
-            chooser_div.appendChild(input_table);
-
-            var input_tbody = document.createElement('tbody');
-            input_table.appendChild(input_tbody);
-
-            //input_div.style.height = '300px';
-            //iinput_div.style.width = '400px';
-            */
-
-            var input_div = document.createElement('div');
-            chooser_div.appendChild(input_div);
-            var input_div_style = 'width: 500px; height: 500px;';
-            input_div_style += ' position: absolute; top: 0px; left: 0px;';
-            input_div_style += ' border: 4px ridge;';
-
-            input_div.setAttribute('style', input_div_style);
-
-            var chooser_result = widget_config.choose( input_div,
-                                                      'bus_stops',
-                                                      { text: 'Bus stop',
-                                                        title: 'Choose bus stop',
-                                                        width: '500px',
-                                                        height: '500px',
-                                                        multi_select: false,
-                                                        zoom_threshold: 15,
-                                                        lat: 52.204,
-                                                        lng: 0.124,
-                                                        zoom: 15
-                                                      },
-                                                      null
-                                                    );
-            //TODO add save, cancel onclick callbacks
-
-            // add 'cancel', 'save' buttons
-            var cancel_button = document.createElement('button');
-            cancel_button.innerHTML = 'Cancel';
-            chooser_div.appendChild(cancel_button);
-
-            var save_button = document.createElement('button');
-            save_button.innerHTML = 'Save';
-            chooser_div.appendChild(save_button);
+            return widget_config.choose( input_div,
+                                          'bus_stops',
+                                          { text: 'Bus stop',
+                                            title: 'Choose bus stop',
+                                            width: '500px',
+                                            height: '500px',
+                                            multi_select: false,
+                                            zoom_threshold: 15,
+                                            lat: 52.204,
+                                            lng: 0.124,
+                                            zoom: 16
+                                          },
+                                          null
+                                        );
         };
 
         //

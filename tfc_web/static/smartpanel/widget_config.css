@@ -71,11 +71,6 @@
     padding: 10px;
 }
 
-.widget_config button {
-    float: right;
-    margin: 4px;
-}
-
 .widget_config_plus {
     float: right;
     margin: 4px;
@@ -90,5 +85,10 @@
     border: 1px solid lightblue;
     border-radius: 5px;
     padding: 2px;
+}
+
+.widget_config_chooser_button {
+    margin-top: 5px;
+    margin-left: 5px;
 }
 

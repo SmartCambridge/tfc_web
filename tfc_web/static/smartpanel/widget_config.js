@@ -214,7 +214,7 @@ function WidgetConfig(config) {
             var chooser_link = document.createElement('a');
             chooser_link.setAttribute('href', '#');
             chooser_link.innerHTML = 'choose';
-            chooser_link.onclick = param_options.chooser;
+            chooser_link.onclick = function () { config_chooser(parent_el, chooser_link, param_options, param_current); };
             td_value.appendChild(chooser_link);
         }
 
@@ -549,6 +549,62 @@ function WidgetConfig(config) {
         };
 
     } // end config_area
+
+    // pop up a chooser, nearby element 'el'
+    function config_chooser(parent_el, el, param_options, param_current) {
+
+        var el_bounds = el.getBoundingClientRect();
+
+        var pos_x = Math.floor(el_bounds.left);
+        var pos_y = Math.floor(el_bounds.top);
+
+        var width = 500; // TODO get from layout_config
+        var height = 500;
+
+        // create outermost chooser div
+        var chooser_div = document.createElement('div');
+
+        var chooser_div_style = 'width: '+width+'px; height: '+(height+50)+'px;';
+        chooser_div_style += ' position: absolute;';
+        chooser_div_style += ' border: 5px ridge;';
+        chooser_div_style += ' background-color: white;';
+
+        chooser_div_style += ' left: '+pos_x+'px; top: '+pos_y+'px;';
+
+        chooser_div.setAttribute('style', chooser_div_style);
+
+        parent_el.appendChild(chooser_div);
+
+        var input_div = document.createElement('div');
+        chooser_div.appendChild(input_div);
+        var input_div_style = 'width: '+width+'px; height: '+height+'px;';
+        input_div.setAttribute('style', input_div_style);
+
+        var chooser_return = param_options.chooser(input_div);
+
+        //TODO add save, cancel onclick callbacks
+
+        var chooser_cancel = function () {
+            chooser_div.parentNode.removeChild(chooser_div);
+        };
+
+        // add 'cancel', 'save' buttons
+        var save_button = document.createElement('a');
+        save_button.setAttribute('class',
+                'widget_config_chooser_button '+
+                'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored');
+        save_button.innerHTML = 'Save';
+        chooser_div.appendChild(save_button);
+
+        var cancel_button = document.createElement('a');
+        cancel_button.setAttribute('class',
+                'widget_config_chooser_button '+
+                'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored');
+        cancel_button.innerHTML = 'Cancel';
+        cancel_button.onclick = chooser_cancel;
+        chooser_div.appendChild(cancel_button);
+
+    }
 
 } // end WidgetConfig()
 
