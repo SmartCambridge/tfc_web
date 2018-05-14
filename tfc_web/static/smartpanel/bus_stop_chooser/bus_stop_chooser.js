@@ -375,6 +375,8 @@ var BusStopChooser = (function() {
             return {
                 render: render,
                 getData: getData,
+                valid: function () { return true; },
+                value: getData
             };
 
         }

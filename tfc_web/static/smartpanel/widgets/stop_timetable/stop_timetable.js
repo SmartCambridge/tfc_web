@@ -83,7 +83,7 @@ function StopTimetable(widget_id) {
         // The time zone needed for real time subscription requests
         REALTIME_TIMEZONE             = 'Europe/London',
 
-        PARAMS_DEFAULT                = { title: 'Bus Timetable',
+        PARAMS_DEFAULT                = { title: 'Stop opp. Gates Bldg',
                                           stop_id: '0500CCITY424',
                                           offset: 0,
                                           layout: 'simple'
@@ -1447,7 +1447,9 @@ function StopTimetable(widget_id) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_stop_timetable(widget_config, config_form, params);
+        var input_result = input_stop_timetable(widget_config,
+                                                config_form,
+                                                (params && params.title) ? params : PARAMS_DEFAULT);
 
         config_div.appendChild(config_form);
 
@@ -1455,6 +1457,10 @@ function StopTimetable(widget_id) {
     }
 
     // Input the StopTimetable parameters
+    // input_stop_timetable: draw an input form (as a table) of the required inputs
+    //   widget_config: an instantiated object from widget-config.js providing .input and .choose
+    //   parent_el: the DOM element this input form will be added to
+    //   params: the existing parameters of the widget
     function input_stop_timetable(widget_config, parent_el, params) {
 
         var config_table = document.createElement('table');
@@ -1477,9 +1483,9 @@ function StopTimetable(widget_id) {
         //
         // First create the 'stop_id' chooser function.
         // This 'chooser function' will be passed the element within which this chooser is to be drawn.
-        var chooser_stop_id = function (input_div) {
+        var chooser_stop_id = function (parent_el) {
 
-            return widget_config.choose( input_div,
+            var choose_return =  widget_config.choose( parent_el,
                                           'bus_stops',
                                           { text: 'Bus stop',
                                             title: 'Choose bus stop',
@@ -1491,8 +1497,20 @@ function StopTimetable(widget_id) {
                                             lng: 0.124,
                                             zoom: 16
                                           },
-                                          null
+                                          { stops: [ params.stop_id ] } // note structure needed for BusStopChooser
                                         );
+
+            // We create a value() function which itself uses choose_return
+            var value_fn = function () {
+                var bus_stops_return = choose_return.value();
+                // TODO error checking iif no stops chosen
+                self.log('chooser_stop_id returning',bus_stops_return.stops[0].stop_id);
+                return bus_stops_return.stops[0].stop_id; // note we unpick the return from BusStopChooser to get stop_id
+            }
+
+            return { valid: function () { return true; },
+                     value: value_fn };
+
         };
 
         //

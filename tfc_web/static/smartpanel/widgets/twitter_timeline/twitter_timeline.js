@@ -79,6 +79,8 @@ function TwitterTimeline(widget_id, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
+        var widget_config = new WidgetConfig(config);
+
         var CONFIG_TITLE = 'Configure Twitter Timeline';
 
         var config_div = document.getElementById(config.container_id);
@@ -98,7 +100,7 @@ function TwitterTimeline(widget_id, params) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_widget(config_form, params);
+        var input_result = input_widget(widget_config, config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -106,14 +108,14 @@ function TwitterTimeline(widget_id, params) {
     } // end this.configure()
 
     // Input the StopTimetable parameters
-    function input_widget(parent_el, params) {
+    function input_widget(widget_config, parent_el, params) {
 
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
 
         // Who input
         //
-        var who_result = config_input( parent_el,
+        var who_result = widget_config.input( parent_el,
                                        'string',
                                           { text: 'Twitter ID:',
                                             title: "Twitter ID (without leading '@') of a timeline to display",

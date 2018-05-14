@@ -25,6 +25,13 @@ function StationBoard(widget_id, params) {
         self.params = params;
     }
 
+    var STATION_OPTIONS = [ { value: 'CBG', text: 'Cambridge' },
+             { value: 'CMB', text: 'Cambridge North' },
+             { value: 'FXN', text: 'Foxton' },
+             { value: 'SED', text: 'Shelford' },
+             { value: 'WLF', text: 'Whittlesford' }
+    ];
+
     // backwards compatibility init() function
     this.init = function () {
         this.log(self.widget_id, 'Running StationBoard.init');
@@ -86,6 +93,8 @@ function StationBoard(widget_id, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
+        var widget_config = new WidgetConfig(config);
+
         var CONFIG_TITLE = 'Configure Train Station Info';
 
         self.log(self.widget_id, 'StationBoard configuring widget with', config.container_id, params);
@@ -108,7 +117,7 @@ function StationBoard(widget_id, params) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_widget(config_form, params);
+        var input_result = input_widget(widget_config, config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -116,7 +125,7 @@ function StationBoard(widget_id, params) {
     } // end this.configure()
 
     // Input the StopTimetable parameters
-    function input_widget(parent_el, params) {
+    function input_widget(widget_config, parent_el, params) {
 
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
@@ -124,14 +133,11 @@ function StationBoard(widget_id, params) {
         // Stations select
         //
         self.log(self.widget_id, 'configure() calling config_input', 'station', 'with',params.station);
-        var station_result = config_input(  parent_el,
+        var station_result = widget_config.input(  parent_el,
                                             'select',
                                             { text: 'Station:',
                                               title: 'Choose your station from the dropdown',
-                                              options: [ { value: 'CBG', text: 'Cambridge' },
-                                                         { value: 'CMB', text: 'Cambridge North' },
-                                                         { value: 'FXN', text: 'Foxton' },
-                                                         { value: 'SED', text: 'Shelford' } ]
+                                              options: STATION_OPTIONS
                                             },
                                             params.station
                                          );
@@ -139,7 +145,7 @@ function StationBoard(widget_id, params) {
         // offset input
         //
         self.log(self.widget_id, 'configure() calling config_input', 'offset', 'with',params.offset);
-        var offset_result = config_input( parent_el,
+        var offset_result = widget_config.input( parent_el,
                                           'number',
                                           { text: 'Timing offset (mins):',
                                             title: 'Set an offset (mins) if you want times for *later* trains than now',
@@ -169,7 +175,17 @@ function StationBoard(widget_id, params) {
             return config_params;
         };
 
-        var config_fn = function () { return { title: station_result.value()+' Station' }; };
+        var config_fn = function () {
+            var selected_key = station_result.value();
+            var selected_title = 'no station selected';
+            for (var i=0; i<STATION_OPTIONS.length; i++) {
+                if (STATION_OPTIONS[i].value === selected_key) {
+                    selected_title = STATION_OPTIONS[i].text + ' Station';
+                    break;
+                }
+            }
+
+            return { title: selected_title }; };
 
         return { valid: function () { return true; }, //debug - still to be implemeinted,
                  config: config_fn,

@@ -112,8 +112,9 @@ function WidgetConfig(config) {
 
         // create td to hold select dropdown
         var td_select = document.createElement('td');
-        td_select.className = 'widget_config_property_value';
+        td_select.setAttribute('class', 'widget_config_property_value');
         var sel = document.createElement('select');
+        sel.setAttribute('class', 'mdl-textfield__input');
 
         // set select.title
         if (param_options.title) sel.title = param_options.title;
@@ -208,13 +209,29 @@ function WidgetConfig(config) {
 
         td_value.appendChild(input);
 
+        // this fn will be called when user clicks 'save' on chooser
+        var chooser_save = function(chooser_return)
+        {
+            //debug
+            console.log('widget_config.js chooser_save', chooser_return.value());
+            var chooser_return_value = chooser_return.value();
+            if (chooser_return_value)
+            {
+                input.value = chooser_return_value;
+            }
+        };
+
         // if a 'chooser' function has been provided, add as onclick call
         if (param_options.chooser)
         {
             var chooser_link = document.createElement('a');
             chooser_link.setAttribute('href', '#');
             chooser_link.innerHTML = 'choose';
-            chooser_link.onclick = function () { config_chooser(parent_el, chooser_link, param_options, param_current); };
+            chooser_link.onclick = function () { config_chooser(parent_el,
+                                                                chooser_link,
+                                                                param_options,
+                                                                param_current,
+                                                                chooser_save); };
             td_value.appendChild(chooser_link);
         }
 
@@ -228,6 +245,7 @@ function WidgetConfig(config) {
     } // end config_string
 
     // populate a table row with a bus stop input widget
+    // NOTE: we are not currently using this function, using choose_bus_stops instead
     function config_bus_stops(parent_el, param_options, param_current)
     {
 
@@ -258,16 +276,16 @@ function WidgetConfig(config) {
 
         var td_value = document.createElement('td');
         td_value.className = 'widget_config_property_value';
-        var value_div = document.createElement('div');
-        value_div.setAttribute('style', 'height: 400px; width: 400px; background-color: lightblue; display: block;'); //debug ijl20
+        //var value_div = document.createElement('div');
+        //value_div.setAttribute('style', 'height: 400px; width: 400px; background-color: lightblue; display: block;'); //debug ijl20
 
-        td_value.appendChild(value_div);
+        //td_value.appendChild(value_div);
 
         row.appendChild(td_value);
 
         parent_el.appendChild(row);
 
-        var chooser = choose_bus_stops(value_div, param_options, param_current);
+        var chooser = choose_bus_stops(td_value, param_options, param_current);
 
         return {
             value: null, //chooser.getData,
@@ -276,6 +294,9 @@ function WidgetConfig(config) {
 
     } // end config_bus_stops
 
+    // choose_bus_stops
+    // This is simpler, and used by, config_bus_stops().
+    // This function just renders the actual chooser into a div (rather than a table row with title)
     function choose_bus_stops(parent_el, param_options, param_current)
     {
         var chooser = BusStopChooser.create(param_options);
@@ -551,7 +572,7 @@ function WidgetConfig(config) {
     } // end config_area
 
     // pop up a chooser, nearby element 'el'
-    function config_chooser(parent_el, el, param_options, param_current) {
+    function config_chooser(parent_el, el, param_options, param_current, save_fn) {
 
         var el_bounds = el.getBoundingClientRect();
 
@@ -588,12 +609,20 @@ function WidgetConfig(config) {
             chooser_div.parentNode.removeChild(chooser_div);
         };
 
+        // on save, call the 'save_fn' provided by the caller, with the result of the chooser
+        var chooser_save = function () {
+            // TODO may need to error check here
+            save_fn(chooser_return);
+            chooser_div.parentNode.removeChild(chooser_div);
+        }
+
         // add 'cancel', 'save' buttons
         var save_button = document.createElement('a');
         save_button.setAttribute('class',
                 'widget_config_chooser_button '+
                 'mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored');
         save_button.innerHTML = 'Save';
+        save_button.onclick = chooser_save;
         chooser_div.appendChild(save_button);
 
         var cancel_button = document.createElement('a');
