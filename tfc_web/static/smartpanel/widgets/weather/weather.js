@@ -5,12 +5,11 @@
 
 // 'widget_id' can be config object
 // 'params' only for backwards compatibility with previous layout framework
-function Weather(widget_id, params) {
+function Weather(widget_id) {
 
     'use strict';
 
-    //var DEBUG = ' weather_log';
-    var CONFIG_SHIM = true;
+    var DEBUG = ' weather_log';
 
     var self = this;
 
