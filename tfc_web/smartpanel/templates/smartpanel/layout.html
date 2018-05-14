@@ -48,22 +48,12 @@
         var RTMONITOR_API = new RTMonitorAPI();
         // Widget spec requires a DEBUG global
         var DEBUG = '';
-        var widget = [];
-        {% for key, value in layout.design.items %}
-            {% if value.widget %}
-                {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
-                    widget.push(new {{ value.widget|title|remove_underscore }}(
-                        {'container': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
-                        JSON.parse("{{ value.data|jsonify|escapejs }}")
-                    ));
-                {% endwith %}
-            {% endif %}
-        {% endfor %}
+        var widgets = [];
 
         function reload_widgets () {
-            for (var i = 0; i < widget.length; i++)
-                if ('reload' in widget[i])
-                    widget[i].reload();
+            for (var i = 0; i < widgets.length; i++)
+                if ('reload' in widgets[i])
+                    widgets[i].reload();
         }
 
         function update_screen_clock() {
@@ -91,9 +81,20 @@
 
         $().ready(function () {
             setInterval(update_screen_clock, 1000);
-            for (var i = 0; i < widget.length; i++)
-                if ('init' in widget[i])
-                    widget[i].init();
+
+            // We initialise the widgets
+            {% for key, value in layout.design.items %}
+                {% if value.widget %}
+                    {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
+                        widget = new {{ value.widget|title|remove_underscore }}("{{ key }}");
+                        widget.display(
+                            {'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
+                            JSON.parse("{{ value.data|jsonify|escapejs }}"));
+                        widgets.push(widget);
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+
             // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
             RTMONITOR_API.init();
             setInterval(reload_widgets, 60000);
