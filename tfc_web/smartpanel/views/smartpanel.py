@@ -30,6 +30,9 @@ def my(request):
 
 @login_required
 def design(request):
+    if request.method == "POST":
+        layout = Layout.objects.create(owner=request.user, design="{}")
+        return layout_config(request, layout.id, reload=True)
     return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list()})
 
 
@@ -79,7 +82,7 @@ def generate_widget_list():
 
 
 @login_required
-def layout_config(request, layout_id):
+def layout_config(request, layout_id, reload=False):
     layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     error = False
     try:
@@ -95,8 +98,11 @@ def layout_config(request, layout_id):
             layout.name = name
             layout.design = design
             layout.save()
+            if reload:
+                return redirect('smartpanel-layout-config', layout_id)
     except:
         error = True
+        messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'error': error,
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
@@ -178,8 +184,8 @@ def displays_debug(request):
 
 @login_required
 def my_displays(request):
-    return render(request, 'smartpanel/displays.html', {'screens': Display.objects.filter(owner=request.user),
-                                                        'edit': True})
+    return render(request, 'smartpanel/displays.html',
+                  {'screens': Display.objects.filter(owner=request.user), 'edit': True})
 
 
 @login_required

@@ -45,6 +45,12 @@
 </head>
 <body>
     {% if error %}<!-- An error happened -->{% endif %}
+    {% if messages %}
+    <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button type="button" class="mdl-snackbar__action"></button>
+    </div>
+    {% endif %}
     <div id="overlay-configure-widget">
         <div id="configuration-widget-div">
             <select id="widget-selector" data-widget-id="{{ key }}" class="mdl-textfield__input" style="width: 85%; margin: 0 auto 10px auto;">
@@ -109,6 +115,17 @@
             {% endfor %}
         };
         var widget_location = '{% static widget_location %}';
+
+        {% if messages %}
+            $().ready(function () {
+                var notification = document.querySelector('.mdl-js-snackbar');
+                {% for message in messages %}
+                    notification.MaterialSnackbar.showSnackbar({
+                        message: '{{ message }}'
+                    });
+                {% endfor %}
+            });
+        {% endif %}
     </script>
 </body>
 </html>
