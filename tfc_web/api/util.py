@@ -1,10 +1,13 @@
 
+from datetime import datetime, timezone
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
 import json
 import logging
 import os
+import re
+
 
 # Path to the data store
 DATA_PATH = settings.DATA_PATH
@@ -16,6 +19,43 @@ class TFCValidationError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Invalid input'
     default_code = 'invalid'
+
+
+class EpochField(serializers.Field):
+    ''' Serialize a Unix timestamp as an ISO data-time representation '''
+    def to_representation(self, obj):
+        return datetime.fromtimestamp(
+          int(obj), tz=timezone.utc).isoformat()
+
+
+# maximum days allowed in one hit
+MAX_DAYS = 31
+
+
+class ListArgsSerializer(serializers.Serializer):
+    ''' Common query string parameters '''
+    start_date = serializers.DateField(input_formats=['%Y-%m-%d'])
+    end_date = serializers.DateField(input_formats=['%Y-%m-%d'], required=False)
+    feed_id = serializers.CharField(required=False)
+
+    def validate_feed_id(self, id):
+        if not re.match(r'^[a-z0-9_-]+$', id):
+            raise serializers.ValidationError("Incorrect feed_id format")
+        return id
+
+    def validate(self, data):
+        ''' Check that end date isn't more than MAX_DAYS days from start_date '''
+        if 'end_date' in data:
+            if data['end_date'] < data['start_date']:
+                raise serializers.ValidationError(
+                    'end_date \'{0}\' is before start_date \'{1}\''
+                    .format(data['end_date'], data['start_date']))
+            day_count = (data['end_date'] - data['start_date']).days + 1
+            if day_count > MAX_DAYS:
+                raise serializers.ValidationError(
+                    '{0} days data requested, maximum of {1} allowed'
+                    .format(day_count, MAX_DAYS))
+        return data
 
 
 def safe_build(path):

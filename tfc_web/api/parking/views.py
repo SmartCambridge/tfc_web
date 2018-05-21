@@ -1,6 +1,6 @@
 
 from .serializers import ParkingListSerializer, ParkingConfigSerializer, \
- ParkingRecordSerializer, ParkingHistorySerializer, ListArgsSerializer
+ ParkingRecordSerializer, ParkingHistorySerializer
 from api import util
 from datetime import timedelta
 from django.http import Http404
@@ -11,9 +11,6 @@ import coreapi
 import coreschema
 import logging
 
-
-# Path to the config data for parking
-MAX_DAYS = 31
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +109,7 @@ class ParkingHistory(APIView):
 
     def get(self, request, parking_id):
 
-        args = ListArgsSerializer(data=request.query_params)
+        args = util.ListArgsSerializer(data=request.query_params)
         args.is_valid(raise_exception=True)
 
         # Note that this validates parking_id!
