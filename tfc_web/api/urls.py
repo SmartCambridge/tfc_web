@@ -8,4 +8,5 @@ urlpatterns = [
                                      permission_classes=[])),
     url(r'^parking/', include('api.parking.urls')),
     url(r'^zones/', include('api.zones.urls')),
+    url(r'^aq/', include('api.aq.urls')),
 ]
