@@ -47,6 +47,7 @@ PROJECT_APPS = [
     'aq',
     'csn',
     'smartpanel',
+    'api',
 ]
 
 INSTALLED_APPS = [
