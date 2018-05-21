@@ -3,6 +3,9 @@ from datetime import datetime, timezone
 from django.conf import settings
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
+from rest_framework.schemas import AutoSchema
+import coreapi
+import coreschema
 import json
 import logging
 import os
@@ -31,17 +34,31 @@ class EpochField(serializers.Field):
 # maximum days allowed in one hit
 MAX_DAYS = 31
 
+list_args_schema = AutoSchema(
+    manual_fields=[
+        coreapi.Field(
+            "start_date",
+            required=True,
+            location="query",
+            schema=coreschema.String(
+                description="Start date for returned data (YYYY-MM-DD)")
+        ),
+        coreapi.Field(
+            "end_date",
+            location="query",
+            schema=coreschema.String(
+                description="End date for returned data (YYYY-MM-DD). "
+                "Defaults to start_date and must be no more than 31 days "
+                "from start_date")
+        ),
+    ]
+)
+
 
 class ListArgsSerializer(serializers.Serializer):
     ''' Common query string parameters '''
     start_date = serializers.DateField(input_formats=['%Y-%m-%d'])
     end_date = serializers.DateField(input_formats=['%Y-%m-%d'], required=False)
-    feed_id = serializers.CharField(required=False)
-
-    def validate_feed_id(self, id):
-        if not re.match(r'^[a-z0-9_-]+$', id):
-            raise serializers.ValidationError("Incorrect feed_id format")
-        return id
 
     def validate(self, data):
         ''' Check that end date isn't more than MAX_DAYS days from start_date '''
