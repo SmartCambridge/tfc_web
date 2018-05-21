@@ -55,6 +55,10 @@ function WidgetConfig(config) {
                 input_info = config_number(parent_el, param_options, param_current);
                 break;
 
+            case 'bus_stop':
+                input_info = config_bus_stop(parent_el, param_options, param_current);
+                break;
+
             case 'bus_stops':
                 input_info = config_bus_stops(parent_el, param_options, param_current);
                 break;
@@ -229,8 +233,9 @@ function WidgetConfig(config) {
             chooser_link.innerHTML = 'choose';
             chooser_link.onclick = function () { config_chooser(parent_el,
                                                                 chooser_link,
-                                                                param_options,
-                                                                param_current,
+                                                                //param_options,
+                                                                //param_current,
+                                                                param_options.chooser,
                                                                 chooser_save); };
             td_value.appendChild(chooser_link);
         }
@@ -243,6 +248,86 @@ function WidgetConfig(config) {
                  valid: function () { return true; }
             };
     } // end config_string
+
+    function config_bus_stop(parent_el, param_options, param_current)
+    {
+        //debug
+        console.log('WidgetConfig','config_bus_stop', param_options, param_current);
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var input;
+
+        var format = param_options.format ? param_options.format : 'text';
+
+        switch (format) {
+            case 'textarea':
+                 input = document.createElement('textarea');
+                 break;
+
+            default:
+                 input = document.createElement('input');
+                 break;
+        }
+
+        if (param_options.type) input.type = param_options.type;
+        if (param_options.step) input.step = param_options.step;
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in param_current
+        //self.log(param_name,'default set to',param_current);
+        if (param_current) input.value = param_current.common_name;
+
+        td_value.appendChild(input);
+
+        var chooser_value = null;
+
+        // this fn will be called when user clicks 'save' on chooser
+        var chooser_save = function(chooser_return)
+        {
+            //debug
+            console.log('widget_config.js chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+            if (chooser_value)
+            {
+                input.value = chooser_value.stops[0].common_name;
+            }
+        };
+
+        var chooser_fn = function (input_div) {
+            return choose_bus_stops( input_div, { multi_select: false }, { stops: [ param_current ] } );
+        };
+
+        var chooser_link = document.createElement('a');
+        chooser_link.setAttribute('href', '#');
+        chooser_link.innerHTML = 'choose stop';
+        chooser_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_link,
+                                                            //param_options,
+                                                            //param_current,
+                                                            chooser_fn,
+                                                            chooser_save); };
+        td_value.appendChild(chooser_link);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        return { value: function() { return chooser_value.stops[0]; },
+                 valid: function () { return true; }
+            };
+    } // end config_bus_stop
 
     // populate a table row with a bus stop input widget
     // NOTE: we are not currently using this function, using choose_bus_stops instead
@@ -297,8 +382,11 @@ function WidgetConfig(config) {
     // choose_bus_stops
     // This is simpler, and used by, config_bus_stops().
     // This function just renders the actual chooser into a div (rather than a table row with title)
+    // param_current is { map: { ... }, stops: [ {stop}, ... ] }
     function choose_bus_stops(parent_el, param_options, param_current)
     {
+        //debug
+        console.log('WidgetConfig','choose_bus_stops',param_options, param_current);
         var chooser = BusStopChooser.create(param_options);
         chooser.render(parent_el, param_current);
         return chooser;
@@ -572,7 +660,8 @@ function WidgetConfig(config) {
     } // end config_area
 
     // pop up a chooser, nearby element 'el'
-    function config_chooser(parent_el, el, param_options, param_current, save_fn) {
+    //function config_chooser(parent_el, el, param_options, param_current, chooser, save_fn) {
+    function config_chooser(parent_el, el, chooser, save_fn) {
 
         var el_bounds = el.getBoundingClientRect();
 
@@ -601,7 +690,7 @@ function WidgetConfig(config) {
         var input_div_style = 'width: '+width+'px; height: '+height+'px;';
         input_div.setAttribute('style', input_div_style);
 
-        var chooser_return = param_options.chooser(input_div);
+        var chooser_return = chooser(input_div);
 
         //TODO add save, cancel onclick callbacks
 
