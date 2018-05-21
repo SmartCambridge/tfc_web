@@ -46,7 +46,7 @@ PROJECT_APPS = [
     'traffic',
     'aq',
     'csn',
-    'smartpanel'
+    'smartpanel',
 ]
 
 INSTALLED_APPS = [
@@ -224,6 +224,15 @@ TNDS_ZONES = ['EA', 'SE', 'EM']
 
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# API configuration ====================================================
+
+try:
+    DATA_PATH = os.environ['TFC_API_DATA_PATH']
+except KeyError:
+    DATA_PATH = '/usr/src/app/api_test_data'
+
+# ======================================================================
 
 # An attempt to adapt the default Django logging to log useful stuff
 # in development and production to the console (which will be captured
