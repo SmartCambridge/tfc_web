@@ -1501,7 +1501,7 @@ function StopTimetable(widget_id) {
         //
         var title_result = widget_config.input( config_tbody,
                                          'string',
-                                         { text: 'Title:',
+                                         { text: 'Main Title:',
                                            title: 'The main title at the top of the widget, e.g. bus stop name'
                                          },
                                          params.title);
@@ -1546,17 +1546,6 @@ function StopTimetable(widget_id) {
 
         };
 
-        /*
-        //
-        var stop_result = widget_config.input( config_tbody,
-                                           'string',
-                                           { text: 'Stop ID:',
-                                             title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
-                                             chooser: chooser_stop
-                                             // TODO add chooser icon
-                                           },
-                                           params.stop);
-        */
         self.log('configure() calling widget_config.input', 'stop', 'with',params.stop);
         var stop_result = widget_config.input( config_tbody,
                                            'bus_stop',
@@ -1755,7 +1744,7 @@ function StopTimetable(widget_id) {
 
     // Add a 'destination' input (as a row in a 'destinations' table)
     function input_destination(widget_config, parent_el, destination) {
-        self.log('config_input_destination called with',destination);
+        self.log('input_destination called with',destination);
 
         var tr = document.createElement('tr');
         var td = document.createElement('td');
@@ -1784,14 +1773,12 @@ function StopTimetable(widget_id) {
         var table = document.createElement('table');
         var tbody = document.createElement('tbody');
 
-        var description_result = widget_config.input( tbody,
-                                              'string',
-                                               { text: 'Description:',
-                                                 title: 'Short display name of the destination, e.g. City Centre',
-                                               },
-                                               destination ? destination.description : null);
-
-        var stops_result = input_stop_list( widget_config, tbody, destination ? destination.stops : null);
+        var stops_result = widget_config.input( tbody,
+                                                'bus_destination',
+                                                { text: 'Title',
+                                                  title: 'Choose a simple name for this destination, e.g. City Centre'
+                                                },
+                                                destination );
 
         table.appendChild(tbody);
         td.appendChild(table);
@@ -1802,9 +1789,7 @@ function StopTimetable(widget_id) {
             if (removed) {
                 return null;
             } else {
-                return { description: description_result.value(),
-                         stops: stops_result.value()
-                       };
+                return stops_result.value();
             }
         }
 
@@ -1812,34 +1797,6 @@ function StopTimetable(widget_id) {
                  valid: function () { return true; }
                };
     }
-
-    //DEBUG NEED TO ACCEPT/RETURN LIST OF STOPS
-    //
-    // input a list of stops as a comma-separated string
-    function input_stop_list(widget_config, parent_el, stop_ids) {
-
-        var stops = '';
-        if (stop_ids) {
-            for (var i=0; i<stop_ids.length; i++) {
-                stops += (i==0) ? stop_ids[0] : ','+stop_ids[i];
-            }
-        }
-        var stop_ids_result = widget_config.input( parent_el,
-                                           'string',
-                                           { text: 'Stop ID list:',
-                                             title: 'Atco codes of the stops of interest, e.g. 0500CCITY424,0500CCITY425',
-                                           },
-                                           stops);
-
-        function value() {
-            var stops = stop_ids_result.value();
-            var stop_ids = stops.split(',');
-            return stop_ids;
-        }
-
-        return { value: value,
-                 valid: function () { return true; } };
-    } // end input_stop_list
 
     self.log('Instantiated StopTimetable');
 
