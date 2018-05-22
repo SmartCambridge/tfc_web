@@ -1,19 +1,13 @@
 
 from .serializers import ParkingListSerializer, ParkingConfigSerializer, \
- ParkingRecordSerializer, ParkingHistorySerializer, ListArgsSerializer
+ ParkingRecordSerializer, ParkingHistorySerializer
 from api import util
 from datetime import timedelta
 from django.http import Http404
 from rest_framework.response import Response
-from rest_framework.schemas import AutoSchema
 from rest_framework.views import APIView
-import coreapi
-import coreschema
 import logging
 
-
-# Path to the config data for parking
-MAX_DAYS = 31
 
 logger = logging.getLogger(__name__)
 
@@ -72,35 +66,6 @@ class ParkingConfig(APIView):
         return Response(serializer.data)
 
 
-parking_history_extra_schema = AutoSchema(
-    manual_fields=[
-        coreapi.Field(
-            "start_date",
-            required=True,
-            location="query",
-            schema=coreschema.String(
-                description="Start date for returned data (YYYY-MM-DD)")
-        ),
-        coreapi.Field(
-            "end_date",
-            location="query",
-            schema=coreschema.String(
-                description="End date for returned data (YYYY-MM-DD). "
-                "Defaults to start_date and must be no more than 31 days "
-                "from start_date")
-        ),
-        coreapi.Field(
-            "feed_id",
-            location="query",
-            schema=coreschema.String(
-                description="ID of the internal feed from which data "
-                "should be retrieved. Default is to use the default "
-                "feed for parking_id.")
-        )
-    ]
-)
-
-
 class ParkingHistory(APIView):
     '''
     Return historic car park occupancy data for a single car park
@@ -108,21 +73,16 @@ class ParkingHistory(APIView):
     _start_date_ to _end_date_ inclusive. A most 31 day's data can be
     retrieved in a single request.
     '''
-    schema = parking_history_extra_schema
+    schema = util.list_args_schema
 
     def get(self, request, parking_id):
 
-        args = ListArgsSerializer(data=request.query_params)
+        args = util.ListArgsSerializer(data=request.query_params)
         args.is_valid(raise_exception=True)
 
         # Note that this validates parking_id!
         config = get_parking_config(parking_id)
-
-        feed_id = args.validated_data.get('feed_id')
-        if feed_id is None:
-            feed_id = config['feed_id']
-        # Note that this validates feed_id!
-        get_feed_config(feed_id)
+        feed_id = config['feed_id']
 
         start_date = args.validated_data.get('start_date')
         end_date = args.validated_data.get('end_date')
