@@ -81,7 +81,7 @@ def safe_build(path):
     result is still somewhere within DATA_PATH, allowing for directory
     traversal attempts and symlinks pointing outside DATA_PATH
     '''
-    result = os.path.realpath(os.path.join(DATA_PATH, path))
+    result = os.path.normpath(os.path.join(DATA_PATH, path))
     if result.startswith(os.path.join(DATA_PATH, '')):
         return result
     logger.warning('Requested file outside DATA_PATH: path "{0}", result "{1}"'
