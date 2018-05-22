@@ -15,3 +15,7 @@ for name, value in os.environ.items():
 
     # Set value
     DATABASES['default'][name] = value
+
+# Set the API data path to point to the internal test data
+
+DATA_PATH = '/usr/src/app/api_test_data'

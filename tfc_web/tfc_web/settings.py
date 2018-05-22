@@ -231,7 +231,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 try:
     DATA_PATH = os.environ['TFC_API_DATA_PATH']
 except KeyError:
-    DATA_PATH = '/usr/src/app/api_test_data'
+    DATA_PATH = '/media/tfc'
 
 # ======================================================================
 
