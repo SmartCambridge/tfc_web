@@ -353,29 +353,52 @@ function WidgetConfig(config) {
 
         td_value.appendChild(input);
 
+        // Here's a 'local' variable to store whatever the selected chooser returns,
+        // so that a subsequent 'save' of the entire widget config will get that value.
+        // The var is WRITTEN in the chooser_save function, and READ in the { value: fn returned by this
+        // config input element.
         var chooser_value = null;
 
         // this fn will be called when user clicks 'save' on chooser
-        var chooser_save = function(chooser_return)
+        var chooser_save_fn = function(chooser_return)
         {
             //debug
             console.log('widget_config.js chooser_save', chooser_return.value());
             chooser_value = chooser_return.value();
         };
 
-        var chooser_fn = function (input_div) {
+        var chooser_stops_fn = function (input_div) {
             return choose_bus_stops( input_div, { multi_select: true }, param_current ? param_current : null );
         };
 
-        var chooser_link = document.createElement('a');
-        td_value.appendChild(chooser_link);
+        var chooser_area_fn = function (input_div) {
+            return choose_area( input_div, { }, param_current ? param_current : null );
+        };
 
-        chooser_link.setAttribute('href', '#');
-        chooser_link.innerHTML = 'choose stops';
-        chooser_link.onclick = function () { config_chooser(parent_el,
-                                                            chooser_link,
-                                                            chooser_fn,
-                                                            chooser_save); };
+        var chooser_links_div = document.createElement('div');
+        td_value.appendChild(chooser_links_div);
+
+        var chooser_stops_link = document.createElement('a');
+
+        chooser_stops_link.setAttribute('class','widget_config_chooser_link');
+        chooser_stops_link.setAttribute('href', '#');
+        chooser_stops_link.innerHTML = 'choose stops';
+        chooser_stops_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_links_div,
+                                                            chooser_stops_fn,
+                                                            chooser_save_fn); };
+        chooser_links_div.appendChild(chooser_stops_link);
+
+        var chooser_area_link = document.createElement('a');
+
+        chooser_area_link.setAttribute('class','widget_config_chooser_link');
+        chooser_area_link.setAttribute('href', '#');
+        chooser_area_link.innerHTML = 'choose area';
+        chooser_area_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_links_div,
+                                                            chooser_area_fn,
+                                                            chooser_save_fn); };
+        chooser_links_div.appendChild(chooser_area_link);
 
         row.appendChild(td_value);
 
@@ -384,7 +407,8 @@ function WidgetConfig(config) {
         return { value: function() {
                             if (!chooser_value || !chooser_value.stops) return param_current;
                             return { description: input.value,
-                                     stops: chooser_value.stops
+                                     stops: chooser_value.stops,
+                                     area: chooser_value.area
                                    };
                         },
                  valid: function () { return true; }
@@ -557,25 +581,19 @@ function WidgetConfig(config) {
     function config_area(parent_el, param_options, param_current)
     {
 
-        'use strict';
+        //debug
+        console.log('widget_config','Called config_area');
 
-        console.log('Called config_area');
-
-        var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        var OSM_MAX_ZOOM = 19;
-        var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
-        'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
 
         var title = param_options.title;
         var text = param_options.text;
         var width = param_options.width || "500px";
         var height = param_options.height || "500px";
-        var lat = param_options.lat || 52.204;
-        var lng = param_options.lng || 0.124;
-        var zoom = param_options.zoom || 15;
 
         // Setup HTML
         var row = document.createElement('tr');
+        parent_el.appendChild(row);
+
         // create td to hold 'name' prompt for field
         var name = document.createElement('td');
         name.className = 'widget_config_property_name';
@@ -586,13 +604,35 @@ function WidgetConfig(config) {
         name.appendChild(label);
         row.appendChild(name);
 
-        var value = document.createElement('td');
-        value.className = 'widget_config_property_value';
-        value.style.height = height;
-        value.style.width = width;
-        row.appendChild(value);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+        td_value.style.height = height;
+        td_value.style.width = width;
+        row.appendChild(td_value);
 
-        parent_el.appendChild(row);
+        var chooser_return = choose_area(td_value, param_options, param_current);
+
+        return chooser_return;
+
+    } // end config_area
+
+    // choose_area
+    // This is simpler, and used by, config_bus_stops().
+    // This function just renders the actual chooser into a div (rather than a table row with title)
+    // param_current is { map: { ... }, stops: [ {stop}, ... ] }
+    function choose_area(parent_el, param_options, param_current)
+    {
+        var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var OSM_MAX_ZOOM = 19;
+        var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
+        'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
+
+        //debug
+        console.log('WidgetConfig','choose_area',param_options, param_current);
+
+        var lat = param_options.lat || 52.204;
+        var lng = param_options.lng || 0.124;
+        var zoom = param_options.zoom || 15;
 
         // Create a map
         var osm = new L.TileLayer(OSM_TILES,
@@ -601,7 +641,7 @@ function WidgetConfig(config) {
             }
         );
 
-        var map = new L.Map(value).addLayer(osm);
+        var map = new L.Map(parent_el).addLayer(osm);
         var drawing_layer = new L.FeatureGroup();
         map.addLayer(drawing_layer);
 
@@ -669,8 +709,7 @@ function WidgetConfig(config) {
             },
             valid: function () { return true; }
         };
-
-    } // end config_area
+    }
 
     // pop up a chooser, nearby element 'el'
     //function config_chooser(parent_el, el, param_options, param_current, chooser, save_fn) {

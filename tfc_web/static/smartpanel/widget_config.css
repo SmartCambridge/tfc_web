@@ -92,3 +92,8 @@
     margin-left: 5px;
 }
 
+.widget_config_chooser_link {
+    display: block;
+    margin: 2px;
+}
+
