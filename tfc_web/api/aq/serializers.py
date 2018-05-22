@@ -65,13 +65,17 @@ class AQDataSerializer(serializers.Serializer):
     SensorType = serializers.CharField()
 
 
+# date_from, date_to, Description are not necessarily populated
+# in all entries, hence required=False
+
+
 class AQConfigSerializer(serializers.Serializer):
     acp_id = serializers.CharField(source='StationID')
     acp_lat = serializers.FloatField(source='Latitude')
     acp_lng = serializers.FloatField(source='Longitude')
-    date_from = serializers.CharField()
-    date_to = serializers.CharField()
-    Description = serializers.CharField()
+    date_from = serializers.CharField(required=False)
+    date_to = serializers.CharField(required=False)
+    Description = serializers.CharField(required=False)
     FeedID = serializers.CharField()
     Latitude = serializers.FloatField()
     Longitude = serializers.FloatField()
