@@ -23,7 +23,8 @@ def get_zone_config(zone_id=None):
 
 def swap_dot_and_underscore(data):
     ''' serializer can't cope with '.' in keys - switch to '_' '''
-    return {key.replace('.', '_'): value for (key, value) in data}
+    logger.info(data)
+    return {key.replace('.', '_'): value for (key, value) in data.items()}
 
 
 class ZoneList(auth.AuthenticateddAPIView):
