@@ -228,10 +228,14 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # API configuration ====================================================
 
+# Where to find the filesystem data
 try:
     DATA_PATH = os.environ['TFC_API_DATA_PATH']
 except KeyError:
     DATA_PATH = '/media/tfc'
+
+# API Token authentication support
+INSTALLED_APPS += ['rest_framework.authtoken']
 
 # ======================================================================
 

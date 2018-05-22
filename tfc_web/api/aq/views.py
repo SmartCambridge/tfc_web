@@ -1,7 +1,7 @@
 
 from .serializers import AQListSerializer, AQConfigSerializer, \
  AQDataSerializer
-from api import util
+from api import util, auth
 from datetime import datetime
 from django.http import Http404
 from rest_framework.response import Response
@@ -20,7 +20,7 @@ def get_aq_config(station_id=None):
                                'aq_list', 'StationID')
 
 
-class AQList(APIView):
+class AQList(auth.AuthenticateddAPIView):
     ''' Return metadata for all stations '''
     def get(self, request):
         data = get_aq_config()
@@ -28,7 +28,7 @@ class AQList(APIView):
         return Response(serializer.data)
 
 
-class AQConfig(APIView):
+class AQConfig(auth.AuthenticateddAPIView):
     ''' Return metadata for a single station '''
     def get(self, request, station_id):
         data = get_aq_config(station_id)
@@ -36,7 +36,7 @@ class AQConfig(APIView):
         return Response(serializer.data)
 
 
-class AQHistory(APIView):
+class AQHistory(auth.AuthenticateddAPIView):
     ''' Return historic data for a station/sensor/month '''
     def get(self, request, station_id, sensor_type, month):
         # Note that this validates station_id!

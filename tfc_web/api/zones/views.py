@@ -1,7 +1,7 @@
 
 from .serializers import ZoneListSerializer, ZoneConfigSerializer, \
  ZoneHistorySerializer
-from api import util
+from api import util, auth
 from datetime import timedelta
 from rest_framework.response import Response
 
@@ -26,7 +26,7 @@ def swap_dot_and_underscore(data):
     return {key.replace('.', '_'): value for (key, value) in data}
 
 
-class ZoneList(APIView):
+class ZoneList(auth.AuthenticateddAPIView):
     '''
     List metadata for all known zones, including each zone's
     zone_id
@@ -42,7 +42,7 @@ class ZoneList(APIView):
         return Response(serializer.data)
 
 
-class ZoneConfig(APIView):
+class ZoneConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single zone identified by zone_id
     '''
@@ -52,7 +52,7 @@ class ZoneConfig(APIView):
         return Response(serializer.data)
 
 
-class ZoneHistory(APIView):
+class ZoneHistory(auth.AuthenticateddAPIView):
     '''
     Return historic zone data for the single zone identified by zone_id.
     Data is returned in 24-hour chunks from start_date to end_date

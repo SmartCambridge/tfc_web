@@ -1,7 +1,7 @@
 
 from .serializers import ParkingListSerializer, ParkingConfigSerializer, \
  ParkingRecordSerializer, ParkingHistorySerializer
-from api import util
+from api import util, auth
 from datetime import timedelta
 from django.http import Http404
 from rest_framework.response import Response
@@ -45,7 +45,7 @@ def get_parking_monitor(parking_id, suffix=''):
     raise Http404('No data found for "{0}"'.format(parking_id))
 
 
-class ParkingList(APIView):
+class ParkingList(auth.AuthenticateddAPIView):
     '''
     List metadata for all known car parks, including each car park's
     _parking-id_
@@ -56,7 +56,7 @@ class ParkingList(APIView):
         return Response(serializer.data)
 
 
-class ParkingConfig(APIView):
+class ParkingConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single car park identified by _parking_id_
     '''
@@ -66,7 +66,7 @@ class ParkingConfig(APIView):
         return Response(serializer.data)
 
 
-class ParkingHistory(APIView):
+class ParkingHistory(auth.AuthenticateddAPIView):
     '''
     Return historic car park occupancy data for a single car park
     identified by _parking_id_. data is returned in 24-hour chunks from
@@ -104,22 +104,24 @@ class ParkingHistory(APIView):
         return Response(serializer.data)
 
 
-class ParkingLatest(APIView):
+class ParkingLatest(auth.AuthenticateddAPIView):
     '''
     Return most recent car park occupancy data for the car park
     identified by parking_id
     '''
+
     def get(self, request, parking_id):
         data = get_parking_monitor(parking_id)
         serializer = ParkingRecordSerializer(data)
         return Response(serializer.data)
 
 
-class ParkingPrevious(APIView):
+class ParkingPrevious(auth.AuthenticateddAPIView):
     '''
     Return previous most recent car park occupancy data for the car park
     identified by parking_id
     '''
+
     def get(self, request, parking_id):
         data = get_parking_monitor(parking_id, '.prev')
         serializer = ParkingRecordSerializer(data)
