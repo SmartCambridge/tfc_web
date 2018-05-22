@@ -368,13 +368,14 @@ function WidgetConfig(config) {
         };
 
         var chooser_link = document.createElement('a');
+        td_value.appendChild(chooser_link);
+
         chooser_link.setAttribute('href', '#');
         chooser_link.innerHTML = 'choose stops';
         chooser_link.onclick = function () { config_chooser(parent_el,
                                                             chooser_link,
                                                             chooser_fn,
                                                             chooser_save); };
-        td_value.appendChild(chooser_link);
 
         row.appendChild(td_value);
 
@@ -680,6 +681,9 @@ function WidgetConfig(config) {
         var pos_x = Math.floor(el_bounds.left);
         var pos_y = Math.floor(el_bounds.top);
 
+        //debug
+        console.log('WidgetConfig', 'config_chooser', pos_x, pos_y);
+
         var width = 500; // TODO get from layout_config
         var height = 500;
 
@@ -690,12 +694,14 @@ function WidgetConfig(config) {
         chooser_div_style += ' position: absolute;';
         chooser_div_style += ' border: 5px ridge;';
         chooser_div_style += ' background-color: white;';
+        chooser_div_style += ' z-index: 2000;';
 
         chooser_div_style += ' left: '+pos_x+'px; top: '+pos_y+'px;';
 
         chooser_div.setAttribute('style', chooser_div_style);
 
-        parent_el.appendChild(chooser_div);
+        //parent_el.appendChild(chooser_div);
+        document.body.appendChild(chooser_div);
 
         var input_div = document.createElement('div');
         chooser_div.appendChild(input_div);

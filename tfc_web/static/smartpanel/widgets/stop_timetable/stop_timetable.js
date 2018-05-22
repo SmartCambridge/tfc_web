@@ -420,7 +420,7 @@ function StopTimetable(widget_id) {
                     // passing ourself?
                     if (( seen_self ) &&
                         (( destination.stops &&
-                           contains_stop(destinations.stops, timetable_entry.stop) ) ||
+                           contains_stop(destination.stops, timetable_entry.stop) ) ||
                          ( destination.area &&
                            is_inside({ lat: timetable_entry.stop.latitude,
                                        lng: timetable_entry.stop.longitude },
@@ -443,7 +443,7 @@ function StopTimetable(widget_id) {
                 // part of this destination?
                 var last = result.journey.timetable[result.journey.timetable.length-1];
                 if (( destination.stops &&
-                      contains_stop(destinations.stops, last.stop) ) ||
+                      contains_stop(destination.stops, last.stop) ) ||
                     ( destination.area &&
                       is_inside({ lat: last.stop.latitude,
                                   lng: last.stop.longitude },
@@ -1775,7 +1775,7 @@ function StopTimetable(widget_id) {
 
         var stops_result = widget_config.input( tbody,
                                                 'bus_destination',
-                                                { text: 'Title',
+                                                { text: 'Title:',
                                                   title: 'Choose a simple name for this destination, e.g. City Centre'
                                                 },
                                                 destination );
