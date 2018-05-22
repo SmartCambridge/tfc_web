@@ -321,7 +321,7 @@ function WidgetConfig(config) {
     // Input a bus destination
     // { description: 'City Centre',
     //   stops: [ { stop_id: '0500CCITY424', common_name: ... }, ... ]
-    //   area: [ list of lat/lng points ]
+    //   areas: [ list of areas ] where each 'area' is a list of lat/lng points
     // }
     function config_bus_destination(parent_el, param_options, param_current)
     {
@@ -359,7 +359,8 @@ function WidgetConfig(config) {
         // config input element.
         var chooser_value = null;
 
-        // this fn will be called when user clicks 'save' on chooser
+        // This fn will be called when user clicks 'save' on chooser
+        // It simply saves the value() of the chooser in local var chooser_value
         var chooser_save_fn = function(chooser_return)
         {
             //debug
@@ -405,15 +406,26 @@ function WidgetConfig(config) {
         parent_el.appendChild(row);
 
         return { value: function() {
-                            if (!chooser_value || !chooser_value.stops) return param_current;
-                            return { description: input.value,
-                                     stops: chooser_value.stops,
-                                     area: chooser_value.area
-                                   };
+                            var return_value = param_current;
+                            if (chooser_value && chooser_value.stops && chooser_value.stops.length > 0)
+                            {
+                              return_value =  { description: input.value,
+                                                stops: chooser_value.stops
+                                               };
+                            }
+                            else if (chooser_value && chooser_value.areas && chooser_value.areas.length > 0)
+                            {
+                              return_value =  { description: input.value,
+                                                area: chooser_value.areas[0]
+                                               };
+                            }
+                            //debug
+                            console.log('widget_config','config_area','returning',return_value);
+                            return return_value;
                         },
                  valid: function () { return true; }
             };
-    } // end config_bus_stop
+    } // end config_bus_destination
 
 
     // choose_bus_stops
@@ -617,9 +629,7 @@ function WidgetConfig(config) {
     } // end config_area
 
     // choose_area
-    // This is simpler, and used by, config_bus_stops().
-    // This function just renders the actual chooser into a div (rather than a table row with title)
-    // param_current is { map: { ... }, stops: [ {stop}, ... ] }
+    // param_current is { map: { ... }, areas: [ (area), ... ] }
     function choose_area(parent_el, param_options, param_current)
     {
         var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';

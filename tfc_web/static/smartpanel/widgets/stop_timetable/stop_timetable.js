@@ -1724,7 +1724,7 @@ function StopTimetable(widget_id) {
 
         parent_el.appendChild(row);
 
-        function value () {
+        function value_fn () {
             var list_result = [];
             for (var i=0; i<destination_values.length; i++) {
                 if (destination_values[i].value()) {
@@ -1735,7 +1735,7 @@ function StopTimetable(widget_id) {
             return list_result;
         };
 
-        return { value: value,
+        return { value: value_fn,
                  valid: function () { return true; },
                  element: row
                };
