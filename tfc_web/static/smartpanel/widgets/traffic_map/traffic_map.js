@@ -129,6 +129,7 @@ function TrafficMap(widget_id) {
         config_div.appendChild(config_title);
 
         var config_form = document.createElement('form');
+        config_div.appendChild(config_form);
 
         /*
         var input_result = input_stop_timetable(widget_config,
@@ -154,16 +155,18 @@ function TrafficMap(widget_id) {
 
         var maps_result = input_google_map_list( widget_config, config_tbody, params.maps );
 
-        config_div.appendChild(config_form);
 
         //debug
         // return a test set of maps
         return { valid: function () { return true; },
                  value: function () { return { interval: interval_result.value(),
+                                               maps: maps_result.value()
+                                               /*
                                                maps: [
                                                        { lat: 52.204684, lng: 0.124622, zoom: 12 },
                                                        { lat: 52.204684, lng: 0.124622, zoom: 10 }
                                                      ]
+                                               */
                                              };
                                     },
                  config: function () { return { title: 'Cambs Traffic Maps' }; }
@@ -175,6 +178,7 @@ function TrafficMap(widget_id) {
     function input_google_map_list(widget_config, parent_el, current_maps) {
         self.log(widget_id,'input_map_list called with', current_maps);
         var row = document.createElement('tr');
+        parent_el.appendChild(row);
 
         // create TD to hold 'name' prompt for field
         var td_name = document.createElement('td');
@@ -189,13 +193,16 @@ function TrafficMap(widget_id) {
         // create TD to hold 'value' destination_list
         var td_value = document.createElement('td');
         td_value.className = 'widget_config_property_value';
+        row.appendChild(td_value);
 
         var maps_table = document.createElement('table');
         maps_table.className = 'config_traffic_maps_table';
         maps_table.style['border-collapse'] = 'separate';
         maps_table.style['padding'] = '5px';
+        td_value.appendChild(maps_table);
 
         var tbody = document.createElement('tbody');
+        maps_table.appendChild(tbody);
 
         var map_values = [];
 
@@ -209,8 +216,6 @@ function TrafficMap(widget_id) {
             map_values.push(input_google_map(widget_config, tbody, null));
         }
 
-        maps_table.appendChild(tbody);
-        td_value.appendChild(maps_table);
 
         // create (+) add an element button
         var plus_url = self.config.static_url + 'images/plus.png';
@@ -228,9 +233,7 @@ function TrafficMap(widget_id) {
 
         td_value.appendChild(plus_img);
 
-        row.appendChild(td_value);
 
-        parent_el.appendChild(row);
 
         function value_fn () {
             var list_result = [];
@@ -250,13 +253,16 @@ function TrafficMap(widget_id) {
 
     } // end input_google_map_list
 
-    // Add a 'destination' input (as a row in a 'destinations' table)
+    // Add a 'google_map' input (as a row in a 'maps' table)
     function input_google_map(widget_config, parent_el, current_map) {
         self.log(widget_id,'input_google_map called with',current_map);
 
         var tr = document.createElement('tr');
+        parent_el.appendChild(tr);
+
         var td = document.createElement('td');
         td.className = 'widget_config_repeating_element';
+        tr.appendChild(td);
 
         // create (x) delete this element button
         var x_url = self.config.static_url + 'images/x.png';
@@ -279,20 +285,17 @@ function TrafficMap(widget_id) {
         td.appendChild(x_img);
 
         var table = document.createElement('table');
+        td.appendChild(table);
         var tbody = document.createElement('tbody');
+        table.appendChild(tbody);
 
         var map_result = widget_config.input( tbody,
                                                 'google_map',
-                                                { text: 'Map:',
+                                                { text: '',
                                                   title: 'Configure a map position and zoom',
                                                   show_traffic: true
                                                 },
                                                 { map: current_map } );
-
-        table.appendChild(tbody);
-        td.appendChild(table);
-        tr.appendChild(td);
-        parent_el.appendChild(tr);
 
         function value_fn() {
             if (removed) {

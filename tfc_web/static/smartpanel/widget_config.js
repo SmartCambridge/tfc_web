@@ -530,26 +530,29 @@ function WidgetConfig(config) {
         var zoom = param_options.zoom || 15;
 
         var row = document.createElement('tr');
+        parent_el.appendChild(row);
         // create td to hold 'name' prompt for field
 
-        var name = document.createElement('td');
-        name.className = 'widget_config_property_name';
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
         label.title = title;
         label.appendChild(document.createTextNode(text));
-        name.appendChild(label);
-        row.appendChild(name);
+        td_name.appendChild(label);
+        row.appendChild(td_name);
 
-        var value = document.createElement('td');
-        value.className = 'widget_config_property_value';
-        value.style.height = height;
-        value.style.width = width;
-        row.appendChild(value);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+        //td_value.style.height = height;
+        //td_value.style.width = width;
+        row.appendChild(td_value);
 
-        parent_el.appendChild(row);
+        var map_div = document.createElement('div');
+        map_div.setAttribute('style', 'height: 550px; width: 550px');
+        td_value.appendChild(map_div);
 
-        var map = new google.maps.Map(value, {
+        var map = new google.maps.Map(map_div, {
             disableDefaultUI: true,
             zoomControl: true,
             zoomControlOptions: { position: google.maps.ControlPosition.TOP_LEFT },
