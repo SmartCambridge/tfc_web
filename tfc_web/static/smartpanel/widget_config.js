@@ -233,8 +233,6 @@ function WidgetConfig(config) {
             chooser_link.innerHTML = 'choose';
             chooser_link.onclick = function () { config_chooser(parent_el,
                                                                 chooser_link,
-                                                                //param_options,
-                                                                //param_current,
                                                                 param_options.chooser,
                                                                 chooser_save); };
             td_value.appendChild(chooser_link);

@@ -4,28 +4,26 @@
 /*global google, document, DEBUG */
 /*exported TrafficMap */
 
-function TrafficMap(config, params) {
+function TrafficMap(widget_id) {
 
     'use strict';
 
-    this.container = config.container;
-    this.params = params;
+    var self = this;
 
-    this.init = function () {
-        log('Running init', config.container);
+    var DEBUG = ' traffic_map_log';
 
-        var container = document.getElementById(config.container);
+    this.display = function (config, params) {
+        self.log(widget_id,'Running display', config.container_id);
+
+        self.config = config;
+
+        self.params = params;
+
+        var container = document.getElementById(config.container_id);
 
         // Empty the container
         while (container.firstChild) {
             container.removeChild(container.firstChild);
-        }
-
-        // Backwards compatibility: allow params to be a single stop or
-        // to contain a list of stops
-        if (!params.maps) {
-            log('init - promoting one map to lots of maps');
-            params.maps = [params];
         }
 
         var widget_area = document.createElement('div');
@@ -37,7 +35,7 @@ function TrafficMap(config, params) {
         widget_area.appendChild(map_div);
 
         // First map settings
-        log('init - preping map 0');
+        self.log(widget_id,'init - prepping map 0');
         var map0 = params.maps[0];
         var google_map = new google.maps.Map(map_div, {
             zoom: map0.zoom,
@@ -82,28 +80,237 @@ function TrafficMap(config, params) {
             if (interval < 1000) {
                 interval = 1000;
             }
-            log('do load - interval is', interval);
+            self.log('do load - interval is', interval);
             window.setInterval(function() {
                 map_no = (map_no + 1) % params.maps.length;
-                log('TrafficMap - rolling maps to map number', map_no);
+                self.log(widget_id,'TrafficMap - rolling maps to map number', map_no);
                 google_map.panTo({lat: params.maps[map_no].lat, lng: params.maps[map_no].lng});
                 google_map.setZoom(params.maps[map_no].zoom);
             }, interval);
         }
         else {
-            log('init - only one map');
+            self.log(widget_id,'display - only one map');
         }
 
-        log('TragfficMap.init done', this.container);
+        self.log(widget_id,'TrafficMap.display done');
 
     };
 
-    function log() {
+    self.log = function() {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('traffic_map_log') >= 0) {
             console.log.apply(console, arguments);
         }
+    };
+
+    // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
+    this.configure = function (config, params) {
+
+        var widget_config = new WidgetConfig(config);
+
+        self.log(widget_id,'TrafficMap configuring widget with', config, params);
+
+        //debug we need to plan for config.width and height
+
+        self.config = config;
+
+        var config_div = document.getElementById(config.container_id);
+
+        // Empty the 'container' div (i.e. remove loading GIF or prior content)
+        while (config_div.firstChild) {
+                config_div.removeChild(config_div.firstChild);
+        }
+
+        config_div.style.display = 'block';
+
+        // Create HTML for configuration form
+        //
+        var config_title = document.createElement('h1');
+        config_title.innerHTML = 'Configure Traffic Map';
+        config_div.appendChild(config_title);
+
+        var config_form = document.createElement('form');
+
+        /*
+        var input_result = input_stop_timetable(widget_config,
+                                                config_form,
+                                                (params && params.title) ? params : PARAMS_DEFAULT);
+        */
+        var config_table = document.createElement('table');
+        config_table.className = 'config_input_traffic_map';
+
+        var config_tbody = document.createElement('tbody');
+
+        config_table.appendChild(config_tbody);
+        config_form.appendChild(config_table);
+
+        // Interval (optional)
+        //
+        var interval_result = widget_config.input( config_tbody,
+                                         'number',
+                                         { text: 'Interval (s) between maps<br/>(optional):',
+                                           title: 'If you choose multiple maps, then each will be displayed this long (in seconds)'
+                                         },
+                                         params.interval);
+
+        var maps_result = input_google_map_list( widget_config, config_tbody, params.maps );
+
+        config_div.appendChild(config_form);
+
+        //debug
+        // return a test set of maps
+        return { valid: function () { return true; },
+                 value: function () { return { interval: interval_result.value(),
+                                               maps: [
+                                                       { lat: 52.204684, lng: 0.124622, zoom: 12 },
+                                                       { lat: 52.204684, lng: 0.124622, zoom: 10 }
+                                                     ]
+                                             };
+                                    },
+                 config: function () { return { title: 'Cambs Traffic Maps' }; }
+               };
+    }; // end this.configure
+
+    // Add a 'maps' input to the main config table
+    // parent_el is assumed to be a tbody, to which this fn appends a <tr>
+    function input_google_map_list(widget_config, parent_el, current_maps) {
+        self.log(widget_id,'input_map_list called with', current_maps);
+        var row = document.createElement('tr');
+
+        // create TD to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = 'Configure one or more maps';
+        label.appendChild(document.createTextNode('Traffic Maps:'));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+
+        // create TD to hold 'value' destination_list
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var maps_table = document.createElement('table');
+        maps_table.className = 'config_traffic_maps_table';
+        maps_table.style['border-collapse'] = 'separate';
+        maps_table.style['padding'] = '5px';
+
+        var tbody = document.createElement('tbody');
+
+        var map_values = [];
+
+        if (current_maps) {
+            for (var i=0; i<current_maps.length; i++) {
+                var map = current_maps[i];
+
+                map_values.push(input_google_map(widget_config, tbody, map));
+            }
+        } else {
+            map_values.push(input_google_map(widget_config, tbody, null));
+        }
+
+        maps_table.appendChild(tbody);
+        td_value.appendChild(maps_table);
+
+        // create (+) add an element button
+        var plus_url = self.config.static_url + 'images/plus.png';
+        var plus_img = document.createElement('img');
+        plus_img.setAttribute('src', plus_url);
+        plus_img.setAttribute('alt', 'Add');
+        plus_img.setAttribute('title', 'Add another map');
+        plus_img.className = 'widget_config_plus';
+        // now set the onlclick callback for the (+) button to add another destination input element
+        var plus_onclick = function () {
+            self.log(widget_id,'TrafficMap input_map_list plus_onclick called');
+            map_values.push(input_google_map(widget_config, tbody,null));
+        }
+        plus_img.onclick = plus_onclick;
+
+        td_value.appendChild(plus_img);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        function value_fn () {
+            var list_result = [];
+            for (var i=0; i<map_values.length; i++) {
+                if (map_values[i].value()) {
+                    list_result.push(map_values[i].value());
+                }
+            }
+
+            return list_result;
+        };
+
+        return { value: value_fn,
+                 valid: function () { return true; },
+                 element: row
+               };
+
+    } // end input_google_map_list
+
+    // Add a 'destination' input (as a row in a 'destinations' table)
+    function input_google_map(widget_config, parent_el, current_map) {
+        self.log(widget_id,'input_google_map called with',current_map);
+
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.className = 'widget_config_repeating_element';
+
+        // create (x) delete this element button
+        var x_url = self.config.static_url + 'images/x.png';
+        var x_img = document.createElement('img');
+        x_img.setAttribute('src', x_url);
+        x_img.setAttribute('alt', 'Delete');
+        x_img.setAttribute('title', 'Delete this map');
+        x_img.className= 'widget_config_x';
+        // add onclick fn to remove this input
+        //
+        var removed = false;
+
+        var x_onclick = function () {
+            self.log('x_onclick called');
+            removed = true;
+            tr.remove();
+        }
+        x_img.onclick = x_onclick;
+
+        td.appendChild(x_img);
+
+        var table = document.createElement('table');
+        var tbody = document.createElement('tbody');
+
+        var map_result = widget_config.input( tbody,
+                                                'google_map',
+                                                { text: 'Map:',
+                                                  title: 'Configure a map position and zoom',
+                                                  show_traffic: true
+                                                },
+                                                { map: current_map } );
+
+        table.appendChild(tbody);
+        td.appendChild(table);
+        tr.appendChild(td);
+        parent_el.appendChild(tr);
+
+        function value_fn() {
+            if (removed) {
+                return null;
+            } else {
+                //debug maybe no map selected?
+                var map = map_result.value().map;
+                self.log(widget_id,'traffic_map','input_google_map','returning',map);
+                return map_result.value().map;
+            }
+        }
+
+        return { value: value_fn,
+                 valid: function () { return true; }
+               };
     }
 
-    log('Instantiated TrafficMap', this.container, params);
+    self.log(widget_id, 'Instantiated TrafficMap');
 
 }
+
