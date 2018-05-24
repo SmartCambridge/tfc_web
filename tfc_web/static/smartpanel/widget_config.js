@@ -68,7 +68,11 @@ function WidgetConfig(config) {
                 break;
 
             case 'google_map':
-                input_info = config_google_map(parent_el, param_options, param_current);
+                input_info = config_google_map_inline(parent_el, param_options, param_current);
+                break;
+
+            case 'google_map_with_chooser':
+                input_info = config_google_map_chooser(parent_el, param_options, param_current);
                 break;
 
             case 'area':
@@ -301,8 +305,6 @@ function WidgetConfig(config) {
         chooser_link.innerHTML = 'choose stop';
         chooser_link.onclick = function () { config_chooser(parent_el,
                                                             chooser_link,
-                                                            //param_options,
-                                                            //param_current,
                                                             chooser_fn,
                                                             chooser_save); };
         td_value.appendChild(chooser_link);
@@ -512,22 +514,19 @@ function WidgetConfig(config) {
 
     } // end config_leaflet_map
 
+    // Input a google map 'inline'
     // populate a table row with a Google map input widget
-    function config_google_map(parent_el, param_options, param_current)
+    function config_google_map_inline(parent_el, param_options, param_current)
     {
 
         'use strict';
 
-        console.log('Called config_google_map');
+        console.log('Called config_google_map_inline');
 
         var title = param_options.title;
         var text = param_options.text;
         var width = param_options.width || "500px";
         var height = param_options.height || "500px";
-        var show_traffic = param_options.show_traffic || false;
-        var lat = param_options.lat || 52.204;
-        var lng = param_options.lng || 0.124;
-        var zoom = param_options.zoom || 15;
 
         var row = document.createElement('tr');
         parent_el.appendChild(row);
@@ -552,12 +551,31 @@ function WidgetConfig(config) {
         map_div.setAttribute('style', 'height: 550px; width: 550px');
         td_value.appendChild(map_div);
 
+        var map_result = choose_google_map(map_div, param_options, param_current.map);
+
+        return map_result;
+
+    }
+
+    // Populate a given DOM element with a google map
+    // and allow user to move/zoom it and save the configuration.
+    //
+    // returns { value: fn () -> { lat: , lng: , zoom: } }
+    //
+    function choose_google_map(map_div, param_options, current_map)
+    {
+        var show_traffic = param_options.show_traffic || false;
+        var lat = param_options.lat || 52.204;
+        var lng = param_options.lng || 0.124;
+        var zoom = param_options.zoom || 15;
+
         var map = new google.maps.Map(map_div, {
             disableDefaultUI: true,
             zoomControl: true,
             zoomControlOptions: { position: google.maps.ControlPosition.TOP_LEFT },
             clickableIcons: false,
         });
+
         if (show_traffic) {
             var trafficLayer = new google.maps.TrafficLayer({
                 autoRefresh: true
@@ -565,9 +583,9 @@ function WidgetConfig(config) {
             trafficLayer.setMap(map);
         }
 
-        if (param_current && param_current.map ) {
-            map.setCenter({lat: param_current.map.lat, lng: param_current.map.lng});
-            map.setZoom(param_current.map.zoom);
+        if (current_map) {
+            map.setCenter({lat: current_map.lat, lng: current_map.lng});
+            map.setZoom(current_map.zoom);
         }
         else {
             map.setCenter({lat: lat, lng: lng});
@@ -588,7 +606,97 @@ function WidgetConfig(config) {
             valid: function () { return true; }
         };
 
-    } // end config_google_map
+    } // end config_google_map_inline
+
+    // Input a google map with a chooser
+    // { description: 'City Centre',
+    //   stops: [ { stop_id: '0500CCITY424', common_name: ... }, ... ]
+    //   areas: [ list of areas ] where each 'area' is a list of lat/lng points
+    // }
+    function config_google_map_chooser(parent_el, param_options, param_current)
+    {
+        //debug
+        console.log('WidgetConfig','config_google_map_chooser', param_options, param_current);
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var input = document.createElement('input');
+
+        input.type = 'text';
+
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in param_current
+        //self.log(param_name,'default set to',param_current);
+        if (param_current) input.value = param_current.description;
+
+        td_value.appendChild(input);
+
+        // Here's a 'local' variable to store whatever the selected chooser returns,
+        // so that a subsequent 'save' of the entire widget config will get that value.
+        // The var is WRITTEN in the chooser_save function, and READ in the { value: fn returned by this
+        // config input element.
+        var chooser_value = null;
+
+        // This fn will be called when user clicks 'save' on chooser
+        // It simply saves the value() of the chooser in local var chooser_value
+        var chooser_save_fn = function(chooser_return)
+        {
+            //debug
+            console.log('WidgetConfig','config_google_map_chooser chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+        };
+
+        var chooser_fn = function (input_div) {
+            return choose_google_map( input_div, { show_traffic: true }, param_current ? param_current.map : null );
+        };
+
+        var chooser_links_div = document.createElement('div');
+        td_value.appendChild(chooser_links_div);
+
+        var chooser_map_link = document.createElement('a');
+
+        chooser_map_link.setAttribute('class','widget_config_chooser_link');
+        chooser_map_link.setAttribute('href', '#');
+        chooser_map_link.innerHTML = 'choose map';
+        chooser_map_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_links_div,
+                                                            chooser_fn,
+                                                            chooser_save_fn); };
+        chooser_links_div.appendChild(chooser_map_link);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        return { value: function() {
+                            var return_value = param_current;
+                            //debug change this from 'stops' to the map
+                            if (chooser_value && chooser_value.stops && chooser_value.stops.length > 0)
+                            {
+                              return_value =  { description: input.value,
+                                                stops: chooser_value.stops
+                                               };
+                            }
+                            //debug
+                            console.log('WidgetConfig','config_google_map_chooser','returning',return_value);
+                            return return_value;
+                        },
+                 valid: function () { return true; }
+            };
+    } // end config_google_map_chooser
+
 
     // populate a table row with a Leaflet map area input widget
     function config_area(parent_el, param_options, param_current)

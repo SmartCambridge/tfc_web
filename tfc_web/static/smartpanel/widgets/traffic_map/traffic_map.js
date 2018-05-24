@@ -253,9 +253,20 @@ function TrafficMap(widget_id) {
 
     } // end input_google_map_list
 
+    // Here is where we prompt for and configure an actual map.
+    // Currently we are experimenting with the map 'inline' on the config widget, and
+    // also with 'chooser' to make the config widget more compact.
+    //
     // Add a 'google_map' input (as a row in a 'maps' table)
     function input_google_map(widget_config, parent_el, current_map) {
         self.log(widget_id,'input_google_map called with',current_map);
+        //return input_google_map_inline(widget_config, parent_el, current_map);
+        return input_google_map_chooser(widget_config, parent_el, current_map);
+    }
+
+    // Add a 'google_map' input (as a row in a 'maps' table), displaying the map 'inline'
+    function input_google_map_inline(widget_config, parent_el, current_map) {
+        self.log(widget_id,'input_google_map_inline called with',current_map);
 
         var tr = document.createElement('tr');
         parent_el.appendChild(tr);
@@ -291,6 +302,66 @@ function TrafficMap(widget_id) {
 
         var map_result = widget_config.input( tbody,
                                                 'google_map',
+                                                { text: '',
+                                                  title: 'Configure a map position and zoom',
+                                                  show_traffic: true
+                                                },
+                                                { map: current_map } );
+
+        function value_fn() {
+            if (removed) {
+                return null;
+            } else {
+                //debug maybe no map selected?
+                var map = map_result.value().map;
+                self.log(widget_id,'traffic_map','input_google_map','returning',map);
+                return map_result.value().map;
+            }
+        }
+
+        return { value: value_fn,
+                 valid: function () { return true; }
+               };
+    }
+
+    // Add a 'google_map' input (as a row in a 'maps' table), displaying the map 'inline'
+    function input_google_map_chooser(widget_config, parent_el, current_map) {
+        self.log('input_google_map_chooser called with', current_map);
+
+        var tr = document.createElement('tr');
+        parent_el.appendChild(tr);
+
+        var td = document.createElement('td');
+        td.className = 'widget_config_repeating_element';
+        tr.appendChild(td);
+
+        // create (x) delete this element button
+        var x_url = self.config.static_url + 'images/x.png';
+        var x_img = document.createElement('img');
+        x_img.setAttribute('src', x_url);
+        x_img.setAttribute('alt', 'Delete');
+        x_img.setAttribute('title', 'Delete this map');
+        x_img.className= 'widget_config_x';
+        // add onclick fn to remove this input
+        //
+        var removed = false;
+
+        var x_onclick = function () {
+            self.log('x_onclick called');
+            removed = true;
+            tr.remove();
+        }
+        x_img.onclick = x_onclick;
+
+        td.appendChild(x_img);
+
+        var table = document.createElement('table');
+        td.appendChild(table);
+        var tbody = document.createElement('tbody');
+        table.appendChild(tbody);
+
+        var map_result = widget_config.input( tbody,
+                                                'google_map_with_chooser',
                                                 { text: '',
                                                   title: 'Configure a map position and zoom',
                                                   show_traffic: true
