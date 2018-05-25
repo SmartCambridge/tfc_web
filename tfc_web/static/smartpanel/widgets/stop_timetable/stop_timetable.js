@@ -1490,6 +1490,36 @@ function StopTimetable(widget_id) {
 
         self.log('input_stop_timetable with',params);
 
+        // Add some guide text
+        var config_info1 = document.createElement('p');
+        var config_info_text = "This widget displays information relevant to a BUS STOP.";
+        config_info_text += " At its simplest (i.e. the 'Simple' layout) you choose a title and a stop and the widget will";
+        config_info_text += " display a current timetable for that stop, updating with real-time information coming from the buses.";
+        config_info1.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info1);
+
+        var config_info3 = document.createElement('p');
+        config_info_text = "Layout 'Multi-line' can provide a similar display to 'Simple', but in addition you can specify one";
+        config_info_text += " or more intermediate destinations and the stop display will include arrival times for those (see";
+        config_info_text += " 'destinations' below).";
+        config_info3.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info3);
+
+        var config_info4 = document.createElement('p');
+        config_info_text = "Layout 'Nextbus' is similar to 'Multi-line', but is arranged 'per-destination' rather than a single";
+        config_info_text += " list of departures (again, see 'destinations' below).";
+        config_info4.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info4);
+
+        var config_info5 = document.createElement('p');
+        config_info_text = "'Destinations': intermediate places on a route (Layout Multi-line and Nextbus only).";
+        config_info_text +=" You specify one either as a fixed set of bus stops";
+        config_info_text += " OR as an area on the map.  E.g. if you create a destination called 'Train Station' and draw a box around";
+        config_info_text += " the stops by Cambridge Railway Station, arrival times to there will be added for each relevant bus.";
+        config_info_text += " (Hint - click the hexagon symbol on the top-right of the map to draw a box)";
+        config_info5.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info5);
+
         var config_table = document.createElement('table');
         config_table.className = 'config_input_stop_timetable';
 
@@ -1535,9 +1565,9 @@ function StopTimetable(widget_id) {
               'select',
               { text: 'Layout:',
                 title: 'Choose your widget layout style from the dropdown',
-                options: [ { value: 'simple', text: 'Simple - bus times at stop with destination' },
-                           { value: 'multiline', text: "Multi-line - simple plus 'via' locations on route" },
-                           { value: 'nextbus', text: 'Show buses to each destination area' }
+                options: [ { value: 'simple', text: "Simple - Bus times at stop with final destination" },
+                           { value: 'multiline', text: "Multi-line - include 'via' destinations" },
+                           { value: 'nextbus', text: "Nextbus - Show buses to each 'via' destination area" }
                          ],
                 onchange: input_layout_onchange
               },

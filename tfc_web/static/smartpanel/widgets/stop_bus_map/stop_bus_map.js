@@ -798,7 +798,7 @@ function draw_stop(stop)
         parent_el.appendChild(config_info3);
 
         var config_info4 = document.createElement('p');
-        config_info_text = "Then you just need to drag and zoom the map, including selected stops, which will then be displayed in on the SmartPanel.";
+        config_info_text = "For the 'map and stops' you just need to drag and zoom the map, and select stops, which will then be displayed in the widget.";
         config_info4.appendChild(document.createTextNode(config_info_text));
         parent_el.appendChild(config_info4);
 
