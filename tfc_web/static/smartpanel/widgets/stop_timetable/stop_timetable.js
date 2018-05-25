@@ -1472,11 +1472,11 @@ function StopTimetable(widget_id) {
 
         var config_form = document.createElement('form');
 
+        config_div.appendChild(config_form);
+
         var input_result = input_stop_timetable(widget_config,
                                                 config_form,
                                                 (params && params.title) ? params : PARAMS_DEFAULT);
-
-        config_div.appendChild(config_form);
 
         return input_result;
     }
@@ -1508,44 +1508,6 @@ function StopTimetable(widget_id) {
 
         // STOP
         //
-        // First create the 'stop' chooser function.
-        // This 'chooser function' will be passed the element within which this chooser is to be drawn.
-        var chooser_stop = function (parent_el) {
-
-            /*
-            var choose_return =  widget_config.choose( parent_el,
-                                          'bus_stops',
-                                          { text: 'Bus stop',
-                                            title: 'Choose bus stop',
-                                            width: '500px',
-                                            height: '500px',
-                                            multi_select: false,
-                                            zoom_threshold: 15,
-                                            lat: 52.204,
-                                            lng: 0.124,
-                                            zoom: 16
-                                          },
-                                          { stops: [ params.stop ] } // note structure needed for BusStopChooser
-                                        );
-            */
-
-            var choose_return = BusStopChooser.create( { multi_select: false } );
-
-            choose_return.render( parent_el, { stops: [ params.stop ] } );
-
-            // We create a value() function which itself uses choose_return
-            var value_fn = function () {
-                var bus_stops_return = choose_return.value();
-                // TODO error checking if no stops chosen
-                self.log('chooser_stop returning',bus_stops_return.stops[0]);
-                return bus_stops_return.stops[0];
-            }
-
-            return { valid: function () { return true; },
-                     value: value_fn };
-
-        };
-
         self.log('configure() calling widget_config.input', 'stop', 'with',params.stop);
         var stop_result = widget_config.input( config_tbody,
                                            'bus_stop',

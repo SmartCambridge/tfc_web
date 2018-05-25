@@ -59,6 +59,10 @@ function WidgetConfig(config) {
                 input_info = config_bus_stop(parent_el, param_options, param_current);
                 break;
 
+            case 'bus_stops':
+                input_info = config_bus_stops(parent_el, param_options, param_current);
+                break;
+
             case 'bus_destination':
                 input_info = config_bus_destination(parent_el, param_options, param_current);
                 break;
@@ -320,6 +324,73 @@ function WidgetConfig(config) {
                  valid: function () { return true; }
             };
     } // end config_bus_stop
+
+    // Input multiple bus stops and map parameters { stops: [ {stop}, ... ], map: {lat: lng: zoom:} }
+    function config_bus_stops(parent_el, param_options, param_current)
+    {
+        //debug
+        console.log('WidgetConfig','config_bus_stops', param_options, param_current);
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var input = document.createElement('input');
+
+        input.type = 'text';
+
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in param_current
+        //self.log(param_name,'default set to',param_current);
+        if (param_current) input.value = param_current.stops ? param_current.stops.length + ' selected' : 'none selected';
+
+        td_value.appendChild(input);
+
+        var chooser_value = null;
+
+        // this fn will be called when user clicks 'save' on chooser
+        var chooser_save = function(chooser_return)
+        {
+            //debug
+            console.log('widget_config.js chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+            if (chooser_value)
+            {
+                input.value = chooser_value.stops.length + ' selected';
+            }
+        };
+
+        var chooser_fn = function (input_div) {
+            return choose_bus_stops( input_div, { multi_select: true }, param_current );
+        };
+
+        var chooser_link = document.createElement('a');
+        chooser_link.setAttribute('href', '#');
+        chooser_link.innerHTML = 'choose stops and map';
+        chooser_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_link,
+                                                            chooser_fn,
+                                                            chooser_save); };
+        td_value.appendChild(chooser_link);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        return { value: function() { return chooser_value ? chooser_value : param_current ; },
+                 valid: function () { return true; }
+            };
+    } // end config_bus_stops
 
     // Input a bus destination
     // { description: 'City Centre',
