@@ -301,21 +301,21 @@ function TrafficMap(widget_id) {
         table.appendChild(tbody);
 
         var map_result = widget_config.input( tbody,
-                                                'google_map',
+                                                'google_map_inline',
                                                 { text: '',
                                                   title: 'Configure a map position and zoom',
                                                   show_traffic: true
                                                 },
-                                                { map: current_map } );
+                                                current_map );
 
         function value_fn() {
             if (removed) {
                 return null;
             } else {
                 //debug maybe no map selected?
-                var map = map_result.value().map;
+                var map = map_result.value();
                 self.log(widget_id,'traffic_map','input_google_map','returning',map);
-                return map_result.value().map;
+                return map;
             }
         }
 
@@ -366,16 +366,16 @@ function TrafficMap(widget_id) {
                                                   title: 'Configure a map position and zoom',
                                                   show_traffic: true
                                                 },
-                                                { map: current_map } );
+                                                current_map );
 
         function value_fn() {
             if (removed) {
                 return null;
             } else {
                 //debug maybe no map selected?
-                var map = map_result.value().map;
+                var map = map_result.value();
                 self.log(widget_id,'traffic_map','input_google_map','returning',map);
-                return map_result.value().map;
+                return map;
             }
         }
 
