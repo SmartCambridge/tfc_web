@@ -380,6 +380,7 @@ function WidgetConfig(config) {
         };
 
         var chooser_links_div = document.createElement('div');
+        chooser_links_div.setAttribute('class','widget_config_chooser_div');
         td_value.appendChild(chooser_links_div);
 
         var chooser_stops_link = document.createElement('a');
@@ -614,6 +615,7 @@ function WidgetConfig(config) {
         };
 
         var chooser_links_div = document.createElement('div');
+        chooser_links_div.setAttribute('class','widget_config_chooser_div');
         td_value.appendChild(chooser_links_div);
 
         var chooser_map_link = document.createElement('a');

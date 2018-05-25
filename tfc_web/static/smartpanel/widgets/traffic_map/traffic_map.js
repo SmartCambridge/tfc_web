@@ -128,6 +128,22 @@ function TrafficMap(widget_id) {
         config_title.innerHTML = 'Configure Traffic Map';
         config_div.appendChild(config_title);
 
+        // Add some guide text
+        var config_info1 = document.createElement('p');
+        var config_info_text = "You can create one or more Google traffic maps to display in this panel widget.";
+        config_info1.appendChild(document.createTextNode(config_info_text));
+        config_div.appendChild(config_info1);
+
+        var config_info2 = document.createElement('p');
+        config_info_text = "'Interval' is optional, and gives the time in seconds between map displays when you have multiple maps";
+        config_info2.appendChild(document.createTextNode(config_info_text));
+        config_div.appendChild(config_info2);
+
+        var config_info3 = document.createElement('p');
+        config_info_text = "For each traffic map, you give a name (for your reference) and then click 'choose' to move and zoom to your preference";
+        config_info3.appendChild(document.createTextNode(config_info_text));
+        config_div.appendChild(config_info3);
+
         var config_form = document.createElement('form');
         config_div.appendChild(config_form);
 
@@ -148,7 +164,7 @@ function TrafficMap(widget_id) {
         //
         var interval_result = widget_config.input( config_tbody,
                                          'number',
-                                         { text: 'Interval (s) between maps<br/>(optional):',
+                                         { text: 'Interval (optional):',
                                            title: 'If you choose multiple maps, then each will be displayed this long (in seconds)'
                                          },
                                          params.interval);
