@@ -55,16 +55,28 @@ function WidgetConfig(config) {
                 input_info = config_number(parent_el, param_options, param_current);
                 break;
 
+            case 'bus_stop':
+                input_info = config_bus_stop(parent_el, param_options, param_current);
+                break;
+
             case 'bus_stops':
                 input_info = config_bus_stops(parent_el, param_options, param_current);
+                break;
+
+            case 'bus_destination':
+                input_info = config_bus_destination(parent_el, param_options, param_current);
                 break;
 
             case 'leaflet_map':
                 input_info = config_leaflet_map(parent_el, param_options, param_current);
                 break;
 
-            case 'google_map':
-                input_info = config_google_map(parent_el, param_options, param_current);
+            case 'google_map_inline':
+                input_info = config_google_map_inline(parent_el, param_options, param_current);
+                break;
+
+            case 'google_map_with_chooser':
+                input_info = config_google_map_chooser(parent_el, param_options, param_current);
                 break;
 
             case 'area':
@@ -212,8 +224,7 @@ function WidgetConfig(config) {
         // this fn will be called when user clicks 'save' on chooser
         var chooser_save = function(chooser_return)
         {
-            //debug
-            console.log('widget_config.js chooser_save', chooser_return.value());
+            //console.log('widget_config.js chooser_save', chooser_return.value());
             var chooser_return_value = chooser_return.value();
             if (chooser_return_value)
             {
@@ -222,6 +233,9 @@ function WidgetConfig(config) {
         };
 
         // if a 'chooser' function has been provided, add as onclick call
+        // NOTE: we are NOT currently using this 'chooser' capability of string inputs, as
+        // the chooser approach is needed for stops and maps but we have implemented
+        // custom inputs for those values.
         if (param_options.chooser)
         {
             var chooser_link = document.createElement('a');
@@ -229,8 +243,7 @@ function WidgetConfig(config) {
             chooser_link.innerHTML = 'choose';
             chooser_link.onclick = function () { config_chooser(parent_el,
                                                                 chooser_link,
-                                                                param_options,
-                                                                param_current,
+                                                                param_options.chooser,
                                                                 chooser_save); };
             td_value.appendChild(chooser_link);
         }
@@ -244,61 +257,251 @@ function WidgetConfig(config) {
             };
     } // end config_string
 
-    // populate a table row with a bus stop input widget
-    // NOTE: we are not currently using this function, using choose_bus_stops instead
-    function config_bus_stops(parent_el, param_options, param_current)
+    // Input a single bus stop { stop_id: '0500CCITY424', common_name: ... }
+    function config_bus_stop(parent_el, param_options, param_current)
     {
-
-        'use strict';
-
-        console.log('Called config_bus_stops with',param_options);
-
-        var title = param_options.title;
-        var text = param_options.text;
-        var width = param_options.width || "500px";
-        var height = param_options.height || "500px";
-
-        if (param_options.settings && param_options.settings.SMARTPANEL_TRANSPORT_API) {
-            param_options.api_endpoint = param_options.settings.SMARTPANEL_TRANSPORT_API;
-        }
+        //console.log('WidgetConfig','config_bus_stop', param_options, param_current);
 
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
-
         var td_name = document.createElement('td');
         td_name.className = 'widget_config_property_name';
         var label = document.createElement('label');
         //label.htmlFor = id;
-        label.title = title;
-        label.appendChild(document.createTextNode(text));
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
         td_name.appendChild(label);
         row.appendChild(td_name);
-
         var td_value = document.createElement('td');
         td_value.className = 'widget_config_property_value';
-        //var value_div = document.createElement('div');
-        //value_div.setAttribute('style', 'height: 400px; width: 400px; background-color: lightblue; display: block;'); //debug ijl20
 
-        //td_value.appendChild(value_div);
+        var input = document.createElement('input');
+
+        input.type = 'text';
+
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in param_current
+        //self.log(param_name,'default set to',param_current);
+        if (param_current) input.value = param_current.common_name;
+
+        td_value.appendChild(input);
+
+        var chooser_value = null;
+
+        // this fn will be called when user clicks 'save' on chooser
+        var chooser_save = function(chooser_return)
+        {
+            //console.log('widget_config.js chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+            if (chooser_value)
+            {
+                input.value = chooser_value.stops[0].common_name;
+            }
+        };
+
+        var chooser_fn = function (input_div) {
+            return choose_bus_stops( input_div, { multi_select: false }, { stops: [ param_current ] } );
+        };
+
+        var chooser_link = document.createElement('a');
+        chooser_link.setAttribute('href', '#');
+        chooser_link.innerHTML = 'choose stop';
+        chooser_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_link,
+                                                            chooser_fn,
+                                                            chooser_save); };
+        td_value.appendChild(chooser_link);
 
         row.appendChild(td_value);
 
         parent_el.appendChild(row);
 
-        var chooser = choose_bus_stops(td_value, param_options, param_current);
+        return { value: function() { return chooser_value && chooser_value.stops ? chooser_value.stops[0] : param_current ; },
+                 valid: function () { return true; }
+            };
+    } // end config_bus_stop
 
-        return {
-            value: null, //chooser.getData,
-            valid: function () { return true; }
+    // Input multiple bus stops and map parameters { stops: [ {stop}, ... ], map: {lat: lng: zoom:} }
+    function config_bus_stops(parent_el, param_options, param_current)
+    {
+        //console.log('WidgetConfig','config_bus_stops', param_options, param_current);
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var input = document.createElement('input');
+
+        input.type = 'text';
+
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in param_current
+        //self.log(param_name,'default set to',param_current);
+        if (param_current) input.value = param_current.stops ? param_current.stops.length + ' selected' : 'none selected';
+
+        td_value.appendChild(input);
+
+        var chooser_value = null;
+
+        // this fn will be called when user clicks 'save' on chooser
+        var chooser_save = function(chooser_return)
+        {
+            //console.log('widget_config.js chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+            if (chooser_value)
+            {
+                input.value = chooser_value.stops.length + ' selected';
+            }
         };
 
+        var chooser_fn = function (input_div) {
+            return choose_bus_stops( input_div, { multi_select: true }, param_current );
+        };
+
+        var chooser_link = document.createElement('a');
+        chooser_link.setAttribute('href', '#');
+        chooser_link.innerHTML = 'choose stops and map';
+        chooser_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_link,
+                                                            chooser_fn,
+                                                            chooser_save); };
+        td_value.appendChild(chooser_link);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        return { value: function() { return chooser_value ? chooser_value : param_current ; },
+                 valid: function () { return true; }
+            };
     } // end config_bus_stops
+
+    // Input a bus destination
+    // { description: 'City Centre',
+    //   stops: [ { stop_id: '0500CCITY424', common_name: ... }, ... ]
+    //   areas: [ list of areas ] where each 'area' is a list of lat/lng points
+    // }
+    function config_bus_destination(parent_el, param_options, param_current)
+    {
+        //console.log('WidgetConfig','config_bus_destination', param_options, param_current);
+
+        var row = document.createElement('tr');
+        // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+
+        var input = document.createElement('input');
+
+        input.type = 'text';
+
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in param_current
+        //self.log(param_name,'default set to',param_current);
+        if (param_current) input.value = param_current.description;
+
+        td_value.appendChild(input);
+
+        // Here's a 'local' variable to store whatever the selected chooser returns,
+        // so that a subsequent 'save' of the entire widget config will get that value.
+        // The var is WRITTEN in the chooser_save function, and READ in the { value: fn returned by this
+        // config input element.
+        var chooser_value = null;
+
+        // This fn will be called when user clicks 'save' on chooser
+        // It simply saves the value() of the chooser in local var chooser_value
+        var chooser_save_fn = function(chooser_return)
+        {
+            //console.log('widget_config.js chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+        };
+
+        var chooser_stops_fn = function (input_div) {
+            return choose_bus_stops( input_div, { multi_select: true }, param_current ? param_current : null );
+        };
+
+        var chooser_area_fn = function (input_div) {
+            return choose_area( input_div, { }, param_current ? param_current : null );
+        };
+
+        var chooser_links_div = document.createElement('div');
+        chooser_links_div.setAttribute('class','widget_config_chooser_div');
+        td_value.appendChild(chooser_links_div);
+
+        var chooser_stops_link = document.createElement('a');
+
+        chooser_stops_link.setAttribute('class','widget_config_chooser_link');
+        chooser_stops_link.setAttribute('href', '#');
+        chooser_stops_link.innerHTML = 'choose stops';
+        chooser_stops_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_links_div,
+                                                            chooser_stops_fn,
+                                                            chooser_save_fn); };
+        chooser_links_div.appendChild(chooser_stops_link);
+
+        var chooser_area_link = document.createElement('a');
+
+        chooser_area_link.setAttribute('class','widget_config_chooser_link');
+        chooser_area_link.setAttribute('href', '#');
+        chooser_area_link.innerHTML = 'choose area';
+        chooser_area_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_links_div,
+                                                            chooser_area_fn,
+                                                            chooser_save_fn); };
+        chooser_links_div.appendChild(chooser_area_link);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        return { value: function() {
+                            var return_value = param_current;
+                            if (chooser_value && chooser_value.stops && chooser_value.stops.length > 0)
+                            {
+                              return_value =  { description: input.value,
+                                                stops: chooser_value.stops
+                                               };
+                            }
+                            else if (chooser_value && chooser_value.areas && chooser_value.areas.length > 0)
+                            {
+                              return_value =  { description: input.value,
+                                                area: chooser_value.areas[0]
+                                               };
+                            }
+                            //console.log('widget_config','config_area','returning',return_value);
+                            return return_value;
+                        },
+                 valid: function () { return true; }
+            };
+    } // end config_bus_destination
+
 
     // choose_bus_stops
     // This is simpler, and used by, config_bus_stops().
     // This function just renders the actual chooser into a div (rather than a table row with title)
+    // param_current is { map: { ... }, stops: [ {stop}, ... ] }
     function choose_bus_stops(parent_el, param_options, param_current)
     {
+        //console.log('WidgetConfig','choose_bus_stops',param_options, param_current);
         var chooser = BusStopChooser.create(param_options);
         chooser.render(parent_el, param_current);
         return chooser;
@@ -377,26 +580,154 @@ function WidgetConfig(config) {
 
     } // end config_leaflet_map
 
+    // Input a google map 'inline'
     // populate a table row with a Google map input widget
-    function config_google_map(parent_el, param_options, param_current)
+    function config_google_map_inline(parent_el, param_options, current_map)
     {
 
         'use strict';
 
-        console.log('Called config_google_map');
+        console.log('Called config_google_map_inline',param_options, current_map);
 
         var title = param_options.title;
         var text = param_options.text;
         var width = param_options.width || "500px";
         var height = param_options.height || "500px";
-        var show_traffic = param_options.show_traffic || false;
-        var lat = param_options.lat || 52.204;
-        var lng = param_options.lng || 0.124;
-        var zoom = param_options.zoom || 15;
+
+        var row = document.createElement('tr');
+        parent_el.appendChild(row);
+        // create td to hold 'name' prompt for field
+
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = title;
+        label.appendChild(document.createTextNode(text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+        //td_value.style.height = height;
+        //td_value.style.width = width;
+        row.appendChild(td_value);
+
+        var map_div = document.createElement('div');
+        map_div.setAttribute('style', 'height: 550px; width: 550px');
+        td_value.appendChild(map_div);
+
+        var map_result = choose_google_map(map_div, param_options, current_map);
+
+        return map_result;
+
+    }
+
+    // Input a google map with a chooser
+    // { description: 'City Centre',
+    //   stops: [ { stop_id: '0500CCITY424', common_name: ... }, ... ]
+    //   areas: [ list of areas ] where each 'area' is a list of lat/lng points
+    // }
+    function config_google_map_chooser(parent_el, param_options, current_map)
+    {
+        //console.log('WidgetConfig','config_google_map_chooser', param_options, current_map);
 
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
+        var td_name = document.createElement('td');
+        td_name.className = 'widget_config_property_name';
+        var label = document.createElement('label');
+        //label.htmlFor = id;
+        label.title = param_options.title;
+        label.appendChild(document.createTextNode(param_options.text));
+        td_name.appendChild(label);
+        row.appendChild(td_name);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
 
+        var input = document.createElement('input');
+
+        input.type = 'text';
+
+        if (param_options.title) input.title = param_options.title;
+
+        // set default value of input to value provided in current_map
+        if (current_map) input.value = current_map.title;
+
+        td_value.appendChild(input);
+
+        // Here's a 'local' variable to store whatever the selected chooser returns,
+        // so that a subsequent 'save' of the entire widget config will get that value.
+        // The var is WRITTEN in the chooser_save function, and READ in the { value: fn returned by this
+        // config input element.
+        var chooser_value = null;
+
+        // This fn will be called when user clicks 'save' on chooser
+        // It simply saves the value() of the chooser in local var chooser_value
+        var chooser_save_fn = function(chooser_return)
+        {
+            //console.log('WidgetConfig','config_google_map_chooser chooser_save', chooser_return.value());
+            chooser_value = chooser_return.value();
+        };
+
+        var chooser_fn = function (input_div) {
+            return choose_google_map( input_div, { show_traffic: true }, current_map );
+        };
+
+        var chooser_links_div = document.createElement('div');
+        chooser_links_div.setAttribute('class','widget_config_chooser_div');
+        td_value.appendChild(chooser_links_div);
+
+        var chooser_map_link = document.createElement('a');
+
+        chooser_map_link.setAttribute('class','widget_config_chooser_link');
+        chooser_map_link.setAttribute('href', '#');
+        chooser_map_link.innerHTML = 'choose map';
+        chooser_map_link.onclick = function () { config_chooser(parent_el,
+                                                            chooser_links_div,
+                                                            chooser_fn,
+                                                            chooser_save_fn); };
+        chooser_links_div.appendChild(chooser_map_link);
+
+        row.appendChild(td_value);
+
+        parent_el.appendChild(row);
+
+        return { value: function() {
+                            var return_value = current_map;
+                            if (chooser_value)
+                            {
+                            return_value =  { title: input.value,
+                                              lat: chooser_value.lat,
+                                              lng: chooser_value.lng,
+                                              zoom: chooser_value.zoom
+                                             };
+                            }
+                            //console.log('WidgetConfig','config_google_map_chooser','returning',return_value);
+                            return return_value;
+                        },
+                 valid: function () { return true; }
+            };
+    } // end config_google_map_chooser
+
+
+    // populate a table row with a Leaflet map area input widget
+    function config_area(parent_el, param_options, param_current)
+    {
+
+        //console.log('widget_config','Called config_area');
+
+
+        var title = param_options.title;
+        var text = param_options.text;
+        var width = param_options.width || "500px";
+        var height = param_options.height || "500px";
+
+        // Setup HTML
+        var row = document.createElement('tr');
+        parent_el.appendChild(row);
+
+        // create td to hold 'name' prompt for field
         var name = document.createElement('td');
         name.className = 'widget_config_property_name';
         var label = document.createElement('label');
@@ -406,20 +737,37 @@ function WidgetConfig(config) {
         name.appendChild(label);
         row.appendChild(name);
 
-        var value = document.createElement('td');
-        value.className = 'widget_config_property_value';
-        value.style.height = height;
-        value.style.width = width;
-        row.appendChild(value);
+        var td_value = document.createElement('td');
+        td_value.className = 'widget_config_property_value';
+        td_value.style.height = height;
+        td_value.style.width = width;
+        row.appendChild(td_value);
 
-        parent_el.appendChild(row);
+        var chooser_return = choose_area(td_value, param_options, param_current);
 
-        var map = new google.maps.Map(value, {
+        return chooser_return;
+
+    } // end config_area
+
+    // Populate a given DOM element with a google map
+    // and allow user to move/zoom it and save the configuration.
+    //
+    // returns { value: fn () -> { lat: , lng: , zoom: } }
+    //
+    function choose_google_map(map_div, param_options, current_map)
+    {
+        var show_traffic = param_options.show_traffic || false;
+        var lat = param_options.lat || 52.204;
+        var lng = param_options.lng || 0.124;
+        var zoom = param_options.zoom || 15;
+
+        var map = new google.maps.Map(map_div, {
             disableDefaultUI: true,
             zoomControl: true,
             zoomControlOptions: { position: google.maps.ControlPosition.TOP_LEFT },
             clickableIcons: false,
         });
+
         if (show_traffic) {
             var trafficLayer = new google.maps.TrafficLayer({
                 autoRefresh: true
@@ -427,9 +775,9 @@ function WidgetConfig(config) {
             trafficLayer.setMap(map);
         }
 
-        if (param_current && param_current.map ) {
-            map.setCenter({lat: param_current.map.lat, lng: param_current.map.lng});
-            map.setZoom(param_current.map.zoom);
+        if (current_map) {
+            map.setCenter({lat: current_map.lat, lng: current_map.lng});
+            map.setZoom(current_map.zoom);
         }
         else {
             map.setCenter({lat: lat, lng: lng});
@@ -440,58 +788,30 @@ function WidgetConfig(config) {
         return {
             value: function() {
                 return {
-                    map: {
                         lng: map.getCenter().lng(),
                         lat: map.getCenter().lat(),
-                        zoom: map.getZoom(),
-                    }
+                        zoom: map.getZoom()
                 };
             },
             valid: function () { return true; }
         };
 
-    } // end config_google_map
+    } // end config_google_map_inline
 
-    // populate a table row with a Leaflet map area input widget
-    function config_area(parent_el, param_options, param_current)
+    // choose_area
+    // param_current is { map: { ... }, areas: [ (area), ... ] }
+    function choose_area(parent_el, param_options, param_current)
     {
-
-        'use strict';
-
-        console.log('Called config_area');
-
         var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         var OSM_MAX_ZOOM = 19;
         var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
         'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
 
-        var title = param_options.title;
-        var text = param_options.text;
-        var width = param_options.width || "500px";
-        var height = param_options.height || "500px";
+        //console.log('WidgetConfig','choose_area',param_options, param_current);
+
         var lat = param_options.lat || 52.204;
         var lng = param_options.lng || 0.124;
         var zoom = param_options.zoom || 15;
-
-        // Setup HTML
-        var row = document.createElement('tr');
-        // create td to hold 'name' prompt for field
-        var name = document.createElement('td');
-        name.className = 'widget_config_property_name';
-        var label = document.createElement('label');
-        //label.htmlFor = id;
-        label.title = title;
-        label.appendChild(document.createTextNode(text));
-        name.appendChild(label);
-        row.appendChild(name);
-
-        var value = document.createElement('td');
-        value.className = 'widget_config_property_value';
-        value.style.height = height;
-        value.style.width = width;
-        row.appendChild(value);
-
-        parent_el.appendChild(row);
 
         // Create a map
         var osm = new L.TileLayer(OSM_TILES,
@@ -500,7 +820,7 @@ function WidgetConfig(config) {
             }
         );
 
-        var map = new L.Map(value).addLayer(osm);
+        var map = new L.Map(parent_el).addLayer(osm);
         var drawing_layer = new L.FeatureGroup();
         map.addLayer(drawing_layer);
 
@@ -568,16 +888,18 @@ function WidgetConfig(config) {
             },
             valid: function () { return true; }
         };
-
-    } // end config_area
+    }
 
     // pop up a chooser, nearby element 'el'
-    function config_chooser(parent_el, el, param_options, param_current, save_fn) {
+    //function config_chooser(parent_el, el, param_options, param_current, chooser, save_fn) {
+    function config_chooser(parent_el, el, chooser, save_fn) {
 
         var el_bounds = el.getBoundingClientRect();
 
         var pos_x = Math.floor(el_bounds.left);
         var pos_y = Math.floor(el_bounds.top);
+
+        //console.log('WidgetConfig', 'config_chooser', pos_x, pos_y);
 
         var width = 500; // TODO get from layout_config
         var height = 500;
@@ -589,19 +911,21 @@ function WidgetConfig(config) {
         chooser_div_style += ' position: absolute;';
         chooser_div_style += ' border: 5px ridge;';
         chooser_div_style += ' background-color: white;';
+        chooser_div_style += ' z-index: 2000;';
 
         chooser_div_style += ' left: '+pos_x+'px; top: '+pos_y+'px;';
 
         chooser_div.setAttribute('style', chooser_div_style);
 
-        parent_el.appendChild(chooser_div);
+        //parent_el.appendChild(chooser_div);
+        document.body.appendChild(chooser_div);
 
         var input_div = document.createElement('div');
         chooser_div.appendChild(input_div);
         var input_div_style = 'width: '+width+'px; height: '+height+'px;';
         input_div.setAttribute('style', input_div_style);
 
-        var chooser_return = param_options.chooser(input_div);
+        var chooser_return = chooser(input_div);
 
         //TODO add save, cancel onclick callbacks
 

@@ -137,8 +137,8 @@ var BusStopChooser = (function() {
                 }
                 else if (selected_stops.getLayers().length > 0) {
                     debug_log("Setting view from current.stops");
-                    var bounds = selected_stops.getBounds().pad(0.2);
-                    map.fitBounds(bounds);
+                    var bounds = selected_stops.getBounds().pad(0.2); // LatLngBounds
+                    map.fitBounds(bounds, { maxZoom: zoom_threshold }); // draw map around current.stops, with max zoom applied.
                 }
                 else {
                     debug_log("Setting view from parameters or default");

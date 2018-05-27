@@ -4,7 +4,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SmartCambridge SmartPanel</title>
+    <title>SmartPanel Configuration</title>
+
+    <!-- Jquery, Jquery-UI -->
+
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -16,18 +19,35 @@
 
     <script src="http://underscorejs.org/underscore-min.js"></script>
 
+    <!-- Gridstack for the grid layout manipulation -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack-extra.min.css" />
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.js'></script>
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.jQueryUI.min.js'></script>
+
+    <!-- Google Material files -->
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-green.min.css">
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
     <!-- Leaflet and associated script files-->
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <!-- leaflet.draw -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css"
+            integrity="sha256-XzD3RpaHPv7lzX9qt+2n1j5cWj48O24KsgaGYpKN8x8=" crossorigin="anonymous" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"
+                integrity="sha256-jzmB6xy6L0YPzPeu+ccUiPKp3UE+qRmo5xmq5BbnSv0=" crossorigin="anonymous"></script>
+
+    <!-- Google Maps -->
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g"></script>
+
+    <!-- SmartPanel widget configuration js and choosers -->
 
     <script src="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.js' %}"></script>
     <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">

@@ -56,7 +56,7 @@ function StopTimetable(widget_id) {
 
     'use strict';
 
-    var DEBUG = ' stop_timetable_log';
+//    var DEBUG = ' stop_timetable_log';
 
     var self = this;
 
@@ -84,7 +84,18 @@ function StopTimetable(widget_id) {
         REALTIME_TIMEZONE             = 'Europe/London',
 
         PARAMS_DEFAULT                = { title: 'Stop opp. Gates Bldg',
-                                          stop_id: '0500CCITY424',
+                                          stop: {   id: "0500CCITY424",
+                                                    stop_id: "0500CCITY424",
+                                                    atco_code: "0500CCITY424",
+                                                    naptan_code: "CMBDGDMT",
+                                                    common_name: "William Gates Building",
+                                                    indicator: "opp",
+                                                    locality_name: "Cambridge",
+                                                    longitude: 0.09107756159,
+                                                    latitude: 52.2112996707,
+                                                    lng: 0.09107756159,
+                                                    lat: 52.2112996707
+                                                },
                                           offset: 0,
                                           layout: 'simple'
                                         },
@@ -276,7 +287,7 @@ function StopTimetable(widget_id) {
         }
         self.log('get_journey_batch - start_time:', start_time);
 
-        var qs = '?stop_id='+encodeURIComponent(self.params.stop_id);
+        var qs = '?stop_id='+encodeURIComponent(self.params.stop.stop_id);
         qs += '&datetime_from='+encodeURIComponent(start_time);
         qs += '&expand_journey=true';
         qs += '&nresults='+encodeURIComponent(JOURNEY_BATCH_SIZE);
@@ -367,6 +378,20 @@ function StopTimetable(widget_id) {
 
     }
 
+    // Helper function returns true if stops array contains stop (by stop_id / atco_code)
+    // 'stops' will ALWAYS contain stops with stop_id
+    // 'stop' may have only atco_code
+    function contains_stop(stops, stop) {
+        // convert test stop to a stop_id, use atco_code if no stop_id
+        var stop_id = stop.stop_id ? stop.stop_id : stop.atco_code;
+        for (var i=0; i<stops.length; i++ ) {
+            if (stops[i].stop_id === stop_id) {
+                return true;
+            }
+        }
+        // We checked all the stops with no match, so return false
+        return false;
+    }
 
     function make_destination_table(result) {
         // Work out which, if any, destinations is served by this journey
@@ -394,8 +419,8 @@ function StopTimetable(widget_id) {
                     // ...does this journey go to this destination after
                     // passing ourself?
                     if (( seen_self ) &&
-                        (( destination.stop_ids &&
-                           destination.stop_ids.indexOf(timetable_entry.stop.atco_code) !== -1 ) ||
+                        (( destination.stops &&
+                           contains_stop(destination.stops, timetable_entry.stop) ) ||
                          ( destination.area &&
                            is_inside({ lat: timetable_entry.stop.latitude,
                                        lng: timetable_entry.stop.longitude },
@@ -408,7 +433,7 @@ function StopTimetable(widget_id) {
                     }
 
                     // Is this timetable entry 'us'?
-                    if (timetable_entry.stop.atco_code === self.params.stop_id) {
+                    if (timetable_entry.stop.atco_code === self.params.stop.stop_id) {
                         seen_self = true;
                     }
 
@@ -417,8 +442,8 @@ function StopTimetable(widget_id) {
                 // Separately, is the last (final) stop of this journey
                 // part of this destination?
                 var last = result.journey.timetable[result.journey.timetable.length-1];
-                if (( destination.stop_ids &&
-                      destination.stop_ids.indexOf(last.stop.atco_code) !== -1 ) ||
+                if (( destination.stops &&
+                      contains_stop(destination.stops, last.stop) ) ||
                     ( destination.area &&
                       is_inside({ lat: last.stop.latitude,
                                   lng: last.stop.longitude },
@@ -607,7 +632,7 @@ function StopTimetable(widget_id) {
             var updated = document.createElement('div');
             updated.classList.add('timestamp');
             updated.appendChild(document.createTextNode('Updated ' + moment().format('HH:mm')));
-            departure_div.append(updated);
+            departure_div.appendChild(updated);
             if (result) {
                 departure_div.appendChild(result);
             }
@@ -1199,7 +1224,7 @@ function StopTimetable(widget_id) {
                     cell.classList.add('time');
                     cell.classList.add('key');
                     cell.appendChild(document.createTextNode(journey.due.format('HH:mm')));
-                    row.append(cell);
+                    row.appendChild(cell);
 
                     // ETA
                     cell = document.createElement('td');
@@ -1266,7 +1291,7 @@ function StopTimetable(widget_id) {
                 result.appendChild(div);
             }
             else {
-                result.append(table);
+                result.appendChild(table);
             }
 
         } // END for each destination
@@ -1447,11 +1472,11 @@ function StopTimetable(widget_id) {
 
         var config_form = document.createElement('form');
 
+        config_div.appendChild(config_form);
+
         var input_result = input_stop_timetable(widget_config,
                                                 config_form,
                                                 (params && params.title) ? params : PARAMS_DEFAULT);
-
-        config_div.appendChild(config_form);
 
         return input_result;
     }
@@ -1462,6 +1487,38 @@ function StopTimetable(widget_id) {
     //   parent_el: the DOM element this input form will be added to
     //   params: the existing parameters of the widget
     function input_stop_timetable(widget_config, parent_el, params) {
+
+        self.log('input_stop_timetable with',params);
+
+        // Add some guide text
+        var config_info1 = document.createElement('p');
+        var config_info_text = "This widget displays information relevant to a BUS STOP.";
+        config_info_text += " At its simplest (i.e. the 'Simple' layout) you choose a title and a stop and the widget will";
+        config_info_text += " display a current timetable for that stop, updating with real-time information coming from the buses.";
+        config_info1.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info1);
+
+        var config_info3 = document.createElement('p');
+        config_info_text = "Layout 'Multi-line' can provide a similar display to 'Simple', but in addition you can specify one";
+        config_info_text += " or more intermediate destinations and the stop display will include arrival times for those (see";
+        config_info_text += " 'destinations' below).";
+        config_info3.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info3);
+
+        var config_info4 = document.createElement('p');
+        config_info_text = "Layout 'Nextbus' is similar to 'Multi-line', but is arranged 'per-destination' rather than a single";
+        config_info_text += " list of departures (again, see 'destinations' below).";
+        config_info4.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info4);
+
+        var config_info5 = document.createElement('p');
+        config_info_text = "'Destinations': intermediate places on a route (Layout Multi-line and Nextbus only).";
+        config_info_text +=" You specify one either as a fixed set of bus stops";
+        config_info_text += " OR as an area on the map.  E.g. if you create a destination called 'Train Station' and draw a box around";
+        config_info_text += " the stops by Cambridge Railway Station, arrival times to there will be added for each relevant bus.";
+        config_info_text += " (Hint - click the hexagon symbol on the top-right of the map to draw a box)";
+        config_info5.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info5);
 
         var config_table = document.createElement('table');
         config_table.className = 'config_input_stop_timetable';
@@ -1474,55 +1531,20 @@ function StopTimetable(widget_id) {
         //
         var title_result = widget_config.input( config_tbody,
                                          'string',
-                                         { text: 'Title:',
+                                         { text: 'Main Title:',
                                            title: 'The main title at the top of the widget, e.g. bus stop name'
                                          },
                                          params.title);
 
-        // STOP_ID
+        // STOP
         //
-        // First create the 'stop_id' chooser function.
-        // This 'chooser function' will be passed the element within which this chooser is to be drawn.
-        var chooser_stop_id = function (parent_el) {
-
-            var choose_return =  widget_config.choose( parent_el,
-                                          'bus_stops',
-                                          { text: 'Bus stop',
-                                            title: 'Choose bus stop',
-                                            width: '500px',
-                                            height: '500px',
-                                            multi_select: false,
-                                            zoom_threshold: 15,
-                                            lat: 52.204,
-                                            lng: 0.124,
-                                            zoom: 16
-                                          },
-                                          { stops: [ params.stop_id ] } // note structure needed for BusStopChooser
-                                        );
-
-            // We create a value() function which itself uses choose_return
-            var value_fn = function () {
-                var bus_stops_return = choose_return.value();
-                // TODO error checking iif no stops chosen
-                self.log('chooser_stop_id returning',bus_stops_return.stops[0].stop_id);
-                return bus_stops_return.stops[0].stop_id; // note we unpick the return from BusStopChooser to get stop_id
-            }
-
-            return { valid: function () { return true; },
-                     value: value_fn };
-
-        };
-
-        //
-        var stop_id_result = widget_config.input( config_tbody,
-                                           'string',
-                                           { text: 'Stop ID:',
-                                             title: 'Atco code of the stop of interest, e.g. 0500CCITY424',
-                                             chooser: chooser_stop_id
-                                             // TODO add chooser icon
+        self.log('configure() calling widget_config.input', 'stop', 'with',params.stop);
+        var stop_result = widget_config.input( config_tbody,
+                                           'bus_stop',
+                                           { text: 'Stop:',
+                                             title: "Click 'choose' to select stop from map",
                                            },
-                                           params.stop_id);
-
+                                           params.stop);
         // offset input
         //
         self.log('configure() calling widget_config.input', 'offset', 'with',params.offset);
@@ -1543,9 +1565,9 @@ function StopTimetable(widget_id) {
               'select',
               { text: 'Layout:',
                 title: 'Choose your widget layout style from the dropdown',
-                options: [ { value: 'simple', text: 'Simple - bus times at stop with destination' },
-                           { value: 'multiline', text: "Multi-line - simple plus 'via' locations on route" },
-                           { value: 'nextbus', text: 'Show buses to each destination area' }
+                options: [ { value: 'simple', text: "Simple - Bus times at stop with final destination" },
+                           { value: 'multiline', text: "Multi-line - include 'via' destinations" },
+                           { value: 'nextbus', text: "Nextbus - Show buses to each 'via' destination area" }
                          ],
                 onchange: input_layout_onchange
               },
@@ -1602,8 +1624,8 @@ function StopTimetable(widget_id) {
             var config_params = {};
             // title
             config_params.title = title_result.value();
-            // stop_id
-            config_params.stop_id = stop_id_result.value();
+            // stop
+            config_params.stop = stop_result.value();
             // offset
             var offset = offset_result.value();
             if (!isNaN(parseInt(offset)) && offset >= 0) {
@@ -1694,7 +1716,7 @@ function StopTimetable(widget_id) {
 
         parent_el.appendChild(row);
 
-        function value () {
+        function value_fn () {
             var list_result = [];
             for (var i=0; i<destination_values.length; i++) {
                 if (destination_values[i].value()) {
@@ -1705,7 +1727,7 @@ function StopTimetable(widget_id) {
             return list_result;
         };
 
-        return { value: value,
+        return { value: value_fn,
                  valid: function () { return true; },
                  element: row
                };
@@ -1714,7 +1736,7 @@ function StopTimetable(widget_id) {
 
     // Add a 'destination' input (as a row in a 'destinations' table)
     function input_destination(widget_config, parent_el, destination) {
-        self.log('config_input_destination called with',destination);
+        self.log('input_destination called with',destination);
 
         var tr = document.createElement('tr');
         var td = document.createElement('td');
@@ -1743,14 +1765,12 @@ function StopTimetable(widget_id) {
         var table = document.createElement('table');
         var tbody = document.createElement('tbody');
 
-        var description_result = widget_config.input( tbody,
-                                              'string',
-                                               { text: 'Description:',
-                                                 title: 'Short display name of the destination, e.g. City Centre',
-                                               },
-                                               destination ? destination.description : null);
-
-        var stop_ids_result = input_stop_list( widget_config, tbody, destination ? destination.stop_ids : null);
+        var stops_result = widget_config.input( tbody,
+                                                'bus_destination',
+                                                { text: 'Title:',
+                                                  title: 'Choose a simple name for this destination, e.g. City Centre'
+                                                },
+                                                destination );
 
         table.appendChild(tbody);
         td.appendChild(table);
@@ -1761,9 +1781,7 @@ function StopTimetable(widget_id) {
             if (removed) {
                 return null;
             } else {
-                return { description: description_result.value(),
-                         stop_ids: stop_ids_result.value()
-                       };
+                return stops_result.value();
             }
         }
 
@@ -1771,32 +1789,6 @@ function StopTimetable(widget_id) {
                  valid: function () { return true; }
                };
     }
-
-    // input a list of stops as a comma-separated string
-    function input_stop_list(widget_config, parent_el, stop_ids) {
-
-        var stops = '';
-        if (stop_ids) {
-            for (var i=0; i<stop_ids.length; i++) {
-                stops += (i==0) ? stop_ids[0] : ','+stop_ids[i];
-            }
-        }
-        var stop_ids_result = widget_config.input( parent_el,
-                                           'string',
-                                           { text: 'Stop ID list:',
-                                             title: 'Atco codes of the stops of interest, e.g. 0500CCITY424,0500CCITY425',
-                                           },
-                                           stops);
-
-        function value() {
-            var stops = stop_ids_result.value();
-            var stop_ids = stops.split(',');
-            return stop_ids;
-        }
-
-        return { value: value,
-                 valid: function () { return true; } };
-    } // end input_stop_list
 
     self.log('Instantiated StopTimetable');
 

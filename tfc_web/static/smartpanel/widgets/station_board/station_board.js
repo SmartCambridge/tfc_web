@@ -27,8 +27,19 @@ function StationBoard(widget_id, params) {
 
     var STATION_OPTIONS = [ { value: 'CBG', text: 'Cambridge' },
              { value: 'CMB', text: 'Cambridge North' },
+             { value: 'ELY', text: 'Ely' },
              { value: 'FXN', text: 'Foxton' },
+             { value: 'HUN', text: 'Huntingdon' },
+             { value: 'MCH', text: 'March' },
+             { value: 'MEL', text: 'Meldreth' },
+             { value: 'PBO', text: 'Peterborough' },
+             { value: 'RYS', text: 'Royston' },
+             { value: 'SDY', text: 'Sandy' },
              { value: 'SED', text: 'Shelford' },
+             { value: 'SNO', text: 'St. Neots' },
+             { value: 'STH', text: 'Shepreth' },
+             { value: 'SVG', text: 'Stevenage' },
+             { value: 'WBC', text: 'Waterbeach' },
              { value: 'WLF', text: 'Whittlesford' }
     ];
 
@@ -115,6 +126,19 @@ function StationBoard(widget_id, params) {
 
         config_div.appendChild(title);
 
+        var info_para = document.createElement('p');
+        var info_text = "This widget will display a 'departure board' similar to one you'd see at the actual station.";
+        info_para.appendChild(document.createTextNode(info_text));
+        config_div.appendChild(info_para);
+
+        info_para = document.createElement('p');
+        info_text = "Choose the station from the drop-down below. The 'offset' is optional, and it causes the widget to";
+        info_text += " display departure times AFTER that offset from the current time.  The offset purpose is if the station";
+        info_text += " is 20 minutes away from where you are viewing this panel, you could scroll the departure board";
+        info_text += " forwards by 20 minutes as earlier trains are not catchable.";
+        info_para.appendChild(document.createTextNode(info_text));
+        config_div.appendChild(info_para);
+
         var config_form = document.createElement('form');
 
         var input_result = input_widget(widget_config, config_form, params);
@@ -187,7 +211,7 @@ function StationBoard(widget_id, params) {
 
             return { title: selected_title }; };
 
-        return { valid: function () { return true; }, //debug - still to be implemeinted,
+        return { valid: function () { return true; }, //debug - still to be implemented,
                  config: config_fn,
                  value: value_fn };
 
