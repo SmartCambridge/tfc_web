@@ -632,7 +632,7 @@ function StopTimetable(widget_id) {
             var updated = document.createElement('div');
             updated.classList.add('timestamp');
             updated.appendChild(document.createTextNode('Updated ' + moment().format('HH:mm')));
-            departure_div.append(updated);
+            departure_div.appendChild(updated);
             if (result) {
                 departure_div.appendChild(result);
             }
@@ -1224,7 +1224,7 @@ function StopTimetable(widget_id) {
                     cell.classList.add('time');
                     cell.classList.add('key');
                     cell.appendChild(document.createTextNode(journey.due.format('HH:mm')));
-                    row.append(cell);
+                    row.appendChild(cell);
 
                     // ETA
                     cell = document.createElement('td');
@@ -1291,7 +1291,7 @@ function StopTimetable(widget_id) {
                 result.appendChild(div);
             }
             else {
-                result.append(table);
+                result.appendChild(table);
             }
 
         } // END for each destination

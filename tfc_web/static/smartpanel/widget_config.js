@@ -224,8 +224,7 @@ function WidgetConfig(config) {
         // this fn will be called when user clicks 'save' on chooser
         var chooser_save = function(chooser_return)
         {
-            //debug
-            console.log('widget_config.js chooser_save', chooser_return.value());
+            //console.log('widget_config.js chooser_save', chooser_return.value());
             var chooser_return_value = chooser_return.value();
             if (chooser_return_value)
             {
@@ -261,8 +260,7 @@ function WidgetConfig(config) {
     // Input a single bus stop { stop_id: '0500CCITY424', common_name: ... }
     function config_bus_stop(parent_el, param_options, param_current)
     {
-        //debug
-        console.log('WidgetConfig','config_bus_stop', param_options, param_current);
+        //console.log('WidgetConfig','config_bus_stop', param_options, param_current);
 
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
@@ -294,8 +292,7 @@ function WidgetConfig(config) {
         // this fn will be called when user clicks 'save' on chooser
         var chooser_save = function(chooser_return)
         {
-            //debug
-            console.log('widget_config.js chooser_save', chooser_return.value());
+            //console.log('widget_config.js chooser_save', chooser_return.value());
             chooser_value = chooser_return.value();
             if (chooser_value)
             {
@@ -328,8 +325,7 @@ function WidgetConfig(config) {
     // Input multiple bus stops and map parameters { stops: [ {stop}, ... ], map: {lat: lng: zoom:} }
     function config_bus_stops(parent_el, param_options, param_current)
     {
-        //debug
-        console.log('WidgetConfig','config_bus_stops', param_options, param_current);
+        //console.log('WidgetConfig','config_bus_stops', param_options, param_current);
 
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
@@ -361,8 +357,7 @@ function WidgetConfig(config) {
         // this fn will be called when user clicks 'save' on chooser
         var chooser_save = function(chooser_return)
         {
-            //debug
-            console.log('widget_config.js chooser_save', chooser_return.value());
+            //console.log('widget_config.js chooser_save', chooser_return.value());
             chooser_value = chooser_return.value();
             if (chooser_value)
             {
@@ -399,8 +394,7 @@ function WidgetConfig(config) {
     // }
     function config_bus_destination(parent_el, param_options, param_current)
     {
-        //debug
-        console.log('WidgetConfig','config_bus_destination', param_options, param_current);
+        //console.log('WidgetConfig','config_bus_destination', param_options, param_current);
 
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
@@ -437,8 +431,7 @@ function WidgetConfig(config) {
         // It simply saves the value() of the chooser in local var chooser_value
         var chooser_save_fn = function(chooser_return)
         {
-            //debug
-            console.log('widget_config.js chooser_save', chooser_return.value());
+            //console.log('widget_config.js chooser_save', chooser_return.value());
             chooser_value = chooser_return.value();
         };
 
@@ -494,8 +487,7 @@ function WidgetConfig(config) {
                                                 area: chooser_value.areas[0]
                                                };
                             }
-                            //debug
-                            console.log('widget_config','config_area','returning',return_value);
+                            //console.log('widget_config','config_area','returning',return_value);
                             return return_value;
                         },
                  valid: function () { return true; }
@@ -509,8 +501,7 @@ function WidgetConfig(config) {
     // param_current is { map: { ... }, stops: [ {stop}, ... ] }
     function choose_bus_stops(parent_el, param_options, param_current)
     {
-        //debug
-        console.log('WidgetConfig','choose_bus_stops',param_options, param_current);
+        //console.log('WidgetConfig','choose_bus_stops',param_options, param_current);
         var chooser = BusStopChooser.create(param_options);
         chooser.render(parent_el, param_current);
         return chooser;
@@ -639,8 +630,7 @@ function WidgetConfig(config) {
     // }
     function config_google_map_chooser(parent_el, param_options, current_map)
     {
-        //debug
-        console.log('WidgetConfig','config_google_map_chooser', param_options, current_map);
+        //console.log('WidgetConfig','config_google_map_chooser', param_options, current_map);
 
         var row = document.createElement('tr');
         // create td to hold 'name' prompt for field
@@ -676,8 +666,7 @@ function WidgetConfig(config) {
         // It simply saves the value() of the chooser in local var chooser_value
         var chooser_save_fn = function(chooser_return)
         {
-            //debug
-            console.log('WidgetConfig','config_google_map_chooser chooser_save', chooser_return.value());
+            //console.log('WidgetConfig','config_google_map_chooser chooser_save', chooser_return.value());
             chooser_value = chooser_return.value();
         };
 
@@ -706,7 +695,6 @@ function WidgetConfig(config) {
 
         return { value: function() {
                             var return_value = current_map;
-                            //debug change this from 'stops' to the map
                             if (chooser_value)
                             {
                             return_value =  { title: input.value,
@@ -715,8 +703,7 @@ function WidgetConfig(config) {
                                               zoom: chooser_value.zoom
                                              };
                             }
-                            //debug
-                            console.log('WidgetConfig','config_google_map_chooser','returning',return_value);
+                            //console.log('WidgetConfig','config_google_map_chooser','returning',return_value);
                             return return_value;
                         },
                  valid: function () { return true; }
@@ -728,8 +715,7 @@ function WidgetConfig(config) {
     function config_area(parent_el, param_options, param_current)
     {
 
-        //debug
-        console.log('widget_config','Called config_area');
+        //console.log('widget_config','Called config_area');
 
 
         var title = param_options.title;
@@ -821,8 +807,7 @@ function WidgetConfig(config) {
         var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
         'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
 
-        //debug
-        console.log('WidgetConfig','choose_area',param_options, param_current);
+        //console.log('WidgetConfig','choose_area',param_options, param_current);
 
         var lat = param_options.lat || 52.204;
         var lng = param_options.lng || 0.124;
@@ -914,8 +899,7 @@ function WidgetConfig(config) {
         var pos_x = Math.floor(el_bounds.left);
         var pos_y = Math.floor(el_bounds.top);
 
-        //debug
-        console.log('WidgetConfig', 'config_chooser', pos_x, pos_y);
+        //console.log('WidgetConfig', 'config_chooser', pos_x, pos_y);
 
         var width = 500; // TODO get from layout_config
         var height = 500;
