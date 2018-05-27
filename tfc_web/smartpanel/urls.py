@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^display/(?P<display_id>\d+)/delete/', smartpanel.delete_display, name='smartpanel-delete-display'),
     url(r'^display/(?P<display_id>\d+)/refresh/(?P<layout_id>\d+)/(?P<version>\d+)', smartpanel.display_refresh,
         name='smartpanel-display-refresh'),
-    url(r'^display/list/', smartpanel.displays, name='smartpanel-list-displays'),
+    # url(r'^display/list/', smartpanel.displays, name='smartpanel-list-displays'),
     url(r'^display/(?P<display_id>\d+)/', smartpanel.display, name='smartpanel-display'),
     url(r'^displays/debug/', smartpanel.displays_debug, name='smartpanel-displays-debug'),
     url(r'^design/', smartpanel.design, name='smartpanel-design'),

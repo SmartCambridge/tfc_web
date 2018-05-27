@@ -86,39 +86,37 @@
             </div>
         </div>
     </div>
-    <div class="logos" style="height: 60px;">
-        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-top: 10px; margin-left: 10px;">
+    <div class="logos" style="height: 50px; padding-top: 10px;">
+        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
             {% csrf_token %}
             <input id="design" name="design" type="hidden">
             <input type="hidden" name="data" id="form-data">
-            <div class="mdl-textfield mdl-js-textfield" style="padding: 0;">
-                <label for="name" class="mdl-textfield__label">Layout name</label>
-                <input id="name" name="name" type="text" required class="mdl-textfield__input"{% if layout %} value="{{ layout.name }}"{% endif %}>
+            <div class="mdl-textfield mdl-js-textfield" style="padding: 0">
+                <input class="mdl-textfield__input" type="text" id="name" name="name" required {% if layout %} value="{{ layout.name }}"{% endif %}>
+                <label class="mdl-textfield__label" for="name" style="top: 4px;">Layout name...</label>
             </div>
-            <input id="save" type="submit" value="save configuration"
-                   class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+            <input id="save" name="submit-button" type="submit" value="save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="float: none">
         </form>
-        <a id="add-widget" href="#add-widget" style="float: left; margin-top: 10px; margin-left: 10px;"
-           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">add widget</a>
+        <a href="{% url 'smartpanel-home' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+        <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
+
+        <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
+        <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
 
         {% if layout %}
-        <form action="{% url 'smartpanel-layout-publish' layout.id %}" method="post" style="float: left; margin-top: 10px; margin-left: 10px;">
+        <form action="{% url 'smartpanel-layout-publish' layout.id %}" method="post">
             {% csrf_token %}
-            <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Publish Layout">
+            <input id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Refresh display">
+            <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will push the new layout configuration to all displays using this layout</div>
         </form>
-        <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored"
-           href="{% url 'smartpanel-layout' layout.id %}" target="_blank" style="float: left; margin-top: 10px; margin-left: 10px;">View layout</a>
-        <a href="{% url 'smartpanel-layout-my' %}" style="float: left; margin-top: 10px; margin-left: 10px;"
-           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
-        <span style="font-size: 12px">Last published: {{ layout.version_date }}</span>
+        <div style="position: fixed; bottom: 0; right: 0; font-size: 14px; background: #fff; padding: 4px; border: black solid 1px; z-index: 10;">Display last refreshed: {{ layout.version_date }}</div>
         {% else %}
-        <a href="{% url 'smartpanel-home' %}" style="float: left; margin-top: 10px; margin-left: 10px;"
-           class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+            <button id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button>
+            <div class="mdl-tooltip" data-mdl-for="update-display-submit">You have not associated a display with this layout yet</div>
         {% endif %}
-
     </div>
 
-    <div class="grid-container mdl-color--teal-900" style="width: 1920px; height: 1020px; padding: 1px 1px 2px 1px; overflow: hidden;">
+    <div class="grid-container mdl-color--teal-900" style="width: 100%; min-width: 1000px; padding: 1px 1px 2px 1px; overflow: hidden;">
 {#    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">#}
         <div id="grid" class="grid grid-stack grid-stack-6">
         </div>

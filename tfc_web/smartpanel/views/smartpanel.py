@@ -98,6 +98,8 @@ def layout_config(request, layout_id, reload=False):
             layout.name = name
             layout.design = design
             layout.save()
+            if request.POST.get('submit-button', None) == "view":
+                return redirect('smartpanel-layout', layout_id)
             if reload:
                 return redirect('smartpanel-layout-config', layout_id)
     except:

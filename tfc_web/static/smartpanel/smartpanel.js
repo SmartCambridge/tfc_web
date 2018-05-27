@@ -87,7 +87,16 @@ $(function () {
             idx(['placeholder', 'text'], defaultGrid[key]))
     });
 
-    $('#add-widget').click(function (e) {
+    var grid_container = $('.grid-container');
+    grid_container.height(grid_container.width()*9/16);
+    grid.cellHeight(grid_container.height()/4);
+
+    $(window).resize(function() {
+        grid_container.height(grid_container.width()*9/16);
+        grid.cellHeight(grid_container.height()/4);
+    });
+
+    $('#add-widget').click(function(e) {
         e.preventDefault();
         if (grid.willItFit(null, null, 1, 1, true)) {
             add_new_widget();
@@ -158,7 +167,7 @@ $(function () {
         });
     });
 
-    $('#configuration-widget-save-button').click(function (e) {
+    $('#configuration-widget-save-button').click(function() {
         var save_button = $(this);
         if (save_button.data("valid")() === true) {
             $("#overlay-configure-widget").hide();
@@ -175,10 +184,19 @@ $(function () {
         }
     });
 
-    $('#configuration-widget-cancel-button').click(function (e) {
+    $('#configuration-widget-cancel-button').click(function() {
         $("#overlay-configure-widget").hide();
         $("#configuration-widget-form").empty();
         $("#widget-selector").prop('selectedIndex', 0);
     });
 
+    $('#view-layout-and-save').click(function() {
+        var form = $('#smartpanel-design-form');
+        var save_button = $('#save');
+        form.attr('target','_blank');
+        save_button.val('view');
+        save_button.click();
+        save_button.val('save');
+        form.attr('target','_self');
+    })
 });

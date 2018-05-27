@@ -1,8 +1,9 @@
 {% extends "smartpanel/base.html" %}
 {% load static %}
 {% block content %}
-        <div class="cards-section">
-            <div class="cards-section-title mdl-typography--display-1-color-contrast">SmartPanels</div>
+        <div class="mdl-typography--display-2-color-contrast">SmartPanels</div>
+        <div class="cards-section" style="padding-top: 20px; padding-bottom: 20px;">
+            <div class="cards-section-title mdl-typography--display-1-color-contrast">Layouts</div>
             <div class="card-container mdl-grid">
 
             {% if user.is_authenticated %}
@@ -11,13 +12,13 @@
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
-                        <h4 class="mdl-card__title-text">New SmartPanel</h4>
+                        <h4 class="mdl-card__title-text">My SmartPanel layouts</h4>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">Design a new SmartPanel</span>
+                        <span class="mdl-typography--font-light mdl-typography--subhead">List of all my SmartPanel layouts</span>
                     </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-design' %}">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-layout-my' %}">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
@@ -29,14 +30,14 @@
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
-                        <h4 class="mdl-card__title-text">My SmartPanels layouts</h4>
+                        <h4 class="mdl-card__title-text">New SmartPanel layout</h4>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">List of all my SmartPanel designs</span>
+                        <span class="mdl-typography--font-light mdl-typography--subhead">Design a new SmartPanel</span>
                     </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-layout-my' %}">
-                            View
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-design' %}">
+                            Create
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </div>
@@ -48,10 +49,10 @@
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
-                        <h4 class="mdl-card__title-text">Public SmartPanels layouts</h4>
+                        <h4 class="mdl-card__title-text">SmartPanel layouts</h4>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">List of all public SmartPanel designs</span>
+                        <span class="mdl-typography--font-light mdl-typography--subhead">List of all public SmartPanel layouts</span>
                     </div>
                     <div class="mdl-card__actions">
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-layout-all' %}">
@@ -61,24 +62,14 @@
                     </div>
                 </div>
 
-            {% if user.is_authenticated %}
-                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
-                    <div class="mdl-card__media">
-                        <img src="">
-                    </div>
-                    <div class="mdl-card__title">
-                        <h4 class="mdl-card__title-text">New Display</h4>
-                    </div>
-                    <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">Create new display</span>
-                    </div>
-                    <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-new-display' %}">
-                            View
-                            <i class="material-icons">chevron_right</i>
-                        </a>
-                    </div>
-                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="cards-section" style="padding-top: 0">
+
+            <div class="cards-section-title mdl-typography--display-1-color-contrast">Displays</div>
+            <div class="card-container mdl-grid">
 
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
@@ -97,26 +88,43 @@
                         </a>
                     </div>
                 </div>
-            {% endif %}
 
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
-                        <h4 class="mdl-card__title-text">Public SmartPanel displays</h4>
+                        <h4 class="mdl-card__title-text">New SmartPanel display</h4>
                     </div>
                     <div class="mdl-card__supporting-text">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">List of public SmartPanel displays in a map</span>
+                        <span class="mdl-typography--font-light mdl-typography--subhead">Create new SmartPanel display</span>
                     </div>
                     <div class="mdl-card__actions">
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-list-displays' %}">
-                            View
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-new-display' %}">
+                            Create
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </div>
                 </div>
 
+{#                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">#}
+{#                    <div class="mdl-card__media">#}
+{#                        <img src="">#}
+{#                    </div>#}
+{#                    <div class="mdl-card__title">#}
+{#                        <h4 class="mdl-card__title-text">Public SmartPanel displays</h4>#}
+{#                    </div>#}
+{#                    <div class="mdl-card__supporting-text">#}
+{#                        <span class="mdl-typography--font-light mdl-typography--subhead">List of public SmartPanel displays in a map</span>#}
+{#                    </div>#}
+{#                    <div class="mdl-card__actions">#}
+{#                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'smartpanel-list-displays' %}">#}
+{#                            View#}
+{#                            <i class="material-icons">chevron_right</i>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                </div>#}
             </div>
         </div>
+        {% endif %}
 {% endblock %}
