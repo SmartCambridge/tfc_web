@@ -1,43 +1,13 @@
 /* =================================================================== */
-/* General styling for widget display
-
-/* Force box-sizing: border-box everywhere. Note that this may break
-   some 3rd-party styling in which case it may need to be forced back to
-   content-box there */
-*, *:before, *:after {
-  -webkit-box-sizing: border-box; 
-  -moz-box-sizing: border-box; 
-  box-sizing: border-box;
-}
+/* General styling for widget display                                  */
 
 .widget {
+  background-color: white;
   font-family: Arial, sans-serif;
-}
-
-/* Restore a top/bottom margin around block-level elements */
-/* (removed by smartpanel.css) */
-.widget p, .widget ul, .widget ol, .widget pre, .widget address,
-.widget blockquot, .widget hr {
-    margin: 0.5rem 0;
-}
-
-/* Restore ul/ol/li functionality (removed by smartpanel.css) */
-.widget ul, .widget ol {
-    padding-left: 40px;
-}
-.widget ul {
-    list-style-type: disc;
-}
-.widget ul ul, .widget ol ul {
-    list-style-type: circle;
-}
-.widget ul ul, .widget ul ol, .widget ol ul, .widget ol ol {
-    margin-bottom: 0;
-    margin-top: 0;
-}
-.widget li {
-    border: none;
-    position: relative;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .widget h1, .widget h2 {
