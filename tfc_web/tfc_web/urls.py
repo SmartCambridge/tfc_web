@@ -50,5 +50,5 @@ urlpatterns = [
     url(r'^smartpanel/', include('smartpanel.urls')),
 
     # API
-    url(r'^api/v1/', include('api.urls')),
+    url(r'^api/', include('api.urls')),
 ]
