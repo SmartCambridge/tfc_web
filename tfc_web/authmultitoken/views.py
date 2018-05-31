@@ -120,8 +120,7 @@ class ObtainAuthToken(APIView):
                         description="Name or description of this token",
                     ),
                 ),
-            ],
-            encoding="application/json",
+            ]
         )
 
     def post(self, request, *args, **kwargs):
