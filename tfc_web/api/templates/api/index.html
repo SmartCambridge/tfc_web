@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Smart Cambridge APIs</h1>
+
+<p>Programmatic access to information maintained by the Smart Cambridge project.</p>
+
+<p>Currently available:</p>
+<ul>
+    <li><a href="{% url 'aq_home'%}">Air Quality</a> data from a selection
+        of sensors deployed around Cambridge between June 2016 and February 2017.
+    </li>
+    <li><a href="{% url 'parking_home'%}">Car Parking</a> data showing the
+        occupancy of Cambridge City Centre and Park and Ride car parks from
+        2017 onward.
+    </li>
+    <li><a href="{% url 'traffic_home'%}">Traffic Speed</a> data for a number
+        of roads within Cambridge based on bus position reports from
+        October 2017 onward.
+    </li>
+    <li>API access to bus transport data from the
+        <a href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan">National
+        Public Transport Access Nodes (NaPTAN)</a> and
+        <a href="http://www.travelinedata.org.uk/traveline-open-data/traveline-national-dataset/">Traveline
+        National Dataset (TNDS)</a> resources.
+    </li>
+</ul>
+
+<p>Access to the 'Air Quality', 'Car Parking', and 'Traffic Speed' endpoints
+    required free registration,
+    even when accessed via the auto-genereted API documentation. Both session
+    authentication (by logging in to SmartCambridge) and API Token authentication
+    (see 'Create an API token' below) are supported.
+</p>
+
+<p>Handy links:</p>
+
+<ul>
+    <li><a href={% url 'api-docs:docs-index'%}>Auto-genereted API documentation</a></li>
+</ul>
+<ul>
+    <li><a href={% url 'create_token' %}>Create an API token</a></li>
+    <li><a href={% url 'manage_tokens' %}>Manage API tokens</a></li>
+</ul>
+<ul>
+    <li><a href={% url 'account_login' %}?next={{ request.get_full_path }}>Login to SmartCambridge</a></li>
+    <li><a href={% url 'account_logout' %}?next={{ request.get_full_path }}>Logout from SmartCambridge</a></li>
+</ul>
+
+{% endblock %}
