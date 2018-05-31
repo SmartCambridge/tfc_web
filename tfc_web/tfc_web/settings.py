@@ -48,6 +48,7 @@ PROJECT_APPS = [
     'csn',
     'smartpanel',
     'api',
+    'authmultitoken',
 ]
 
 INSTALLED_APPS = [

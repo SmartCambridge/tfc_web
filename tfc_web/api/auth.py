@@ -1,11 +1,12 @@
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
+from rest_framework.authentication import SessionAuthentication
+from authmultitoken.authentication import MultiTokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 import logging
 
 logger = logging.getLogger(__name__)
 
-default_authentication = (TokenAuthentication, SessionAuthentication)
+default_authentication = (MultiTokenAuthentication, SessionAuthentication)
 default_permission = (IsAuthenticated,)
 
 
@@ -19,10 +20,10 @@ class AuthenticateddAPIView(APIView):
     def initial(self, request, *args, **kwargs):
         ''' Hook initial() to log authenticated requests '''
         super().initial(request, *args, **kwargs)
-        key = request.auth.key if request.auth is not None else ''
+        name = request.auth.name if request.auth is not None else ''
         logger.info(
             'AUTH: |%s|%s|%s|',
             request.path,
             request.user.get_username(),
-            key
+            name
         )

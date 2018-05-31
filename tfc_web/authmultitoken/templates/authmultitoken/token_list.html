@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Your tokens</h1>
+
+    {% if token_list %}
+    <form method = "post" action="">
+      {% csrf_token %}
+      <table>
+        <tr>
+          <th>Select</th>
+          <th>Token name</th>
+          <th>Created</th>
+        </tr>
+        {% for token in token_list %}
+        <tr>
+          <td><input name="items" type="checkbox" value="{{ token.id }}"></td>
+          <td>{{ token.name }}</td>
+          <td>{{ token.created }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <input type="submit" value="Delete selected">
+    </form>
+    {% else %}
+      <p>You have no current tokens.</p>
+    {% endif %}
+
+    <p><a href="{% url 'create_token' %}">Create a new token</a></p>
+
+{% endblock %}

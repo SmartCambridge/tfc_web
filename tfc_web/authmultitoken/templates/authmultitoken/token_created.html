@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Token created</h1>
+
+    <p>Your new authentication token '<b>{{ name }}</b>' has been created.
+        Make a note of it now in a secure place - this is the only time
+        you'll see its value on this site. If you loose track of this token
+        you can always delete it and create another.</p>
+
+    <h2>{{ token }}</h2>
+
+    <p><a href="{% url 'create_token' %}">Create another token</a>
+    <p><a href="{% url 'manage_tokens' %}">Token list</a>
+
+{% endblock %}

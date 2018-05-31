@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Create a new token</h1>
+
+    <p>You can create as many tokens as you like. They don't expire,
+    but you can delete them when you no longer need them.</p>
+
+    <p>You need to
+    make a note of the value each token when you create it because that's
+    the only time this site will display it. Give each token a
+    descriptive name so you can tell them apart in the future.</p>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Create token" />
+    </form>
+{% endblock %}
+
