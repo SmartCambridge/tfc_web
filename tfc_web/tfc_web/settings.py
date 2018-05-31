@@ -235,8 +235,11 @@ try:
 except KeyError:
     DATA_PATH = '/media/tfc'
 
-# API Token authentication support
-INSTALLED_APPS += ['rest_framework.authtoken']
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'api_token': '120/min',
+    }
+}
 
 # ======================================================================
 
