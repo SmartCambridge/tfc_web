@@ -127,11 +127,11 @@ def read_json_fragments(path):
     return results
 
 
-def get_config(type, id=None, key=None, fieldname=None):
+def get_config(type, id=None, key=None, fieldnames=[]):
     '''
     Get the config for a metric 'type'. If 'id' is None, return the
     entire config. Otherwise return just the config  with identifier 'id'
-    in field 'fieldname' within a list keyed by 'key'.
+    in one of the fields 'fieldname' within a list keyed by 'key'.
 
     Do this by always reading the list.json file (rather than an <id>.json
     file) because it reduces the danger of opening files with user-supplied
@@ -143,7 +143,8 @@ def get_config(type, id=None, key=None, fieldname=None):
     if id is None:
         return configs
     for config in configs[key]:
-        if config.get(fieldname) == id:
-            return config
+        for fieldname in fieldnames:
+            if config.get(fieldname) == id:
+                return config
     logger.info('Config type {0} for "{1}" not found'.format(type, id))
     raise TFCValidationError('Bad ID "{0}"'.format(id))

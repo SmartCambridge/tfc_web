@@ -18,12 +18,11 @@ def get_zone_config(zone_id=None):
         return util.get_config('zone')
     else:
         return util.get_config('zone', zone_id,
-                               'zone_list', 'zone.id')
+                               'zone_list', ('zone.id', 'zone.reverse.id'))
 
 
 def swap_dot_and_underscore(data):
     ''' serializer can't cope with '.' in keys - switch to '_' '''
-    logger.info(data)
     return {key.replace('.', '_'): value for (key, value) in data.items()}
 
 

@@ -17,7 +17,7 @@ def get_aq_config(station_id=None):
         return util.get_config('cam_aq')
     else:
         return util.get_config('cam_aq', station_id,
-                               'aq_list', 'StationID')
+                               'aq_list', ('StationID',))
 
 
 class AQList(auth.AuthenticateddAPIView):
