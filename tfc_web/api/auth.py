@@ -35,9 +35,17 @@ class TokenRateThrottle(SimpleRateThrottle):
         }
 
 
+class BurstTokenRate(TokenRateThrottle):
+    scope = 'token_burst'
+
+
+class SustainedTokenRate(TokenRateThrottle):
+    scope = 'token_sustained'
+
+
 default_authentication = (MultiTokenAuthentication, SessionAuthentication)
 default_permission = (IsAuthenticated,)
-default_throttle = (TokenRateThrottle,)
+default_throttle = (BurstTokenRate, SustainedTokenRate,)
 
 
 class AuthenticateddAPIView(APIView):
