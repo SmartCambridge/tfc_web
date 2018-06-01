@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 class TokenManager(models.Manager):
     def create(self, user, name):
-        logger.info("Called TokenManager with user %s, name %s", user, name)
 
         token = binascii.hexlify(os.urandom(20)).decode()
         digest = hashlib.sha256(token.encode()).hexdigest()
