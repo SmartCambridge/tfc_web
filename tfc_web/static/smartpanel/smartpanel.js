@@ -190,13 +190,22 @@ $(function () {
         $("#widget-selector").prop('selectedIndex', 0);
     });
 
-    $('#view-layout-and-save').click(function() {
+    function submit_form_with_action(action, reload) {
         var form = $('#smartpanel-design-form');
         var save_button = $('#save');
-        form.attr('target','_blank');
-        save_button.val('view');
+        if (reload === true)
+            form.attr('target','_blank');
+        save_button.val(action);
         save_button.click();
         save_button.val('save');
         form.attr('target','_self');
-    })
+    }
+
+    $('#view-layout-and-save').click(function() {
+        submit_form_with_action('view', true);
+    });
+
+    $('#update-display-submit').click(function() {
+        submit_form_with_action('display', false);
+    });
 });

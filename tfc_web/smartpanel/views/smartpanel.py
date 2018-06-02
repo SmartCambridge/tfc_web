@@ -100,6 +100,11 @@ def layout_config(request, layout_id, reload=False):
             layout.save()
             if request.POST.get('submit-button', None) == "view":
                 return redirect('smartpanel-layout', layout_id)
+            elif request.POST.get('submit-button', None) == "display":
+                layout.version += 1
+                layout.version_date = now()
+                layout.save()
+                messages.info(request, 'SmartPanel layout published')
             if reload:
                 return redirect('smartpanel-layout-config', layout_id)
     except:
@@ -130,17 +135,6 @@ def layout(request, layout_id, display=None):
                   {'layout': layout, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3], 'display': display})
-
-
-@login_required
-def publish_new_layout_version(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST":
-        layout.version += 1
-        layout.version_date = now()
-        layout.save()
-        messages.info(request, 'SmartPanel layout published')
-    return redirect('smartpanel-layout-my')
 
 
 @login_required

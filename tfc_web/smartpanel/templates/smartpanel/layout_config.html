@@ -104,12 +104,9 @@
         <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
 
         {% if layout %}
-        <form action="{% url 'smartpanel-layout-publish' layout.id %}" method="post">
-            {% csrf_token %}
-            <input id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Refresh display">
-            <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will push the new layout configuration to all displays using this layout</div>
-        </form>
-        <div style="position: fixed; bottom: 0; right: 0; font-size: 14px; background: #fff; padding: 4px; border: black solid 1px; z-index: 10;">Display last refreshed: {{ layout.version_date }}</div>
+            <a id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Refresh display</a>
+            <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
+            <div style="position: fixed; bottom: 0; right: 0; font-size: 14px; background: #fff; padding: 4px; border: black solid 1px; z-index: 10;">Display last refreshed: {{ layout.version_date }}</div>
         {% else %}
             <button id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">You have not associated a display with this layout yet</div>
