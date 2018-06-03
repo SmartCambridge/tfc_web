@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name="api/index.html"), name="api_home"),
     # url(r'', include('authmultitoken.endpoint_urls')),
     url(r'', include('authmultitoken.html_urls')),
+    url(r'^auth/', include('api.auth_urls')),
     url(r'^docs/', include_docs_urls(title='TFC API')),
     url(r'^v1/parking/', include('api.parking.urls')),
     url(r'^v1/zone/', include('api.zones.urls')),
