@@ -1,0 +1,8 @@
+/* Styles for the message area widget */
+
+.message_area {
+    height: 100%;
+    padding: 0.5em;
+    width: 100%;
+}
+

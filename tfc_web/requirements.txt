@@ -4,7 +4,7 @@ django-allauth
 requests
 whitenoise
 xmltodict
-psycopg2
+psycopg2-binary
 gunicorn
 Pillow
 pytz
@@ -15,3 +15,6 @@ coreapi
 pygments
 markdown
 django-cors-headers
+iso8601
+zeep
+django-filter

@@ -41,8 +41,6 @@
                 <div class="navigation-container">
                     <nav class="navigation mdl-navigation">
                         {% block header_menu %}
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'csn-home' %}">CSN Home</a>
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'forum:index' %}">Forum</a>
                         {% endblock %}
                         {% if user.is_authenticated %}
                             <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_email' %}">Change E-mail</a>
@@ -52,7 +50,7 @@
                             <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_signup' %}">Sign Up</a>
                         {% endif %}
                     </nav>
-                </div>....
+                </div>
                 <span class="mobile-title mdl-layout-title">
                     <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
                     <p class="mdl-typography--headline shared-block-inline">{% block mobile_title %}{% endblock %}</p>
@@ -75,12 +73,6 @@
                     <a class="mdl-navigation__link" href="{% url 'account_signup' %}">Sign Up</a>
                 {% endif %}
                 {% block navigation %}
-                    <a class="mdl-navigation__link" href="{% url 'csn_applications' %}">Applications</a>
-                    <a class="mdl-navigation__link" href="{% url 'csn_devices' %}">Devices</a>
-                    <a class="mdl-navigation__link" href="{% url 'csn_network_info' %}">Network information</a>
-                    <a class="mdl-navigation__link" href="{% url 'forum:index' %}">
-                        <i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">forum</i>Forums
-                    </a>
                 {% endblock %}
                 {% if user.is_authenticated %}
                     <div class="drawer-separator"></div>

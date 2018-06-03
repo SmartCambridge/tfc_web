@@ -1,0 +1,31 @@
+/* Styles for the weather widget */
+
+.weather .content_area {
+    height: 100%;
+    overflow: hidden;
+    padding: 0.5rem;
+}
+
+.weather .title {
+    clear: both;
+    margin-bottom: 0.3rem;
+    margin-top: 0.9rem;
+}
+
+.weather .title :first-child {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.weather .icon {
+    float: right;
+    height: 80px;
+    width: 80px;
+}
+
+.weather p {
+    margin-bottom: 1.3rem;
+    margin-left: 1rem;
+    margin-top: 0.1rem;
+}
+

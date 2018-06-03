@@ -1,0 +1,96 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/stop_busmap.json",
+    "$comment": "",
+    "description": "Display a map showing bus stop and live bus positions",
+    "title": "Bus stop map",
+
+    "type": "object",
+    "required": ["title", "breadcrumbs", "map", "stops"],
+    "properties": {
+        "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Map title"
+        },
+        "breadcrumbs": {
+            "type": "boolean",
+            "title": "Breadcrumbs",
+            "description": "Show bus path with breadcrumbs?"
+        },
+        "map": {
+            "type": "object",
+            "title": "Map definition",
+            "format": "smartspanel:lmap",
+            "required": ["lat", "lng", "zoom"],
+            "properties": {
+                "lat": {
+                    "type": "number",
+                        "title": "Latitude",
+                        "description": "Latitude of the centre of the map",
+                        "minimum": -90.0,
+                        "maximum": 90.0,
+                        "default": 52.215
+                },
+                "lng": {
+                    "type": "number",
+                    "title": "Longitude",
+                    "description": "Longitude of the centre of the map",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "default": 0.09
+                },
+                "zoom": {
+                    "type": "integer",
+                    "title": "Map zoom",
+                    "description": "Map zoom level",
+                    "minimum": 0,
+                    "maximum": 21,
+                    "default": 15
+                }
+            }
+        },
+        "stops": {
+            "type": "array",
+            "title": "Stops",
+            "description": "Bus stops to show on the map",
+            "minItems": 1,
+            "items": {
+                "type": "object",
+                "required": ["stop_id", "common_name", "lat", "lng"],
+                "format": "smartpanel:bus_stop",
+                "properties": {
+                    "stop_id": {
+                        "type": "string",
+                        "title": "Stop ID",
+                        "description": "NaPTAN AtcoCode of stop to mark",
+                        "default": "0500CCITY424"
+                    },
+                    "common_name": {
+                        "type": "string",
+                        "title": "Stop label",
+                        "description": "Label for stop",
+                        "default": "William Gates Building"
+                    },
+                    "lat": {
+                        "type": "number",
+                        "title": "Latitude",
+                        "description": "Latitude of the bus stop",
+                        "minimum": -90.0,
+                        "maximum": 90.0,
+                        "default": 52.21129
+                    },
+                    "lng": {
+                        "type": "number",
+                        "title": "Longitude",
+                        "description": "Longitude of the bus stop",
+                        "minimum": -180,
+                        "maximum": 180,
+                        "default": 0.09107
+                    }
+                }
+            }
+        }
+    }
+}

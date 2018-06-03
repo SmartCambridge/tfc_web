@@ -1,0 +1,34 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/weather.json",
+    "$comment": "Information mapping places onto 'location' codes for the 3 hour forecast can be retrieved from the forecast site list feed -- see https://www.metoffice.gov.uk/datapoint/support/documentation/uk-locations-site-list-detailed-documentation. A cached copy of this information is included in the widget directory. This schema uses a brutusin-json-forms extension to display human-readable strings in select lists in place of raw enum values (see the 'display' property).",
+    "title": "Weather",
+    "description": "Display a weather forecast",
+
+    "type": "object",
+    "required": ["location"],
+    "properties": {
+
+        "location": {
+            "type": "string",
+            "title": "Location",
+            "enum": [ "310042", "350731", "350730", "99123", "351524", "351671", "353370", "351217", "354241"],
+            "display": {
+                "310042": "Cambridge City Centre",
+                "350731": "Cambridge University Botanic Garden",
+                "350730": "Cambridge City Airport",
+                "99123": "Cambridge NIAB (Impington)",
+                "351524": "Fulbourn",
+                "351671": "Great Shelford",
+                "353370": "Sawston",
+                "351217": "Docwra's Manor Gardens (Shrepreth)",
+                "354241": "Wimpole Hall"
+            },
+            "description": "Location",
+            "format": "smartpanel:forecast_location",
+            "default": "310042"
+        }
+
+    }
+}

@@ -1,0 +1,141 @@
+/* =================================================================== */
+/* General styling for widget display
+
+/* Force box-sizing: border-box everywhere. Note that this may break
+   some 3rd-party styling in which case it may need to be forced back to
+   content-box there */
+*, *:before, *:after {
+  -webkit-box-sizing: border-box; 
+  -moz-box-sizing: border-box; 
+  box-sizing: border-box;
+}
+
+.widget {
+  font-family: Arial, sans-serif;
+}
+
+/* Restore a top/bottom margin around block-level elements */
+/* (removed by smartpanel.css) */
+.widget p, .widget ul, .widget ol, .widget pre, .widget address,
+.widget blockquot, .widget hr {
+    margin: 0.5rem 0;
+}
+
+/* Restore ul/ol/li functionality (removed by smartpanel.css) */
+.widget ul, .widget ol {
+    padding-left: 40px;
+}
+.widget ul {
+    list-style-type: disc;
+}
+.widget ul ul, .widget ol ul {
+    list-style-type: circle;
+}
+.widget ul ul, .widget ul ol, .widget ol ul, .widget ol ol {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.widget li {
+    border: none;
+    position: relative;
+}
+
+.widget h1, .widget h2 {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.widget h1 img {
+    height: 0.8em;
+}
+
+/* Translucent box to left for labelling maps */
+.widget h1.translucent {
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
+    color: black;
+    left: 0;
+    padding: 0.5rem;
+    position: absolute;
+    top: 0;
+}
+
+.widget table.timetable {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0.5em;
+    overflow: hidden;
+}
+
+.widget .timetable th, .widget .timetable td {
+    border-bottom: 1px solid #ddd;
+    padding: 0.2rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.widget .timetable td {
+    padding: 0.4rem 0.2rem 0.736px 0.2rem;
+}
+
+/* Custom class for 'important' columns */
+/* The relative offset is a hack to get the content to */
+/* appear to align correctly with it's smaller-sized   */
+/* neighbours. Set by eye */
+.widget th.key, .widget td.key {
+    font-size: 1.4rem;
+    font-weight: normal;
+    position: relative;
+    top: -0.11em;
+}
+
+/* Dedicated classes */
+
+/* .timestamp for 'Last updated hh:mm', etc. */
+
+.widget .timestamp {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* .message for 'message of the day' boxes, etc */
+
+.widget .message {
+    background-color: #fdd;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+    padding: 0.5em;
+}
+
+.widget .message p {
+    margin: 0;
+}
+
+/* .time for table cells containing HH:MM times */
+
+.widget th.time, .widget td.time {
+    text-align: center;
+}
+
+/* .issue for highlighting things with issues, like late trains */
+
+.widget .issue {
+    background-color: #fdd;
+}
+
+/* .widget_error for 'connection problems' banner */
+
+.widget .widget_error {
+    background: red;
+    color: white;
+    display: none;
+    font-size: 2em;
+    left: 0;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+}
+
+/* ================================================================== */

@@ -67,12 +67,14 @@ class Command(BaseCommand):
                             # Operator
                             operator = content['TransXChange']['Operators']['Operator']
                             bus_operator, created = Operator.objects.get_or_create(
-                                id=operator['@id'], code=operator['OperatorCode'],
-                                short_name=operator['OperatorShortName'], trading_name=operator['TradingName'])
+                                id=operator['@id'],
+                                defaults={'code': operator['OperatorCode'],
+                                          'short_name': operator['OperatorShortName'],
+                                          'trading_name': operator['TradingName']})
 
                             # Service / Line
                             service = content['TransXChange']['Services']['Service']
-                            bus_line = Line.objects.create(id=service['ServiceCode'],
+                            bus_line = Line.objects.create(id=content['TransXChange']['@FileName'],
                                 area=tnds_zone,
                                 line_name=service['Lines']['Line']['LineName'],
                                 description=service['Description'],
@@ -83,10 +85,15 @@ class Command(BaseCommand):
                                 end_date=service['OperatingPeriod']['EndDate'],
                                 regular_days_of_week=
                                     list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
-                                if 'OperatingProfile' in service and 'RegularDayType' in service['OperatingProfile'] and 'DaysOfWeek' in service['OperatingProfile']['RegularDayType'] else ('MondayToFriday',),
+                                if 'OperatingProfile' in service and
+                                   'RegularDayType' in service['OperatingProfile'] and
+                                   'DaysOfWeek' in service['OperatingProfile']['RegularDayType']
+                                    else ('MondayToFriday',),
                                 bank_holiday_operation=
                                     list(service['OperatingProfile']['BankHolidayOperation']['DaysOfOperation'].keys())
-                                if 'OperatingProfile' in service and 'BankHolidayOperation' in service['OperatingProfile'] and 'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
+                                if 'OperatingProfile' in service and
+                                   'BankHolidayOperation' in service['OperatingProfile'] and
+                                   'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
                             )
 
                             # Routes

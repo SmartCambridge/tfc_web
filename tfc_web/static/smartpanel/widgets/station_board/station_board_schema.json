@@ -1,0 +1,39 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/station_board.json",
+    "$comment": "A document mapping station names (and other information) to National Rail Enquiry CRS codes is available at http://www.nationalrail.co.uk/static/documents/content/station_codes.csv. A cached copy of this is included in the widget directory. This schema uses a brutusin-json-forms extension to display human-readable strings in select lists in place of raw enum values (see the 'display' property).",
+    "description": "Display a train station departure board",
+    "title": "Station Board",
+
+    "type": "object",
+    "required": ["station"],
+    "properties": {
+
+        "station": {
+            "type": "string",
+            "enum": ["CBG", "CMB", "WBC", "SED", "WLF", "FXN", "STH"],
+            "display": {
+                "CBG": "Cambridge",
+                "CMB": "Cambridge North",
+                "WBC": "Waterbeach",
+                "SED": "Shelford",
+                "WLF": "Whittlesford",
+                "FXN": "Foxton",
+                "STH": "Shepreth"
+            },
+            "title": "Station",
+            "description": "Station name",
+            "format": "smartpanel:train_station"
+        },
+
+        "offset": {
+            "type": "integer",
+            "title": "Timing offset",
+            "description": "Offset from now to the start of the timetable (in minutes)",
+            "minimum": -120,
+            "maximum": 120,
+            "default": 0
+        }
+    }
+}

@@ -1,0 +1,101 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/stop_timetable.json",
+    "$comment": "The 'area' array should ideally have 'minItems: 3' so that the resulting polygon actually has an area. Unfortunately what appears to be a bug in Brutusin Json-Forms (https://github.com/brutusin/json-forms/issues/123) then causes a validation error even if no area is defined. Pending resolution, people will just have to work out for themselves that a two point polygon can have no content. This schema uses a brutusin-json-forms extension to display human-readable strings in select lists in place of raw enum values (see the 'display' property).",
+    "description": "Display a bus timetable",
+    "title": "Bus stop timetable",
+
+    "type": "object",
+    "required": ["stop_id", "title", "layout"],
+    "properties": {
+
+        "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Timetable title"
+        },
+
+        "stop_id": {
+            "type": "string",
+            "title": "Bus stop ID",
+            "description": "The NaPTAN AtcoCode of the stop to display",
+            "format": "smartpanel:bus_stop",
+            "default": "0500CCITY424"
+        },
+
+        "offset": {
+            "type": "integer",
+            "title": "Timing offset",
+            "description": "Offset from now to the start of the timetable (minutes)",
+            "minimum": -120,
+            "maximum": 120,
+            "default": 0
+        },
+
+        "layout": {
+            "type": "string",
+            "title": "Layout",
+            "description": "Display layout",
+            "enum": [ "simple", "multiline", "nextbus", "debug" ],
+            "display": {
+                "simple": "One line per journey",
+                "multiline": "Multiple lines per journey; can include intermediate destinations",
+                "nextbus": "Next bus to selected destinations",
+                "debug": "Detailed troubleshooting display"
+            }
+        },
+
+        "destinations": {
+            "type": "array",
+            "title": "Destinations",
+            "description": "Destinations to include in the timetable",
+            "items": {
+                "type": "object",
+                "required": ["description"],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "title": "Description",
+                        "description": "Description of the destination (e.g. 'City Centre')",
+                        "default": "City Centre"
+                    },
+                    "stop_ids": {
+                        "type": "array",
+                        "title": "Destination stops",
+                        "description": "One or more NaPTAN AtcoCodes of stops making up the destination",
+                        "items": {
+                            "type": "string",
+                            "format": "smartpanel:bus_stop",
+                            "default": "0500CCITY419"
+                        }
+                    },
+                    "area": {
+                        "type": "array",
+                        "title": "Destination area",
+                        "description": "A list of lat/lng coordinate pairs defining the destination area",
+                        "format": "smartpanel:polygon",
+                        "items": {
+                            "type": "object",
+                            "required": ["lat", "lng"],
+                            "properties": {
+                                "lat": {
+                                    "type": "number",
+                                    "title": "Latitude",
+                                    "maximum": 90,
+                                    "minimum": -90
+                                },
+                                "lng": {
+                                    "type": "number",
+                                    "title": "Longitude",
+                                    "maximum": 180,
+                                    "minumum": -180
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

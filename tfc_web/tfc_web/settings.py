@@ -15,6 +15,7 @@ import os
 from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR, get_apps as get_machina_apps
 from tfc_web.secrets import *
 
+import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,6 +27,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+## LOGGING
+# will output to your console
+logging.basicConfig(
+    level = logging.DEBUG,
+    format = '%(asctime)s %(levelname)s %(message)s',
+)
 
 ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk', 'localhost', '127.0.0.1', '[::1]']
 
@@ -38,7 +45,8 @@ PROJECT_APPS = [
     'parking',
     'traffic',
     'aq',
-    'csn'
+    'csn',
+    'smartpanel'
 ]
 
 INSTALLED_APPS = [
@@ -138,7 +146,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_URL = '/static_web/'
 STATICFILES_DIRS = ["static"]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 API_ENDPOINT = 'http://localhost'
@@ -161,7 +168,7 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
-LOGIN_REDIRECT_URL = 'csn-home'
+LOGIN_REDIRECT_URL = 'home'
 
 
 ######### Forum app (django-machina) configuration ##########
@@ -217,3 +224,28 @@ TNDS_ZONES = ['EA', 'SE', 'EM']
 
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# An attempt to adapt the default Django logging to log useful stuff
+# in development and production to the console (which will be captured
+# and logged by Gunicorn)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detail': {
+            'format': '[%(asctime)s] [%(name)s] [%(levelname)s] - %(message)s',
+            'datefmt': '',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detail',
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    }
+}

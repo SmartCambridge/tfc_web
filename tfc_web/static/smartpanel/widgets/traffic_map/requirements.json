@@ -1,0 +1,7 @@
+{
+    "scripts": [
+        {
+            "src": "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g"
+        }
+    ]
+}

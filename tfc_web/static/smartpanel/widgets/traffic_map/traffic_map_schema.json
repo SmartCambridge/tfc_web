@@ -1,0 +1,57 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/traffic.json",
+    "$comment": "",
+    "description": "Display a map showing traffic speeds",
+    "title": "Traffic Map",
+
+    "type": "object",
+    "required": ["maps"],
+    "properties": {
+        "interval": {
+            "type": "number",
+            "title": "Display interval",
+            "description": "Time to display each map (seconds)",
+            "min": 1.0,
+            "default": 7.5
+        },
+        "maps": {
+            "type": "array",
+            "minItems": 1,
+            "title": "Maps",
+            "description": "One or more maps to display in sequence",
+            "format": "smartpanel:gmap",
+            "items": {
+                "type": "object",
+                "required": ["lat", "lng", "zoom"],
+                "properties": {
+                    "lat": {
+                        "type": "number",
+                        "title": "Latitude",
+                        "description": "Latitude of the centre of the map",
+                        "minimum": -90.0,
+                        "maximum": 90.0,
+                        "default": 52.204
+                    },
+                    "lng": {
+                        "type": "number",
+                        "title": "Longitude",
+                        "description": "Longitude of the centre of the map",
+                        "minimum": -180,
+                        "maximum": 180,
+                        "default": 0.124
+                    },
+                    "zoom": {
+                        "type": "integer",
+                        "title": "Map zoom",
+                        "description": "Map zoom level",
+                        "minimum": 0,
+                        "maximum": 21,
+                        "default": 12
+                    }
+                }
+            }
+        }
+    }
+}

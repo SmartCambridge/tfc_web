@@ -1,0 +1,193 @@
+{% extends 'smartpanel/base.html' %}
+{% load static %}
+{% load jsonify %}
+{% load remove_underscore %}
+{% block extra_head %}
+    <!-- BRUTUSIN dependencies -->
+    <link rel="stylesheet" href='https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/css/brutusin-json-forms.min.css'/>
+    <link rel="stylesheet" href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'/>
+    <script src="{% static 'smartpanel/brutusin-json-forms.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/js/brutusin-json-forms-bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- BRUTUSIN dependencies -->
+
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
+    {% endfor %}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet }}">
+    {% endfor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+    {% for script in external_scripts %}
+        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
+    {% endfor %}
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
+    {% endfor %}
+
+    <script>
+        // Add support for a 'display' keyword to parallel 'enum'
+        // https://github.com/brutusin/json-forms/issues/85
+        brutusin["json-forms"].addDecorator(function (element, schema) {
+            if (element.tagName) {
+                var tagName = element.tagName.toLowerCase();
+                if (tagName === "select" && schema.display) {
+                    var opts = $(element)[0].options;
+                    $.each(opts, function (index, option) {
+                        var key = $(option).text();
+                        var value = schema.display[key];
+                        if (value) {
+                            $(option).text(value);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+
+{% endblock %}
+
+
+{% block content %}
+    <div style="margin-bottom: 80px;">
+        <h1>Layout</h1>
+        <p>name: {{ layout.name }}</p>
+        {% if debug %}
+        <p>design: {{ layout.design }}</p>
+        <p>config: {{ layout.configuration }}</p>
+        <p>confdata: {{ confdata }}</p>
+        {% endif %}
+        <p><a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'smartpanel-design-edit' layout.id %}">Edit layout design</a>
+        <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'smartpanel-layout' layout.id %}" target="_blank">View layout</a></p>
+        <form action="{% url 'smartpanel-layout-delete' layout.id %}" method="post">
+            {% csrf_token %}
+            <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete Layout">
+        </form>
+    </div>
+    {% for key, value in confdata.items %}
+        <div id="section-{{ key }}" style="margin-bottom: 120px;">
+            <div class="grid-container mdl-color--teal-900" style="width: 192px; height: 108px; overflow: hidden;
+            margin: 20px;">
+                <div style="position: absolute; width: 192px; height: 108px;">
+                    <div style="position: absolute; height: calc({{ value.design.h }}*100%/4);
+                            width: calc({{ value.design.w }}*100%/6);
+                            top: calc({{ value.design.y }}*100%/4);
+                            left: calc({{ value.design.x }}*100%/6); border: solid 1px black; background-color: white;">
+                        <p style="text-align: center">{{ key }}</p>
+                    </div>
+                </div>
+            </div>
+            {% if debug %}<p>{{ value|jsonify|safe }}</p>{% endif %}
+
+            {% if value.configuration %}
+                <a data-widget-id="{{ key }}" class="edit-widget-config-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="text-decoration: none">Edit this widget</a>
+                <form action="{% url 'smartpanel-layout-delete-widget' layout.id %}" method="post" style="margin-bottom: 20px; margin-top: 5px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="widgetid" value="{{ key }}">
+                    <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete this widget">
+                </form>
+                <div style="height: calc({{ value.design.h }}*540px/4); width: calc({{ value.design.w }}*960px/6);
+                        border: solid 1px black; box-sizing: border-box;">
+                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative"></div>
+                </div>
+            {% else %}
+                <select id="widget-selector-{{ key }}" data-widget-id="{{ key }}" class="widget-selector mdl-textfield__input" style="width: 200px;">
+                    <option value="" selected disabled>Select a widget</option>
+                    {% for widget in widgets_list %}
+                    <option value="{{ widget.file}}">{{ widget.name }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+            <div class="container-form"></div>
+        </div>
+    {% endfor %}
+    <form action="{% url 'smartpanel-layout-config' layout.id %}" method="post" id="config-form" style="margin-bottom: 40px;">
+        {% csrf_token %}
+        <input type="hidden" name="data" id="form-data">
+        <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Save configuration" id="submit-form-data">
+    </form>
+{% endblock %}
+{% block lazy_script %}
+    <script>
+        var widgets_configuration = {
+        {% for key, value in confdata.items %}
+            "{{ key }}": {{ value.configuration|jsonify|safe }},
+        {% endfor %}
+        };
+        autogeneratedforms = {};
+        widget_names = {};
+        $(".edit-widget-config-button").click(function (e) {
+            var widget_id = $(e.currentTarget).data('widget-id');
+            var widget_config = widgets_configuration[widget_id];
+            widget_names[widget_id] = widget_config["widget"];
+            $.get('{% static 'smartpanel/widgets' %}/'+widget_config["widget"]+'/'+widget_config["widget"]+'_schema.json',
+                function ( data ) {
+                autogeneratedforms[widget_id] = brutusin["json-forms"].create(data);
+                var form_dom = $("#section-"+widget_id+" .container-form");
+                form_dom.empty();
+                autogeneratedforms[widget_id].render(form_dom[0], widget_config["data"]);
+                $("#widget-"+widget_id).parent().remove();
+            });
+        });
+        $(".widget-selector").change(function (e) {
+            var widget_id = $(e.currentTarget).data('widget-id');
+            var widget_name = $(e.currentTarget).val();
+            widget_names[widget_id] = widget_name;
+            $.get('{% static 'smartpanel/widgets' %}/'+widget_name+'/'+widget_name+'_schema.json',
+                function ( data ) {
+                autogeneratedforms[widget_id] = brutusin["json-forms"].create(data);
+                var form_dom = $("#section-"+widget_id+" .container-form");
+                form_dom.empty();
+                autogeneratedforms[widget_id].render(form_dom[0]);
+            });
+        });
+        $('#config-form').submit(function (e) {
+            var forms_valid = true;
+            var data = {};
+            Object.keys(autogeneratedforms).forEach(function(key) {
+                if (autogeneratedforms[key].validate() === false) {
+                    forms_valid = false;
+                }
+                data[key] = {};
+                data[key]["widget"] = widget_names[key];
+                data[key]["data"] = autogeneratedforms[key].getData();
+            });
+            if (forms_valid === false) {
+                e.preventDefault();
+            } else {
+                $('#form-data').val(JSON.stringify(data));
+            }
+        });
+
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI();
+        // Widget spec requires a DEBUG global
+        var DEBUG = '';
+        var widget = [];
+        {% for key, value in confdata.items %}
+            {% if value.configuration %}
+                {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/' as widget_location %}
+                    widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
+                        {'container': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
+                        JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
+                    ));
+                {% endwith %}
+            {% endif %}
+        {% endfor %}
+
+        $(document).ready(function () {
+            $('.mdl-layout').on('mdl-componentupgraded', function(e) {
+                if ($(e.target).hasClass('mdl-layout')) {
+                    for (var i = 0; i < widget.length; i++)
+                        if ('init' in widget[i])
+                            widget[i].init();
+                    // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
+                    RTMONITOR_API.init();
+                }
+            });
+        });
+    </script>
+{% endblock %}

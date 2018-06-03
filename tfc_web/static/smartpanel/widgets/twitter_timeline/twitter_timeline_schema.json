@@ -1,0 +1,19 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/twitter_timeline.json",
+    "$comment": "",
+    "description": "Display the timeline from a selected Twitter account",
+    "title": "Twitter Timeline",
+
+    "type": "object",
+    "required": ["who"],
+    "properties": {
+        "who": {
+            "type": "string",
+            "title": "Twitter ID",
+            "description": "Twitter ID (without leading '@') of a timeline to display",
+            "default": "Cambs_Traffic"
+        }
+    }
+}

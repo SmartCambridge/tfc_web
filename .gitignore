@@ -91,12 +91,16 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Editor backup files
+*.swp
+
 .idea
 .DS_Store
 *.sqlite3
 secrets.py
 staticfiles/
 tfc_web/data/TNDS/*.zip
+tfc_web/data/TNDS_NEW/*.zip
 
 /media
 /tfc_web/media
