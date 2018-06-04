@@ -12,8 +12,8 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
-from django.views.generic import TemplateView
+from django.conf.urls import url, include
+from django.views.generic import TemplateView, RedirectView
 from rest_framework.documentation import include_docs_urls
 from transport.api import views as api_views
 from transport import views
@@ -56,14 +56,7 @@ urlpatterns = [
     url(r'^timetable/journey/(?P<vehicle_journey_id>.+)/$', views.vehicle_journey_real_time, name='vehicle-journey-real-time'),
     url(r'^timetable/(?P<pk>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
 
-    # API
-    url(r'api/docs/', include_docs_urls(title='SmartCambridge Transport API')),
-    url(r'api/journeys/$', api_views.VehicleJourneyList.as_view()),
-    url(r'api/journey/(?P<pk>[^/]+)/$', api_views.VehicleJourneyRetrieve.as_view()),
-    url(r'api/stops/$', api_views.StopList.as_view()),
-    url(r'api/stop/(?P<pk>[^/]+)/$', api_views.StopRetrieve.as_view()),
-    url(r'api/sirivm_with_journey/', api_views.siriVM_to_journey, name='siriVM-to-journey'),
-    url(r'api/sirivm_add_journey/', api_views.siriVM_POST_to_journey, name='siriVM-POST-to-journey'),
-    url(r'api/journeys_by_time_and_stop/$', api_views.journeys_by_time_and_stop, name='journeys-by-time-and-stop'),
-    url(r'api/departure_to_journey/$', api_views.departure_to_journey, name='departure-to-journey')
+    # API - legacy support
+    url(r'^api/docs/', RedirectView.as_view(pattern_name='api-docs:docs-index', permanent=True)),
+    url(r'^api/', include('transport.api.urls'),)
 ]
