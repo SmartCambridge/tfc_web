@@ -20,7 +20,7 @@ def get_parking_config(parking_id=None):
         return util.get_config('parking')
     else:
         return util.get_config('parking', parking_id,
-                               'parking_list', 'parking_id')
+                               'parking_list', ('parking_id',))
 
 
 def get_parking_monitor(parking_id, suffix=''):

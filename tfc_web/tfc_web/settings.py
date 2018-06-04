@@ -237,7 +237,8 @@ except KeyError:
 
 REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
-        'api_token': '120/min',
+        'token_burst': '1200/min',
+        'token_sustained': '12000/hour',
     }
 }
 
