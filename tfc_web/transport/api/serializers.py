@@ -50,11 +50,13 @@ class LineSerializer(serializers.ModelSerializer):
 class StopSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='atco_code')
     stop_id = serializers.CharField(source='atco_code')
+    lat = serializers.FloatField(source='latitude')
+    lng = serializers.FloatField(source='longitude')
 
     class Meta:
         model = Stop
         fields = ['id', 'stop_id', 'atco_code', 'naptan_code', 'common_name', 'indicator',
-                  'locality_name', 'longitude', 'latitude']
+                  'locality_name', 'latitude', 'longitude', 'lat', 'lng']
 
 
 class TimetableSerializerForJourney(serializers.ModelSerializer):

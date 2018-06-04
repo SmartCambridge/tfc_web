@@ -19,8 +19,6 @@ urlpatterns = [
     url(r'^layout/my/$', smartpanel.my, name='smartpanel-layout-my'),
     url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),
     url(r'^layout/(?P<layout_id>\d+)/config/$', smartpanel.layout_config, name='smartpanel-layout-config'),
-    url(r'^layout/(?P<layout_id>\d+)/publish/$', smartpanel.publish_new_layout_version,
-        name='smartpanel-layout-publish'),
     url(r'^layout/(?P<layout_id>\d+)/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<layout_id>\d+)/$', smartpanel.layout, name='smartpanel-layout'),
     url(r'^weather$', weather.weather, name='smartpanel-weather'),
