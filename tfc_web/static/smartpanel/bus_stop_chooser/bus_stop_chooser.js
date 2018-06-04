@@ -7,7 +7,7 @@ var BusStopChooser = (function() {
     'use strict';
 
     // TODO: Move to smartcambridge.org when available there (#1)
-    var DEFAULT_ENDPOINT = 'http://tfc-app4.cl.cam.ac.uk/transport/api';
+    var DEFAULT_ENDPOINT = 'https://smartcambridge.org/transport/api';
 
     var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var OSM_MAX_ZOOM = 19;
