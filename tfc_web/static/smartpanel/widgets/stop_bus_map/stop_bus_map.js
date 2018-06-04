@@ -38,6 +38,11 @@ function StopBusMap(widget_id, params) {
     var oldsensorIcon;
 
 
+    var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var OSM_MAX_ZOOM = 19;
+    var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
+    'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
+
     var OLD_DATA_RECORD = 70; // time (s) threshold where a data record is considered 'old'
 
     var OBSOLETE_DATA_RECORD = 140; // at this age, we discard the sensor
@@ -120,9 +125,12 @@ function StopBusMap(widget_id, params) {
         container_el.appendChild(map_div);
 
         map = L.map(map_div, { zoomControl:false }).setView([self.params.map.lat, self.params.map.lng], self.params.map.zoom);
-        map_tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+        map_tiles = L.tileLayer(
+                OSM_TILES,
+                { attribution: OSM_ATTRIBUTION,
+                  maxZoom: OSM_MAX_ZOOM
+                }
+            ).addTo(map);
 
         RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
 
