@@ -313,15 +313,9 @@ def siriVM_to_journey(request):
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
 
-    old_sirivm_cache_record = cache.get('old_sirivm_record')
-    old_sirivm_cache_result = cache.get('old_sirivm_result')
-    if old_sirivm_cache_record and old_sirivm_cache_result:
-        if old_sirivm_cache_record == real_time:
-            return Response(old_sirivm_cache_result)
-        else:
-            cache.set('old_sirivm_record', real_time, 60)
-    else:
-        cache.set('old_sirivm_record', real_time, 60)
+    old_sirivm_cache_record = cache.get('sirivm_' + real_time['filename'])
+    if old_sirivm_cache_record:
+        return Response(old_sirivm_cache_record)
 
     try:
         for bus in real_time['request_data']:
@@ -332,7 +326,7 @@ def siriVM_to_journey(request):
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
-    cache.set('old_sirivm_result', real_time, 60)
+    cache.set('sirivm_' + real_time['filename'], real_time, 60)
     return Response(real_time)
 
 
