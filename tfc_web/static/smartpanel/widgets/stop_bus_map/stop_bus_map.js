@@ -21,20 +21,9 @@ function StopBusMap(widget_id, params) {
 
     //var DEBUG = ' stop_bus_map_log';
 
-    var CONFIG_SHIM = true;
-
     var self = this;
 
-    if (typeof(widget_id) === 'string') {
-        self.widget_id = widget_id;
-    }
-    else {
-        // Backwards compatibility
-        self.config = widget_id; // widget_id actually contains the 'config' object in legacy mode
-        self.widget_id = self.config.container;
-        self.config.container_id = self.config.container;
-        self.params = params;
-    }
+    self.widget_id = widget_id;
 
     var sensors = {};
 
@@ -151,15 +140,6 @@ function StopBusMap(widget_id, params) {
 
         // create a timer to update the progress indicators every second
         progress_timer = setInterval( timer_update, SECONDS);
-
-        // ***********************************************************
-        // **   CONFIG DEMO                                         **
-        if (CONFIG_SHIM)
-        {
-            shim_link(self, self.config.container_id);
-        }
-        // **                                                       **
-        // ***********************************************************
 
     };
 
@@ -767,6 +747,10 @@ function draw_stop(stop)
 
         self.log(self.widget_id, 'StopBusMap configuring widget with', config.container_id, params);
 
+        var widget_config = new WidgetConfig(config);
+
+        self.log('StopTimetable configuring widget with', config, params);
+
         var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
@@ -785,73 +769,102 @@ function draw_stop(stop)
 
         var config_form = document.createElement('form');
 
-        var input_result = input_widget(config_form, params);
+        var input_result = input_stop_bus_map(widget_config, config_form, params);
 
         config_div.appendChild(config_form);
 
         return input_result;
     } // end this.configure()
 
-    // Input the StopTimetable parameters
-    function input_widget(parent_el, params) {
+    // Input the StopBusMap parameters
+    // input_stop_timetable: draw an input form (as a table) of the required inputs
+    //   widget_config: an instantiated object from widget-config.js providing .input and .choose
+    //   parent_el: the DOM element this input form will be added to
+    //   params: the existing parameters of the widget
+    function input_stop_bus_map(widget_config, parent_el, params) {
+
+        self.log('input_stop_bus_map with',params);
+
+        // Add some guide text
+        var config_info1 = document.createElement('p');
+        var config_info_text = "This widget displays a map, including selected bus stops, on which it overlays real-time buses.";
+        config_info_text += " 'Main Title' is any text to appear in bold at the top of the map.";
+        config_info1.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info1);
+
+        var config_info3 = document.createElement('p');
+        config_info_text = "'Breadcrumbs' are small blue dots that are drawn on the map each time a bus moves to a new position, so they draw the bus paths.";
+        config_info3.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info3);
+
+        var config_info4 = document.createElement('p');
+        config_info_text = "For the 'map and stops' you just need to drag and zoom the map, and select stops, which will then be displayed in the widget.";
+        config_info4.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info4);
 
         var config_table = document.createElement('table');
+        config_table.className = 'config_input_stop_timetable';
+        parent_el.appendChild(config_table);
+
+
         var config_tbody = document.createElement('tbody');
-
-        // Title input
-        //
-        self.log(self.widget_id, 'configure() calling config_input', 'title', 'with',params.title);
-        var title_result = config_input( parent_el,
-                                          'string',
-                                          { text: 'Title:',
-                                            title: 'Choose a title to overlay the map'
-                                          },
-                                          params.title);
-
-        self.log(self.widget_id, 'configure() calling input_map', 'map', 'with',params.map);
-        var map_result = input_map( parent_el, params.map);
-
-        // Breadcrumbs  select BOOLEAN
-        //
-        self.log(self.widget_id, 'configure() calling config_input', 'breadcrumbs', 'with',params.breadcrumbs);
-        var breadcrumbs_result = config_input(  parent_el,
-                                            'select',
-                                            { text: 'Breadcrumbs:',
-                                              title: 'Draw dots showing the real-time paths of the buses',
-                                              format: 'boolean',
-                                              options: [ { value: 'true', text: 'Yes' },
-                                                         { value: 'false', text: 'No' }
-                                                       ]
-                                            },
-                                            params.breadcrumbs
-                                         );
-
-        var stops_result = input_stops( parent_el, params.stops);
-
         config_table.appendChild(config_tbody);
 
-        // append this input table to the DOM object originally given in parent_el
-        parent_el.appendChild(config_table);
+        // Each config_input(...) will return a .value() callback function for the input data
+
+        // TITLE
+        //
+        var title_result = widget_config.input( config_tbody,
+                                         'string',
+                                         { text: 'Main Title:',
+                                           title: 'The main title at the top of the widget, e.g. bus stop name'
+                                         },
+                                         params.title);
+
+        // BREADCRUMBS
+        //
+        var breadcrumbs_result = widget_config.input( config_tbody,
+                'select',
+                { text: 'Breadcrumbs:',
+                  title: 'Select whether you want dots drawn on the map highlighting the path of the buses',
+                  options: [ { value: 'true', text: 'Yes -  add blue dots to the map as buses move' },
+                             { value: 'false', text: "No - I like my map blissfully free of blue dots" }
+                           ]
+                },
+                params.breadcrumbs ? 'true' : 'false'); // note we're using a 'select' input so mangle the bool to the select keys.
+
+        // STOPS and MAP
+        //
+        self.log('configure() calling widget_config.input', 'stop', 'with',params.stops, params.map);
+        var stops_map_result = widget_config.input( config_tbody,
+                                           'bus_stops',
+                                           { text: 'Map and Stops:',
+                                             title: "Click 'choose' to select stops from map",
+                                           },
+                                           { stops: params.stops,
+                                             map: params.map
+                                           });
 
         // value() is the function for this input element that returns its value
         var value_fn = function () {
             var config_params = {};
             // title
-            config_params.title = title_result.value(); // string
-
-            // map
-            config_params.map = map_result.value(); // { lat:, lng:, zoom: }
+            config_params.title = title_result.value();
 
             // breadcrumbs
-            config_params.breadcrumbs = breadcrumbs_result.value(); // boolean
+            config_params.breadcrumbs = breadcrumbs_result.value() === 'true';
 
-            // stops
-            config_params.stops = stops_result.value(); // [ { lat:, lng:, common_name: } .. ]
+            // stops and map
+            var stops_map_value = stops_map_result.value();
 
-            self.log(self.widget_id,'input_widget returning params:',config_params);
+            config_params.stops = stops_map_value.stops;
+
+            config_params.map = stops_map_value.map;
+
+            self.log(self.widget_id,'input_stop_bus_map returning params:',config_params);
 
             return config_params;
-        };
+        }
 
         var config_fn = function () {
             return { title: title_result.value() };
@@ -861,78 +874,7 @@ function draw_stop(stop)
                  config: config_fn,
                  value: value_fn };
 
-    } // end input_widget()i
-
-    // input a map lat / lng / zoom
-    function input_map(parent_el, map_params) {
-        // lat
-        //
-        var lat_result = config_input( parent_el,
-                                          'number',
-                                          { text: 'Latitude:',
-                                            title: 'Enter latitude of centre of map, e.g. 52.215'
-                                          },
-                                          map_params.lat);
-
-        var lng_result = config_input( parent_el,
-                                          'number',
-                                          { text: 'Longitude:',
-                                            title: 'Enter longitude of centre of map (West is negative), e.g. 0.09'
-                                          },
-                                          map_params.lng);
-
-        var zoom_result = config_input( parent_el,
-                                          'number',
-                                          { text: 'Zoom:',
-                                            title: 'Zoom for the map, e.g. 15 (bigger zooms IN)'
-                                          },
-                                          map_params.zoom);
-
-        // value() is the function for this input element that returns its value
-        var value = function () {
-            var config_params = {};
-
-            // lat
-            config_params.lat = parseFloat(lat_result.value());
-
-            // lng
-            config_params.lng = parseFloat(lng_result.value());
-
-            // zoom
-            var zoom = parseInt(zoom_result.value());
-            if (!isNaN(zoom) && zoom >= 0 && zoom <= 18) {
-                config_params.zoom = zoom;
-            } else {
-                self.log(self.widget_id,'input_map bad zoom value');
-                config_params.zoom = 15;
-            }
-
-            self.log(self.widget_id,'input_map returning params:',config_params);
-
-            return config_params;
-        };
-
-        return { valid: function () { return true; }, //debug - still to be implemented,
-                 value: value };
-
-    } // end input_map
-
-    //DEBUG this is a stub
-    function input_stops(parent_el, stops_param) {
-
-        var value = function () {
-            var config_params = [ { lat: 52.21129, lng: 0.09107, common_name: 'Gates Bldg' } ];
-
-            self.log(self.widget_id,'input_stops returning params:',config_params);
-
-            return config_params;
-
-        }
-
-        return { value: value,
-                 valid: function () { return true; }
-               };
-    } // end input_stops
+    }// end input_stop_bus_map)
 
 
 // END of 'class' StopBusMap

@@ -41,15 +41,6 @@ function MessageArea(widget_id, params) {
 
         self.params = params;
 
-        // ***********************************************************
-        // **   CONFIG DEMO                                         **
-        if (CONFIG_SHIM)
-        {
-            shim_link(self, self.config.container_id);
-        }
-        // **                                                       **
-        // ***********************************************************
-
         this.do_load();
     };
 
@@ -110,6 +101,8 @@ function MessageArea(widget_id, params) {
     // THIS IS THE METHOD CALLED BY THE WIDGET FRAMEWORK TO CONFIGURE THIS WIDGET
     this.configure = function (config, params) {
 
+        var widget_config = new WidgetConfig(config);
+
         var CONFIG_TITLE = 'Configure Message Info';
 
         self.log(self.widget_id, 'StationBoard configuring widget with', config.container_id, params);
@@ -132,7 +125,7 @@ function MessageArea(widget_id, params) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_widget(config_form, params);
+        var input_result = input_widget(widget_config, config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -140,14 +133,14 @@ function MessageArea(widget_id, params) {
     } // end this.configure()
 
     // Input the StopTimetable parameters
-    function input_widget(parent_el, params) {
+    function input_widget(widget_config, parent_el, params) {
 
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
 
         // title input
         //
-        var title_result = config_input( parent_el,
+        var title_result = widget_config.input( parent_el,
                                           'string',
                                           { text: 'Title:',
                                             title: 'Choose your bold heading for this widget'
@@ -156,7 +149,7 @@ function MessageArea(widget_id, params) {
 
         // message input
         //
-        var message_result = config_input( parent_el,
+        var message_result = widget_config.input( parent_el,
                                           'string',
                                           { text: 'Message:',
                                             title: 'Enter your message text (can contain basic html markup)',

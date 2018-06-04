@@ -17,7 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
     <script src="{% static 'js/rtmonitor_api.js' %}"></script>
-    <script src="{% static 'smartpanel/widget_config.js' %}"></script>
     {% for script in external_scripts %}
         <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
     {% endfor %}
@@ -35,12 +34,12 @@
     </div>
     <div class="grid-container mdl-color--teal-900" style="height: calc(({{display_width|default:"1920px"}} * 0.5625) - 60px); width: {{display_width|default:"1920px"}}; overflow: hidden;">
         <ul id="grid" class="grid">
-            {% for key, value in confdata.items %}
-                <li style="height: calc({{ value.design.h }}*100%/4);
-                        width: calc({{ value.design.w }}*100%/6); top: calc({{ value.design.y }}*100%/4);
-                        left: calc({{ value.design.x }}*100%/6);">
-                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
-                        {% if not value.configuration %}unconfigured{% endif %}</div></li>
+            {% for key, value in layout.design.items %}
+                <li style="height: calc({{ value.h }}*100%/4);
+                        width: calc({{ value.w }}*100%/6); top: calc({{ value.y }}*100%/4);
+                        left: calc({{ value.x }}*100%/6);">
+                    <div id="widget-{{ key }}" class="widget {{ value.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
+                        {% if not value.widget %}Unconfigured{% endif %}</div></li>
             {% endfor %}
         </ul>
     </div>
@@ -49,22 +48,12 @@
         var RTMONITOR_API = new RTMonitorAPI();
         // Widget spec requires a DEBUG global
         var DEBUG = '';
-        var widget = [];
-        {% for key, value in confdata.items %}
-            {% if value.configuration %}
-                {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/' as widget_location %}
-                    widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
-                        {'container': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
-                        JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
-                    ));
-                {% endwith %}
-            {% endif %}
-        {% endfor %}
+        var widgets = [];
 
         function reload_widgets () {
-            for (var i = 0; i < widget.length; i++)
-                if ('reload' in widget[i])
-                    widget[i].reload();
+            for (var i = 0; i < widgets.length; i++)
+                if ('reload' in widgets[i])
+                    widgets[i].reload();
         }
 
         function update_screen_clock() {
@@ -92,9 +81,20 @@
 
         $().ready(function () {
             setInterval(update_screen_clock, 1000);
-            for (var i = 0; i < widget.length; i++)
-                if ('init' in widget[i])
-                    widget[i].init();
+
+            // We initialise the widgets
+            {% for key, value in layout.design.items %}
+                {% if value.widget %}
+                    {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
+                        widget = new {{ value.widget|title|remove_underscore }}("{{ key }}");
+                        widget.display(
+                            {'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
+                            JSON.parse("{{ value.data|jsonify|escapejs }}"));
+                        widgets.push(widget);
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+
             // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
             RTMONITOR_API.init();
             setInterval(reload_widgets, 60000);

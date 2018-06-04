@@ -1,193 +1,146 @@
-{% extends 'smartpanel/base.html' %}
 {% load static %}
 {% load jsonify %}
 {% load remove_underscore %}
-{% block extra_head %}
-    <!-- BRUTUSIN dependencies -->
-    <link rel="stylesheet" href='https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/css/brutusin-json-forms.min.css'/>
-    <link rel="stylesheet" href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'/>
-    <script src="{% static 'smartpanel/brutusin-json-forms.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/gh/brutusin/json-forms@1.6.3/dist/js/brutusin-json-forms-bootstrap.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!-- BRUTUSIN dependencies -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartPanel Configuration</title>
 
+    <!-- Jquery, Jquery-UI -->
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous"></script>
+
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+
+    <!-- Gridstack for the grid layout manipulation -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack-extra.min.css" />
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.min.js'></script>
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/0.3.0/gridstack.jQueryUI.min.js'></script>
+
+    <!-- Google Material files -->
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-green.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <!-- Leaflet and associated script files-->
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    <!-- leaflet.draw -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css"
+            integrity="sha256-XzD3RpaHPv7lzX9qt+2n1j5cWj48O24KsgaGYpKN8x8=" crossorigin="anonymous" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"
+                integrity="sha256-jzmB6xy6L0YPzPeu+ccUiPKp3UE+qRmo5xmq5BbnSv0=" crossorigin="anonymous"></script>
+
+    <!-- Google Maps -->
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g"></script>
+
+    <!-- SmartPanel widget configuration js and choosers -->
+
+    <script src="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">
+
+    <script src="{% static 'smartpanel/widget_config.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}">
+
+    <script src="{% static 'smartpanel/smartpanel.js' %}"></script>
     <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
-    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
-    {% for stylesheet in external_stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %} integrity="{{ stylesheet.integrity }}"  crossorigin="anonymous"{% endif %}>
-    {% endfor %}
-    {% for stylesheet in stylesheets %}
-        <link rel="stylesheet" href="{{ stylesheet }}">
-    {% endfor %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
-    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
-    {% for script in external_scripts %}
-        <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
-    {% endfor %}
-    {% for script in scripts %}
-        <script src="{{ script }}"></script>
-    {% endfor %}
 
-    <script>
-        // Add support for a 'display' keyword to parallel 'enum'
-        // https://github.com/brutusin/json-forms/issues/85
-        brutusin["json-forms"].addDecorator(function (element, schema) {
-            if (element.tagName) {
-                var tagName = element.tagName.toLowerCase();
-                if (tagName === "select" && schema.display) {
-                    var opts = $(element)[0].options;
-                    $.each(opts, function (index, option) {
-                        var key = $(option).text();
-                        var value = schema.display[key];
-                        if (value) {
-                            $(option).text(value);
-                        }
-                    });
-                }
-            }
-        });
-    </script>
-
-{% endblock %}
-
-
-{% block content %}
-    <div style="margin-bottom: 80px;">
-        <h1>Layout</h1>
-        <p>name: {{ layout.name }}</p>
-        {% if debug %}
-        <p>design: {{ layout.design }}</p>
-        <p>config: {{ layout.configuration }}</p>
-        <p>confdata: {{ confdata }}</p>
-        {% endif %}
-        <p><a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'smartpanel-design-edit' layout.id %}">Edit layout design</a>
-        <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'smartpanel-layout' layout.id %}" target="_blank">View layout</a></p>
-        <form action="{% url 'smartpanel-layout-delete' layout.id %}" method="post">
-            {% csrf_token %}
-            <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete Layout">
-        </form>
+    {# Load all the widgets so the widget configuration is available immediatly #}
+    {% for widget in widgets_list %}
+        <script src="{% static 'smartpanel/widgets' %}/{{ widget.file }}/{{ widget.file }}.js"></script>
+    {% endfor %}
+</head>
+<body>
+    {% if error %}<!-- An error happened -->{% endif %}
+    {% if messages %}
+    <div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button type="button" class="mdl-snackbar__action"></button>
     </div>
-    {% for key, value in confdata.items %}
-        <div id="section-{{ key }}" style="margin-bottom: 120px;">
-            <div class="grid-container mdl-color--teal-900" style="width: 192px; height: 108px; overflow: hidden;
-            margin: 20px;">
-                <div style="position: absolute; width: 192px; height: 108px;">
-                    <div style="position: absolute; height: calc({{ value.design.h }}*100%/4);
-                            width: calc({{ value.design.w }}*100%/6);
-                            top: calc({{ value.design.y }}*100%/4);
-                            left: calc({{ value.design.x }}*100%/6); border: solid 1px black; background-color: white;">
-                        <p style="text-align: center">{{ key }}</p>
-                    </div>
-                </div>
+    {% endif %}
+    <div id="overlay-configure-widget">
+        <div id="configuration-widget-div">
+            <select id="widget-selector" data-widget-id="{{ key }}" class="mdl-textfield__input" style="width: 85%; margin: 0 auto 10px auto;">
+                <option value="" selected disabled>Select a widget</option>
+                {% for widget in widgets_list %}
+                <option value="{{ widget.file }}">{{ widget.name }}</option>
+                {% endfor %}
+            </select>
+            <div id="configuration-widget-form" class="widget_config"></div>
+            <div id="configuration-widget-buttons">
+                <a id="configuration-widget-save-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Save</a>
+                <a id="configuration-widget-cancel-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
             </div>
-            {% if debug %}<p>{{ value|jsonify|safe }}</p>{% endif %}
-
-            {% if value.configuration %}
-                <a data-widget-id="{{ key }}" class="edit-widget-config-button mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="text-decoration: none">Edit this widget</a>
-                <form action="{% url 'smartpanel-layout-delete-widget' layout.id %}" method="post" style="margin-bottom: 20px; margin-top: 5px;">
-                    {% csrf_token %}
-                    <input type="hidden" name="widgetid" value="{{ key }}">
-                    <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Delete this widget">
-                </form>
-                <div style="height: calc({{ value.design.h }}*540px/4); width: calc({{ value.design.w }}*960px/6);
-                        border: solid 1px black; box-sizing: border-box;">
-                    <div id="widget-{{ key }}" class="widget {{ value.configuration.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative"></div>
-                </div>
-            {% else %}
-                <select id="widget-selector-{{ key }}" data-widget-id="{{ key }}" class="widget-selector mdl-textfield__input" style="width: 200px;">
-                    <option value="" selected disabled>Select a widget</option>
-                    {% for widget in widgets_list %}
-                    <option value="{{ widget.file}}">{{ widget.name }}</option>
-                    {% endfor %}
-                </select>
-            {% endif %}
-            <div class="container-form"></div>
         </div>
-    {% endfor %}
-    <form action="{% url 'smartpanel-layout-config' layout.id %}" method="post" id="config-form" style="margin-bottom: 40px;">
-        {% csrf_token %}
-        <input type="hidden" name="data" id="form-data">
-        <input class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" type="submit" value="Save configuration" id="submit-form-data">
-    </form>
-{% endblock %}
-{% block lazy_script %}
+    </div>
+    <div class="logos" style="height: 50px; padding-top: 10px;">
+        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
+            {% csrf_token %}
+            <input id="design" name="design" type="hidden">
+            <input type="hidden" name="data" id="form-data">
+            <div class="mdl-textfield mdl-js-textfield" style="padding: 0">
+                <input class="mdl-textfield__input" type="text" id="name" name="name" required {% if layout %} value="{{ layout.name }}"{% endif %}>
+                <label class="mdl-textfield__label" for="name" style="top: 4px;">Layout name...</label>
+            </div>
+            <input id="save" name="submit-button" type="submit" value="save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="float: none">
+        </form>
+        <a href="{% url 'smartpanel-home' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+        <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
+
+        <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
+        <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
+
+        {% if layout %}
+            <a id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Refresh display</a>
+            <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
+            <div style="position: fixed; bottom: 0; right: 0; font-size: 14px; background: #fff; padding: 4px; border: black solid 1px; z-index: 10;">Display last refreshed: {{ layout.version_date }}</div>
+        {% else %}
+            <button id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button>
+            <div class="mdl-tooltip" data-mdl-for="update-display-submit">You have not associated a display with this layout yet</div>
+        {% endif %}
+    </div>
+
+    <div class="grid-container mdl-color--teal-900" style="width: 100%; min-width: 1000px; padding: 1px 1px 2px 1px; overflow: hidden;">
+{#    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">#}
+        <div id="grid" class="grid grid-stack grid-stack-6">
+        </div>
+    </div>
     <script>
-        var widgets_configuration = {
-        {% for key, value in confdata.items %}
-            "{{ key }}": {{ value.configuration|jsonify|safe }},
-        {% endfor %}
+        var defaultGrid = {% if layout %}{{ layout.design|jsonify|safe }}{% else %}{
+            '0': {w: 1, h: 2, x: 0, y: 0}
+        }{% endif %};
+        var data = {
+            {% for key, value in layout.design.items %}
+                {% if value.widget %}
+                "{{ key }}": {{ value|jsonify|safe }},
+                {% endif %}
+            {% endfor %}
         };
-        autogeneratedforms = {};
-        widget_names = {};
-        $(".edit-widget-config-button").click(function (e) {
-            var widget_id = $(e.currentTarget).data('widget-id');
-            var widget_config = widgets_configuration[widget_id];
-            widget_names[widget_id] = widget_config["widget"];
-            $.get('{% static 'smartpanel/widgets' %}/'+widget_config["widget"]+'/'+widget_config["widget"]+'_schema.json',
-                function ( data ) {
-                autogeneratedforms[widget_id] = brutusin["json-forms"].create(data);
-                var form_dom = $("#section-"+widget_id+" .container-form");
-                form_dom.empty();
-                autogeneratedforms[widget_id].render(form_dom[0], widget_config["data"]);
-                $("#widget-"+widget_id).parent().remove();
-            });
-        });
-        $(".widget-selector").change(function (e) {
-            var widget_id = $(e.currentTarget).data('widget-id');
-            var widget_name = $(e.currentTarget).val();
-            widget_names[widget_id] = widget_name;
-            $.get('{% static 'smartpanel/widgets' %}/'+widget_name+'/'+widget_name+'_schema.json',
-                function ( data ) {
-                autogeneratedforms[widget_id] = brutusin["json-forms"].create(data);
-                var form_dom = $("#section-"+widget_id+" .container-form");
-                form_dom.empty();
-                autogeneratedforms[widget_id].render(form_dom[0]);
-            });
-        });
-        $('#config-form').submit(function (e) {
-            var forms_valid = true;
-            var data = {};
-            Object.keys(autogeneratedforms).forEach(function(key) {
-                if (autogeneratedforms[key].validate() === false) {
-                    forms_valid = false;
-                }
-                data[key] = {};
-                data[key]["widget"] = widget_names[key];
-                data[key]["data"] = autogeneratedforms[key].getData();
-            });
-            if (forms_valid === false) {
-                e.preventDefault();
-            } else {
-                $('#form-data').val(JSON.stringify(data));
-            }
-        });
+        var widget_location = '{% static widget_location %}';
 
-        // Note we must instatiate RTMonitorAPI before widgets
-        var RTMONITOR_API = new RTMonitorAPI();
-        // Widget spec requires a DEBUG global
-        var DEBUG = '';
-        var widget = [];
-        {% for key, value in confdata.items %}
-            {% if value.configuration %}
-                {% with 'smartpanel/widgets/'|add:value.configuration.widget|add:'/' as widget_location %}
-                    widget.push(new {{ value.configuration.widget|title|remove_underscore }}(
-                        {'container': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
-                        JSON.parse("{{ value.configuration.data|jsonify|escapejs }}")
-                    ));
-                {% endwith %}
-            {% endif %}
-        {% endfor %}
-
-        $(document).ready(function () {
-            $('.mdl-layout').on('mdl-componentupgraded', function(e) {
-                if ($(e.target).hasClass('mdl-layout')) {
-                    for (var i = 0; i < widget.length; i++)
-                        if ('init' in widget[i])
-                            widget[i].init();
-                    // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
-                    RTMONITOR_API.init();
-                }
+        {% if messages %}
+            $().ready(function () {
+                var notification = document.querySelector('.mdl-js-snackbar');
+                {% for message in messages %}
+                    notification.MaterialSnackbar.showSnackbar({
+                        message: '{{ message }}'
+                    });
+                {% endfor %}
             });
-        });
+        {% endif %}
     </script>
-{% endblock %}
+</body>
+</html>
