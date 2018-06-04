@@ -318,6 +318,8 @@ def siriVM_to_journey(request):
     if old_sirivm_cache_record and old_sirivm_cache_result:
         if old_sirivm_cache_record == real_time:
             return Response(old_sirivm_cache_result)
+        else:
+            cache.set('old_sirivm_record', real_time, 60)
     else:
         cache.set('old_sirivm_record', real_time, 60)
 
