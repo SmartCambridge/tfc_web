@@ -1,13 +1,13 @@
 
-from .serializers import ZoneListSerializer, ZoneConfigSerializer, \
- ZoneHistorySerializer
-from api import util, auth
 from datetime import timedelta
-from rest_framework.response import Response
-
-from rest_framework.views import APIView
-
 import logging
+
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
+
+from .serializers import (
+    ZoneListSerializer, ZoneConfigSerializer, ZoneHistorySerializer)
+from api import util, auth
 
 
 logger = logging.getLogger(__name__)
@@ -17,8 +17,11 @@ def get_zone_config(zone_id=None):
     if zone_id is None:
         return util.get_config('zone')
     else:
-        return util.get_config('zone', zone_id,
-                               'zone_list', ('zone.id', 'zone.reverse.id'))
+        try:
+            return util.get_config('zone', zone_id,
+                                   'zone_list', ('zone.id', 'zone.reverse.id'))
+        except (util.TFCValidationError) as e:
+            raise NotFound("Zone not found: {0}".format(e))
 
 
 def swap_dot_and_underscore(data):

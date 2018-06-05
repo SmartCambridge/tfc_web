@@ -3,9 +3,9 @@ from .serializers import ParkingListSerializer, ParkingConfigSerializer, \
  ParkingRecordSerializer, ParkingHistorySerializer
 from api import util, auth
 from datetime import timedelta
-from django.http import Http404
 from rest_framework.response import Response
 import logging
+from rest_framework.exceptions import NotFound
 
 
 logger = logging.getLogger(__name__)
@@ -19,8 +19,11 @@ def get_parking_config(parking_id=None):
     if parking_id is None:
         return util.get_config('parking')
     else:
-        return util.get_config('parking', parking_id,
-                               'parking_list', ('parking_id',))
+        try:
+            return util.get_config('parking', parking_id,
+                                   'parking_list', ('parking_id',))
+        except (util.TFCValidationError) as e:
+            raise NotFound("Car park not found: {0}".format(e))
 
 
 def get_parking_monitor(parking_id, suffix=''):
@@ -41,7 +44,7 @@ def get_parking_monitor(parking_id, suffix=''):
             value['ts'] = data['ts']
             value['acp_ts'] = value['ts']
             return value
-    raise Http404('No data found for "{0}"'.format(parking_id))
+    raise NotFound("No data found for '{0}'".format(parking_id))
 
 
 class ParkingList(auth.AuthenticateddAPIView):

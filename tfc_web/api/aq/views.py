@@ -3,10 +3,9 @@ from .serializers import AQListSerializer, AQConfigSerializer, \
  AQDataSerializer
 from api import util, auth
 from datetime import datetime
-from django.http import Http404
 from rest_framework.response import Response
-from rest_framework.views import APIView
 import logging
+from rest_framework.exceptions import NotFound
 
 
 logger = logging.getLogger(__name__)
@@ -16,8 +15,11 @@ def get_aq_config(station_id=None):
     if station_id is None:
         return util.get_config('cam_aq')
     else:
-        return util.get_config('cam_aq', station_id,
-                               'aq_list', ('StationID',))
+        try:
+            return util.get_config('cam_aq', station_id,
+                                   'aq_list', ('StationID',))
+        except (util.TFCValidationError) as e:
+            raise NotFound("Station not found: {0}".format(e))
 
 
 class AQList(auth.AuthenticateddAPIView):
@@ -43,10 +45,14 @@ class AQHistory(auth.AuthenticateddAPIView):
         config = get_aq_config(station_id)
 
         if sensor_type not in config['SensorTypes']:
-            raise Http404("No sensor '{0}' on station '{0}'"
-                          .format(sensor_type, station_id))
+            raise NotFound("No sensor '{0}' on station '{1}'"
+                           .format(sensor_type, station_id))
 
-        month = datetime.strptime(month, '%Y-%m')
+        try:
+            month = datetime.strptime(month, '%Y-%m')
+        except (ValueError):
+            raise util.TFCValidationError(
+                "Month '{0}' has the wrong format. Use YYYY-MM".format(month))
 
         try:
             filename = (
@@ -55,9 +61,9 @@ class AQHistory(auth.AuthenticateddAPIView):
                 )
             results = util.read_json(filename)
         except (FileNotFoundError):
-            raise Http404("No data found for station '{0}', sensor '{1}', "
-                          "month '{2:%Y-%m}'"
-                          .format(station_id, sensor_type, month))
+            raise NotFound("No data found for station '{0}', sensor '{1}', "
+                           "month '{2:%Y-%m}'"
+                           .format(station_id, sensor_type, month))
 
         serializer = AQDataSerializer(results)
         return Response(serializer.data)

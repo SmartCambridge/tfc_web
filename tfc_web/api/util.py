@@ -84,7 +84,7 @@ def safe_build(path):
     result = os.path.normpath(os.path.join(DATA_PATH, path))
     if result.startswith(os.path.join(DATA_PATH, '')):
         return result
-    logger.warning('Requested file outside DATA_PATH: path "{0}", result "{1}"'
+    logger.warning("Requested file outside DATA_PATH: path '{0}', result '{1}'"
                    .format(path, result))
     raise TFCValidationError()
 
@@ -99,10 +99,10 @@ def read_json(path):
         with open(filename) as f:
             return json.load(f)
     except (json.JSONDecodeError):
-        logger.info('Failed to parse "{0}"'.format(filename))
+        logger.info("Failed to parse '{0}'".format(filename))
         raise
     except (FileNotFoundError):
-        logger.info('Failed to open "{0}"'.format(filename))
+        logger.info("Failed to open '{0}'".format(filename))
         raise
 
 
@@ -118,11 +118,11 @@ def read_json_fragments(path):
             for line in f:
                 results.append(json.loads(line))
     except (json.JSONDecodeError):
-        logger.info('Failed to parse "{0}" from "{1}"'
+        logger.info("Failed to parse '{0}' from '{1}'"
                     .format(line, filename))
         raise
     except (FileNotFoundError):
-        logger.info('Failed to open "{0}"'.format(filename))
+        logger.info("Failed to open '{0}'".format(filename))
         raise
     return results
 
@@ -146,5 +146,5 @@ def get_config(type, id=None, key=None, fieldnames=[]):
         for fieldname in fieldnames:
             if config.get(fieldname) == id:
                 return config
-    logger.info('Config type {0} for "{1}" not found'.format(type, id))
-    raise TFCValidationError('Bad ID "{0}"'.format(id))
+    logger.info("Config type '{0}'' for '{1}'' not found".format(type, id))
+    raise TFCValidationError("Bad ID '{0}'".format(id))
