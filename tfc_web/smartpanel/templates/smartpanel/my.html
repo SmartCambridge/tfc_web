@@ -21,14 +21,16 @@
                     {% if edit %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
                            href="{% url 'smartpanel-layout-config' smartpanel.id %}">
-                            Configure
+                            Edit
                             <i class="material-icons">chevron_right</i>
                         </a>
-                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
-                           href="{% url 'smartpanel-design-edit' smartpanel.id %}">
-                            Edit design
-                            <i class="material-icons">chevron_right</i>
-                        </a>
+                        <form action="{% url 'smartpanel-layout-delete' smartpanel.id %}" method="post">
+                            {% csrf_token %}
+                            <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase">
+                                Delete
+                                <i class="material-icons">chevron_right</i>
+                            </a>
+                        </form>
                     {% endif %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
                            href="{% url 'smartpanel-layout' smartpanel.id %}" target="_blank">
@@ -40,4 +42,14 @@
                 {% endfor %}
             </div>
         </div>
+{% endblock %}
+{% block lazy_script %}
+    <script>
+        $(function () {
+            $(".delete-link").click(function (e) {
+                e.preventDefault();
+                $(e.currentTarget).parent().submit();
+            })
+        })
+    </script>
 {% endblock %}

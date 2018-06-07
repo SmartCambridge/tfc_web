@@ -15,27 +15,13 @@ import os
 from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR, get_apps as get_machina_apps
 from tfc_web.secrets import *
 
-import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-## LOGGING
-# will output to your console
-logging.basicConfig(
-    level = logging.DEBUG,
-    format = '%(asctime)s %(levelname)s %(message)s',
-)
-
 ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk', 'localhost', '127.0.0.1', '[::1]']
-
 
 # Application apps
 PROJECT_APPS = [
@@ -113,7 +99,6 @@ AUTHENTICATION_BACKENDS = [
 
 WSGI_APPLICATION = 'tfc_web.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -141,7 +126,6 @@ USE_I18N = False
 USE_L10N = False
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_URL = '/static_web/'
@@ -156,12 +140,10 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')
 TNDS_DIR = os.path.join(DATA_DIR, 'TNDS')
 TNDS_NEW_DIR = os.path.join(DATA_DIR, 'TNDS_NEW')
 
-
 # Web proxy
 USE_X_FORWARDED_HOST = True
 
 SITE_ID = 2
-
 
 ######## djang-allauth options ##########
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -169,7 +151,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 LOGIN_REDIRECT_URL = 'home'
-
 
 ######### Forum app (django-machina) configuration ##########
 INSTALLED_APPS += [
@@ -211,17 +192,13 @@ MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
     'can_download_file',
 ]
 
-
 ###### everynet API #########
 EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
-
 
 # TFC Server CSN API
 TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
 
-
 TNDS_ZONES = ['EA', 'SE', 'EM']
-
 
 CORS_ORIGIN_ALLOW_ALL = True
 

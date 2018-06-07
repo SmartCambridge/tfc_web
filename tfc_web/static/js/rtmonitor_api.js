@@ -7,7 +7,7 @@ function RTMonitorAPI() {
 
     console.log('RTMonitorAPI V2 instantiation');
 
-    this.RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
+    this.RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
 
     // Here we define the 'data record format' of the incoming websocket feed
     this.RECORD_INDEX = 'VehicleRef';  // data record property that is primary key

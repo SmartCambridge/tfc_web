@@ -1,5 +1,7 @@
 # SmartCambridge SmartPanel Framework
 
+_Version 5_
+
 This directory contains the widgets for the SmartCambridge SmartPanel
 Framework.
 
@@ -10,7 +12,7 @@ this folder. The SmartPanel Framework will automatically recognise it and
 it will be ready to use. You will have to redeploy tfc_web and execute
 collectstatic.
 
-## Widget requirements (version 0.5)
+## Widget requirements
 
 There are some requirements that the widgets need to follow in order to
 work with the framework:
@@ -21,15 +23,12 @@ work with the framework:
 2. The files making up a widget should be stored in a directory named
 _`<name>`_.
 
-3. Within this directory, the following files will be recognised. All
-are optional, but a widget with no files won't do anything.
+3. Within this directory, the following files will be recognised:
 
     1. _`<name>.js`_
 
-        A JavaScript file containing an object definition for the
-        widget. If present, this file will be included into any page
-        that displays this widget and it's constructor and methods called.
-        Further details of this object are described below.
+        A JavaScript file containing the definition of the
+        widget. Further details of this appear below.
 
     2. _`<name>.css`_
 
@@ -57,34 +56,20 @@ are optional, but a widget with no files won't do anything.
         subsequent positioned elements.
 
         Widgets are currently displayed on a grid with columns 320px
-        wide and rows 255px high.
+        wide and rows 255px high but should attempt to work in any
+        reasonable area.
 
     3. _`<name>.html`_
 
-        A file containing an HTML fragment which, if present, will be
-        included into any page that displays this widget as the initial
-        widget content.
-
-        _[This feature is of limited value, isn't used by any current
-        widgets and may noy be supported by any currebt frameworks. iots
-        use is depricated and it may be withdrawn from future versions
-        of the framework]_
+        _`<name>.html`_ files are no longer (in fact never were) supported.
 
     4. _`<name>_schema.json`_
 
-        A [JSON Schema](http://json-schema.org/) definition of the
-        parameters needed to configure the widget. The
-        SmartPanel Framework uses this to auto-generate web forms with
-        these fields that allow the user to  configure the widget.
-
-        Include a top-level "title" property in the json schema which
-        will be used as the user readable version of the name of the
-        widget. Individual parameters should include "title" and
-        "description" elements which will be displayed to users.
+        _`<name>_schema.json`_ files are no longer used.
 
     5. _`requirements.json`_
 
-        A file listing additional additional JavaScript files and
+        A file listing additional JavaScript files and
         stylesheets that need to be loaded to make the widget work. If
         present, this file must contain an object with keys "scripts"
         and/or "stylesheets". Each of these must contain an array whose
@@ -112,52 +97,126 @@ are optional, but a widget with no files won't do anything.
 The widget directory may contain other files. These will be
 web-accessible and can be referenced by other components by relative URLs
 (from HTML and CSS files) or via the `static_url`
-configuration parameter (for JavaScript files).
+widget configuration parameter (for JavaScript files).
 
 ## Widget JavaScript objects
 
-JavaScript objects defining widgets must have the flowing
-characteristics:
+Each widget is implemented by a JavaScript object presenting the interface
+below. The object must have a name based based on _`<name>`_ (see above)
+but in camel case omiting any '\_' characters - for example `StationBoard`
+for a widget called `station_board`.
 
-* Named based on _`<name>`_ but in camel case without   any '\_'
-  characters - for example `StationBoard`.
+### Data structures
 
-* A constructor to be invoked by `new`. This may be called
-  before DOM construction is complete and so shouldn't
-  reference any DOM objects. It will recieve two parameters:
+#### `params_object`
 
-    * A JavaScript Object conventionally named `params` containing
-      static configuration parameters for the widgit:
+Some methods receive or return a `params_object`. This is an object
+supporting JSON serialisation representing the parameters of a
+particular instance of a particular widget. Its structure and content
+is opaque to the method's caller.
 
-        * container: The string DOM `id` of the page element
-          into which the widget's content should be placed. This
-          is guaranteed to be unique within any particular
-          SmartScreen instance and so can be used as a base for
-          other globally-unique names if needed. This page element
-          will have classes of 'widget' and the widget's _`<name>`_, and the CSS
-          attribute `position: relative`.
+#### `config_object`
 
-        * static_url: a URL corresponding to the widget directory (i.e.
-          the one containing the JavaScript file), including a trailing '/'. This allow
-          the JavaScript to access other resources in the widget
-          directory without having to hard-code URLs. Hard-coded URL's
-          must not be used to allow SmartScreens to be setup
-          under a variety of URL prefixes.
+Some methods receive a `config_object`. This is an object containing
+generic configuration information supplied by the method's caller. It
+contains the following keys:
 
-    * A JavaScript object conventionally named `config` containing
-      parameters for a particular instance of the widget as defined
-      in the _`<name>-schema.json`_ file.
+* `container_id`: the id of the DOM object within which
+  the widget or it's configuration page must be displayed.
+  [string, required, commonly based on `widget_id`]
+* `static_url`: URL prefix via which the content of the widget
+  source directory can be accessed. [string, required]
+* `height`: the height in pixels of the area that the widget occupies
+  in the current layout [integer, optional]
+* `width`: the width in pixels of the area that the widget occupies
+  in the current layout [integer, optional]
+* `settings`: an object containing a copy of configuration parameters
+  inherited from the enclosing framework's setup. Only parameters with
+  names starting `SMARTPANEL_` are included [object, required]. Currently
+  use values:
+      * `SMARTPANEL_TRANSPORT_API`: URL base for the TFC transport API
+      * `SMARTPANEL_RT_API`: URL base for the real time bus traffic data
 
-* Optionally an `init()` method. If present, this will be
+### Constructor
+
+`ExampleWidget(widget_id)` (required)
+
+This may be called before DOM construction is complete and so shouldn't
+reference any DOM objects.
+
+#### Parameters:
+
+* `widget_id`: a unique id for this instance of the widget (string, required)
+
+### Methods
+
+* `display(config_object, params_object)` (required)
+
+  Display or re-display the widget. If present, this will be
   called after DOM construction is complete and all widgets have
-  been instantiated. It will normally
-  arrange to populate the widget. This method may take
-  responsibility for subsequently updating the widget's content, or
-  this could be left to the `reload()` method.
+  been instantiated. This method may assume
+  responsibility for refreshing the widget in the future,
+  otherwise there should be a `refresh()` method that
+  does this (see below).
 
-* Optionally a `reload()` method. If present, this will be
+  This method may be called more than once on any particular
+  widget instance. When called a second and subsequent time the
+  method must re-initialise data structures,
+  cancel running timers, un-subscribe from external
+  subscriptions, etc.
+
+  #### Parameters:
+
+  * `config_object`: the display configuration for the widget
+    [`config_object`, required].
+  * `params_object`: the parameters for this widget instance.
+    [`params_object`, required]
+
+  This method has no return value.
+
+* `refresh()` (optional)
+
+  Refresh the widget display. If present, this will be
   periodically called after the widget has been initialised and
   will typically arrange to update the widget's content.
+
+  This method has no return value.
+
+* `obj = configure(config_object, current_params_object)` (required)
+
+  Render a configuration screen for the widget (initialised
+  with current parameters if there are any), collect and validate
+  new parameters and return them.
+
+  #### Parameters
+
+  * `config_object`: the display configuration for the widget
+    [`config_object`, required].
+  * `current_params_object`: the current parameters for the widget instance
+    being edited. [`params_object`, required]
+
+  #### Return value
+
+  An object containing the following keys:
+
+  * `valid`: a parameterless function which when called
+     will trigger validation of the current values and return
+     `true` if they were valid and `false` if not. If the
+     function returns `false` then the widget should alert
+     the user to the problems. [boolean,
+     required]
+  * `value`: a parameterless function which when called returns
+     a `params_object` containing the new or updated
+     configuration. [required]
+  * `config`: a parameterless function which when called returns an object 
+     containing the folowing keys [object, required]:
+      * `title`: a short text description of this configuration [required]
+
+### Other properties
+
+Explicitly none -- these objects have no other externally-accessible properties.
+
+### Environment
 
 Other than it's own name, widgets must not create any new names in
 the JavaScript global context.
@@ -165,13 +224,10 @@ the JavaScript global context.
 Widgets can assume that a copy of jQuery is available and must not
 include this in their `requirements.json` file.
 
-The page element identified by `container` will be in a class named
-after the widget and will have the CSS attribute `position: relative`.
-
 Widgets may assume the existance of a global `RTMONITOR_API` containing
 an instance of the RT Monitor API.
 
-Widgets may assume the existance of a global `DEBUG` which will contain
+Widgets may assume the existence of a global `DEBUG` which will contain
 '_`<name>_log`_' to request verbose logging by the widget.
 
 ## Example `requirements.json` file

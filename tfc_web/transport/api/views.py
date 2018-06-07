@@ -9,6 +9,7 @@ from functools import reduce
 from os import listdir
 from pathlib import Path
 from django.db.models import Q
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -415,6 +416,10 @@ def siriVM_to_journey(request):
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
 
+    old_sirivm_cache_record = cache.get('sirivm_' + real_time['filename'])
+    if old_sirivm_cache_record:
+        return Response(old_sirivm_cache_record)
+
     try:
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
@@ -424,6 +429,7 @@ def siriVM_to_journey(request):
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
+    cache.set('sirivm_' + real_time['filename'], real_time, 60)
     return Response(real_time)
 
 

@@ -5,49 +5,28 @@
 
 // 'widget_id' can be config object
 // 'params' only for backwards compatibility with previous layout framework
-function Weather(widget_id, params) {
+function Weather(widget_id) {
 
     'use strict';
 
-    //var DEBUG = ' weather_log';
-
-    var CONFIG_SHIM = true;
+    var DEBUG = ' weather_log';
 
     var self = this;
 
-    if (typeof(widget_id) === 'string') {
-        self.widget_id = widget_id;
-    }
-    else {
-        // Backwards compatibility
-        self.config = widget_id;
-        self.widget_id = self.config.container;
-        self.config.container_id = self.config.container;
-        self.params = params;
-    }
+    self.widget_id = widget_id;
 
-    // backwards compatibility init() function
-    this.init = function () {
-        this.log('Running init', self.widget_id);
-
-        this.display(self.config, self.params);
-
-    };
+    var WEATHER_OPTIONS = [ { value: '310042', text: 'Cambridge' },
+                            { value: '351524', text: 'Fulbourn' },
+                            { value: '310105', text: 'Luton' },
+                            { value: '310120', text: 'Peterborough' },
+                            { value: '353656', text: 'Stansted' }
+                          ];
 
     this.display = function(config, params) {
 
         self.config = config;
 
         self.params = params;
-
-        // ***********************************************************
-        // **   CONFIG DEMO                                         **
-        if (CONFIG_SHIM)
-        {
-            shim_link(self, self.config.container_id);
-        }
-        // **                                                       **
-        // ***********************************************************
 
         this.do_load();
     };
@@ -108,6 +87,8 @@ function Weather(widget_id, params) {
     //
     this.configure = function (config, params) {
 
+        var widget_config = new WidgetConfig(config);
+
         var config_div = document.getElementById(config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
@@ -125,7 +106,7 @@ function Weather(widget_id, params) {
 
         var config_form = document.createElement('form');
 
-        var input_result = input_weather(config_form, params);
+        var input_result = input_weather(widget_config, config_form, params);
 
         config_div.appendChild(config_form);
 
@@ -133,22 +114,18 @@ function Weather(widget_id, params) {
     } // end this.configure()
 
     // Input the Weather parameters
-    function input_weather(parent_el, params) {
+    function input_weather(widget_config, parent_el, params) {
 
         var config_table = document.createElement('table');
         var config_tbody = document.createElement('tbody');
 
         // Location select
         //
-        var location_result = config_input(  parent_el,
+        var location_result = widget_config.input(  parent_el,
                                             'select',
                                             { text: 'Location:',
                                               title: 'Choose your weather location from the dropdown',
-                                              options: [ { value: '310042', text: 'Cambridge' },
-                                                         { value: '310105', text: 'Luton' },
-                                                         { value: '310120', text: 'Peterborough' },
-                                                         { value: '353656', text: 'Stansted' }
-                                                       ]
+                                              options: WEATHER_OPTIONS
                                             },
                                             params.location
                                          );
@@ -170,7 +147,15 @@ function Weather(widget_id, params) {
         };
 
         var config_fn = function () {
-            return { title: location_result.value() + " Weather" };
+            var weather_text = 'Location';
+            var weather_value = location_result.value();
+            for (var i=0; i<WEATHER_OPTIONS.length; i++) {
+                if (WEATHER_OPTIONS[i].value === weather_value) {
+                    weather_text = WEATHER_OPTIONS[i].text;
+                    break;
+                }
+            }
+            return { title: weather_text + " Weather" };
         };
 
         return { valid: function () { return true; }, //debug - still to be implemented,
@@ -179,6 +164,6 @@ function Weather(widget_id, params) {
 
     }// end input_weather()
 
-    self.log(self.widget_id, 'Instantiated Weather', params);
+    self.log(self.widget_id, 'Instantiated Weather');
 
 }
