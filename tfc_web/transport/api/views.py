@@ -1,10 +1,15 @@
+import operator
+import re
 import json
 import coreapi
 import coreschema
-from datetime import date, timedelta
+from datetime import timedelta
 from dateutil.parser import parse
+from functools import reduce
 from os import listdir
 from pathlib import Path
+from django.db.models import Q
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -18,8 +23,8 @@ from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
     VehicleJourneySummarisedSerializer, StopSerializer
 from transport.models import Stop, Timetable, VehicleJourney
+from transport.utils.transxchange import BANK_HOLIDAYS
 from urllib.parse import quote
-import re
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -45,27 +50,74 @@ def string_to_datetime(str_time):
     return time
 
 
-def calculate_vehicle_journey(departure_time, departure_stop_id, destination_stop_id=None):
+def calculate_vehicle_journey(departure_datetime, departure_stop_id, destination_stop_id=None, queryset=False):
     """
-    Retrieves a list of possible Vehicle Journeys from a departure time and a bus stop. Today is always used as
-    the day the vehicle operates
-    :param departure_time:
-    :param bus_stop:
-    :return: list of Vehicle Journeys
+    Retrieves a list of possible Vehicle Journeys from a departure time and a bus stop.
+    :param departure_datetime:
+    :param departure_stop_id:
+    :param destination_stop_id:
+    :param queryset: returns a queryset if True, a list if not
+    :return: list or queryset of Vehicle Journeys
     """
-    journey_day_of_week = departure_time.date().strftime("%A")
-    query1 = Timetable.objects.filter(stop_id=departure_stop_id, time=departure_time.time(), order=1,
-                                      vehicle_journey__days_of_week__contains=journey_day_of_week) \
-        .values_list('vehicle_journey', flat=True)
+    journey_day_of_week = departure_datetime.date().strftime("%A")
+    bank_holidays = []
+    if departure_datetime.date() in BANK_HOLIDAYS:
+        bank_holidays.append('AllBankHolidays')
+        for bank_holiday_day in BANK_HOLIDAYS[departure_datetime.date()]:
+            bank_holidays.append(bank_holiday_day)
+
+    if bank_holidays:
+        base_query1 = VehicleJourney.objects.filter(
+            Q(journey_times__stop_id=departure_stop_id),
+            Q(
+                # Check if this vehicle operates departure_time's day of the week and departure_time's bank holiday is
+                # not in the list of non operation bank holidays nor in the special days of non operation list
+                Q(
+                    Q(days_of_week__icontains=journey_day_of_week),
+                    # Check that all possible names of departure_time's bank holiday do not appear in the non
+                    # operation list
+                    reduce(operator.and_,
+                           [~Q(nonoperation_bank_holidays__icontains=bank_holiday)
+                            for bank_holiday in bank_holidays]),
+                    # Check that all possible names of departure_time's bank holiday do not appear in the
+                    # non special day operation list
+                    ~Q(special_days_operation__days__contains=departure_datetime.date(),
+                       special_days_operation__operates=False)
+                )
+                |
+                # Check if departure_time is a special day and the vehicle operates in departure_time's bank holiday
+                reduce(operator.or_, [Q(operation_bank_holidays__icontains=bank_holiday)
+                                      for bank_holiday in bank_holidays])
+                |
+                # Check if departure_time is a special operation day
+                Q(special_days_operation__days__contains=departure_datetime.date(),
+                  special_days_operation__operates=True)
+            )
+        )
+    else:
+        base_query1 = VehicleJourney.objects.filter(
+            Q(journey_times__stop_id=departure_stop_id),
+            Q(
+                # Check if this vehicle operates departure_time's day of the week and departure_time's bank holiday is
+                # not in the list of non operation bank holidays nor in the special days of non operation list
+                Q(
+                    Q(days_of_week__icontains=journey_day_of_week),
+                    # Check that all possible names of departure_time's bank holiday do not appear in the
+                    # non special day operation list
+                    ~Q(special_days_operation__days__contains=departure_datetime.date(),
+                       special_days_operation__operates=False)
+                )
+                |
+                # Check if departure_time is a special operation day
+                Q(special_days_operation__days__contains=departure_datetime.date(),
+                  special_days_operation__operates=True)
+            )
+        )
+    query1 = base_query1.filter(journey_times__time=departure_datetime.time(), journey_times__order=1)
     if destination_stop_id:
-        query1b = Timetable.objects.filter(stop_id=destination_stop_id, last_stop=True,
-                                           vehicle_journey__days_of_week__contains=journey_day_of_week) \
-            .values_list('vehicle_journey', flat=True)
+        query1b = base_query1.filter(journey_times__last_stop=True)
         query1 = query1.union(query1b)
-    query2 = VehicleJourney.objects.filter(
-        id__in=query1, special_days_operation__days__contains=departure_time.date(),
-        special_days_operation__operates=False).values_list('id', flat=True)
-    return list(query1.difference(query2))
+    return query1.values_list('id', flat=True) if not queryset else query1
 
 
 journeys_by_time_and_stop_schema = ManualSchema(
@@ -134,14 +186,66 @@ def journeys_by_time_and_stop(request):
     if nresults < 1:
         return Response({"details": "nresults is should be at least 1"}, status=400)
 
-    query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
-                                      vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
-    query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
-                                      vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
-                                      vehicle_journey__special_days_operation__operates=False)
+
+
+
+
+    journey_day_of_week = datetime_from.date().strftime("%A")
+    bank_holidays = []
+    if datetime_from.date() in BANK_HOLIDAYS:
+        bank_holidays.append('AllBankHolidays')
+        for bank_holiday_day in BANK_HOLIDAYS[datetime_from.date()]:
+            bank_holidays.append(bank_holiday_day)
+        base_query1 = Timetable.objects.filter(
+            Q(stop=stop),
+            Q(
+                # Check if this vehicle operates departure_time's day of the week and departure_time's bank holiday is
+                # not in the list of non operation bank holidays nor in the special days of non operation list
+                Q(
+                    Q(vehicle_journey__days_of_week__icontains=journey_day_of_week),
+                    # Check that all possible names of departure_time's bank holiday do not appear in the non
+                    # operation list
+                    reduce(operator.and_,
+                           [~Q(vehicle_journey__nonoperation_bank_holidays__icontains=bank_holiday)
+                            for bank_holiday in bank_holidays]),
+                    # Check that all possible names of departure_time's bank holiday do not appear in the
+                    # non special day operation list
+                    ~Q(vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                       vehicle_journey__special_days_operation__operates=False)
+                )
+                |
+                # Check if departure_time is a special day and the vehicle operates in departure_time's bank holiday
+                reduce(operator.or_, [Q(vehicle_journey__operation_bank_holidays__icontains=bank_holiday)
+                                      for bank_holiday in bank_holidays])
+                |
+                # Check if departure_time is a special operation day
+                Q(vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                  vehicle_journey__special_days_operation__operates=True)
+            )
+        )
+    else:
+        base_query1 = Timetable.objects.filter(
+            Q(stop=stop),
+            Q(
+                # Check if this vehicle operates departure_time's day of the week and departure_time's bank holiday is
+                # not in the list of non operation bank holidays nor in the special days of non operation list
+                Q(
+                    Q(vehicle_journey__days_of_week__icontains=journey_day_of_week),
+                    # Check that all possible names of departure_time's bank holiday do not appear in the
+                    # non special day operation list
+                    ~Q(vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                       vehicle_journey__special_days_operation__operates=False)
+                )
+                |
+                # Check if departure_time is a special operation day
+                Q(vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+                  vehicle_journey__special_days_operation__operates=True)
+            )
+        )
+    query1 = base_query1.filter(time__gte=datetime_from.time())
     # We fetch an extra entry to see if there are more than one bus leaving at the same hour,
     # to calculate next_datetime correctly
-    timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
+    timetable = list(query1.prefetch_related('vehicle_journey__journey_pattern__route__line')
                      .order_by('time')[:nresults+1])
 
     if len(timetable) < nresults:
@@ -312,6 +416,10 @@ def siriVM_to_journey(request):
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
 
+    old_sirivm_cache_record = cache.get('sirivm_' + real_time['filename'])
+    if old_sirivm_cache_record:
+        return Response(old_sirivm_cache_record)
+
     try:
         for bus in real_time['request_data']:
             bus['vehicle_journeys'] = \
@@ -321,6 +429,7 @@ def siriVM_to_journey(request):
                 bus['vehicle_journeys'] = VehicleJourneySerializer(VehicleJourney.objects.filter(pk__in=bus['vehicle_journeys']), many=True).data
     except:
         return Response({"details": "error while importing siriVM data json file"}, status=500)
+    cache.set('sirivm_' + real_time['filename'], real_time, 60)
     return Response(real_time)
 
 

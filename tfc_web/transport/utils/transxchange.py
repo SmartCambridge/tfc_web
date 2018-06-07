@@ -25,23 +25,27 @@ DURATION_REGEX = re.compile(
 )
 WEEKDAYS = {day: i for i, day in enumerate(calendar.day_name)}
 BANK_HOLIDAYS = {
-    datetime.date(2016, 12, 26): ('BoxingDay',),
-    datetime.date(2017, 4, 14): ('GoodFriday',),
-    datetime.date(2017, 4, 17): ('EasterMonday', 'HolidayMondays'),
-    datetime.date(2017, 5, 1): ('MayDay', 'HolidayMondays'),
-    datetime.date(2017, 5, 29): ('SpringBank', 'HolidayMondays'),
-    datetime.date(2017, 8, 7): ('AugustBankHolidayScotland',),
-    datetime.date(2017, 8, 28): ('LateSummerBankHolidayNotScotland', 'HolidayMondays'),
-    datetime.date(2017, 12, 24): ('ChristmasEve',),
-    datetime.date(2017, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
-    datetime.date(2017, 12, 26): ('BoxingDay',),
     datetime.date(2018, 1, 1): ('NewYearsDay', 'NewYearsDayHoliday'),
     datetime.date(2018, 3, 30): ('GoodFriday',),
     datetime.date(2018, 4, 2): ('EasterMonday', 'HolidayMondays'),
     datetime.date(2018, 5, 7): ('MayDay', 'HolidayMondays'),
     datetime.date(2018, 5, 28): ('SpringBank', 'HolidayMondays'),
     datetime.date(2018, 8, 6): ('AugustBankHolidayScotland',),
-    datetime.date(2017, 8, 27): ('LateSummerBankHolidayNotScotland',),
+    datetime.date(2018, 8, 27): ('LateSummerBankHolidayNotScotland', 'HolidayMondays'),
+    datetime.date(2018, 12, 24): ('ChristmasEve',),
+    datetime.date(2018, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
+    datetime.date(2018, 12, 26): ('BoxingDay',),
+    datetime.date(2019, 1, 1): ('NewYearsDay', 'NewYearsDayHoliday'),
+    datetime.date(2019, 4, 19): ('GoodFriday',),
+    datetime.date(2019, 4, 22): ('EasterMonday', 'HolidayMondays'),
+    datetime.date(2019, 5, 6): ('MayDay', 'HolidayMondays'),
+    datetime.date(2019, 5, 27): ('SpringBank', 'HolidayMondays'),
+    datetime.date(2019, 8, 5): ('AugustBankHolidayScotland',),
+    datetime.date(2019, 8, 26): ('LateSummerBankHolidayNotScotland', 'HolidayMondays'),
+    datetime.date(2018, 12, 24): ('ChristmasEve',),
+    datetime.date(2018, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
+    datetime.date(2018, 12, 26): ('BoxingDay',),
+    datetime.date(2020, 1, 1): ('NewYearsDay', 'NewYearsDayHoliday'),
 }
 
 

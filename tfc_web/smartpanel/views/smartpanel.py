@@ -31,32 +31,9 @@ def my(request):
 @login_required
 def design(request):
     if request.method == "POST":
-        if 'name' in request.POST and 'design' in request.POST and request.POST['design']:
-            layout = Layout.objects.create(name=request.POST['name'], design=json.loads(request.POST['design']),
-                                           owner=request.user)
-            return redirect('smartpanel-layout-config', layout.id)
-    return render(request, 'smartpanel/design.html')
-
-
-@login_required
-def design_edit(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST":
-        if 'name' in request.POST and 'design' in request.POST and request.POST['design']:
-            layout.name = request.POST['name']
-            layout.design = json.loads(request.POST['design'])
-            layout.save()
-            return redirect('smartpanel-layout-config', layout.id)
-    return render(request, 'smartpanel/design.html', {'layout': layout})
-
-
-def generate_layout_configuration(layout):
-    confdata = {}
-    for key, value in layout.design.items():
-        confdata[key] = {'design': layout.design[key]}
-        if layout.configuration and key in layout.configuration:
-            confdata[key]['configuration'] = layout.configuration[key]
-    return confdata
+        layout = Layout.objects.create(owner=request.user, design="{}")
+        return layout_config(request, layout.id, reload=True)
+    return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list()})
 
 
 def generate_dependencies_files_list(uwl):
@@ -105,48 +82,37 @@ def generate_widget_list():
 
 
 @login_required
-def layout_config(request, layout_id):
+def layout_config(request, layout_id, reload=False):
     layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST" and 'data' in request.POST:
-        data = json.loads(request.POST['data'])
-        if layout.configuration is None:
-            layout.configuration = {}
-        for key, value in data.items():
-            layout.configuration[key.strip("widget-")] = value
-        layout.save()
-    confdata = generate_layout_configuration(layout)
-    uwl = []
-    for key, value in confdata.items():
-        if 'configuration' in value and value['configuration']['widget'] not in uwl:
-            uwl.append(value['configuration']['widget'])
-    dependencies_files_list = generate_dependencies_files_list(uwl)
+    error = False
+    try:
+        if request.method == "POST" and 'data' in request.POST and 'name' in request.POST and 'design' in request.POST:
+            name = request.POST['name']
+            design = json.loads(request.POST['design'])
+            data = json.loads(request.POST['data'])
+            for key, value in design.items():
+                if key in data and 'data' in data[key] and 'widget' in data[key] and 'placeholder' in data[key]:
+                    design[key]['widget'] = data[key]['widget']
+                    design[key]['data'] = data[key]['data']
+                    design[key]['placeholder'] = data[key]['placeholder']
+            layout.name = name
+            layout.design = design
+            layout.save()
+            if request.POST.get('submit-button', None) == "view":
+                return redirect('smartpanel-layout', layout_id)
+            elif request.POST.get('submit-button', None) == "display":
+                layout.version += 1
+                layout.version_date = now()
+                layout.save()
+                messages.info(request, 'SmartPanel layout published')
+            if reload:
+                return redirect('smartpanel-layout-config', layout_id)
+    except:
+        error = True
+        messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
-                  {'layout': layout, 'confdata': generate_layout_configuration(layout),
-                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(),
-                   'stylesheets': dependencies_files_list[0], 'scripts': dependencies_files_list[1],
-                   'external_scripts': dependencies_files_list[2], 'external_stylesheets': dependencies_files_list[3]})
-
-@login_required
-def layout_config_overlay(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST" and 'data' in request.POST:
-        data = json.loads(request.POST['data'])
-        if layout.configuration is None:
-            layout.configuration = {}
-        for key, value in data.items():
-            layout.configuration[key.strip("widget-")] = value
-        layout.save()
-    confdata = generate_layout_configuration(layout)
-    uwl = []
-    for key, value in confdata.items():
-        if 'configuration' in value and value['configuration']['widget'] not in uwl:
-            uwl.append(value['configuration']['widget'])
-    dependencies_files_list = generate_dependencies_files_list(uwl)
-    return render(request, 'smartpanel/layout_config_overlay.html',
-                  {'layout': layout, 'confdata': generate_layout_configuration(layout),
-                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(),
-                   'stylesheets': dependencies_files_list[0], 'scripts': dependencies_files_list[1],
-                   'external_scripts': dependencies_files_list[2], 'external_stylesheets': dependencies_files_list[3]})
+                  {'layout': layout, 'error': error,
+                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
 
 @login_required
@@ -158,38 +124,17 @@ def layout_delete(request, layout_id):
     return redirect('smartpanel-layout-config', layout_id)
 
 
-@login_required
-def layout_delete_widget(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST" and 'widgetid' in request.POST:
-        del layout.configuration[request.POST['widgetid']]
-        layout.save()
-    return redirect('smartpanel-layout-config', layout_id)
-
-
 def layout(request, layout_id, display=None):
     layout = get_object_or_404(Layout, id=layout_id)
-    confdata = generate_layout_configuration(layout)
     uwl = []  # unique widget list
-    for key, value in confdata.items():
-        if 'configuration' in value and value['configuration']['widget'] not in uwl:
-            uwl.append(value['configuration']['widget'])
+    for key, value in layout.design.items():
+        if 'widget' in value and value['widget'] not in uwl:
+            uwl.append(value['widget'])
     dependencies_files_list = generate_dependencies_files_list(uwl)
     return render(request, 'smartpanel/layout.html',
-                  {'layout': layout, 'confdata': confdata, 'stylesheets': dependencies_files_list[0],
+                  {'layout': layout, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3], 'display': display})
-
-
-@login_required
-def publish_new_layout_version(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST":
-        layout.version += 1
-        layout.version_date = now()
-        layout.save()
-        messages.info(request, 'SmartPanel layout published')
-    return redirect('smartpanel-layout-my')
 
 
 @login_required
@@ -235,8 +180,8 @@ def displays_debug(request):
 
 @login_required
 def my_displays(request):
-    return render(request, 'smartpanel/displays.html', {'screens': Display.objects.filter(owner=request.user),
-                                                        'edit': True})
+    return render(request, 'smartpanel/displays.html',
+                  {'screens': Display.objects.filter(owner=request.user), 'edit': True})
 
 
 @login_required
