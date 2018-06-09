@@ -17,7 +17,8 @@ urlpatterns = [
     url(r'^displays/debug/', smartpanel.displays_debug, name='smartpanel-displays-debug'),
     url(r'^design/', smartpanel.design, name='smartpanel-design'),
     url(r'^layout/my/$', smartpanel.my, name='smartpanel-layout-my'),
-    url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),
+# TODO Re-enamble once opt-in option done
+#    url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),
     url(r'^layout/(?P<layout_id>\d+)/config/$', smartpanel.layout_config, name='smartpanel-layout-config'),
     url(r'^layout/(?P<layout_id>\d+)/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<layout_id>\d+)/$', smartpanel.layout, name='smartpanel-layout'),

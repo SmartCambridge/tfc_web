@@ -78,7 +78,8 @@
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-my' %}">My SmartPanel layouts</a>
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-design' %}">New SmartPanel layout</a>
                 {% endif %}
-                    <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-all' %}">SmartPanel layouts</a>
+{#                    TODO Re-enable once public opt-in done#}
+{#                    <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-all' %}">SmartPanel layouts</a>#}
                 {% if user.is_authenticated %}
                     <div class="drawer-separator"></div>
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-list-my-displays' %}">My SmartPanel displays</a>
