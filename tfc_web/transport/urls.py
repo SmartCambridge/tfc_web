@@ -56,7 +56,7 @@ urlpatterns = [
 
     # New Bus Timetable
     url(r'^timetable/journey/(?P<vehicle_journey_id>.+)/$', views.vehicle_journey_real_time, name='vehicle-journey-real-time'),
-    url(r'^timetable/(?P<pk>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
+    url(r'^timetable/(?P<slug>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
 
     # API
     url(r'api/docs/', include_docs_urls(title='SmartCambridge Transport API')),
