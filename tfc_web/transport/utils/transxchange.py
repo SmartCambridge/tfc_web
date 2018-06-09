@@ -42,9 +42,9 @@ BANK_HOLIDAYS = {
     datetime.date(2019, 5, 27): ('SpringBank', 'HolidayMondays'),
     datetime.date(2019, 8, 5): ('AugustBankHolidayScotland',),
     datetime.date(2019, 8, 26): ('LateSummerBankHolidayNotScotland', 'HolidayMondays'),
-    datetime.date(2018, 12, 24): ('ChristmasEve',),
-    datetime.date(2018, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
-    datetime.date(2018, 12, 26): ('BoxingDay',),
+    datetime.date(2019, 12, 24): ('ChristmasEve',),
+    datetime.date(2019, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
+    datetime.date(2019, 12, 26): ('BoxingDay',),
     datetime.date(2020, 1, 1): ('NewYearsDay', 'NewYearsDayHoliday'),
 }
 
