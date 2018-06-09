@@ -198,7 +198,7 @@ EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
 # TFC Server CSN API
 TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
 
-TNDS_ZONES = ['EA', 'SE', 'EM']
+TNDS_ZONES = ['EA', 'SE']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
