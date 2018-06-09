@@ -24,13 +24,9 @@
                             Edit
                             <i class="material-icons">chevron_right</i>
                         </a>
-                        <form action="{% url 'smartpanel-layout-delete' smartpanel.id %}" method="post">
-                            {% csrf_token %}
-                            <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase">
-                                Delete
-                                <i class="material-icons">chevron_right</i>
-                            </a>
-                        </form>
+                        <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" data-layout-id="{{ smartpanel.id }}">
+                            Delete <i class="material-icons" data-layout-id="{{ smartpanel.id }}">chevron_right</i>
+                        </a>
                     {% endif %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
                            href="{% url 'smartpanel-layout' smartpanel.id %}" target="_blank">
@@ -42,9 +38,39 @@
                 {% endfor %}
             </div>
         </div>
+        <dialog id="dialog-delete" class="mdl-dialog">
+            <div class="mdl-dialog__content">
+                <p>
+                    Are you sure you want to delete this layout?
+                </p>
+            </div>
+            <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+                <form action="{% url 'smartpanel-layout-delete' %}" method="post">
+                    {% csrf_token %}
+                    <input id="form_delete_layout_id" type="hidden" name="layout_id">
+                    <input type="submit" class="mdl-button" value="Yes">
+                    <button type="button" class="mdl-button close">No</button>
+                </form>
+            </div>
+        </dialog>
 {% endblock %}
 {% block lazy_script %}
     <script>
+        var dialog_delete = document.querySelector('#dialog-delete');
+        var deleteModalButtons = document.querySelectorAll('.delete-link');
+        if (! dialog_delete.showModal) {
+            dialogPolyfill.registerDialog(dialog_delete);
+        }
+        for (var i = 0; i < deleteModalButtons.length; i++) {
+            deleteModalButtons[i].addEventListener('click', function(event) {
+                dialog_delete.showModal();
+                document.querySelector('#form_delete_layout_id').value = event.target.dataset.layoutId;
+            });
+        }
+        dialog_delete.querySelector('.close').addEventListener('click', function() {
+            dialog_delete.close();
+        });
+
         $(function () {
             $(".delete-link").click(function (e) {
                 e.preventDefault();
