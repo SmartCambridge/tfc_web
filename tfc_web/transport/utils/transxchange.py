@@ -967,7 +967,7 @@ def timetable_from_service(service, day=None):
     try:
         with zipfile.ZipFile(archive_path) as archive:
             if service.filename in archive.namelist():
-                timetables = (Timetable(archive.open(service.filename), day, service.description))
+                timetables = [Timetable(archive.open(service.filename), day, service.description)]
             else:
                 timetables = []
     except (zipfile.BadZipfile, IOError, KeyError, OSError):
