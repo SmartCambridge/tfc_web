@@ -124,8 +124,12 @@ def layout_delete(request, layout_id):
     return redirect('smartpanel-layout-config', layout_id)
 
 
+@login_required
 def layout(request, layout_id, display=None):
-    layout = get_object_or_404(Layout, id=layout_id)
+    if request.user.is_superuser:
+        layout = get_object_or_404(Layout, id=layout_id)
+    else:
+        layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     uwl = []  # unique widget list
     for key, value in layout.design.items():
         if 'widget' in value and value['widget'] not in uwl:
