@@ -140,14 +140,14 @@ def layout(request, slug, display=None):
 @login_required
 def new_display(request):
     if request.method == "POST":
-        screen_form = DisplayForm(request.POST)
+        screen_form = DisplayForm(request.POST, user=request.user)
         if screen_form.is_valid():
             display = screen_form.save(commit=False)
             display.owner = request.user
             display.save()
             return redirect('smartpanel-list-my-displays')
     else:
-        screen_form = DisplayForm()
+        screen_form = DisplayForm(user=request.user)
     return render(request, 'smartpanel/display.html', {'screen_form': screen_form})
 
 
@@ -189,12 +189,12 @@ def my_displays(request):
 def edit_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
-        display_form = DisplayForm(request.POST, instance=display)
+        display_form = DisplayForm(request.POST, instance=display, user=request.user)
         if display_form.is_valid():
             display.save()
             return redirect('smartpanel-list-my-displays')
     else:
-        display_form = DisplayForm(instance=display)
+        display_form = DisplayForm(instance=display, user=request.user)
     return render(request, 'smartpanel/display.html', {'screen_form': display_form, 'edit': True})
 
 
