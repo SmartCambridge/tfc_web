@@ -134,7 +134,7 @@ def layout(request, slug, display=None):
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3], 'display': display})
+                   'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
 
 
 @login_required
