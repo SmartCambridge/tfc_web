@@ -120,8 +120,7 @@ def layout_delete(request, layout_id):
     layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     if request.method == "POST":
         layout.delete()
-        return redirect('smartpanel-home')
-    return redirect('smartpanel-layout-config', layout_id)
+    return redirect('smartpanel-layout-my')
 
 
 def layout(request, layout_id, display=None):
