@@ -105,6 +105,8 @@ def layout_config(request, layout_id, reload=False):
                 layout.version_date = now()
                 layout.save()
                 messages.info(request, 'SmartPanel layout published')
+            elif request.POST.get('submit-button', None) == "save":
+                return redirect('smartpanel-layout-my')
             if reload:
                 return redirect('smartpanel-layout-config', layout_id)
     except:
