@@ -114,9 +114,9 @@ def calculate_vehicle_journey(departure_datetime, departure_stop_id, destination
             )
         )
     query1 = base_query1.filter(journey_times__time=departure_datetime.time(), journey_times__order=1)
-    if destination_stop_id:
+    if destination_stop_id and len(query1) > 1:
         query1b = base_query1.filter(journey_times__last_stop=True)
-        query1 = query1.union(query1b)
+        query1 = query1.intersection(query1b)
     return query1.values_list('id', flat=True) if not queryset else query1
 
 
