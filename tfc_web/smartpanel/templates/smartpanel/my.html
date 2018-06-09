@@ -20,16 +20,16 @@
                     <div class="mdl-card__actions">
                     {% if edit %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
-                           href="{% url 'smartpanel-layout-config' smartpanel.id %}">
+                           href="{% url 'smartpanel-layout-config' smartpanel.slug %}">
                             Edit
                             <i class="material-icons">chevron_right</i>
                         </a>
-                        <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" data-layout-id="{{ smartpanel.id }}">
-                            Delete <i class="material-icons" data-layout-id="{{ smartpanel.id }}">chevron_right</i>
+                        <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" data-layout-id="{{ smartpanel.slug }}">
+                            Delete <i class="material-icons" data-layout-id="{{ smartpanel.slug }}">chevron_right</i>
                         </a>
                     {% endif %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
-                           href="{% url 'smartpanel-layout' smartpanel.id %}" target="_blank">
+                           href="{% url 'smartpanel-layout' smartpanel.slug %}" target="_blank">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>

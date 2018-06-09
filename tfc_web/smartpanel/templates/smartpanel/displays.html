@@ -13,10 +13,10 @@
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var info_map = L.control();
         var screens = [{% for screen in screens %}
-            { "display_url": "{% url 'smartpanel-display' screen.id %}", "layout_name": "{{ screen.layout.name }}",
-                "layout_url": "{% url 'smartpanel-layout' screen.layout.id %}",
+            { "display_url": "{% url 'smartpanel-display' screen.slug %}", "layout_name": "{{ screen.layout.name }}",
+                "layout_url": "{% url 'smartpanel-layout' screen.layout.slug %}",
                 "lat": "{{ screen.location.y }}", "lon": "{{ screen.location.x }}", "name": "{{ screen.name }}",
-                "edit_url": "{% url 'smartpanel-edit-display' screen.id %}"},
+                "edit_url": "{% url 'smartpanel-edit-display' screen.slug %}"},
         {% endfor %}];
 
         info_map.onAdd = function (map) {

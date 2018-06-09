@@ -68,7 +68,7 @@
         function refresh_display() {
             $.ajax({
                 type: "GET",
-                url: '{% url 'smartpanel-display-refresh' display.id display.layout.id display.layout.version %}',
+                url: '{% url 'smartpanel-display-refresh' display.slug display.layout.slug display.layout.version %}',
                 success: function(data) {
                     console.log(data);
                     if (data['refresh'] === true) {
