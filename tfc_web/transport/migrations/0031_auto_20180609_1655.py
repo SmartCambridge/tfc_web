@@ -5,6 +5,11 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
+def delete_all_lines(apps, schema_editor):
+    Line = apps.get_model('transport', 'Line')
+    Line.objects.all().delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,6 +17,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(delete_all_lines),
         migrations.RemoveField(
             model_name='line',
             name='rendered_timetable',
