@@ -88,7 +88,11 @@
                     {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
                         widget = new {{ value.widget|title|remove_underscore }}("{{ key }}");
                         widget.display(
-                            {'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
+                            {
+                                'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}',
+                                'display_id': '{{ display.slug }}', 'layout_id': '{{ layout.slug }}',
+                                'rt_token': '{{ rt_token }}'
+                            },
                             JSON.parse("{{ value.data|jsonify|escapejs }}"));
                         widgets.push(widget);
                     {% endwith %}
