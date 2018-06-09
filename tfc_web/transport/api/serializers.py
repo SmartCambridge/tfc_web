@@ -24,8 +24,7 @@ class VehicleJourneySummarisedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VehicleJourney
-        fields = ['id', 'timetable', 'departure_time', 'days_of_week', 'operation_bank_holidays',
-                  'nonoperation_bank_holidays', 'direction', 'route_description']
+        fields = ['id', 'timetable', 'departure_time', 'days_of_week', 'direction', 'route_description']
         depth = 3
 
 
