@@ -5,8 +5,8 @@ from tfc_web.settings import *
 
 DEBUG = True
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
+#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+#SECURE_SSL_REDIRECT = True
 
 DEFAULT_FROM_EMAIL = "smart-cambridge@cl.cam.ac.uk"
 EMAIL_HOST = "ppsw.cam.ac.uk"
