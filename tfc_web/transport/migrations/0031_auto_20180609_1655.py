@@ -19,5 +19,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(delete_all_lines),
+        migrations.RunPython(delete_all_lines, migrations.RunPython.noop),
     ]

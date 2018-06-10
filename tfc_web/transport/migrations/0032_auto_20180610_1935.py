@@ -34,7 +34,11 @@ class Migration(migrations.Migration):
             field=models.SlugField(default=''),
             preserve_default=False,
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='line',
+            name='id'
+        ),
+        migrations.AddField(
             model_name='line',
             name='id',
             field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
