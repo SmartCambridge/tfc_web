@@ -9,14 +9,31 @@
     <div style="height: 80vh;">
         <div id="map" style="height: 100%; width: 100%;"></div>
     </div>
+    <dialog id="dialog-delete" class="mdl-dialog">
+        <div class="mdl-dialog__content">
+            <p>
+                Are you sure you want to delete this display?
+            </p>
+        </div>
+        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+            <form id="form_delete_display" action="" method="post">
+                {% csrf_token %}
+                <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
+                <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
+            </form>
+        </div>
+    </dialog>
     <script>
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var info_map = L.control();
         var screens = [{% for screen in screens %}
-            { "display_url": "{% url 'smartpanel-display' screen.slug %}", "layout_name": "{{ screen.layout.name }}",
+            {
+                "display_url": "{% url 'smartpanel-display' screen.slug %}", "layout_name": "{{ screen.layout.name }}",
                 "layout_url": "{% url 'smartpanel-layout' screen.layout.slug %}",
                 "lat": "{{ screen.location.y }}", "lon": "{{ screen.location.x }}", "name": "{{ screen.name }}",
-                "edit_url": "{% url 'smartpanel-edit-display' screen.slug %}"},
+                "edit_url": "{% url 'smartpanel-edit-display' screen.slug %}",
+                "delete_url": "{% url 'smartpanel-delete-display' screen.slug %}"
+            },
         {% endfor %}];
 
         info_map.onAdd = function (map) {
@@ -32,12 +49,29 @@
             for (var i = 0; i < screens.length; i++) {
                 screens[i]['marker'] = L.marker([screens[i]['lat'], screens[i]['lon']]);
                 screens[i]['marker'].addTo(map).bindTooltip(
-                    "<a target='_blank' href='"+screens[i]['display_url']+"'>"+
-                    screens[i]['name']+"</a><br> - <a target='_blank' href='"+screens[i]['layout_url']+"'>Layout "+
-                    screens[i]['layout_name']+"</a>"+
-                    "<br> - <a target='_blank' href='"+screens[i]['edit_url']+"'>Edit display</a>",
+                    "Display <a class=\"delete-link aqua-link\" href='"+screens[i]['display_url']+"'>"+
+                    screens[i]['name']+"</a> using Layout <a class=\"delete-link aqua-link\" href='"+screens[i]['layout_url']+"'>"+
+                    screens[i]['layout_name']+"</a><br>"+
+                    "- <a class=\"delete-link aqua-link\" href='"+screens[i]['edit_url']+"'>Edit display " +
+                    "<i class=\"material-icons\">chevron_right</i></a><br>" +
+                    "- <a class=\"delete-link aqua-link\" data-display-delete-url='"+screens[i]['delete_url']+"'>\n" +
+                    "Delete <i class=\"material-icons\" data-display-delete-url='"+screens[i]['delete_url']+"'>chevron_right</i></a>",
                     { permanent: true, interactive: true });
             }
+            var dialog_delete = document.querySelector('#dialog-delete');
+            var deleteModalButtons = document.querySelectorAll('.delete-link');
+            if (! dialog_delete.showModal) {
+                dialogPolyfill.registerDialog(dialog_delete);
+            }
+            for (var i = 0; i < deleteModalButtons.length; i++) {
+                deleteModalButtons[i].addEventListener('click', function(event) {
+                    dialog_delete.showModal();
+                    document.querySelector('#form_delete_display').action = event.target.dataset.displayDeleteUrl;
+                });
+            }
+            dialog_delete.querySelector('.close').addEventListener('click', function() {
+                dialog_delete.close();
+            });
         });
     </script>
 {% endblock %}

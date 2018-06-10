@@ -27,3 +27,6 @@ class DisplayForm(ModelForm):
             'location': OSMWidget(attrs={'map_width': 800, 'map_height': 500,
                                          'default_lat': 52.205, 'default_lon': 0.119}),
         }
+        labels = {
+            'location': "Location (click or drag to set the location of the display)"
+        }

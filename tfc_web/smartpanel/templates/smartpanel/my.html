@@ -48,8 +48,8 @@
                 <form action="{% url 'smartpanel-layout-delete' %}" method="post">
                     {% csrf_token %}
                     <input id="form_delete_layout_id" type="hidden" name="layout_id">
-                    <input type="submit" class="mdl-button" value="Yes">
-                    <button type="button" class="mdl-button close">No</button>
+                    <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
+                    <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
                 </form>
             </div>
         </dialog>
