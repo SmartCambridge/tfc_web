@@ -124,8 +124,12 @@ def layout_delete(request):
     return redirect('smartpanel-layout-my')
 
 
+@login_required
 def layout(request, layout_id, display=None):
-    layout = get_object_or_404(Layout, id=layout_id)
+    if request.user.is_superuser:
+        layout = get_object_or_404(Layout, id=layout_id)
+    else:
+        layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
     uwl = []  # unique widget list
     for key, value in layout.design.items():
         if 'widget' in value and value['widget'] not in uwl:
@@ -140,19 +144,19 @@ def layout(request, layout_id, display=None):
 @login_required
 def new_display(request):
     if request.method == "POST":
-        screen_form = DisplayForm(request.POST)
-        if screen_form.is_valid():
-            display = screen_form.save(commit=False)
+        display_form = DisplayForm(request.POST)
+        if display_form.is_valid():
+            display = display_form.save(commit=False)
             display.owner = request.user
             display.save()
             return redirect('smartpanel-home')
     else:
-        screen_form = DisplayForm()
-    return render(request, 'smartpanel/display.html', {'screen_form': screen_form})
+        display_form = DisplayForm()
+    return render(request, 'smartpanel/display.html', {'display_form': display_form})
 
 
 def displays(request):
-    return render(request, 'smartpanel/displays.html', {'screens': Display.objects.all()})
+    return render(request, 'smartpanel/displays.html', {'displays': Display.objects.all()})
 
 
 def display_refresh(request, display_id, layout_id, version):
@@ -181,7 +185,7 @@ def displays_debug(request):
 @login_required
 def my_displays(request):
     return render(request, 'smartpanel/displays.html',
-                  {'screens': Display.objects.filter(owner=request.user), 'edit': True})
+                  {'displays': Display.objects.filter(owner=request.user), 'edit': True})
 
 
 @login_required
@@ -194,7 +198,7 @@ def edit_display(request, display_id):
             return redirect('smartpanel-home')
     else:
         display_form = DisplayForm(instance=display)
-    return render(request, 'smartpanel/display.html', {'screen_form': display_form, 'edit': True})
+    return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
 
 @login_required
