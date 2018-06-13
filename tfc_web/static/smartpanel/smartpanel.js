@@ -59,6 +59,7 @@ $(function () {
             else
                 $("#widget-selector").prop('selectedIndex', 0);
             $('#overlay-configure-widget').css( "display", "flex" );
+            $('body').css('overflow','hidden');
         });
     }
 
@@ -171,6 +172,7 @@ $(function () {
         var save_button = $(this);
         if (save_button.data("valid")() === true) {
             $("#overlay-configure-widget").hide();
+            $('body').css('overflow','auto');
             $("#configuration-widget-form").empty();
             var placeholder = save_button.data("config")();
             data[save_button.data("widget_id")] = {
@@ -186,6 +188,7 @@ $(function () {
 
     $('#configuration-widget-cancel-button').click(function() {
         $("#overlay-configure-widget").hide();
+        $('body').css('overflow','auto');
         $("#configuration-widget-form").empty();
         $("#widget-selector").prop('selectedIndex', 0);
     });
