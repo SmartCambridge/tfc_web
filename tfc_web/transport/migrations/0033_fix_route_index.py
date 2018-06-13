@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL("DROP INDEX transport_route_line_id_4f836707_like;"),
-        migrations.RunSQL("DROP INDEX transport_route_line_id_4f836707;"),
         migrations.RunSQL("ALTER TABLE transport_route ALTER COLUMN line_id TYPE int USING line_id::integer;"),
         migrations.RunSQL('CREATE INDEX "transport_route_line_id_4f836707" ON "transport_route" ("line_id");'),
     ]
