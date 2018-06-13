@@ -34,7 +34,7 @@
                 "layout_url": "{% url 'smartpanel-layout' display.layout.slug %}",
                 "lat": "{{ display.location.y }}", "lon": "{{ display.location.x }}", "name": "{{ display.name }}",
                 "edit_url": "{% url 'smartpanel-edit-display' display.slug %}",
-                "delete_url": "{% url 'smartpanel-delete-display' screen.slug %}"
+                "delete_url": "{% url 'smartpanel-delete-display' display.slug %}"
             },
         {% endfor %}];
 
