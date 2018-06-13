@@ -5,6 +5,7 @@
 <html>
 <head>
     <title>SmartPanel Configuration</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
 
     <!-- Jquery, Jquery-UI -->
 
@@ -71,6 +72,9 @@
         <button type="button" class="mdl-snackbar__action"></button>
     </div>
     {% endif %}
+    <div id="overlay-configure-widget-map">
+        <div id="configuration-widget-map" class="widget_config_map"></div>
+    </div>
     <div id="overlay-configure-widget">
         <div id="configuration-widget-div">
             <select id="widget-selector" data-widget-id="{{ key }}" class="mdl-textfield__input" style="width: 85%; margin: 0 auto 10px auto;">

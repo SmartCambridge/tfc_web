@@ -147,6 +147,27 @@
     font-size: 26px;
 }
 
+#overlay-configure-widget-map {
+    height: 100%;
+    width: 100%;
+    z-index: 2000;
+    background-color: rgba(0,0,0,0.75);
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#configuration-widget-map {
+    height: 75%;
+    width: 75%;
+    background-color: white;
+    padding: 20px 10px 50px 10px;
+    position: relative;
+}
+
 #overlay-configure-widget {
     height: 100%;
     width: 100%;
@@ -162,9 +183,7 @@
 
 #configuration-widget-div {
     height: 75%;
-    min-height: 400px;
     width: 75%;
-    min-width: 600px;
     background-color: white;
     padding: 20px 10px 50px 10px;
     position: relative;

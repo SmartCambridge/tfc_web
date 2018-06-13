@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="smartCambridge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
     <title>{% block title %}SmartCambridge: SmartPanel{% endblock %}</title>
 
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.teal-green.min.css">
@@ -78,7 +79,8 @@
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-my' %}">My SmartPanel layouts</a>
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-design' %}">New SmartPanel layout</a>
                 {% endif %}
-                    <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-all' %}">SmartPanel layouts</a>
+{#                    TODO Re-enable once public opt-in done#}
+{#                    <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-all' %}">SmartPanel layouts</a>#}
                 {% if user.is_authenticated %}
                     <div class="drawer-separator"></div>
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-list-my-displays' %}">My SmartPanel displays</a>
@@ -90,6 +92,9 @@
                     <a class="mdl-navigation__link" href="{% url 'account_email' %}">Account preferences</a>
                     <a class="mdl-navigation__link" href="{% url 'account_logout' %}">Sign Out</a>
                 {% endif %}
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'smartpanel-home' %}">SmartPanels Home</a>
+                    <a class="mdl-navigation__link" href="{% url 'smartpanel-info' %}">About</a>
             </nav>
         </div>
 

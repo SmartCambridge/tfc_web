@@ -8,6 +8,8 @@ from django.db import migrations, models
 def delete_all_lines(apps, schema_editor):
     Line = apps.get_model('transport', 'Line')
     Line.objects.all().delete()
+    Route = apps.get_model('transport', 'Route')
+    Route.objects.all().delete()
 
 
 class Migration(migrations.Migration):
@@ -17,36 +19,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(delete_all_lines),
-        migrations.RemoveField(
-            model_name='line',
-            name='rendered_timetable',
-        ),
-        migrations.AddField(
-            model_name='line',
-            name='filename',
-            field=models.CharField(default='', max_length=255),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='line',
-            name='line_id',
-            field=models.CharField(db_index=True, default='', max_length=255),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='line',
-            name='slug',
-            field=models.SlugField(default=''),
-            preserve_default=False,
-        ),
-        migrations.RemoveField(
-            model_name='line',
-            name="id"
-        ),
-        migrations.AddField(
-            model_name='line',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
+        migrations.RunPython(delete_all_lines, migrations.RunPython.noop),
     ]
