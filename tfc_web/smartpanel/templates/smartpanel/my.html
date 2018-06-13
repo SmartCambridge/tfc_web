@@ -1,9 +1,31 @@
 {% extends "smartpanel/base.html" %}
 {% load static %}
 {% block content %}
-        <div class="cards-section">
-            <div class="cards-section-title mdl-typography--display-1-color-contrast">SmartPanel layouts</div>
+        <div class="cards-section" style="padding: 0;">
+            <div class="cards-section-title mdl-typography--display-1-color-contrast">My layouts</div>
+            <p>Layouts are where you say which widget goes where on the screen to make up your chosen SmartPanel design.
+                After creating a new Layout, you can create a new Display and assign that layout to the display</p>
             <div class="card-container mdl-grid">
+                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                    <div class="mdl-card__media">
+                        <img src="">
+                    </div>
+                    <div class="mdl-card__title">
+                        <h4 class="mdl-card__title-text">New Layout</h4>
+                    </div>
+                    <div class="mdl-card__supporting-text" style="padding-bottom: 125px;">
+                        <span class="mdl-typography--font-light mdl-typography--subhead">
+                            Create your SmartPanel design
+                        </span>
+                    </div>
+                    <div class="mdl-card__actions">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-design' %}" target="_blank">
+                            Create
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
                 {% for smartpanel in smartpanels %}
                 <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
@@ -20,16 +42,16 @@
                     <div class="mdl-card__actions">
                     {% if edit %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
-                           href="{% url 'smartpanel-layout-config' smartpanel.id %}">
+                           href="{% url 'smartpanel-layout-config' smartpanel.slug %}">
                             Edit
                             <i class="material-icons">chevron_right</i>
                         </a>
-                        <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" data-layout-id="{{ smartpanel.id }}">
-                            Delete <i class="material-icons" data-layout-id="{{ smartpanel.id }}">chevron_right</i>
+                        <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" data-layout-id="{{ smartpanel.slug }}">
+                            Delete <i class="material-icons" data-layout-id="{{ smartpanel.slug }}">chevron_right</i>
                         </a>
                     {% endif %}
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
-                           href="{% url 'smartpanel-layout' smartpanel.id %}" target="_blank">
+                           href="{% url 'smartpanel-layout' smartpanel.slug %}" target="_blank">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
@@ -48,8 +70,8 @@
                 <form action="{% url 'smartpanel-layout-delete' %}" method="post">
                     {% csrf_token %}
                     <input id="form_delete_layout_id" type="hidden" name="layout_id">
-                    <input type="submit" class="mdl-button" value="Yes">
-                    <button type="button" class="mdl-button close">No</button>
+                    <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
+                    <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
                 </form>
             </div>
         </dialog>

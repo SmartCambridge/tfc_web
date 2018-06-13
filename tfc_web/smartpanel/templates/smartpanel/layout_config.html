@@ -91,7 +91,7 @@
         </div>
     </div>
     <div class="logos" style="height: 50px; padding-top: 10px;">
-        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.id %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
+        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
             {% csrf_token %}
             <input id="design" name="design" type="hidden">
             <input type="hidden" name="data" id="form-data">
@@ -101,18 +101,22 @@
             </div>
             <input id="save" name="submit-button" type="submit" value="save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="float: none">
         </form>
-        <a href="{% url 'smartpanel-home' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+        <a href="{% url 'smartpanel-layout-my' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
         <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
 
         <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
         <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
 
-        {% if layout %}
+        {% if layout.displays.all %}
             <a id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Refresh display</a>
+        {% else %}
+            <button id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button>
+        {% endif %}
+
+        {% if layout %}
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
             <div style="position: fixed; bottom: 0; right: 0; font-size: 14px; background: #fff; padding: 4px; border: black solid 1px; z-index: 10;">Display last refreshed: {{ layout.version_date }}</div>
         {% else %}
-            <button id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">You have not associated a display with this layout yet</div>
         {% endif %}
     </div>

@@ -11,16 +11,17 @@
 {% block content %}
     <div>
         <h1 class="mdl-typography--display-1-color-contrast">New Display</h1>
-        <form action="{% if edit %}{% url 'smartpanel-edit-display' display_form.instance.pk %}{% else %}{% url 'smartpanel-new-display' %}{% endif %}" method="post">
+        <form action="{% if edit %}{% url 'smartpanel-edit-display' display_form.instance.slug %}{% else %}{% url 'smartpanel-new-display' %}{% endif %}" method="post">
             {% csrf_token %}
             <p>{{ display_form.errors }}</p>
             {{ display_form.as_p }}
-            <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Send">
+            <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" value="Save">
+            <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="{% url 'smartpanel-list-my-displays' %}">Cancel</a>
         </form>
         {% if edit %}
-        <form action="{% url 'smartpanel-delete-display' display_form.instance.pk %}" method="post" style="margin-top: 20px;">
+        <form action="{% url 'smartpanel-delete-display' display_form.instance.slug %}" method="post" style="margin-top: 20px;">
             {% csrf_token %}
-            <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Delete Display">
+            <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" value="Delete Display">
         </form>
         {% endif %}
     </div>
