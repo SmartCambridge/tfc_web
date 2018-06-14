@@ -5,6 +5,7 @@ import copy
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
@@ -124,9 +125,10 @@ def layout_delete(request):
     return redirect('smartpanel-layout-my')
 
 
-@login_required
 def layout(request, slug, display=None):
-    if request.user.is_superuser:
+    if display is None and not request.user.is_authenticated:
+        return redirect_to_login(request.get_full_path())
+    if request.user.is_superuser or display:
         layout = get_object_or_404(Layout, slug=slug)
     else:
         layout = get_object_or_404(Layout, slug=slug, owner=request.user)

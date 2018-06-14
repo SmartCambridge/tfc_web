@@ -51,12 +51,12 @@
             for (var i = 0; i < displays.length; i++) {
                 displays[i]['marker'] = L.marker([displays[i]['lat'], displays[i]['lon']]);
                 displays[i]['marker'].addTo(map).bindTooltip(
-                    "Display <a class=\"delete-link aqua-link\" href='"+displays[i]['display_url']+"'>"+
-                    displays[i]['name']+"</a> using Layout <a class=\"delete-link aqua-link\" href='"+displays[i]['layout_url']+"'>"+
+                    "Display <a class=\"aqua-link\" href='"+displays[i]['display_url']+"'>"+
+                    displays[i]['name']+"</a> using Layout <a class=\"aqua-link\" href='"+displays[i]['layout_url']+"'>"+
                     displays[i]['layout_name']+"</a><br>"+
-                    "- <a class=\"edit-link aqua-link\" href='"+displays[i]['edit_url']+"'>Edit display " +
+                    "<a class=\"aqua-link\" href='"+displays[i]['edit_url']+"'>Edit display " +
                     "<i class=\"material-icons\">chevron_right</i></a><br>" +
-                    "- <a class=\"delete-link aqua-link\" data-display-delete-url='"+displays[i]['delete_url']+"'>\n" +
+                    "<a class=\"delete-link aqua-link\" data-display-delete-url='"+displays[i]['delete_url']+"'>\n" +
                     "Delete <i class=\"material-icons\" data-display-delete-url='"+displays[i]['delete_url']+"'>chevron_right</i></a>",
                     { permanent: true, interactive: true });
             }
