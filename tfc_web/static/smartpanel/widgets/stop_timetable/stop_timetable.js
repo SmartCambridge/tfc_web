@@ -56,7 +56,7 @@ function StopTimetable(widget_id) {
 
     'use strict';
 
-//    var DEBUG = ' stop_timetable_log';
+    var DEBUG = ' stop_timetable_log';
 
     var self = this;
 
@@ -486,6 +486,8 @@ function StopTimetable(widget_id) {
         // journeys with due time within a window of (now + offset),
         // and un-subscribe for journeys outside these limits
 
+        // !!! Beware that this MUTABLE !!!
+        // !!! Don't call add()/subtract() on it without using clone()
         var now = get_now();
 
         self.log('refresh_subscriptions - running for', now.toISOString());
@@ -498,23 +500,26 @@ function StopTimetable(widget_id) {
         // Run this in try...finally to ensure the timer is reset
         try {
 
+            // Define the sides of the subscription window
+            var start = now.clone().subtract(30, 'minutes');
+            var end = now.clone().add(60, 'minutes');
+
             for (var i = 0; i < journey_table.length; i++) {
                 var journey = journey_table[i];
 
-                if ( (journey.due.isBefore(now.subtract(30, 'minutes')) ||
-                      journey.due.isAfter(now.add(60, 'minutes'))) ) {
+                if ( (journey.due.isAfter(start) && journey.due.isBefore(end)) ) {
 
-                    if (journey.rtsub) {
-                        self.log('refresh_subscriptions - unsubscribing', journey.rtsub);
-                        RTMONITOR_API.unsubscribe(journey.rtsub);
-                        journey.rtsub = undefined;
+                    if (!journey.rtsub) {
+                        journey.rtsub = subscribe(journey.first.stop.atco_code, journey.first.due);
                     }
 
                 }
                 else {
 
-                    if (!journey.rtsub) {
-                        journey.rtsub = subscribe(journey.first.stop.atco_code, journey.first.due);
+                    if (journey.rtsub) {
+                        self.log('refresh_subscriptions - unsubscribing', journey.rtsub);
+                        RTMONITOR_API.unsubscribe(journey.rtsub);
+                        journey.rtsub = undefined;
                     }
 
                 }
@@ -525,6 +530,7 @@ function StopTimetable(widget_id) {
             // Restart the update timer to eventually re-refresh the page
             subscription_timer_id = window.setTimeout(refresh_subscriptions, SUBSCRIPTION_REFRESH_INTERVAL);
         }
+
     }
 
 
