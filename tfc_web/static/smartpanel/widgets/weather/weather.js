@@ -9,7 +9,7 @@ function Weather(widget_id) {
 
     'use strict';
 
-    var DEBUG = ' weather_log';
+    //var DEBUG = ' weather_log';
 
     var self = this;
 

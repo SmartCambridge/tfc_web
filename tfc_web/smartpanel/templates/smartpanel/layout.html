@@ -46,7 +46,14 @@
     </div>
     <script>
         // Note we must instatiate RTMonitorAPI before widgets
-        var RTMONITOR_API = new RTMonitorAPI();
+        var RTMONITOR_API = new RTMonitorAPI(
+                            {
+                                'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
+                                'rt_client_name': 'smartpanel', // TODO embed server-side smartpanel name
+                                'rt_token': '{{ rt_token }}'
+                            }
+                );
+
         // Widget spec requires a DEBUG global
         var DEBUG = '';
         var widgets = [];

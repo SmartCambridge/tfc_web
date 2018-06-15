@@ -10,7 +10,7 @@ function TrafficMap(widget_id) {
 
     var self = this;
 
-    var DEBUG = ' traffic_map_log';
+    //var DEBUG = ' traffic_map_log';
 
     this.display = function (config, params) {
         self.log(widget_id,'Running display', config.container_id);

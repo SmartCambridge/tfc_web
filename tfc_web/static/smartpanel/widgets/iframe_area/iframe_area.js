@@ -7,7 +7,7 @@ function IframeArea(widget_id) {
 
     'use strict';
 
-    var DEBUG=' iframe_area_log';
+    //var DEBUG=' iframe_area_log';
 
     var self = this;
 
