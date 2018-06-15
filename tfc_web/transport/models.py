@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.text import slugify
 
 
 class Stop(models.Model):
@@ -101,9 +102,10 @@ class Operator(models.Model):
 
 
 class Line(models.Model):
-    id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    area = models.CharField(max_length=10)
+    line_id = models.CharField(max_length=255, db_index=True)
     line_name = models.CharField(max_length=255)
+    area = models.CharField(max_length=10)  # This is the TNDS zone
+    filename = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     operator = models.ForeignKey(Operator, related_name="lines")
     standard_origin = models.CharField(max_length=255)
@@ -112,10 +114,14 @@ class Line(models.Model):
     bank_holiday_operation = models.CharField(max_length=255, null=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
-    rendered_timetable = models.TextField(null=True, blank=True)
     stop_list = JSONField(null=True, blank=True)
     timetable = JSONField(null=True, blank=True)
+    slug = models.SlugField(max_length=50)
     last_modified = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify('-'.join([self.line_name, self.description]))[:49]
+        super(Line, self).save(*args, **kwargs)
 
     def get_stop_list(self):
         stop_list = {}

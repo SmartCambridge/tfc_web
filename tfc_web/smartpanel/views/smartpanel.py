@@ -5,6 +5,7 @@ import copy
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
@@ -19,20 +20,20 @@ logger = logging.getLogger(__name__)
 
 
 def all(request):
-    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all()})
+    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all().order_by('-id')})
 
 
 @login_required
 def my(request):
-    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.filter(owner=request.user),
-                                                  'edit': True})
+    return render(request, 'smartpanel/my.html',
+                  {'smartpanels': Layout.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
 @login_required
 def design(request):
     if request.method == "POST":
         layout = Layout.objects.create(owner=request.user, design="{}")
-        return layout_config(request, layout.id, reload=True)
+        return layout_config(request, layout.slug, reload=True)
     return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list()})
 
 
@@ -82,8 +83,8 @@ def generate_widget_list():
 
 
 @login_required
-def layout_config(request, layout_id, reload=False):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
+def layout_config(request, slug, reload=False):
+    layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     error = False
     try:
         if request.method == "POST" and 'data' in request.POST and 'name' in request.POST and 'design' in request.POST:
@@ -99,14 +100,16 @@ def layout_config(request, layout_id, reload=False):
             layout.design = design
             layout.save()
             if request.POST.get('submit-button', None) == "view":
-                return redirect('smartpanel-layout', layout_id)
+                return redirect('smartpanel-layout', slug)
             elif request.POST.get('submit-button', None) == "display":
                 layout.version += 1
                 layout.version_date = now()
                 layout.save()
                 messages.info(request, 'SmartPanel layout published')
+            elif request.POST.get('submit-button', None) == "save":
+                return redirect('smartpanel-layout-my')
             if reload:
-                return redirect('smartpanel-layout-config', layout_id)
+                return redirect('smartpanel-layout-config', slug)
     except:
         error = True
         messages.error(request, "An error ocurred")
@@ -116,16 +119,19 @@ def layout_config(request, layout_id, reload=False):
 
 
 @login_required
-def layout_delete(request, layout_id):
-    layout = get_object_or_404(Layout, id=layout_id, owner=request.user)
-    if request.method == "POST":
-        layout.delete()
-        return redirect('smartpanel-home')
-    return redirect('smartpanel-layout-config', layout_id)
+def layout_delete(request):
+    if request.method == "POST" and 'layout_id' in request.POST:
+        get_object_or_404(Layout, slug=request.POST['layout_id'], owner=request.user).delete()
+    return redirect('smartpanel-layout-my')
 
 
-def layout(request, layout_id, display=None):
-    layout = get_object_or_404(Layout, id=layout_id)
+def layout(request, slug, display=None):
+    if display is None and not request.user.is_authenticated:
+        return redirect_to_login(request.get_full_path())
+    if request.user.is_superuser or display:
+        layout = get_object_or_404(Layout, slug=slug)
+    else:
+        layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     uwl = []  # unique widget list
     for key, value in layout.design.items():
         if 'widget' in value and value['widget'] not in uwl:
@@ -134,73 +140,74 @@ def layout(request, layout_id, display=None):
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3], 'display': display})
+                   'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
 
 
 @login_required
 def new_display(request):
     if request.method == "POST":
-        screen_form = DisplayForm(request.POST)
-        if screen_form.is_valid():
-            display = screen_form.save(commit=False)
+        display_form = DisplayForm(request.POST, user=request.user)
+        if display_form.is_valid():
+            display = display_form.save(commit=False)
             display.owner = request.user
             display.save()
-            return redirect('smartpanel-home')
+            return redirect('smartpanel-list-my-displays')
     else:
-        screen_form = DisplayForm()
-    return render(request, 'smartpanel/display.html', {'screen_form': screen_form})
+        display_form = DisplayForm(user=request.user)
+    return render(request, 'smartpanel/display.html', {'display_form': display_form})
 
 
 def displays(request):
-    return render(request, 'smartpanel/displays.html', {'screens': Display.objects.all()})
+    return render(request, 'smartpanel/displays.html', {'displays': Display.objects.all()})
 
 
-def display_refresh(request, display_id, layout_id, version):
-    display = get_object_or_404(Display, id=display_id)
+def display_refresh(request, display_slug, layout_slug, version):
+    display = get_object_or_404(Display, slug=display_slug)
+    layout = get_object_or_404(Layout, slug=layout_slug)
     refresh_info = copy.deepcopy(request.GET)
     refresh_info['source_ip'] = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
     refresh_info['time'] = now()
-    cache.set('display-%s' % display.id, refresh_info)
-    if display.layout.id != int(layout_id) or display.layout.version != int(version):
-        return JsonResponse({'refresh': True, 'url': reverse('smartpanel-display', args=(display_id, ))})
-    return JsonResponse({'refresh': False, 'url': reverse('smartpanel-display', args=(display_id, ))})
+    cache.set('display-%s' % display.slug, refresh_info)
+    if display.layout.slug != layout.slug or display.layout.version != int(version):
+        return JsonResponse({'refresh': True, 'url': reverse('smartpanel-display', args=(display_slug, ))})
+    return JsonResponse({'refresh': False, 'url': reverse('smartpanel-display', args=(display_slug, ))})
 
 
-def display(request, display_id):
-    display = get_object_or_404(Display, id=display_id)
-    return layout(request, display.layout.id, display=display)
+def display(request, slug):
+    display = get_object_or_404(Display, slug=slug)
+    return layout(request, display.layout.slug, display=display)
 
 
 def displays_debug(request):
     results = {}
     for display in Display.objects.all():
-        results['display-%s' % display.id] = cache.get('display-%s' % display.id, {})
+        results['display-%s' % display.slug] = cache.get('display-%s' % display.slug, {})
     return JsonResponse(results)
 
 
 @login_required
 def my_displays(request):
     return render(request, 'smartpanel/displays.html',
-                  {'screens': Display.objects.filter(owner=request.user), 'edit': True})
+                  {'displays': Display.objects.filter(owner=request.user), 'edit': True})
 
 
 @login_required
-def edit_display(request, display_id):
-    display = get_object_or_404(Display, id=display_id, owner=request.user)
+def edit_display(request, slug):
+    display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
-        display_form = DisplayForm(request.POST, instance=display)
+        display_form = DisplayForm(request.POST, instance=display, user=request.user)
         if display_form.is_valid():
             display.save()
-            return redirect('smartpanel-home')
+            return redirect('smartpanel-list-my-displays')
     else:
-        display_form = DisplayForm(instance=display)
-    return render(request, 'smartpanel/display.html', {'screen_form': display_form, 'edit': True})
+        display_form = DisplayForm(instance=display, user=request.user)
+    return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
 
 @login_required
-def delete_display(request, display_id):
-    display = get_object_or_404(Display, id=display_id, owner=request.user)
+def delete_display(request, slug):
+    display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
         display.delete()
-        return redirect('smartpanel-home')
-    return redirect('smartpanel-list-my-displays')
+        return redirect('smartpanel-list-my-displays')
+    return redirect('smartpanel-edit-display', display.slug)

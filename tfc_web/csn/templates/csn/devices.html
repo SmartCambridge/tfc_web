@@ -47,8 +47,8 @@
                 {% csrf_token %}
                 <input id="form_app_id" type="hidden" name="app_id">
                 <input id="form_sensor_id" type="hidden" name="sensor_id">
-                <input type="submit" class="mdl-button" value="Yes">
-                <button type="button" class="mdl-button close">No</button>
+                <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
+                <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
             </form>
         </div>
     </dialog>
@@ -62,8 +62,8 @@
             <form action="{% url 'csn_delete_device' %}" method="post">
                 {% csrf_token %}
                 <input id="form_delete_sensor_id" type="hidden" name="sensor_id">
-                <input type="submit" class="mdl-button" value="Yes">
-                <button type="button" class="mdl-button close">No</button>
+                <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
+                <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
             </form>
         </div>
     </dialog>

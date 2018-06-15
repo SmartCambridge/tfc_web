@@ -42,9 +42,9 @@ BANK_HOLIDAYS = {
     datetime.date(2019, 5, 27): ('SpringBank', 'HolidayMondays'),
     datetime.date(2019, 8, 5): ('AugustBankHolidayScotland',),
     datetime.date(2019, 8, 26): ('LateSummerBankHolidayNotScotland', 'HolidayMondays'),
-    datetime.date(2018, 12, 24): ('ChristmasEve',),
-    datetime.date(2018, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
-    datetime.date(2018, 12, 26): ('BoxingDay',),
+    datetime.date(2019, 12, 24): ('ChristmasEve',),
+    datetime.date(2019, 12, 25): ('ChristmasDay', 'ChristmasDayHoliday'),
+    datetime.date(2019, 12, 26): ('BoxingDay',),
     datetime.date(2020, 1, 1): ('NewYearsDay', 'NewYearsDayHoliday'),
 }
 
@@ -952,28 +952,6 @@ def timetable_from_filename(path, filename, day):
             return Timetable(xmlfile, day)
 
 
-def get_filenames(service_id, archive):
-    try:
-        namelist = archive.namelist()
-    except (IOError, OSError):
-        return []
-    return [name for name in namelist if name.startswith("ea_%s" % service_id) or name.startswith("suf_%s" % service_id)]
-
-
-def get_files_from_zipfile(service_id, service_area):
-    """Given a Service,
-    return an iterable of open files from the relevant zipfile.
-    """
-    assert service_area in settings.TNDS_ZONES
-    archive_path = os.path.join(settings.TNDS_DIR, '%s.zip' % service_area)
-    try:
-        with zipfile.ZipFile(archive_path) as archive:
-            filenames = get_filenames(service_id, archive)
-            return [archive.open(filename) for filename in filenames]
-    except (zipfile.BadZipfile, IOError, KeyError):
-        return []
-
-
 def timetable_from_service(service, day=None):
     """Given a Service, return a list of Timetables."""
     if day is None:
@@ -983,13 +961,23 @@ def timetable_from_service(service, day=None):
     timetables = cache.get(cache_key)
     if timetables is not None:
         return timetables
-    timetables = (Timetable(xml_file, day, service.description) for xml_file in get_files_from_zipfile(service.pk, service.area))
+
+    archive_path = os.path.join(settings.TNDS_DIR, '%s.zip' % service.area)
+
+    try:
+        with zipfile.ZipFile(archive_path) as archive:
+            if service.filename in archive.namelist():
+                timetables = [Timetable(archive.open(service.filename), day, service.description)]
+            else:
+                timetables = []
+    except (zipfile.BadZipfile, IOError, KeyError, OSError):
+        timetables = []
+
     timetables = [timetable for timetable in timetables if hasattr(timetable, 'groupings')]
     if len(timetables) > 1:
         timetables = [t for t in timetables if any(g.rows and g.rows[0].times for g in t.groupings)] or timetables[:1]
     for timetable in timetables:
         for grouping in timetable.groupings:
-            #del grouping.journeys
             del grouping.journeypatterns
             for row in grouping.rows:
                 del row.next

@@ -200,7 +200,20 @@ EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
 # TFC Server CSN API
 TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
 
-TNDS_ZONES = ['EA', 'SE', 'EM']
+# Possible values as TNDS Zones
+# East Anglia - EA
+# East Midlands - EM
+# London - L
+# North East - NE
+# North West - NW
+# Scotland - S
+# South East - SE
+# South West - SW
+# Cymru/Wales - W
+# West Midlands - WM
+# Yorkshire - Y
+# National Coach Services Database - NCSD
+TNDS_ZONES = ['EA', 'SE']
 
 CORS_ORIGIN_ALLOW_ALL = True
 

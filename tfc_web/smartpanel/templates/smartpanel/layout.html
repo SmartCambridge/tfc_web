@@ -5,6 +5,7 @@
 <html>
 <head>
     <title>SmartCambridge SmartPanel</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
     <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
     <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
     <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/>
@@ -68,7 +69,7 @@
         function refresh_display() {
             $.ajax({
                 type: "GET",
-                url: '{% url 'smartpanel-display-refresh' display.id display.layout.id display.layout.version %}',
+                url: '{% url 'smartpanel-display-refresh' display.slug display.layout.slug display.layout.version %}',
                 success: function(data) {
                     console.log(data);
                     if (data['refresh'] === true) {
@@ -88,7 +89,11 @@
                     {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
                         widget = new {{ value.widget|title|remove_underscore }}("{{ key }}");
                         widget.display(
-                            {'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}'},
+                            {
+                                'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}',
+                                'display_id': '{{ display.slug }}', 'layout_id': '{{ layout.slug }}',
+                                'rt_token': '{{ rt_token }}'
+                            },
                             JSON.parse("{{ value.data|jsonify|escapejs }}"));
                         widgets.push(widget);
                     {% endwith %}

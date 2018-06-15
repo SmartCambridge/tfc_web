@@ -893,6 +893,7 @@ function WidgetConfig(config) {
     // pop up a chooser, nearby element 'el'
     //function config_chooser(parent_el, el, param_options, param_current, chooser, save_fn) {
     function config_chooser(parent_el, el, chooser, save_fn) {
+        $('#overlay-configure-widget-map').css( "display", "flex" );
 
         var el_bounds = el.getBoundingClientRect();
 
@@ -901,28 +902,24 @@ function WidgetConfig(config) {
 
         //console.log('WidgetConfig', 'config_chooser', pos_x, pos_y);
 
-        var width = 500; // TODO get from layout_config
-        var height = 500;
+        var chooser_div = $('#configuration-widget-map')[0];
 
-        // create outermost chooser div
-        var chooser_div = document.createElement('div');
+        // var chooser_div_style = 'width: '+width+'px; height: '+(height+50)+'px;';
+        // chooser_div_style += ' position: absolute;';
+        // chooser_div_style += ' border: 5px ridge;';
+        // chooser_div_style += ' background-color: white;';
+        // chooser_div_style += ' z-index: 2000;';
+        //
+        // chooser_div_style += ' left: '+pos_x+'px; top: '+pos_y+'px;';
+        //
+        // chooser_div.setAttribute('style', chooser_div_style);
 
-        var chooser_div_style = 'width: '+width+'px; height: '+(height+50)+'px;';
-        chooser_div_style += ' position: absolute;';
-        chooser_div_style += ' border: 5px ridge;';
-        chooser_div_style += ' background-color: white;';
-        chooser_div_style += ' z-index: 2000;';
-
-        chooser_div_style += ' left: '+pos_x+'px; top: '+pos_y+'px;';
-
-        chooser_div.setAttribute('style', chooser_div_style);
-
-        //parent_el.appendChild(chooser_div);
-        document.body.appendChild(chooser_div);
+        //$('#configuration-widget-map')[0].appendChild(chooser_div);
+        //document.body.appendChild(chooser_div);
 
         var input_div = document.createElement('div');
         chooser_div.appendChild(input_div);
-        var input_div_style = 'width: '+width+'px; height: '+height+'px;';
+        var input_div_style = 'height: calc(100% - 15px);';
         input_div.setAttribute('style', input_div_style);
 
         var chooser_return = chooser(input_div);
@@ -930,15 +927,17 @@ function WidgetConfig(config) {
         //TODO add save, cancel onclick callbacks
 
         var chooser_cancel = function () {
-            chooser_div.parentNode.removeChild(chooser_div);
+            $("#configuration-widget-map").empty();
+            $("#overlay-configure-widget-map").hide();
         };
 
         // on save, call the 'save_fn' provided by the caller, with the result of the chooser
         var chooser_save = function () {
             // TODO may need to error check here
             save_fn(chooser_return);
-            chooser_div.parentNode.removeChild(chooser_div);
-        }
+            $("#configuration-widget-map").empty();
+            $("#overlay-configure-widget-map").hide();
+        };
 
         // add 'cancel', 'save' buttons
         var save_button = document.createElement('a');
@@ -960,4 +959,3 @@ function WidgetConfig(config) {
     }
 
 } // end WidgetConfig()
-
