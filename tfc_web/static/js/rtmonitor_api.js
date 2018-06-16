@@ -11,8 +11,8 @@ function RTMonitorAPI(client_data) {
     //                 rt_token: <token to be passed to rt_monitor in the connection to validate>
     //               }
 
-    //this.RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
-    this.RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm';
+    this.RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
+    //this.RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm';
 
     var self = this;
 
