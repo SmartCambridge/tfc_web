@@ -1,5 +1,8 @@
 from uuid import uuid4
 
+import random
+import string
+
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models import PointField, DO_NOTHING
 from django.contrib.postgres.fields import JSONField
@@ -38,9 +41,17 @@ class Display(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            slug = str(uuid4())[24:]
-            while Display.objects.filter(slug=slug):
-                slug = str(uuid4())[24:]
+            # slug = str(uuid4())[24:]
+            # while Display.objects.filter(slug=slug):
+            #    slug = str(uuid4())[24:]
+            # generate a unique display slug ABCD-1234
+            slug = ''
+            while True:
+                slug = (''.join(random.choice(string.ascii_uppercase) for _ in range(4))+
+                        '-'+
+                        ''.join(random.choice(string.digits) for _ in range(4)))
+                if not Display.objects.filter(slug=slug):
+                    break
             self.slug = slug
         super(Display, self).save(*args, **kwargs)
 
