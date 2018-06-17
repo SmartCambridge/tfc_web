@@ -50,7 +50,9 @@
                             {
                                 'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
                                 'rt_client_name': 'smartpanel', // TODO embed server-side smartpanel name
-                                'rt_token': '{{ rt_token }}'
+                                'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
+                                'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
+                                'display_owner': '{{ display.owner.username }}'
                             }
                 );
 
@@ -99,7 +101,9 @@
                             {
                                 'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}',
                                 'display_id': '{{ display.slug }}', 'layout_id': '{{ layout.slug }}',
-                                'rt_token': '{{ rt_token }}'
+                                'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
+                                'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
+                                'display_owner': '{{ display.owner.username }}'
                             },
                             JSON.parse("{{ value.data|jsonify|escapejs }}"));
                         widgets.push(widget);
