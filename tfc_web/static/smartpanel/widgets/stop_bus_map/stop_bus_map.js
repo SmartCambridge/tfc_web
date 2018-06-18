@@ -15,11 +15,11 @@
 //                       zoom: 15,
 //                       stops: [  { lat:, lng:, common_name: } ... ]
 //
-function StopBusMap(widget_id, params) {
+function StopBusMap(widget_id) {
 
     'use strict';
 
-    //var DEBUG = ' stop_bus_map_log';
+    var DEBUG = ' stop_bus_map_log';
 
     var self = this;
 
@@ -73,14 +73,10 @@ function StopBusMap(widget_id, params) {
 
     var connected = false; // global to record state of connection to rt_monitor real-time data
 
-    // backwards compatibility init() function
-    this.init = function () {
-        self.log(self.widget_id, 'Running BusStopMap.init');
-
-        self.display(self.config, self.params);
-    };
-
     this.display = function(config, params) {
+
+        self.log(widget_id,'display()','config:',config);
+        self.log(widget_id,'display()','params:',params);
 
         self.config = config;
 
@@ -138,10 +134,10 @@ function StopBusMap(widget_id, params) {
 
         // if we're already connected to rt_monitor perhaps this is a re-init of existing widget
         if (connected) {
-            self.log(self.widget_id, 'init() already connected to rt_monitor');
+            self.log(self.widget_id, 'display()',' already connected to rt_monitor');
             subscribe();
         } else {
-            self.log(self.widget_id, 'init() not connected to rt_monitor');
+            self.log(self.widget_id, 'display()',' not connected to rt_monitor');
         }
 
         draw_stops(self.params.stops);
@@ -165,7 +161,7 @@ function rtmonitor_disconnected()
 
 function rtmonitor_connected()
 {
-    self.log(self.widget_id, 'stop_busi_map rtmonitor_connected (connected was',connected,')');
+    self.log(self.widget_id, 'stop_bus_map rtmonitor_connected (connected was',connected,')');
     connected = true;
     document.getElementById(self.config.container_id+'_connection').style.display = 'none';
     subscribe();
@@ -667,7 +663,7 @@ function more_content(sensor_id)
 function handle_records(incoming_data)
 {
     //var incoming_data = JSON.parse(websock_data);
-    self.log(self.widget_id, 'handle_records'+incoming_data['request_data'].length);
+    self.log(self.widget_id, 'handle_records()','loading '+incoming_data['request_data'].length+' sensor messages');
     for (var i = 0; i < incoming_data[RECORDS_ARRAY].length; i++)
     {
 	    handle_msg(incoming_data[RECORDS_ARRAY][i], new Date());

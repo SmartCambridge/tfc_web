@@ -104,19 +104,24 @@
         <a href="{% url 'smartpanel-layout-my' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
         <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
 
-        <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
-        <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
+        {% if layout %}
+            <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
+        {% else %}
+            <div id="view-layout-and-save" style="display: inline-flex;"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>View</button></div>
+        {% endif %}
 
         {% if layout.displays.all %}
             <a id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Refresh display</a>
         {% else %}
-            <button id="update-display-submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button>
+            <div id="update-display-submit" style="display: inline-flex;"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button></div>
         {% endif %}
 
         {% if layout %}
+            <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
             <div style="position: fixed; bottom: 0; right: 0; font-size: 14px; background: #fff; padding: 4px; border: black solid 1px; z-index: 10;">Display last refreshed: {{ layout.version_date }}</div>
         {% else %}
+            <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">You need to save the layout first, click the Save button</div>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">You have not associated a display with this layout yet</div>
         {% endif %}
     </div>

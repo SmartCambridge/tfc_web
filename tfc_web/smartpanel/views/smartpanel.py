@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
+from django.db import IntegrityError
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
@@ -121,7 +122,10 @@ def layout_config(request, slug, reload=False):
 @login_required
 def layout_delete(request):
     if request.method == "POST" and 'layout_id' in request.POST:
-        get_object_or_404(Layout, slug=request.POST['layout_id'], owner=request.user).delete()
+        try:
+            get_object_or_404(Layout, slug=request.POST['layout_id'], owner=request.user).delete()
+        except IntegrityError:
+            messages.error(request, "This Layout is being used by a Display, remove it from the Display first.")
     return redirect('smartpanel-layout-my')
 
 

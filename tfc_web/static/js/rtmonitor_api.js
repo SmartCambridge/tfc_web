@@ -1,13 +1,38 @@
 "use strict"
 /* JS Socket code to access RTMonitor real-time sirivm data */
 //
-function RTMonitorAPI() {
+function RTMonitorAPI(client_data) {
+
+    // client_data will passed to rt_monitor at connect time
+    // to help identify/validate the client.
+    // client_data = { rt_client_id: <unique id for this client>
+    //                 rt_client_name: <some descriptive name, e.g. display name>
+    //                 rt_client_url: <location.href of this connecting web page client>
+    //                 rt_token: <token to be passed to rt_monitor in the connection to validate>
+    //               }
+
+    this.RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm';
+    //this.RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
+    //this.RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm';
 
     var self = this;
 
-    console.log('RTMonitorAPI V2 instantiation');
+    this.VERSION = '2.1';
 
-    this.RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
+    if (client_data)
+    {
+        self.client_data = client_data;
+    }
+    else
+    {
+        self.client_data = {};
+        self.client_data.rt_client_id = 'unknown';
+        self.client_data.rt_token = 'unknown';
+        self.client_data.rt_client_name = 'rtmonitor_api.js V'+this.VERSION;
+    }
+    self.client_data.rt_client_url = location.href;
+
+    console.log('RTMonitorAPI V'+this.VERSION+' instantiation',client_data);
 
     // Here we define the 'data record format' of the incoming websocket feed
     this.RECORD_INDEX = 'VehicleRef';  // data record property that is primary key
@@ -63,7 +88,12 @@ this.connect = function()
     this.sock.onopen = function() {
                 self.log('** socket open');
                 clearInterval(self.sock_timer); // delete reconnect timer if it's running
-                self.sock_send_str('{ "msg_type": "rt_connect" }');
+
+                var msg_obj = { msg_type: 'rt_connect',
+                                client_data: self.client_data
+                              };
+
+                self.sock_send_str(JSON.stringify(msg_obj));
     };
 
     this.sock.onmessage = function(e) {
@@ -173,11 +203,15 @@ this.subscribe = function(caller_id, request_id, msg_obj, request_callback)
     return this.sock_send_str(msg);
 };
 
-this.unsubscribe = function(request_id)
+this.unsubscribe = function(caller_id, request_id)
 {
-    this.log('RTMonitorAPI unsubscribing '+request_id);
+    // Note that RTMonitorAPI builds the actual unique request_id that goes to the server
+    // as a concatenation of the caller_id and the request_id given by the caller.
+    var caller_request_id = caller_id+'_'+request_id;
 
-    this.sock_send_str( '{ "msg_type": "rt_unsubscribe", "request_id": "'+request_id+'" }' );
+    this.log('RTMonitorAPI unsubscribing '+caller_request_id);
+
+    this.sock_send_str( '{ "msg_type": "rt_unsubscribe", "request_id": "'+caller_request_id+'" }' );
 };
 
 this.sock_send_str = function(msg)

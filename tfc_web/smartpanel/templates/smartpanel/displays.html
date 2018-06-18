@@ -7,7 +7,9 @@
 {% endblock %}
 {% block content %}
     <h1 class="mdl-typography--display-1-color-contrast" style="margin-top: 0;">My Displays</h1>
-    <p>Displays are the actual Devices that will show your chosen layout.</p>
+    <p>Displays are the devices that will show your chosen layout.
+    Your display web address will be like:</p>
+    <h4>https://smartcambridge.org/smartpanel/display/&lt;id&gt;</h4>
     <div style="height: 70vh;">
         <div id="map" style="height: 100%; width: 100%;"></div>
     </div>
@@ -31,6 +33,7 @@
         var displays = [{% for display in displays %}
             {
                 "display_url": "{% url 'smartpanel-display' display.slug %}", "layout_name": "{{ display.layout.name }}",
+                "display_id": "{{ display.slug }}",
                 "layout_url": "{% url 'smartpanel-layout' display.layout.slug %}",
                 "lat": "{{ display.location.y }}", "lon": "{{ display.location.x }}", "name": "{{ display.name }}",
                 "edit_url": "{% url 'smartpanel-edit-display' display.slug %}",
@@ -43,21 +46,35 @@
             return this._div;
         };
 
+        function hasClass(element, className) {
+            return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
+        }
+
         $(document).ready(function() {
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             info_map.addTo(map);
             for (var i = 0; i < displays.length; i++) {
                 displays[i]['marker'] = L.marker([displays[i]['lat'], displays[i]['lon']]);
                 displays[i]['marker'].addTo(map).bindTooltip(
+/*
+                    "<b>"+displays[i]['name']+"</b><br/>"+
+                    "id: <a class=\"aqua-link\" href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
+                            displays[i]['display_id']+"</a><br/>"+
+                    "Using Layout <a class=\"aqua-link\" href='"+displays[i]['layout_url']+"'>"+
+                            displays[i]['layout_name']+"</a><br>"+
+*/
                     "Display <a class=\"aqua-link\" href='"+displays[i]['display_url']+"'>"+
-                    displays[i]['name']+"</a> using Layout <a class=\"aqua-link\" href='"+displays[i]['layout_url']+"'>"+
+                    displays[i]['name']+"</a><br> using Layout <a class=\"aqua-link\" href='"+displays[i]['layout_url']+"'>"+
                     displays[i]['layout_name']+"</a><br>"+
+                    "<a class=\"aqua-link\" href='"+displays[i]['display_url']+"' target='_blank'>View display " +
+                    "<i class=\"material-icons\" style='font-size: 18px;' >chevron_right</i></a><br>" +
                     "<a class=\"aqua-link\" href='"+displays[i]['edit_url']+"'>Edit display " +
-                    "<i class=\"material-icons\">chevron_right</i></a><br>" +
+                    "<i class=\"material-icons\" style='font-size: 18px;'>chevron_right</i></a><br>" +
                     "<a class=\"delete-link aqua-link\" data-display-delete-url='"+displays[i]['delete_url']+"'>\n" +
-                    "Delete <i class=\"material-icons\" data-display-delete-url='"+displays[i]['delete_url']+"'>chevron_right</i></a>",
+                    "Delete <i class=\"material-icons\" style='font-size: 18px;' " +
+                    "data-display-delete-url='"+displays[i]['delete_url']+"'>chevron_right</i></a>",
                     { permanent: true, interactive: true });
             }
             var dialog_delete = document.querySelector('#dialog-delete');
