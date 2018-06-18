@@ -1,13 +1,48 @@
 import codecs
 import json
 from datetime import date
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 from django.conf import settings
 from django.shortcuts import render
+import logging
+
+logger = logging.getLogger(__name__)
+
+#############################################################################
+# Utilities                                                                 £
+#############################################################################
+
+
+def do_api_call(query):
+
+    logger.debug('Query: %s', query)
+    reader = codecs.getreader("utf-8")
+    query = Request(settings.NEW_API_ENDPOINT + query)
+    query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
+    return json.load(reader(urlopen(query)))
+
+
+def get_zone_list():
+
+    data = do_api_call('/api/v1/zone/')
+    return {'request_data': data}
+
+
+def get_zone_metadata(zone_id):
+
+    data = do_api_call('/api/v1/zone/' + zone_id)
+    return {'request_data': {'options': {'config': data}}}
+
+
+def get_zone_history(zone_id, date):
+
+        return do_api_call(
+            '/api/v1/zone/history/' + zone_id +
+            '?start_date=' + date)
 
 
 #############################################################################
-########   traffic/zone/transit_plot/<zone_id>?date=YYYY-MM-DD  #############
+# traffic/zone/transit_plot/<zone_id>?date=YYYY-MM-DD                       #
 #############################################################################
 
 def zone_transit_plot(request, zone_id):
@@ -22,32 +57,15 @@ def zone_transit_plot(request, zone_id):
     MM = user_date[5:7]
     dd = user_date[8:10]
 
-    feed_id = request.GET.get('feed_id')
-    if not feed_id:
-        feed_id = 'cloudamber/sirivm'
-
-    reader = codecs.getreader("utf-8")
-    try:
-        transit_json = json.load(reader(urlopen(
-            settings.API_ENDPOINT+'/api/dataserver/zone/transits/'+zone_id+'?date='+yyyy+'-'+MM+'-'+dd+'&feed_id='+feed_id
-        )))
-    except:
-        transit_json = None
-
-    try:
-        zone_config = json.load(reader(urlopen(
-            settings.API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
-        )))
-    except:
-        zone_config = None
+    transit_json = get_zone_history(zone_id, user_date)
+    zone_config = get_zone_metadata(zone_id)
 
     return render(request, 'traffic/zone_transit_plot.html', {
         'config_date':  user_date,
         'config_zone_id': zone_id,
-        'config_yyyy' : yyyy,
+        'config_yyyy':  yyyy,
         'config_MM':    MM,
         'config_dd':    dd,
-        'config_feed_id': feed_id,
         'config_zone_id': zone_id,
         'config_zone_data': json.dumps(transit_json),
         'config_zone_config': json.dumps(zone_config)
@@ -55,18 +73,12 @@ def zone_transit_plot(request, zone_id):
 
 
 #############################################################################
-########   traffic/zones/map                          #######################
+# traffic/zones/map                                                         #
 #############################################################################
 
 def zones_map(request):
 
-    reader = codecs.getreader("utf-8")
-    try:
-        zone_list = json.load(reader(urlopen(
-            settings.API_ENDPOINT+'/api/dataserver/zone/list'
-        )))
-    except:
-        zone_list = None
+    zone_list = get_zone_list()
 
     return render(request, 'traffic/zones_map.html', {
         'config_zone_list': json.dumps(zone_list),
@@ -74,18 +86,12 @@ def zones_map(request):
 
 
 #############################################################################
-########   traffic/zone/map/<zone_id>                 #######################
+# traffic/zone/map/<zone_id>                                                #
 #############################################################################
 
 def zone_map(request, zone_id):
 
-    reader = codecs.getreader("utf-8")
-    try:
-        zone_config = json.load(reader(urlopen(
-            settings.API_ENDPOINT+'/api/dataserver/zone/config/'+zone_id
-        )))
-    except:
-        zone_config = None
+    zone_config = get_zone_metadata(zone_id)
 
     return render(request, 'traffic/zone_map.html', {
         'config_zone_id': zone_id,

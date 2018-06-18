@@ -171,13 +171,13 @@ function init()
     // make ?noframe adjustments to content
     if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0)
     {
-        document.getElementById('content_title').innerHTML = zone['zone.name'];
+        document.getElementById('content_title').innerHTML = zone['zone_name'];
         document.getElementById('chart').style.height = "calc(100vh - 80px)";
     }
     // embed zone name into page
     try {
-        document.getElementById('page_title_zone_name').innerHTML = zone['zone.name'];
-        document.getElementById('mobile_title_zone_name').innerHTML = zone['zone.name'];
+        document.getElementById('page_title_zone_name').innerHTML = zone['zone_name'];
+        document.getElementById('mobile_title_zone_name').innerHTML = zone['zone_name'];
     }
     catch(err)
     {
