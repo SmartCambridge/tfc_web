@@ -55,12 +55,16 @@ class AQHeaderSerializer(serializers.Serializer):
     Timestamp = serializers.CharField(required=False)
 
 
+# The inner list in the following serialisation is actually '[integer, float]'
+# but that's not specified here because I can't see any way to do so.
+# e.g. saying child=serializers.FloatField() results in the integer
+# being promoted to a float
+
+
 class AQDataSerializer(serializers.Serializer):
     Header = AQHeaderSerializer()
     Readings = serializers.ListField(
-        child=serializers.ListField(
-            child=serializers.FloatField(), min_length=2, max_length=2
-        )
+        child=serializers.ListField(min_length=2, max_length=2)
     )
     SensorType = serializers.CharField()
 
