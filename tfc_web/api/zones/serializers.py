@@ -29,7 +29,7 @@ class ZonePointSerializer(serializers.Serializer):
 class ZoneConfigSerializer(serializers.Serializer):
     zone_id = serializers.CharField()
     acp_id = serializers.CharField(source='zone_id')
-    zone_reverse_id = serializers.CharField()
+    zone_reverse_id = serializers.CharField(required=False)
     zone_center = ZonePointSerializer()
     zone_zoom = serializers.IntegerField()
     zone_path = ZonePointSerializer(many=True)
