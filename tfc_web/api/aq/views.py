@@ -17,7 +17,7 @@ def get_aq_config(station_id=None):
     else:
         try:
             return util.get_config('cam_aq', station_id,
-                                   'aq_list', ('StationID',))
+                                   'aq_list', 'StationID')
         except (util.TFCValidationError) as e:
             raise NotFound("Station not found: {0}".format(e))
 

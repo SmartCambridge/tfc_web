@@ -19,7 +19,7 @@ def get_zone_config(zone_id=None):
     else:
         try:
             return util.get_config('zone', zone_id,
-                                   'zone_list', ('zone.id', 'zone.reverse.id'))
+                                   'zone_list', 'zone.id')
         except (util.TFCValidationError) as e:
             raise NotFound("Zone not found: {0}".format(e))
 

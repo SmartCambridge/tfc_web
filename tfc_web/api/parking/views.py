@@ -21,7 +21,7 @@ def get_parking_config(parking_id=None):
     else:
         try:
             return util.get_config('parking', parking_id,
-                                   'parking_list', ('parking_id',))
+                                   'parking_list', 'parking_id')
         except (util.TFCValidationError) as e:
             raise NotFound("Car park not found: {0}".format(e))
 

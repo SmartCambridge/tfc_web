@@ -127,24 +127,30 @@ def read_json_fragments(path):
     return results
 
 
-def get_config(type, id=None, key=None, fieldnames=[]):
+def get_config(type, id=None, key=None, fieldname=None):
     '''
     Get the config for a metric 'type'. If 'id' is None, return the
     entire config. Otherwise return just the config  with identifier 'id'
-    in one of the fields 'fieldname' within a list keyed by 'key'.
+    in field 'fieldname' within a list keyed by 'key'.
 
-    Do this by always reading the list.json file (rather than an <id>.json
+    Do this by reading the JSON list file (rather than an <id>.json
     file) because it reduces the danger of opening files with user-supplied
-    names and because it avoids confusion if the list.json and
-    <sensor>.json files diverge.
+    names and because it avoids confusion if the list file and
+    <id>.json files diverge.
+
+    Try to read 'list_all.json' and fall back to 'list.json' to support
+    zones in which list.json isn't complete.
     '''
-    filename = 'sys/data_{0}_config/list.json'.format(type)
-    configs = read_json(filename)
+    try:
+        filename = 'sys/data_{0}_config/list_all.json'.format(type)
+        configs = read_json(filename)
+    except FileNotFoundError:
+        filename = 'sys/data_{0}_config/list.json'.format(type)
+        configs = read_json(filename)
     if id is None:
         return configs
     for config in configs[key]:
-        for fieldname in fieldnames:
-            if config.get(fieldname) == id:
-                return config
-    logger.info("Config type '{0}'' for '{1}'' not found".format(type, id))
-    raise TFCValidationError("Bad ID '{0}'".format(id))
+        if config.get(fieldname) == id:
+            return config
+    logger.info('Config type {0} for "{1}" not found'.format(type, id))
+    raise TFCValidationError('Bad ID "{0}"'.format(id))

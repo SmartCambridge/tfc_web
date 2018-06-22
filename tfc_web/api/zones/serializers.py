@@ -35,6 +35,7 @@ class ZoneConfigSerializer(serializers.Serializer):
     zone_path = ZonePointSerializer(many=True)
     zone_finish_index = serializers.IntegerField()
     zone_name = serializers.CharField()
+    zone_map = serializers.BooleanField(required=False)
 
 
 class ZoneListSerializer(serializers.Serializer):
