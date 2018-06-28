@@ -279,7 +279,7 @@ def weather(request):
     logger.debug(results)
     return render(request, 'smartpanel/weather.html', {
         "results": results,
-        "location": location_name,
+        "location": location_name.title(),
         "issued": issued
         }
     )
