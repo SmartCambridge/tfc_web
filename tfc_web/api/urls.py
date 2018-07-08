@@ -7,7 +7,7 @@ from rest_framework.documentation import include_docs_urls
 # Nasty hack to create a set of patterns to feed to
 # include_docs_urls
 docpatterns = [
-    url(r'^/api/v1/parking/', include('api.parking.urls')),
+    url(r'^/api/v1/parking/', include('parking.api.urls')),
     url(r'^/api/v1/zone/', include('api.zones.urls')),
     url(r'^/api/v1/aq/', include('aq.api.urls')),
     # Import transport views previously served under /transport/api/
@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'', include('authmultitoken.html_urls')),
     url(r'^auth/', include('api.auth_urls')),
     url(r'^docs/', include_docs_urls(title='SmartCambridge API', patterns=docpatterns)),
-    url(r'^v1/parking/', include('api.parking.urls')),
+    url(r'^v1/parking/', include('parking.api.urls')),
     url(r'^v1/zone/', include('api.zones.urls')),
     url(r'^v1/aq/', include('aq.api.urls')),
     # Import transport views previously served under /transport/api/
