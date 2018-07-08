@@ -118,6 +118,13 @@ def layout_config(request, slug, reload=False):
                   {'layout': layout, 'error': error,
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
+@login_required
+def export_layout(request, slug):
+    layout = get_object_or_404(Layout, slug=slug, owner=request.user)
+    response = JsonResponse(layout.design)
+    response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
+    return response
+
 
 @login_required
 def layout_delete(request):
