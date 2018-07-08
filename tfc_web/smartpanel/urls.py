@@ -21,7 +21,8 @@ urlpatterns = [
 # TODO Re-enamble once opt-in option done
 #    url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),
     url(r'^layout/(?P<slug>\w+)/config/$', smartpanel.layout_config, name='smartpanel-layout-config'),
-    url(r'^layout/(?P<slug>\w+)/export/$', smartpanel.export_layout, name='smartpanel-layout-export'),
+    url(r'^layout/(?P<slug>\w+)/export/$', smartpanel.layout_export, name='smartpanel-layout-export'),
+    url(r'^layout/import/$', smartpanel.layout_import, name='smartpanel-layout-import'),
     url(r'^layout/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<slug>\w+)/$', smartpanel.layout, name='smartpanel-layout'),
     url(r'^weather$', weather.weather, name='smartpanel-weather'),

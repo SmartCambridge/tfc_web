@@ -132,15 +132,30 @@
         </div>
     </div>
     <script>
-        var defaultGrid = {% if layout %}{{ layout.design|jsonify|safe }}{% else %}{
-            '0': {w: 1, h: 2, x: 0, y: 0}
-        }{% endif %};
+        var defaultGrid =
+            {% if layout %}
+                {{ layout.design|jsonify|safe }}
+            {% elif layout_design %}
+                {{ layout_design|jsonify|safe }}
+            {% else %}
+                {
+                    '0': {w: 1, h: 2, x: 0, y: 0}
+                }
+            {% endif %};
         var data = {
-            {% for key, value in layout.design.items %}
-                {% if value.widget %}
-                "{{ key }}": {{ value|jsonify|safe }},
-                {% endif %}
-            {% endfor %}
+            {% if layout %}
+                {% for key, value in layout.design.items %}
+                    {% if value.widget %}
+                    "{{ key }}": {{ value|jsonify|safe }},
+                    {% endif %}
+                {% endfor %}
+            {% elif layout_design %}
+                {% for key, value in layout_design.items %}
+                    {% if value.widget %}
+                    "{{ key }}": {{ value|jsonify|safe }},
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         };
         var widget_location = '{% static widget_location %}';
 
