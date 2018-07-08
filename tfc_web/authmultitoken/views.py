@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from .models import Token
 from .serializers import AuthTokenSerializer
 
+
 logger = logging.getLogger(__name__)
 
 

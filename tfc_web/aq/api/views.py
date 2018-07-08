@@ -1,6 +1,6 @@
-
-from .serializers import AQListSerializer, AQConfigSerializer, \
- AQDataSerializer
+from .serializers import (
+    AQListSerializer, AQConfigSerializer,
+    AQDataSerializer)
 from api import util, auth
 from datetime import datetime
 from rest_framework.response import Response
@@ -18,7 +18,7 @@ def get_aq_config(station_id=None):
         try:
             return util.get_config('cam_aq', station_id,
                                    'aq_list', 'StationID')
-        except (util.TFCValidationError) as e:
+        except util.TFCValidationError as e:
             raise NotFound("Station not found: {0}".format(e))
 
 
@@ -50,7 +50,7 @@ class AQHistory(auth.AuthenticateddAPIView):
 
         try:
             month = datetime.strptime(month, '%Y-%m')
-        except (ValueError):
+        except ValueError:
             raise util.TFCValidationError(
                 "Month '{0}' has the wrong format. Use YYYY-MM".format(month))
 
@@ -60,7 +60,7 @@ class AQHistory(auth.AuthenticateddAPIView):
                 .format(station_id, month, sensor_type)
                 )
             results = util.read_json(filename)
-        except (FileNotFoundError):
+        except FileNotFoundError:
             raise NotFound("No data found for station '{0}', sensor '{1}', "
                            "month '{2:%Y-%m}'"
                            .format(station_id, sensor_type, month))
