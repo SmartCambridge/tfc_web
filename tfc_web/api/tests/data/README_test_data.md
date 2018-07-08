@@ -3,7 +3,7 @@ Test Data
 
 This directory contains a small amount of test data for the file-based
 API, copied from the main SmartCambridge web site. It's stored here
-to be accessible (as `/usr/src/app/api_test_data`) from within the
+to be accessible (as `/usr/src/app/api/tests/data`) from within the
 Docker test container. `tfc_web.settings` points to this location by default
 (but can be override by the `TFC_API_DATA_PATH` environment variable and is
 set to `/media/tfc` in `tfc_web.settings_production`).
