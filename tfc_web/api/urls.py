@@ -9,7 +9,7 @@ from rest_framework.documentation import include_docs_urls
 docpatterns = [
     url(r'^/api/v1/parking/', include('api.parking.urls')),
     url(r'^/api/v1/zone/', include('api.zones.urls')),
-    url(r'^/api/v1/aq/', include('api.aq.urls')),
+    url(r'^/api/v1/aq/', include('aq.api.urls')),
     # Import transport views previously served under /transport/api/
     url(r'^/api/v1/transport/', include('transport.api.urls')),
 ]
@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^docs/', include_docs_urls(title='SmartCambridge API', patterns=docpatterns)),
     url(r'^v1/parking/', include('api.parking.urls')),
     url(r'^v1/zone/', include('api.zones.urls')),
-    url(r'^v1/aq/', include('api.aq.urls')),
+    url(r'^v1/aq/', include('aq.api.urls')),
     # Import transport views previously served under /transport/api/
     url(r'^v1/transport/', include('transport.api.urls')),
 ]
