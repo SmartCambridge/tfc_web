@@ -18,7 +18,7 @@ for name, value in os.environ.items():
 
 # Set the API data path to point to the internal test data
 
-DATA_PATH = '/usr/src/app/api_test_data'
+DATA_PATH = '/usr/src/app/api/tests/data'
 
 NEW_API_ENDPOINT = 'http://127.0.0.1:8000'
 

@@ -1,6 +1,6 @@
-
-from .serializers import ParkingListSerializer, ParkingConfigSerializer, \
- ParkingRecordSerializer, ParkingHistorySerializer
+from .serializers import (
+    ParkingListSerializer, ParkingConfigSerializer,
+    ParkingRecordSerializer, ParkingHistorySerializer)
 from api import util, auth
 from datetime import timedelta
 from rest_framework.response import Response
@@ -100,7 +100,7 @@ class ParkingHistory(auth.AuthenticateddAPIView):
                     .format(feed_id, parking_id, date)
                     )
                 results = results + util.read_json_fragments(filename)
-            except (FileNotFoundError):
+            except FileNotFoundError:
                 pass
         serializer = ParkingHistorySerializer({'request_data': results})
         return Response(serializer.data)
