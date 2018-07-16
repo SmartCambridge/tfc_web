@@ -32,7 +32,9 @@ PROJECT_APPS = [
     'traffic',
     'aq',
     'csn',
-    'smartpanel'
+    'smartpanel',
+    'api',
+    'authmultitoken',
 ]
 
 INSTALLED_APPS = [
@@ -214,6 +216,23 @@ TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/t
 TNDS_ZONES = ['EA', 'SE']
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# API configuration ====================================================
+
+# Where to find the filesystem data
+try:
+    DATA_PATH = os.environ['TFC_API_DATA_PATH']
+except KeyError:
+    DATA_PATH = '/media/tfc'
+
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'token_burst': '1200/min',
+        'token_sustained': '12000/hour',
+    }
+}
+
+# ======================================================================
 
 # An attempt to adapt the default Django logging to log useful stuff
 # in development and production to the console (which will be captured

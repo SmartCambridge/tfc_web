@@ -1,0 +1,16 @@
+{ "feed_list":
+  [ 
+{
+  "feed_id": "cam_park_local",
+  "feed_name": "Cambridge Local car parks",
+  "feed_description": "Feed received giving car park occupancy data for Cambridge City local car parks"
+},
+{
+  "feed_id": "cam_park_rss",
+  "feed_name": "Cambridge car parks incl P&R",
+  "feed_description": "Feed received giving car park occupancy data for Cambridge City local car parks plus park and ride car parks"
+}
+
+  ]
+}
+

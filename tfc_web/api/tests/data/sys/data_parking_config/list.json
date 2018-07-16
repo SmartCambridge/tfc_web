@@ -1,0 +1,115 @@
+{ "parking_list":
+  [ 
+{
+    "feed_id" : "cam_park_local",
+    "parking_id": "grafton-east-car-park",
+    "parking_name": "Grafton East",
+    "parking_type": "car_park",
+    "latitude": 52.2072,
+    "longitude": 0.1348,
+    "capacity": 780
+},
+
+{
+    "feed_id" : "cam_park_local",
+    "parking_id": "grafton-west-car-park",
+    "parking_name": "Grafton West",
+    "parking_type": "car_park",
+    "latitude": 52.2073,
+    "longitude": 0.1307,
+    "capacity": 280
+},
+
+{
+    "feed_id" : "cam_park_local",
+    "parking_id": "grand-arcade-car-park",
+    "parking_name": "Grand Arcade",
+    "parking_type": "car_park",
+    "latitude": 52.2038,
+    "longitude": 0.1207,
+    "capacity": 890
+},
+
+{
+    "feed_id" : "cam_park_local",
+    "parking_id": "park-street-car-park",
+    "parking_name": "Park Street",
+    "parking_type": "car_park",
+    "latitude": 52.2092,
+    "longitude": 0.1192,
+    "capacity": 375
+},
+
+{
+    "feed_id" : "cam_park_local",
+    "parking_id": "queen-anne-terrace-car-park",
+    "parking_name": "Queen Anne Terrace",
+    "parking_type": "car_park",
+    "latitude": 52.2008,
+    "longitude": 0.1303,
+    "capacity": 540
+},
+
+{
+    "feed_id" : "cam_park_rss",
+    "parking_id": "babraham-park-and-ride",
+    "parking_name": "P&R Babraham Road",
+    "parking_type": "park_and_ride",
+    "latitude": 52.1687,
+    "longitude": 0.1588,
+    "capacity": 1500
+},
+
+{
+    "feed_id" : "cam_park_rss",
+    "parking_id": "madingley-road-park-and-ride",
+    "parking_name": "P&R Madingley Road",
+    "parking_type": "park_and_ride",
+    "latitude": 52.2143,
+    "longitude": 0.0832,
+    "capacity": 930
+},
+
+{
+    "feed_id" : "cam_park_rss",
+    "parking_id": "newmarket-road-front-park-and-ride",
+    "parking_name": "P&R Newmarket Road Front",
+    "parking_type": "park_and_ride",
+    "latitude": 52.2118,
+    "longitude": 0.1828,
+    "capacity": 259
+},
+
+{
+    "feed_id" : "cam_park_rss",
+    "parking_id": "newmarket-road-rear-park-and-ride",
+    "parking_name": "P&R Newmarket Road Rear",
+    "parking_type": "park_and_ride",
+    "latitude": 52.2140,
+    "longitude": 0.1828,
+    "capacity": 614
+},
+
+{
+    "feed_id" : "cam_park_rss",
+    "parking_id": "trumpington-park-and-ride",
+    "parking_name": "P&R Trumpington Road",
+    "parking_type": "park_and_ride",
+    "latitude": 52.1678,
+    "longitude": 0.1077,
+    "capacity": 1340
+},
+
+{
+    "feed_id" : "cam_park_rss",
+    "parking_id": "milton-park-and-ride",
+    "parking_name": "P&R Milton",
+    "parking_type": "park_and_ride",
+    "latitude": 52.2452,
+    "longitude": 0.1510,
+    "capacity": 800
+}
+
+  ]
+}
+

@@ -1,0 +1,27 @@
+{ "aq_list": [
+{
+    "FeedID": "cam_aq",
+    "Name": "NWC-M11",
+    "StationID": "S-1134",
+    "SensorTypes": [
+        "CO",
+        "NO",
+        "NO2",
+        "O3",
+        "SO2",
+        "Temperature",
+        "Humidity",
+        "Pressure",
+        "PM1",
+        "PM2_5",
+        "PM10",
+        "TSP"
+    ],
+    "Longitude": 0.0821,
+    "Latitude": 52.22,
+    "Description": "North West Cambridge near Motorway",
+    "date_from": "2016-06-26",
+    "date_to": "2017-02-15"
+}
+]}
+

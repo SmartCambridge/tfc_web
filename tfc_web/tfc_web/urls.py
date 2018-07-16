@@ -48,4 +48,7 @@ urlpatterns = [
 
     # SmartPanel
     url(r'^smartpanel/', include('smartpanel.urls')),
+
+    # API
+    url(r'^api/', include('api.urls')),
 ]
