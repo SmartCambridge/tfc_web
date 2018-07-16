@@ -39,7 +39,7 @@
                 <li style="height: calc({{ value.h }}*100%/4);
                         width: calc({{ value.w }}*100%/6); top: calc({{ value.y }}*100%/4);
                         left: calc({{ value.x }}*100%/6);">
-                    <div id="widget-{{ key }}" class="widget {{ value.widget }}" style="height: 100%; width: 100%; background-color: white; overflow: hidden; position: relative">
+                    <div id="widget-{{ key }}" class="widget {{ value.widget }}" style="height: 100%; width: 100%; overflow: hidden; position: relative">
                         {% if not value.widget %}Unconfigured{% endif %}</div></li>
             {% endfor %}
         </ul>
@@ -118,6 +118,10 @@
             setInterval(refresh_display, 60000);
             {% endif %}
         });
+        if (location.href.indexOf('/layout/') > 0)
+        {
+            document.body.classList.add('layout');
+        }
     </script>
 </body>
 </html>

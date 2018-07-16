@@ -3,6 +3,10 @@
     padding: 0;
 }
 
+.layout {
+    background-image: url("/static_web/smartpanel/layout.png");
+}
+
 .inner-box {
     font-size: 60px;
     text-align: center;
