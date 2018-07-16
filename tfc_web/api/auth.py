@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 
 from authmultitoken.authentication import MultiTokenAuthentication
 
+
 logger = logging.getLogger(__name__)
 
 

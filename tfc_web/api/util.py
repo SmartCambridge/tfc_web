@@ -1,4 +1,3 @@
-
 from datetime import datetime, timezone
 from django.conf import settings
 from rest_framework import status, serializers
@@ -9,11 +8,11 @@ import coreschema
 import json
 import logging
 import os
-import re
 
 
 # Path to the data store
 DATA_PATH = settings.DATA_PATH
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +32,7 @@ class EpochField(serializers.Field):
 
 # maximum days allowed in one hit
 MAX_DAYS = 31
+
 
 list_args_schema = AutoSchema(
     manual_fields=[
@@ -98,10 +98,10 @@ def read_json(path):
         filename = safe_build(path)
         with open(filename) as f:
             return json.load(f)
-    except (json.JSONDecodeError):
+    except json.JSONDecodeError:
         logger.info("Failed to parse '{0}'".format(filename))
         raise
-    except (FileNotFoundError):
+    except FileNotFoundError:
         logger.info("Failed to open '{0}'".format(filename))
         raise
 
@@ -117,21 +117,21 @@ def read_json_fragments(path):
         with open(filename) as f:
             for line in f:
                 results.append(json.loads(line))
-    except (json.JSONDecodeError):
+    except json.JSONDecodeError:
         logger.info("Failed to parse '{0}' from '{1}'"
                     .format(line, filename))
         raise
-    except (FileNotFoundError):
+    except FileNotFoundError:
         logger.info("Failed to open '{0}'".format(filename))
         raise
     return results
 
 
-def get_config(type, id=None, key=None, fieldname=None):
+def get_config(type, id=None, key=None, id_field_name=None):
     '''
     Get the config for a metric 'type'. If 'id' is None, return the
     entire config. Otherwise return just the config  with identifier 'id'
-    in field 'fieldname' within a list keyed by 'key'.
+    in field 'id_field_name' within a list keyed by 'key'.
 
     Do this by reading the JSON list file (rather than an <id>.json
     file) because it reduces the danger of opening files with user-supplied
@@ -150,7 +150,7 @@ def get_config(type, id=None, key=None, fieldname=None):
     if id is None:
         return configs
     for config in configs[key]:
-        if config.get(fieldname) == id:
+        if config.get(id_field_name) == id:
             return config
     logger.info('Config type {0} for "{1}" not found'.format(type, id))
     raise TFCValidationError('Bad ID "{0}"'.format(id))
