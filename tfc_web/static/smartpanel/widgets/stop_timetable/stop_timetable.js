@@ -1381,6 +1381,7 @@ function StopTimetable(widget_id) {
         name = name.replace(/Bus Station/i, 'Bus Stn');
         name = name.replace(/Cambridge North Railway Station/i, 'Cambridge Nth Stn');
         name = name.replace(/Hinchingbrooke/i, 'Hin\'brooke');
+        name = name.replace(/Universal U/i, 'U');
         return name;
     }
 
