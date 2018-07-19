@@ -118,6 +118,26 @@ def layout_config(request, slug, reload=False):
                   {'layout': layout, 'error': error,
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
+@login_required
+def layout_export(request, slug):
+    layout = get_object_or_404(Layout, slug=slug, owner=request.user)
+    response = JsonResponse(layout.design)
+#    response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
+    return response
+
+
+@login_required
+def layout_import(request):
+    if request.method == "POST":
+        try:
+            layout_design = json.loads(request.POST.get("design", "{}"))
+        except:
+            messages.error(request, "Layout import failed")
+            return redirect(my)
+        return render(request, 'smartpanel/layout_config.html',
+                      {'layout_design': layout_design, 'widgets_list': generate_widget_list()})
+    return redirect(my)
+
 
 @login_required
 def layout_delete(request):
