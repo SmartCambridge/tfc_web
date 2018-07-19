@@ -697,6 +697,10 @@ function StopTimetable(widget_id) {
             if (journey.eta.isBefore(get_now().subtract(1, 'minutes'))) {
                 continue;
             }
+            // Skip anything that terminates here
+            if (journey.last.stop.atco_code === self.params.stop.stop_id) {
+                continue;
+            }
 
             nrows++;
 
@@ -822,6 +826,10 @@ function StopTimetable(widget_id) {
             }
             // Skip anything that left in the past
             if (journey.eta.isBefore(get_now().subtract(1, 'minutes'))) {
+                continue;
+            }
+            // Skip anything that terminates here
+            if (journey.last.stop.atco_code === self.params.stop.stop_id) {
                 continue;
             }
 
