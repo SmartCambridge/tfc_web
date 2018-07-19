@@ -18,8 +18,7 @@ Only a very limited sub-set of data is available:
     <dd>Air quality data for all sensors on S-1134 for 2017-01 only</dd>
     <dt>Parking</dt>
     <dd>Archived data for 2018-01-01, latest and previous-latest data for
-        some time on 2018-05-18, except there's no latest or previous-latest
-        data for 'local' car parks due to a feed failure</dd>
+        some time on 2018-06-19</dd>
     <dt>Zones</dt>
     <dd>Data for 2018-01-02</dd>
 </dl>

@@ -135,6 +135,7 @@ STATICFILES_DIRS = ["static"]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 API_ENDPOINT = 'http://localhost'
+NEW_API_ENDPOINT = API_ENDPOINT
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
