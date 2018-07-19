@@ -27,7 +27,6 @@ urlpatterns = [
     url(r'^area/(?P<area_id>\d+)/$', views.area_home, name='transport-area-home'),
 
     # Bus movements
-#    url(r'^map2/$', views.bus_map_vix, name='bus-map-vix'),
     url(r'^map_old/$', views.bus_map_sirivm, name='old-bus-map'),
     url(r'^map/$', views.map_real_time, name='bus-map'),
 #    url(r'^map/$', views.bus_map_sirivm, name='bus-map'),
