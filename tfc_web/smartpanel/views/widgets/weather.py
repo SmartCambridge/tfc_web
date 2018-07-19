@@ -1,12 +1,15 @@
-import logging
-from django.core.cache import cache
-from django.conf import settings
-from django.shortcuts import render
-import requests
 from collections import OrderedDict
 from datetime import datetime, time, timedelta
-import pytz
 import iso8601
+import logging
+import pytz
+import requests
+import sys
+
+from django.conf import settings
+from django.core.cache import cache
+from django.shortcuts import render
+
 
 logger = logging.getLogger(__name__)
 
@@ -106,16 +109,6 @@ weather_icon = {
     "30": "28",
 }
 
-# Backup station-id to name mapping for when the MetOffice
-# forget to include names in the returned results
-location_names = {
-    "310042": "Cambridge",
-    "351524": "Fulbourn",
-    "310105": "Luton",
-    "310120": "Peterborough",
-    "353656": "Stansted",
-}
-
 
 def mph_to_descr(speed):
     '''
@@ -135,7 +128,7 @@ def mph_to_descr(speed):
         return 'Fresh'
     elif speed < 39:     # 6, 7
         return 'Strong'
-    elif speed < 73  :   # 8, 9, 10, 11
+    elif speed < 73:   # 8, 9, 10, 11
         return 'Gale'
     else:                # 12 upward
         return 'huricane'
@@ -239,12 +232,32 @@ def extract_weather_results(forecasts, data):
     # existing first result
     if current['timestamp'] < results[0]['timestamp']:
         current['description'] = weather_descriptions.get(current['W'], '')
-        current['icon'] = 'smartpanel/widgets/weather/icons/weather_icon-' + weather_icon.get(current['W'], '')  + '.png'
+        current['icon'] = 'smartpanel/widgets/weather/icons/weather_icon-' + weather_icon.get(current['W'], '') + '.png'
         current['wind_desc'] = mph_to_descr(int(current['S']))
         current['title'] = 'Now'
         results.insert(0, current)
 
     return results
+
+
+def parse_data(forecasts, data):
+
+    results = extract_weather_results(forecasts, data)
+    for result in results:
+        result['timestamp_text'] = result['timestamp'].astimezone(tz=None).strftime('%H:%M')
+
+    issued = iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]).astimezone(tz=None)
+    now = uk_tz.localize(datetime.now())
+    if issued.date() == now.date():
+        issued = issued.strftime('%H:%M')
+    elif issued.date() == now.date() - timedelta(days=1):
+        issued = issued.strftime('%H:%M yesterday')
+    else:
+        issued = issued.strftime('%A %H:%M')
+
+    location_name = data["SiteRep"]["DV"]["Location"]["name"]
+
+    return (results, location_name, issued)
 
 
 def weather(request):
@@ -255,28 +268,61 @@ def weather(request):
     location = request.GET.get('location', '')
     assert location, 'No location code found'
 
-    cache_key = "weather!{0}".format(location)
-    data = cache.get(cache_key)
-    if data:
-        logger.info('Cache hit for %s', cache_key)
-    else:
-        logger.info('Cache miss for %s', cache_key)
-        r = requests.get(METOFFICE_API + location, {
-            "res": "3hourly",
-            "key": settings.METOFFICE_KEY
-        })
-        r.raise_for_status()
-        # https://stackoverflow.com/questions/35042216/requests-module-return-json-with-items-unordered
-        data = r.json(object_pairs_hook=OrderedDict)
-        cache.set(cache_key, data, timeout=500)
-
     forecasts = get_forecast_list(forecast_breakpoints)
-    results = extract_weather_results(forecasts, data)
-    for result in results:
-        result['timestamp_text'] = result['timestamp'].astimezone(tz=None).strftime('%H:%M')
-    issued = iso8601.parse_date(data["SiteRep"]["DV"]["dataDate"]).astimezone(tz=None).strftime("%H:%M")
-    location_name = data["SiteRep"]["DV"]["Location"].get('name', location_names.get(location, ''))
-    logger.debug(results)
+
+    current_key = "weather_current!{0}".format(location)
+    lng_key = "weather_lng!{0}".format(location)
+
+    data = cache.get(current_key)
+
+    # If we got a value from the cache, use that
+    if data is not None:
+            logger.info('Cache hit for %s', current_key)
+    # Otherwise, retrieve data from the MetOffice
+    else:
+        logger.info('Cache miss for %s', current_key)
+        data = ''
+        try:
+            r = requests.get(METOFFICE_API + location, {
+                "res": "3hourly",
+                "key": settings.METOFFICE_KEY
+            })
+            r.raise_for_status()
+            # https://stackoverflow.com/questions/35042216/requests-module-return-json-with-items-unordered
+            data = r.json(object_pairs_hook=OrderedDict)
+        except:
+            logger.error(
+                "Error retrieving weather data for %s: %s %s",
+                location,
+                sys.exc_info()[0],
+                sys.exc_info()[1])
+        # Whatever happens, cache what we got so we don't keep hitting the API
+        finally:
+            cache.set(current_key, data, timeout=600)
+
+    # Try to parse whatever we've got. if that works, cache it
+    # as the 'last known good' version for ever
+    try:
+        (results, location_name, issued) = parse_data(forecasts, data)
+        cache.set(lng_key, data, timeout=None)
+    except:
+        logger.error(
+            "Error parsing current weather data for %s: %s %s",
+            location,
+            sys.exc_info()[0],
+            sys.exc_info()[1])
+        logger.info("Data was: '%s'", data)
+        # Fall back to the LNG version, if that's available
+        lng_data = cache.get(lng_key)
+        if lng_data is not None:
+            logger.info('Cache hit for %s', lng_key)
+            (results, location_name, issued) = parse_data(forecasts, lng_data)
+        else:
+            logger.info('Cache miss for %s', lng_key)
+            results = []
+            location_name = 'Unknown'
+            issued = ''
+
     return render(request, 'smartpanel/weather.html', {
         "results": results,
         "location": location_name.title(),
