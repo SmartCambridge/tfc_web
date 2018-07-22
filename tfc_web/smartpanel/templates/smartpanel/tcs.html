@@ -1,0 +1,56 @@
+{% extends "smartpanel/base.html" %}
+{% load static %}
+{% block content %}
+
+    <h1>SmartPanels: Terms and Disclaimer</h1>
+
+    <p style="font-weight: bold">
+        The terms of this disclaimer will apply, where applicable, to those
+        persons displaying the information and those members of the public
+        viewing the information displayed.
+    </p>
+
+    <p>
+        The information being hosted by the University of Cambridge for this
+        Initiative is provided by Cambridgeshire County Council (the
+        "AUTHORITY"). The information will be hosted on a restricted access
+        webpage (the "WEBSITE").
+    </p>
+
+    <p>
+        The information is solely for the purposes of [displaying up-to-date
+        travel and other associated information for the general public] (the
+        "INITIATIVE"). The information may not be copied or reproduced without
+        prior consent from the Authority.
+    </p>
+
+    <p>
+        The Authority accepts no responsibility for any errors or omissions in
+        the information, including and particularly in relation to information
+        provided by a third party. Although the Authority will take steps to
+        ensure that the information provided to the University of Cambridge for
+        this Initiative is correct, the Authority and any other parties
+        associated with the provision of the information shall not be liable or
+        responsible for any loss or damage that may result from the use of, or
+        action taken in reliance on the information.
+    </p>
+
+    <p>
+        The Authority cannot guarantee the availability of the Website, nor that
+        that the Website will be free from viruses. The Authority accepts no
+        liability for damage resulting from virus infection.
+    </p>
+
+    <p>
+        The Authority accepts no liability for the loss, theft, damage or
+        destruction of computer or other related equipment used for the purposes
+        of the Initiative.
+    </p>
+
+    <form action="{% url 'smartpanel-accept-tcs' %}" method="post">
+        {% csrf_token %}
+        <input name="tcs" type="submit" value="accept" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+        <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'home' %}">Reject</a>
+    </form>
+
+{% endblock %}
