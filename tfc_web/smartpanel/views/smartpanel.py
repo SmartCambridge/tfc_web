@@ -125,7 +125,7 @@ def layout_config(request, slug, reload=False):
                   {'layout': layout, 'error': error,
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
 
-@login_required
+@smartpanel_valid_user
 def layout_export(request, slug):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     response = JsonResponse(layout.design)
@@ -133,7 +133,7 @@ def layout_export(request, slug):
     return response
 
 
-@login_required
+@smartpanel_valid_user
 def layout_import(request):
     if request.method == "POST":
         try:
