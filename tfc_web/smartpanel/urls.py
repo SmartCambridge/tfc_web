@@ -1,12 +1,12 @@
 from django.conf.urls import url
-from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from smartpanel.views import smartpanel
+from smartpanel.views.decorator import smartpanel_valid_user
 from smartpanel.views.widgets import weather, station_board
 
 
 urlpatterns = [
-    url(r'^$', login_required(TemplateView.as_view(template_name="smartpanel/home.html")), name='smartpanel-home'),
+    url(r'^$', smartpanel_valid_user(TemplateView.as_view(template_name="smartpanel/home.html")), name='smartpanel-home'),
     url(r'^display/new/$', smartpanel.new_display, name='smartpanel-new-display'),
     url(r'^display/my/', smartpanel.my_displays, name='smartpanel-list-my-displays'),
     url(r'^display/(?P<slug>[-\w]+)/edit/', smartpanel.edit_display, name='smartpanel-edit-display'),
@@ -27,5 +27,7 @@ urlpatterns = [
     url(r'^layout/(?P<slug>\w+)/$', smartpanel.layout, name='smartpanel-layout'),
     url(r'^weather$', weather.weather, name='smartpanel-weather'),
     url(r'^station_board$', station_board.station_board, name='station-board'),
-    url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info')
+    url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
+    url(r'^tcs/accept$', smartpanel.accept_tcs, name='smartpanel-accept-tcs'),
+    url(r'^tcs/$', TemplateView.as_view(template_name="smartpanel/tcs.html"), name='smartpanel-tcs')
 ]

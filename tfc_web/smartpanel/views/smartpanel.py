@@ -4,7 +4,6 @@ import os
 import copy
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import IntegrityError
@@ -14,23 +13,31 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.timezone import now
 from smartpanel.forms import DisplayForm
-from smartpanel.models import Layout, Display
+from smartpanel.models import Layout, Display, SmartPanelUser
+from smartpanel.views.decorator import smartpanel_valid_user
 
 
 logger = logging.getLogger(__name__)
+
+
+def accept_tcs(request):
+    if request.method == "POST":
+        SmartPanelUser.accept_tcs(request.user)
+        return redirect('smartpanel-home')
+    return redirect('home')
 
 
 def all(request):
     return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all().order_by('-id')})
 
 
-@login_required
+@smartpanel_valid_user
 def my(request):
     return render(request, 'smartpanel/my.html',
                   {'smartpanels': Layout.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
-@login_required
+@smartpanel_valid_user
 def design(request):
     if request.method == "POST":
         layout = Layout.objects.create(owner=request.user, design="{}")
@@ -83,7 +90,7 @@ def generate_widget_list():
     return list_widgets
 
 
-@login_required
+@smartpanel_valid_user
 def layout_config(request, slug, reload=False):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     error = False
@@ -139,7 +146,7 @@ def layout_import(request):
     return redirect(my)
 
 
-@login_required
+@smartpanel_valid_user
 def layout_delete(request):
     if request.method == "POST" and 'layout_id' in request.POST:
         try:
@@ -167,7 +174,7 @@ def layout(request, slug, display=None):
                    'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
 
 
-@login_required
+@smartpanel_valid_user
 def new_display(request):
     if request.method == "POST":
         display_form = DisplayForm(request.POST, user=request.user)
@@ -209,13 +216,13 @@ def displays_debug(request):
     return JsonResponse(results)
 
 
-@login_required
+@smartpanel_valid_user
 def my_displays(request):
     return render(request, 'smartpanel/displays.html',
                   {'displays': Display.objects.filter(owner=request.user), 'edit': True})
 
 
-@login_required
+@smartpanel_valid_user
 def edit_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
@@ -228,7 +235,7 @@ def edit_display(request, slug):
     return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
 
-@login_required
+@smartpanel_valid_user
 def delete_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":

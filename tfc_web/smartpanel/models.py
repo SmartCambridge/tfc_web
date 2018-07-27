@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.gis.db.models import PointField, DO_NOTHING
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
 
 
@@ -58,3 +60,23 @@ class Display(models.Model):
     @python_2_unicode_compatible
     def __str__(self):
         return self.name
+
+
+class SmartPanelUser(models.Model):
+    user = models.OneToOneField(User, related_name="smartpanel_user", on_delete=models.CASCADE, primary_key=True)
+    accepted_tcs = models.BooleanField(default=False, null=False)
+
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            SmartPanelUser.objects.create(user=instance)
+
+    @classmethod
+    def accept_tcs(cls, user):
+        smartpanel_user = SmartPanelUser.objects.filter(user=user)
+        if smartpanel_user:
+            smartpanel_user = smartpanel_user[0]
+            smartpanel_user.accepted_tcs = True
+            smartpanel_user.save()
+        else:
+            SmartPanelUser.objects.create(user=user, accepted_tcs=True)

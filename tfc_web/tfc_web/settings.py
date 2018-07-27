@@ -27,7 +27,6 @@ ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk'
 PROJECT_APPS = [
     'tfc_gis',
     'transport',
-    'vix',
     'parking',
     'traffic',
     'aq',
