@@ -293,11 +293,7 @@ function init_chart()
         {
           return 'red';
         }
-        if (d.position_record!=null)
-        {
-            return 'green';
-        }
-        return (d.route_id==null || d.route_id=="") ? 'gray' : 'yellow';
+        return (d.route_id==null || d.route_id=="") ? 'green' : 'yellow';
     };
 
     // initialize x axis - will redraw when data received
@@ -445,7 +441,7 @@ function draw_chart(rita_data)
  // The point may have originated from GTFS feedhandler, GTFS feedmaker, or SIRI feedmaker
 function tooltip_html(d)
 {
-    var str = 'Zone: '+d.module_id;
+    var str = 'Zone: '+zone.zone_id;
     str += '<br/>Vehicle:'+d.vehicle_id;
     str += '<br/>Transit time (secs):'+d.duration;
     str += '<br/>Time:' + make_date(d.ts);
@@ -453,7 +449,7 @@ function tooltip_html(d)
     {
         str += '<br/>'+JSON.stringify(d.position_record).replace(/,/g,', ');
     }
-    else
+    if (d.route_id)
     {
         str += '<br/>Route: '+d.route_id; // only if from GTFS feedhandler
     }
