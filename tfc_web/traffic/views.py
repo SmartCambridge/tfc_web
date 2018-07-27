@@ -93,8 +93,6 @@ def zones_list(request):
 
     zone_list = get_zone_list()
 
-    logger.info(zone_list)
-
     return render(request, 'traffic/zones_list.html', {
         'config_zone_list': zone_list,
     })
