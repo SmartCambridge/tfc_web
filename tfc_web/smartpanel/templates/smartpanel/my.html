@@ -6,7 +6,7 @@
             <p>Layouts are where you say which widget goes where on the screen to make up your chosen SmartPanel design.
                 After creating a new Layout, you can create a new Display and assign that layout to the display</p>
             <div class="card-container mdl-grid">
-                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp"
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp"
                      style="background-color: #ddffdd;">
                     <div class="mdl-card__media">
                         <img src="">
@@ -30,17 +30,12 @@
                     </div>
                 </div>
                 {% for smartpanel in smartpanels %}
-                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Layout {{ smartpanel.name }}</h4>
-                    </div>
-                    <div class="mdl-card__supporting-text" style="padding-bottom: 125px;">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">
-                            {% if edit %}Edit my SmartPanel layout{% else %}View the SmartPanel layout{% endif %}
-                        </span>
                     </div>
                     <div class="mdl-card__actions">
                     {% if edit %}
