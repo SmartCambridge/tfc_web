@@ -96,6 +96,13 @@
             </div>
             <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
                 <div class="dialog-buttons">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--file">
+                        <span id="upload-file">Upload a file</span>
+                        <div class="mdl-button mdl-button--primary mdl-button--icon mdl-button--file">
+                            <i class="material-icons">attach_file</i>
+                            <input type="file" id="upload-file-import" accept=".json">
+                        </div>
+                    </div>
                     <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect import" value="Import">
                     <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">Cancel</button>
                 </div>
@@ -133,11 +140,29 @@
             document.querySelector('#import-form').submit();
         });
 
+        function read_file_content() {
+            var file = document.getElementById("upload-file-import").files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    document.getElementById("import-content").innerHTML = evt.target.result;
+                };
+                reader.onerror = function (evt) {
+                    document.getElementById("import-content").innerHTML = "error reading file";
+                }
+            }
+        }
+
         $(function () {
             $(".delete-link").click(function (e) {
                 e.preventDefault();
                 $(e.currentTarget).parent().submit();
-            })
+            });
+            document.getElementById("upload-file-import").onchange = function () {
+                document.getElementById("upload-file").innerText = this.files[0].name;
+                read_file_content()
+            };
         })
     </script>
 {% endblock %}
