@@ -1,6 +1,6 @@
 from django.contrib.gis.forms import OSMWidget
 from django import forms
-from django.forms import ModelForm, TextInput, Select
+from django.forms import ModelForm, TextInput
 from smartpanel.models import Display, Layout
 
 

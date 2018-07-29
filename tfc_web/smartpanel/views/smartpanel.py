@@ -22,7 +22,13 @@ logger = logging.getLogger(__name__)
 
 def accept_tcs(request):
     if request.method == "POST":
-        SmartPanelUser.accept_tcs(request.user)
+        account_type = request.POST.get('account_type', None)
+        company_name = request.POST.get('company_name', None)
+        company_email = request.POST.get('company_email', None)
+        if account_type == "business" and company_name and company_email:
+            SmartPanelUser.accept_tcs(request.user, account_type, company_name, company_email)
+        elif account_type == "personal":
+            SmartPanelUser.accept_tcs(request.user, account_type)
         return redirect('smartpanel-home')
     return redirect('home')
 
