@@ -58,6 +58,11 @@
                             Export
                             <i class="material-icons">chevron_right</i>
                         </a>
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-layout-export' smartpanel.slug %}?download=true" target="_blank">
+                            Export (as file)
+                            <i class="material-icons">chevron_right</i>
+                        </a>
                     </div>
                 </div>
                 {% endfor %}

@@ -121,8 +121,9 @@ def layout_config(request, slug, reload=False):
 @login_required
 def layout_export(request, slug):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
-    response = JsonResponse(layout.design)
-#    response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
+    response = JsonResponse(layout.design, json_dumps_params={'indent': 2})
+    if request.GET.get('download'):
+        response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
     return response
 
 
