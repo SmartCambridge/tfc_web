@@ -132,8 +132,11 @@ def layout_import(request):
     if request.method == "POST":
         try:
             layout_design = json.loads(request.POST.get("design", "{}"))
-        except:
-            messages.error(request, "Layout import failed")
+        except json.JSONDecodeError as e:
+            messages.error(request, "Layout import failed: %s" % e.msg)
+            return redirect(my)
+        except Exception:
+            messages.error(request, "Layout import failed, unknown error")
             return redirect(my)
         return render(request, 'smartpanel/layout_config.html',
                       {'layout_design': layout_design, 'widgets_list': generate_widget_list()})
