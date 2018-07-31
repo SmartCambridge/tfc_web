@@ -526,7 +526,7 @@ function make_date(ts)
         </div>
         {% if config_zone_reverse_id %}
         <div class="time_shift">
-          <a href="{% url 'zone_transit_plot' config_zone_reverse_id %}">Show reverse zone</a>
+          <a href="{% url 'zone_transit_plot' config_zone_reverse_id %}?date={{ config_date }}">Show reverse zone</a>
         </div>
         {% endif %}
       </div> <!-- end page_date -->
