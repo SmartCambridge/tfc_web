@@ -49,8 +49,46 @@
 
     <form action="{% url 'smartpanel-accept-tcs' %}" method="post">
         {% csrf_token %}
+        <p>
+            <label for="account_type">Account Type</label>
+            <select class="mdl-textfield__input" id="account_type" name="account_type">
+                <option value="personal" selected>Personal</option>
+                <option value="business">Business</option>
+            </select>
+        </p>
+        <p class="account_type_company">
+            <label for="company_name">Company name</label>
+            <input class="mdl-textfield__input" id="company_name" name="company_name" required
+                   placeholder="Company name" maxlength="200" title="Company name">
+        </p>
+        <p class="account_type_company">
+            <label for="company_email">Company contact email address</label>
+            <input class="mdl-textfield__input" id="company_email" name="company_email" required
+                   placeholder="Company contact email address" title="Company email" type="email">
+        </p>
         <input name="tcs" type="submit" value="accept" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
         <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'home' %}">Reject</a>
     </form>
 
+{% endblock %}
+
+{% block lazy_script %}
+    <script>
+        function toggle_account_type() {
+            if (this.value === "personal") {
+                $(".account_type_company").hide();
+                $("#company_name").prop("type", "hidden");
+                $("#company_email").prop("type", "hidden");
+            } else {
+                $(".account_type_company").show();
+                $("#company_name").prop("type", "text");
+                $("#company_email").prop("type", "text");
+            }
+        }
+        $(function() {
+            account_type_selector = $("#account_type");
+            account_type_selector.change(toggle_account_type);
+            account_type_selector.change();
+        });
+    </script>
 {% endblock %}

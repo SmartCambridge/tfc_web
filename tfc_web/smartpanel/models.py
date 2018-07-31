@@ -65,6 +65,14 @@ class Display(models.Model):
 class SmartPanelUser(models.Model):
     user = models.OneToOneField(User, related_name="smartpanel_user", on_delete=models.CASCADE, primary_key=True)
     accepted_tcs = models.BooleanField(default=False, null=False)
+    ACCOUNT_TYPE_CHOICE = (
+        ('personal', 'Personal'),
+        ('business', 'Business'),
+    )
+    account_type = models.CharField(choices=ACCOUNT_TYPE_CHOICE, max_length=20)
+    company_name = models.CharField(null=True, blank=True, max_length=200)
+    company_email = models.EmailField(null=True, blank=True)
+
 
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
@@ -72,11 +80,15 @@ class SmartPanelUser(models.Model):
             SmartPanelUser.objects.create(user=instance)
 
     @classmethod
-    def accept_tcs(cls, user):
+    def accept_tcs(cls, user, account_type='personal', company_name=None, company_email=None):
         smartpanel_user = SmartPanelUser.objects.filter(user=user)
         if smartpanel_user:
             smartpanel_user = smartpanel_user[0]
             smartpanel_user.accepted_tcs = True
+            smartpanel_user.account_type = account_type
+            smartpanel_user.company_name = company_name
+            smartpanel_user.company_email = company_email
             smartpanel_user.save()
         else:
-            SmartPanelUser.objects.create(user=user, accepted_tcs=True)
+            SmartPanelUser.objects.create(user=user, accepted_tcs=True, account_type=account_type,
+                                          company_name=company_name, company_email=company_email)
