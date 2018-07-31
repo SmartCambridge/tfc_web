@@ -47,7 +47,7 @@
         
         var poly = L.polygon(path);
         poly
-            .bindPopup(zone['zone_name']+'<br/>'+
+            .bindPopup('<b>' + zone['zone_name']+'</b><br/>'+
                        '<a href="'+ZONE_PLOT_URL+'">Transit Plot</a>'
                       )
             .addTo(map)
