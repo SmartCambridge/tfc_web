@@ -524,6 +524,11 @@ function make_date(ts)
         <div class="time_shift"><a href="#" onclick="date_shift(7);">
             <img src="{% static 'images/chevron-right-right.png' %}"></a>
         </div>
+        {% if config_zone_reverse_id %}
+        <div class="time_shift">
+          <a href="{% url 'zone_transit_plot' config_zone_reverse_id %}">Show reverse zone</a>
+        </div>
+        {% endif %}
       </div> <!-- end page_date -->
       <!-- content_title is alternative location for page title if ?noframe is given -->
       <div id="content_title">

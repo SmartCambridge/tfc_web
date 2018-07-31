@@ -60,6 +60,8 @@ def zone_transit_plot(request, zone_id):
     transit_json = get_zone_history(zone_id, user_date)
     zone_config = get_zone_metadata(zone_id)
 
+    zone_reverse_id = zone_config['request_data']['options']['config'].get('zone_reverse_id',None)
+
     return render(request, 'traffic/zone_transit_plot.html', {
         'config_date':  user_date,
         'config_zone_id': zone_id,
@@ -67,6 +69,7 @@ def zone_transit_plot(request, zone_id):
         'config_MM':    MM,
         'config_dd':    dd,
         'config_zone_id': zone_id,
+        'config_zone_reverse_id': zone_reverse_id,
         'config_zone_data': json.dumps(transit_json),
         'config_zone_config': json.dumps(zone_config)
     })

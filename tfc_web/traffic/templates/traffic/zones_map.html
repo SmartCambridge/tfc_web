@@ -53,15 +53,23 @@
                 
                 points.push(point); // add point to list to use to set map bounds
             }
+            var popup = '<b>' + zone.zone_name + '</b><br/>' +
+                        '<ul>' +
+                        '  <li>' +
+                        '    <a href="{% url 'zone_map' 'PLACEHOLDER' %}">[Map]</a>'.replace('PLACEHOLDER', zone.zone_id) +
+                        '    <a href="{% url 'zone_transit_plot' 'PLACEHOLDER' %}">[Journey times]</a>'.replace('PLACEHOLDER', zone.zone_id) +
+                        '  </li>';
+            if (zone.zone_reverse_id) {
+                popup = popup +
+                        '  <li>' +
+                        '    <a href="{% url 'zone_map' 'PLACEHOLDER' %}">[Map]</a>'.replace('PLACEHOLDER', zone.zone_reverse_id) +
+                        '    <a href="{% url 'zone_transit_plot' 'PLACEHOLDER' %}">[Journey times]</a>'.replace('PLACEHOLDER', zone.zone_reverse_id) +
+                        ' (reverse)' +
+                        '</li>';
+            }
+            popup = popup + '</ul>';
             L.polygon(path)
-                .bindPopup('<a href="{% url 'zone_map' 4179368 %}'.replace('4179368',zone['zone_id'])+'">'+
-                              zone['zone_name']+
-                              '</a><br/>'+
-                           '<a href="{% url 'zone_transit_plot' 4179368 %}'.replace('4179368',zone['zone_id'])+'">'+
-                              'Show journey times</a><br/>'+
-                           '<a href="{% url 'zone_transit_plot' 4179368 %}'.replace('4179368',zone['zone_reverse_id'])+'">'+
-                              'Show journey times (reverse)</a>'
-                          )
+                .bindPopup(popup)
                 .addTo(map);
 
             // Draw zone start/finish lines
