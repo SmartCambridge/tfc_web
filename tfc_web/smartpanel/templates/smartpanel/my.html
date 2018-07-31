@@ -6,7 +6,7 @@
             <p>Layouts are where you say which widget goes where on the screen to make up your chosen SmartPanel design.
                 After creating a new Layout, you can create a new Display and assign that layout to the display</p>
             <div class="card-container mdl-grid">
-                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp"
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp"
                      style="background-color: #ddffdd;">
                     <div class="mdl-card__media">
                         <img src="">
@@ -30,17 +30,12 @@
                     </div>
                 </div>
                 {% for smartpanel in smartpanels %}
-                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
                     <div class="mdl-card__media">
                         <img src="">
                     </div>
                     <div class="mdl-card__title">
                         <h4 class="mdl-card__title-text">Layout {{ smartpanel.name }}</h4>
-                    </div>
-                    <div class="mdl-card__supporting-text" style="padding-bottom: 125px;">
-                        <span class="mdl-typography--font-light mdl-typography--subhead">
-                            {% if edit %}Edit my SmartPanel layout{% else %}View the SmartPanel layout{% endif %}
-                        </span>
                     </div>
                     <div class="mdl-card__actions">
                     {% if edit %}
@@ -61,6 +56,11 @@
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
                            href="{% url 'smartpanel-layout-export' smartpanel.slug %}" target="_blank">
                             Export
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-layout-export' smartpanel.slug %}?download=true" target="_blank">
+                            Export (as file)
                             <i class="material-icons">chevron_right</i>
                         </a>
                     </div>
@@ -85,17 +85,24 @@
         </dialog>
         <dialog id="dialog-import" class="mdl-dialog">
             <div class="mdl-dialog__content">
-                <p>
-                    Copy the layout configuration from a layout export
-                </p>
                 <form id="import-form" action="{% url 'smartpanel-layout-import' %}" method="post">
+                    <p>
+                        Copy the layout configuration from a layout export
+                    </p>
                     {% csrf_token %}
                     <label for="design">Layout configuration</label>
-                    <textarea name="design" style="width: 100%; height: 150px;"></textarea>
+                    <textarea id="import-content" name="design" style="width: 100%; height: calc(100% - 70px)"></textarea>
                 </form>
             </div>
             <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
                 <div class="dialog-buttons">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--file">
+                        <span id="upload-file">Upload a file</span>
+                        <div class="mdl-button mdl-button--primary mdl-button--icon mdl-button--file">
+                            <i class="material-icons">attach_file</i>
+                            <input type="file" id="upload-file-import" accept=".json">
+                        </div>
+                    </div>
                     <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect import" value="Import">
                     <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">Cancel</button>
                 </div>
@@ -133,11 +140,29 @@
             document.querySelector('#import-form').submit();
         });
 
+        function read_file_content() {
+            var file = document.getElementById("upload-file-import").files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                reader.onload = function (evt) {
+                    document.getElementById("import-content").innerHTML = evt.target.result;
+                };
+                reader.onerror = function (evt) {
+                    document.getElementById("import-content").innerHTML = "error reading file";
+                }
+            }
+        }
+
         $(function () {
             $(".delete-link").click(function (e) {
                 e.preventDefault();
                 $(e.currentTarget).parent().submit();
-            })
+            });
+            document.getElementById("upload-file-import").onchange = function () {
+                document.getElementById("upload-file").innerText = this.files[0].name;
+                read_file_content()
+            };
         })
     </script>
 {% endblock %}

@@ -134,8 +134,9 @@ def layout_config(request, slug, reload=False):
 @smartpanel_valid_user
 def layout_export(request, slug):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
-    response = JsonResponse(layout.design)
-#    response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
+    response = JsonResponse(layout.design, json_dumps_params={'indent': 2})
+    if request.GET.get('download'):
+        response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
     return response
 
 
@@ -144,8 +145,11 @@ def layout_import(request):
     if request.method == "POST":
         try:
             layout_design = json.loads(request.POST.get("design", "{}"))
-        except:
-            messages.error(request, "Layout import failed")
+        except json.JSONDecodeError as e:
+            messages.error(request, "Layout import failed: %s" % e.msg)
+            return redirect(my)
+        except Exception:
+            messages.error(request, "Layout import failed, unknown error")
             return redirect(my)
         return render(request, 'smartpanel/layout_config.html',
                       {'layout_design': layout_design, 'widgets_list': generate_widget_list()})
