@@ -27,5 +27,5 @@ urlpatterns = [
     url(r'^station_board$', station_board.station_board, name='station-board'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     url(r'^tcs/accept$', smartpanel.accept_tcs, name='smartpanel-accept-tcs'),
-    url(r'^tcs/$', TemplateView.as_view(template_name="smartpanel/tcs.html"), name='smartpanel-tcs')
+    url(r'^tcs/$', smartpanel.tcs, name='smartpanel-tcs'),
 ]

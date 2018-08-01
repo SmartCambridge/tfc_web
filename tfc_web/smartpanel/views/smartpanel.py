@@ -4,6 +4,7 @@ import os
 import copy
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import IntegrityError
@@ -20,6 +21,17 @@ from smartpanel.views.decorator import smartpanel_valid_user
 logger = logging.getLogger(__name__)
 
 
+@login_required
+def tcs(request):
+    smartpaneluser = SmartPanelUser.objects.filter(user=request.user)
+    accepted_tcs = False
+    if smartpaneluser:
+        accepted_tcs = smartpaneluser[0].accepted_tcs
+    return render(request, 'smartpanel/tcs.html',
+                  {'accepted_tcs': accepted_tcs})
+
+
+@login_required
 def accept_tcs(request):
     if request.method == "POST":
         account_type = request.POST.get('account_type', None)
