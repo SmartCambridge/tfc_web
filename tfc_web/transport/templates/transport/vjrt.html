@@ -1,8 +1,7 @@
 {% extends "template.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    {% include 'leaflet_snippet.html' %}
     <link rel="stylesheet" href="{% static 'map.css' %}" />
     <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
     <script>
