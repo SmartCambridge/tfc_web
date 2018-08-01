@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 from smartpanel.views import smartpanel
-from smartpanel.views.widgets import weather, station_board
+from smartpanel.views.widgets import weather, station_board, bikes
 
 
 urlpatterns = [
@@ -23,7 +23,9 @@ urlpatterns = [
     url(r'^layout/(?P<slug>\w+)/config/$', smartpanel.layout_config, name='smartpanel-layout-config'),
     url(r'^layout/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<slug>\w+)/$', smartpanel.layout, name='smartpanel-layout'),
+    url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
+    # Widgets specific URLs
     url(r'^weather$', weather.weather, name='smartpanel-weather'),
     url(r'^station_board$', station_board.station_board, name='station-board'),
-    url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info')
+    url(r'^widgets/bikes', bikes.bikes, name='smartpanel-widgets-bikes'),
 ]
