@@ -1,8 +1,9 @@
 {% extends "smartpanel/base.html" %}
 {% load static %}
 {% block content %}
-
     <h1>SmartPanels: Terms and Disclaimer</h1>
+
+    <p style="font-style: italic">Version 1 - July 2018</p>
 
     <p style="font-weight: bold">
         The terms of this disclaimer will apply, where applicable, to those
@@ -18,8 +19,8 @@
     </p>
 
     <p>
-        The information is solely for the purposes of [displaying up-to-date
-        travel and other associated information for the general public] (the
+        The information is solely for the purposes of displaying up-to-date
+        travel and other associated information for the general public (the
         "INITIATIVE"). The information may not be copied or reproduced without
         prior consent from the Authority.
     </p>
@@ -47,6 +48,7 @@
         of the Initiative.
     </p>
 
+    {% if not accepted_tcs %}
     <form action="{% url 'smartpanel-accept-tcs' %}" method="post">
         {% csrf_token %}
         <p>
@@ -69,10 +71,12 @@
         <input name="tcs" type="submit" value="accept" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
         <a class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" href="{% url 'home' %}">Reject</a>
     </form>
+    {% endif %}
 
 {% endblock %}
 
 {% block lazy_script %}
+    {% if not accepted_tcs %}
     <script>
         function toggle_account_type() {
             if (this.value === "personal") {
@@ -91,4 +95,5 @@
             account_type_selector.change();
         });
     </script>
+    {% endif %}
 {% endblock %}

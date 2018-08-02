@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.timezone import now
 
 
 class Layout(models.Model):
@@ -65,6 +66,7 @@ class Display(models.Model):
 class SmartPanelUser(models.Model):
     user = models.OneToOneField(User, related_name="smartpanel_user", on_delete=models.CASCADE, primary_key=True)
     accepted_tcs = models.BooleanField(default=False, null=False)
+    accepted_tcs_datetime = models.DateTimeField(null=True, blank=True)
     ACCOUNT_TYPE_CHOICE = (
         ('personal', 'Personal'),
         ('business', 'Business'),
@@ -84,11 +86,15 @@ class SmartPanelUser(models.Model):
         smartpanel_user = SmartPanelUser.objects.filter(user=user)
         if smartpanel_user:
             smartpanel_user = smartpanel_user[0]
+            if smartpanel_user.accepted_tcs:
+                return
             smartpanel_user.accepted_tcs = True
+            smartpanel_user.accepted_tcs_datetime = now()
             smartpanel_user.account_type = account_type
             smartpanel_user.company_name = company_name
             smartpanel_user.company_email = company_email
             smartpanel_user.save()
         else:
-            SmartPanelUser.objects.create(user=user, accepted_tcs=True, account_type=account_type,
-                                          company_name=company_name, company_email=company_email)
+            SmartPanelUser.objects.create(user=user, accepted_tcs=True, accepted_tcs_datetime=now(),
+                                          account_type=account_type, company_name=company_name,
+                                          company_email=company_email)
