@@ -18,7 +18,7 @@ services:
       - type: bind
         source: ./
         target: /usr/src/app
-        read_only: true
+        read_only: false
     environment:
       - PORT=8000
       - DJANGO_SETTINGS_MODULE=tfc_web.settings_dev

@@ -18,3 +18,4 @@ django-cors-headers==2.1.0
 iso8601==0.1.12
 zeep==2.5.0
 django-filter
+pyofo>=0.1.2

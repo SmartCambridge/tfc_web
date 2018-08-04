@@ -1,0 +1,53 @@
+.bikes_map_title_h1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 0.5rem;
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.bikes_map_subtitle {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding: 0.5rem;
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 1000;
+    display: flex;
+    line-height: 40px;
+}
+
+.bikes_map_title_text {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: auto;
+    text-align: center;
+    color: black;
+}
+
+#mobike_legend_icon {
+    width: 36px;
+    height: 41px;
+    margin-right: 5px;
+}
+
+#ofo_legend_icon {
+    width: 38px;
+    height: 41px;
+    margin-right: 5px;
+    margin-left: 10px;
+}
+
+.bikes_map_div {
+    width: 100%;
+    height: 100%;
+}
