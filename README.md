@@ -92,6 +92,19 @@ You will need as well to set up a cronjob that executes the following command we
 /home/tfc_prod/tfc_web_venv/bin/python3 /home/tfc_prod/tfc_web/tfc_web/manage.py update_bus_info
 ```
 
+## Setup tfc_prod Django user
+
+Create a Django user 'tfc_prod' with associated email address
+'cl-smartcambridge@lists.cam.ac.uk' and the password stored in the secrets file.
+
+Run
+
+```
+/home/tfc_prod/tfc_web/scripts/insert_tfc_web_internal_token
+```
+
+and when prompted supply the value of LOCAL_API_KEY_HASH from `secrets.py`.
+
 ## Dependencies
 
 This project uses:
