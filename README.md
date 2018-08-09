@@ -117,6 +117,18 @@ TFC_SERVER_CSN_TOKEN is the token shared with tfc_server for retrieving data
 from loraWAN sensors. OFO_TOKEN is the token used to communicatie with ofo server to retrieve bikes data, to know 
 how to retrieve this token visit: https://github.com/ubahnverleih/WoBike/blob/master/Ofo.md
 
+## Setup tfc_prod Django user
+
+Create a Django user 'tfc_prod' with associated email address
+'cl-smartcambridge@lists.cam.ac.uk' and the password stored in the secrets file.
+
+Run
+
+```
+/home/tfc_prod/tfc_web/scripts/insert_tfc_web_internal_token
+```
+
+and when prompted supply the value of LOCAL_API_KEY_HASH from `secrets.py`.
 
 ## Dependencies
 
