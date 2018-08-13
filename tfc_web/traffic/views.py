@@ -1,6 +1,7 @@
 import json
 from datetime import date
 from django.shortcuts import render
+from django.urls import reverse
 import logging
 
 from api.util import do_api_call
@@ -72,6 +73,15 @@ def zone_transit_plot(request, zone_id):
 def zones_map(request):
 
     zone_list = get_zone_list()
+
+    logger.info(json.dumps(zone_list))
+
+    for zone in zone_list['request_data']['zone_list']:
+        zone['map_url'] = reverse('zone_map', args=[zone['zone_id']])
+        zone['transit_plot_url'] = reverse('zone_transit_plot', args=[zone['zone_id']])
+        if 'zone_reverse_id' in zone:
+            zone['reverse_map_url'] = reverse('zone_map', args=[zone['zone_reverse_id']])
+            zone['reverse_transit_plot_url'] = reverse('zone_transit_plot', args=[zone['zone_reverse_id']])
 
     return render(request, 'traffic/zones_map.html', {
         'config_zone_list': json.dumps(zone_list),
