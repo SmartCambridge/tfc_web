@@ -48,7 +48,7 @@ def aq_plot(request, station_id):
         q_date = datetime.strptime(user_date, '%Y-%m-%d').date()
 
     # get sensor type
-    sensor_type = request.GET.get('sensor_type')
+    sensor_type = request.GET.get('sensor_type', 'CO')
 
     # get ?prior_days=7,14 if it's there to provide 'shadow' plot on chart
     days_list = [0]
