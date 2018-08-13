@@ -56,14 +56,14 @@
             var popup = '<b>' + zone.zone_name + '</b><br/>' +
                         '<ul>' +
                         '  <li>' +
-                        '    <a href="{% url 'zone_map' 'PLACEHOLDER' %}">[Map]</a>'.replace('PLACEHOLDER', zone.zone_id) +
-                        '    <a href="{% url 'zone_transit_plot' 'PLACEHOLDER' %}">[Journey times]</a>'.replace('PLACEHOLDER', zone.zone_id) +
+                        '    <a href="' + zone.map_url + '">[Map]</a>' +
+                        '    <a href="' + zone.transit_plot_url + '">[Journey times]</a>' +
                         '  </li>';
             if (zone.zone_reverse_id) {
                 popup = popup +
                         '  <li>' +
-                        '    <a href="{% url 'zone_map' 'PLACEHOLDER' %}">[Map]</a>'.replace('PLACEHOLDER', zone.zone_reverse_id) +
-                        '    <a href="{% url 'zone_transit_plot' 'PLACEHOLDER' %}">[Journey times]</a>'.replace('PLACEHOLDER', zone.zone_reverse_id) +
+                        '    <a href="' + zone.reverse_map_url + '">[Map]</a>' +
+                        '    <a href="' + zone.reverse_transit_plot_url + '">[Journey times]</a>' +
                         ' (reverse)' +
                         '</li>';
             }
