@@ -1,0 +1,16 @@
+{% extends "template.html" %}
+{% load static %}
+{% block content %}
+    {% for zone in config_zone_list.request_data.zone_list %}
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+                <i class="mdl-list__item-avatar">
+                    <img src="{% static 'images/zone-icon.png' %}" style="width: 50px; margin-left: -2px; margin-top: -13px;">
+                </i>
+                {{ zone.zone_name }}: <a href="{% url 'zone_map' zone.zone_id %}">Map</a> | <a href="{% url 'zone_transit_plot' zone.zone_id %}">Transit plot</a>
+            </span>
+        </li>
+    {% endfor %}
+    </ul>
+{% endblock %}
+

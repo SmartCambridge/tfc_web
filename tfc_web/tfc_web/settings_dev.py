@@ -19,3 +19,27 @@ for name, value in os.environ.items():
 # Set the API data path to point to the internal test data
 
 DATA_PATH = '/usr/src/app/api/tests/data'
+
+NEW_API_ENDPOINT = 'http://127.0.0.1:8000'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'detail': {
+            'format': '[%(asctime)s] [%(name)s] [%(levelname)s] - %(message)s',
+            'datefmt': '',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'detail',
+        }
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    }
+}

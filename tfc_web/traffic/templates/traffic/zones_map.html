@@ -25,6 +25,7 @@
 
         // Draw map
         var map = L.map('map').setView([52.2038, 0.1207], 13);
+        L.control.scale().addTo(map);
 
         // Draw zones on map
 
@@ -34,28 +35,41 @@
         {
             var zone = zone_list[i];
 
+            // Skip this zone if zne_map is defined but not true
+            if (zone.hasOwnProperty('zone_map') && !zone.zone_map) {
+                continue;
+            }
+
             // Draw zone outline polygon
                              
             var path = [];
 
-            for (var j=0; j < zone['zone.path'].length; j++)
+            for (var j=0; j < zone['zone_path'].length; j++)
             {
-                var latlng = zone['zone.path'][j];
+                var latlng = zone['zone_path'][j];
 
                 var point = [ latlng['lat'], latlng['lng'] ];
                 path.push(point);   // add point to polygon for current zone
                 
                 points.push(point); // add point to list to use to set map bounds
             }
+            var popup = '<b>' + zone.zone_name + '</b><br/>' +
+                        '<ul>' +
+                        '  <li>' +
+                        '    <a href="' + zone.map_url + '">[Map]</a>' +
+                        '    <a href="' + zone.transit_plot_url + '">[Journey times]</a>' +
+                        '  </li>';
+            if (zone.zone_reverse_id) {
+                popup = popup +
+                        '  <li>' +
+                        '    <a href="' + zone.reverse_map_url + '">[Map]</a>' +
+                        '    <a href="' + zone.reverse_transit_plot_url + '">[Journey times]</a>' +
+                        ' (reverse)' +
+                        '</li>';
+            }
+            popup = popup + '</ul>';
             L.polygon(path)
-                .bindPopup('<a href="{% url 'zone_map' 4179368 %}'.replace('4179368',zone['zone.id'])+'">'+
-                              zone['zone.name']+
-                              '</a><br/>'+
-                           '<a href="{% url 'zone_transit_plot' 4179368 %}'.replace('4179368',zone['zone.id'])+'">'+
-                              'Show journey times</a><br/>'+
-                           '<a href="{% url 'zone_transit_plot' 4179368 %}'.replace('4179368',zone['zone.reverse.id'])+'">'+
-                              'Show journey times (reverse)</a>'
-                          )
+                .bindPopup(popup)
                 .addTo(map);
 
             // Draw zone start/finish lines
@@ -63,7 +77,7 @@
             var start_line = [path[0], path[1]];
             L.polyline(start_line, {color: 'green'}).addTo(map);
 
-            var finish_index = zone['zone.finish_index'];
+            var finish_index = zone['zone_finish_index'];
             var finish_line = [path[finish_index], path[finish_index+1]];
             L.polyline(finish_line, {color: 'red'}).addTo(map);
 

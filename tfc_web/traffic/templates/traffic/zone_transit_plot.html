@@ -170,13 +170,13 @@ function init()
     // make ?noframe adjustments to content
     if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0)
     {
-        document.getElementById('content_title').innerHTML = zone['zone.name'];
+        document.getElementById('content_title').innerHTML = zone['zone_name'];
         document.getElementById('chart').style.height = "calc(100vh - 80px)";
     }
     // embed zone name into page
     try {
-        document.getElementById('page_title_zone_name').innerHTML = zone['zone.name'];
-        document.getElementById('mobile_title_zone_name').innerHTML = zone['zone.name'];
+        document.getElementById('page_title_zone_name').innerHTML = zone['zone_name'];
+        document.getElementById('mobile_title_zone_name').innerHTML = zone['zone_name'];
     }
     catch(err)
     {
@@ -292,11 +292,7 @@ function init_chart()
         {
           return 'red';
         }
-        if (d.position_record!=null)
-        {
-            return 'green';
-        }
-        return (d.route_id==null || d.route_id=="") ? 'gray' : 'yellow';
+        return (d.route_id==null || d.route_id=="") ? 'green' : 'yellow';
     };
 
     // initialize x axis - will redraw when data received
@@ -444,7 +440,7 @@ function draw_chart(rita_data)
  // The point may have originated from GTFS feedhandler, GTFS feedmaker, or SIRI feedmaker
 function tooltip_html(d)
 {
-    var str = 'Zone: '+d.module_id;
+    var str = 'Zone: '+zone.zone_id;
     str += '<br/>Vehicle:'+d.vehicle_id;
     str += '<br/>Transit time (secs):'+d.duration;
     str += '<br/>Time:' + make_date(d.ts);
@@ -452,7 +448,7 @@ function tooltip_html(d)
     {
         str += '<br/>'+JSON.stringify(d.position_record).replace(/,/g,', ');
     }
-    else
+    if (d.route_id)
     {
         str += '<br/>Route: '+d.route_id; // only if from GTFS feedhandler
     }
@@ -527,6 +523,11 @@ function make_date(ts)
         <div class="time_shift"><a href="#" onclick="date_shift(7);">
             <img src="{% static 'images/chevron-right-right.png' %}"></a>
         </div>
+        {% if config_zone_reverse_id %}
+        <div class="time_shift">
+          <a href="{% url 'zone_transit_plot' config_zone_reverse_id %}?date={{ config_date }}">Show reverse zone</a>
+        </div>
+        {% endif %}
       </div> <!-- end page_date -->
       <!-- content_title is alternative location for page title if ?noframe is given -->
       <div id="content_title">

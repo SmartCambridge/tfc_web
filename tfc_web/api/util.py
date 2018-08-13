@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 from django.conf import settings
+from urllib.request import Request, urlopen
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
 from rest_framework.schemas import AutoSchema
+import codecs
 import coreapi
 import coreschema
 import json
@@ -154,3 +156,14 @@ def get_config(type, id=None, key=None, id_field_name=None):
             return config
     logger.error('Config type {0} for "{1}" not found'.format(type, id))
     raise TFCValidationError('Bad ID "{0}"'.format(id))
+
+
+def do_api_call(query):
+    '''
+    Helper function for authenticated access to the API
+    '''
+    logger.debug('Query: %s', query)
+    reader = codecs.getreader("utf-8")
+    query = Request(settings.NEW_API_ENDPOINT + query)
+    query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
+    return json.load(reader(urlopen(query)))

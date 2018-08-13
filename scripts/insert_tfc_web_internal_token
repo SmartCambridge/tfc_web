@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Prompt for the hash value of an API key and insert it
+# into the authmultitoken_token table with the name 'TFC_WEB INTERNAL'
+# for the user tfc_prod
+#
+# This is the token listed in secrets.py tha tthe tfc_web application
+# uses when it needs to access the API
+
+date=$(date --iso-8601='seconds')
+
+echo "Enter the HASH for the TFC_WEB INTERNAL API key (see secrets.py)"
+echo -n ": "
+read digest
+
+psql tfcweb <<EOF
+INSERT INTO authmultitoken_token
+  (
+      digest,
+      format,
+      name,
+      is_active,
+      created,
+      user_id
+  )
+  VALUES
+  (
+      '${digest}',
+      1,
+      'TFC_WEB INTERNAL',
+      true,
+      '${date}',
+      (select id from auth_user where username = 'tfc_prod')
+  );
+EOF

@@ -17,46 +17,7 @@ priordays=X,Y,Z is specified then MULTIPLE days worth of plot data will be retur
 The page can be called with querystring options:
 * noframe: remove or re-align any header / footer content for plot to be shown in an iframe.
 * priordays=X,Y,Z: e.g. priordays=7, show secondary plots of other days for comparison with chosen day.
-    
-Example config data:
-{
-  "module_id": "vix",
-  "module_name": "dataserver"
-  "request_data":
-    {
-      "latitude": 52.2038,
-      "longitude": 0.1207,
-      "capacity": 890,
-      "parking_name": "Grand Arcade",
-      "parking_id": "grand-arcade-car-park",
-      "feed_id": "cam_park_local"
-    }
-}
 
-Example occupancy data:
-{
-  "module_id": "vix",
-  "module_name": "dataserver"
-  "request_data":
-    [
-      {
-        "msg_type": "feed_car_parks",
-        "spaces_capacity": 953,
-        "module_id": "cam",
-        "spaces_occupied": 77,
-        "spaces_free": 876,
-        "filename": "1480291423_2016-11-28-00-03-43",
-        "area_id": "cam",
-        "ts": 1480291423,
-        "module_name": "feedmaker",
-        "filepath": "2016/11/28",
-        "parking_name": "Grand Arcade",
-        "parking_id": "grand-arcade-car-park",
-        "feed_id": "cam_park_local"
-      },
-      ...
-    ]
-}
 -->
     {% include 'leaflet_snippet.html' %}
     <!-- load the d3 library for the chart plot -->
