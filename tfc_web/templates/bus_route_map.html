@@ -1,8 +1,7 @@
 {% extends "template.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    {% include 'leaflet_snippet.html' %}
     <script>
         var route = "";
         function route_change(bus_route) {

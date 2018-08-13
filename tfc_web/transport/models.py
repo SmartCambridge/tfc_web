@@ -297,15 +297,16 @@ class VehicleJourney(models.Model):
             .select_related("stop_from")
         order = 1
         timetable_objects = []
-        for timing_link in timing_links:
-            timetable_objects.append(Timetable(
-                vehicle_journey=self, stop_id=timing_link.stop_from.atco_code, time=departure_time.time(), order=order))
-            departure_time += timing_link.run_time
-            if timing_link.wait_time:
-                departure_time += timing_link.wait_time
-            order += 1
-        timetable_objects.append(Timetable(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
-                                           time=departure_time.time(), order=order, last_stop=True))
+        if timing_links:
+            for timing_link in timing_links:
+                timetable_objects.append(Timetable(
+                    vehicle_journey=self, stop_id=timing_link.stop_from.atco_code, time=departure_time.time(), order=order))
+                departure_time += timing_link.run_time
+                if timing_link.wait_time:
+                    departure_time += timing_link.wait_time
+                order += 1
+            timetable_objects.append(Timetable(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
+                                               time=departure_time.time(), order=order, last_stop=True))
         return timetable_objects
 
     def get_timetable(self):

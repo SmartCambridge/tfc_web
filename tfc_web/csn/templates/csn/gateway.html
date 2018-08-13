@@ -1,9 +1,8 @@
 {% extends "csn/base.html" %}
 {% load static %}
 {% block head %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+    {% include 'leaflet_snippet.html' %}
     <link rel="stylesheet" href="{% static 'map.css' %}" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 {% endblock %}
 {% block content %}
     <h3>Last week stats for gateway {{ gw_mac }}</h3>

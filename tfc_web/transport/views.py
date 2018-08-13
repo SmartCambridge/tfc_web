@@ -12,7 +12,6 @@ from django.views.generic import DetailView
 from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
-from vix.models import Route as VixRoute, Stop as VixStop
 
 
 def areas(request):
@@ -23,11 +22,9 @@ def area_home(request, area_id):
     return render(request, 'area-home.html', {'area': Area.objects.get(id=area_id)})
 
 
-def bus_map_vix(request):
-    return render(request, 'routes.html', {})
-
 def map_real_time(request):
     return render(request, 'transport/map_real_time.html', {})
+
 
 def bus_map_sirivm(request):
     return render(request, 'transport/routes_sirivm.html', {})
@@ -59,15 +56,6 @@ def busdata_json(request):
             if north > bus['latitude'] > south and west < bus['longitude'] < east:
                 bus_list += [bus]
         bus_data['request_data']['entities'] = bus_list
-    for index, bus in enumerate(bus_data['request_data']['entities']):
-        if 'stop_id' in bus:
-            stop = VixStop.objects.filter(id=bus['stop_id'])
-            if stop:
-                bus_data['request_data']['entities'][index]['stop'] = stop.values("code", "name")[0]
-        if 'route_id' in bus:
-            route = VixRoute.objects.filter(id=bus['route_id'])
-            if route:
-                bus_data['request_data']['entities'][index]['route'] = route.values("long_name", "short_name", "agency__name")[0]
     return JsonResponse(bus_data)
 
 

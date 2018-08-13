@@ -105,6 +105,31 @@ Run
 
 and when prompted supply the value of LOCAL_API_KEY_HASH from `secrets.py`.
 
+## Secrets
+
+You will need to set up some secrets in a file called secrets.py inside tfc_web/tfc_web folder where the settings 
+files are stored. Secrets need to be: 
+
+```
+SECRET_KEY = ''
+TNDS_USERNAME = ''
+TNDS_PASSWORD = ''
+DATABASE_PASSWORD = ''
+LW_APP_EUI = ''
+LW_APP_API_KEY = ''
+LW_API_KEY = ''
+TFC_SERVER_CSN_TOKEN = ''
+OFO_TOKEN = ''
+```
+
+SECRET_KEY is the standard django SECRET_KEY, look in django documentation for how to set up a django secret key.
+TNDS_USERNAME and TNDS_PASSWORD are the username and password used to download transport data from TNDS 
+(stop information and timetables). LW_APP_EUI, LW_APP_API_KEY, and LW_API_KEY are the loraWAN secrets needed for 
+set up devices in the loraWAN network, these keys need to be retrieved from Everynet panel. 
+TFC_SERVER_CSN_TOKEN is the token shared with tfc_server for retrieving data
+from loraWAN sensors. OFO_TOKEN is the token used to communicatie with ofo server to retrieve bikes data, to know 
+how to retrieve this token visit: https://github.com/ubahnverleih/WoBike/blob/master/Ofo.md
+
 ## Dependencies
 
 This project uses:

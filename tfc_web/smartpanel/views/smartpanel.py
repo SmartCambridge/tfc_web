@@ -14,28 +14,53 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.timezone import now
 from smartpanel.forms import DisplayForm
-from smartpanel.models import Layout, Display
+from smartpanel.models import Layout, Display, SmartPanelUser
+from smartpanel.views.decorator import smartpanel_valid_user
 
 
 logger = logging.getLogger(__name__)
+
+
+@login_required
+def tcs(request):
+    smartpaneluser = SmartPanelUser.objects.filter(user=request.user)
+    accepted_tcs = False
+    if smartpaneluser:
+        accepted_tcs = smartpaneluser[0].accepted_tcs
+    return render(request, 'smartpanel/tcs.html',
+                  {'accepted_tcs': accepted_tcs})
+
+
+@login_required
+def accept_tcs(request):
+    if request.method == "POST":
+        account_type = request.POST.get('account_type', None)
+        company_name = request.POST.get('company_name', None)
+        company_email = request.POST.get('company_email', None)
+        if account_type == "business" and company_name and company_email:
+            SmartPanelUser.accept_tcs(request.user, account_type, company_name, company_email)
+        elif account_type == "personal":
+            SmartPanelUser.accept_tcs(request.user, account_type)
+        return redirect('smartpanel-home')
+    return redirect('home')
 
 
 def all(request):
     return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all().order_by('-id')})
 
 
-@login_required
+@smartpanel_valid_user
 def my(request):
     return render(request, 'smartpanel/my.html',
                   {'smartpanels': Layout.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
-@login_required
+@smartpanel_valid_user
 def design(request):
     if request.method == "POST":
         layout = Layout.objects.create(owner=request.user, design="{}")
         return layout_config(request, layout.slug, reload=True)
-    return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list()})
+    return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list(request.user)})
 
 
 def generate_dependencies_files_list(uwl):
@@ -69,21 +94,22 @@ def generate_dependencies_files_list(uwl):
     return (css_files_list, js_files_list, external_js_files_list, external_css_files_list)
 
 
-def generate_widget_list():
+def generate_widget_list(user):
     widget_directory = os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets')
     list_widget_files = os.listdir(widget_directory)
     list_widgets = []
     for widget_file in list_widget_files:
         if os.path.isdir(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets', widget_file)):
-            list_widgets.append({
-                'name': json.load(open(os.path.join(widget_directory, '%s/%s_schema.json' %
-                                                    (widget_file, widget_file))))['title'],
-                'file': widget_file
-            })
+            if (widget_file != "bikes") or (widget_file == "bikes" and user.is_superuser):
+                list_widgets.append({
+                    'name': json.load(open(os.path.join(widget_directory, '%s/%s_schema.json' %
+                                                        (widget_file, widget_file))))['title'],
+                    'file': widget_file
+                })
     return list_widgets
 
 
-@login_required
+@smartpanel_valid_user
 def layout_config(request, slug, reload=False):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     error = False
@@ -116,10 +142,34 @@ def layout_config(request, slug, reload=False):
         messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'error': error,
-                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list()})
+                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(request.user)})
+
+@login_required
+def layout_export(request, slug):
+    layout = get_object_or_404(Layout, slug=slug, owner=request.user)
+    response = JsonResponse(layout.design, json_dumps_params={'indent': 2})
+    if request.GET.get('download'):
+        response['Content-Disposition'] = 'attachment; filename="%s.json"' % slug
+    return response
 
 
 @login_required
+def layout_import(request):
+    if request.method == "POST":
+        try:
+            layout_design = json.loads(request.POST.get("design", "{}"))
+        except json.JSONDecodeError as e:
+            messages.error(request, "Layout import failed: %s" % e.msg)
+            return redirect(my)
+        except Exception:
+            messages.error(request, "Layout import failed, unknown error")
+            return redirect(my)
+        return render(request, 'smartpanel/layout_config.html',
+                      {'layout_design': layout_design, 'widgets_list': generate_widget_list()})
+    return redirect(my)
+
+
+@smartpanel_valid_user
 def layout_delete(request):
     if request.method == "POST" and 'layout_id' in request.POST:
         try:
@@ -147,7 +197,7 @@ def layout(request, slug, display=None):
                    'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
 
 
-@login_required
+@smartpanel_valid_user
 def new_display(request):
     if request.method == "POST":
         display_form = DisplayForm(request.POST, user=request.user)
@@ -189,13 +239,13 @@ def displays_debug(request):
     return JsonResponse(results)
 
 
-@login_required
+@smartpanel_valid_user
 def my_displays(request):
     return render(request, 'smartpanel/displays.html',
                   {'displays': Display.objects.filter(owner=request.user), 'edit': True})
 
 
-@login_required
+@smartpanel_valid_user
 def edit_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
@@ -208,7 +258,7 @@ def edit_display(request, slug):
     return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
 
-@login_required
+@smartpanel_valid_user
 def delete_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":

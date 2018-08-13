@@ -19,8 +19,7 @@ The page can be called with querystring options:
 * priordays=X,Y,Z: e.g. priordays=7, show secondary plots of other days for comparison with chosen day.
 
 -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+    {% include 'leaflet_snippet.html' %}
     <!-- load the d3 library for the chart plot -->
     <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
     
