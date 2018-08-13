@@ -1,25 +1,15 @@
-import codecs
 import json
 from datetime import date
-from urllib.request import Request, urlopen
-from django.conf import settings
 from django.shortcuts import render
 import logging
+
+from api.util import do_api_call
 
 logger = logging.getLogger(__name__)
 
 #############################################################################
 # Utilities                                                                 £
 #############################################################################
-
-
-def do_api_call(query):
-
-    logger.debug('Query: %s', query)
-    reader = codecs.getreader("utf-8")
-    query = Request(settings.NEW_API_ENDPOINT + query)
-    query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
-    return json.load(reader(urlopen(query)))
 
 
 def get_zone_list():

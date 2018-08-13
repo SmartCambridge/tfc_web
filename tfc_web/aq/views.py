@@ -1,26 +1,16 @@
-import codecs
 import json
 from datetime import date, timedelta, datetime
-from urllib.request import Request, urlopen
 from urllib.error import HTTPError
-from django.conf import settings
 from django.shortcuts import render
 import logging
+
+from api.util import do_api_call
 
 logger = logging.getLogger(__name__)
 
 #############################################################################
 # Utilities                                                                 £
 #############################################################################
-
-
-def do_api_call(query):
-
-    logger.debug('Query: %s', query)
-    reader = codecs.getreader("utf-8")
-    query = Request(settings.NEW_API_ENDPOINT + query)
-    query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
-    return json.load(reader(urlopen(query)))
 
 
 def get_aq_list():
@@ -58,7 +48,7 @@ def aq_plot(request, station_id):
         q_date = datetime.strptime(user_date, '%Y-%m-%d').date()
 
     # get sensor type
-    sensor_type = request.GET.get('sensor_type')
+    sensor_type = request.GET.get('sensor_type', 'CO')
 
     # get ?prior_days=7,14 if it's there to provide 'shadow' plot on chart
     days_list = [0]
