@@ -1,0 +1,50 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/bikes.json",
+    "$comment": "",
+    "description": "Display a map showing shared bikes",
+    "title": "Bikes map",
+
+    "type": "object",
+    "required": ["title", "map"],
+    "properties": {
+        "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Map title"
+        },
+        "map": {
+            "type": "object",
+            "title": "Map definition",
+            "format": "smartspanel:lmap",
+            "required": ["lat", "lng", "zoom"],
+            "properties": {
+                "lat": {
+                    "type": "number",
+                        "title": "Latitude",
+                        "description": "Latitude of the centre of the map",
+                        "minimum": -90.0,
+                        "maximum": 90.0,
+                        "default": 52.215
+                },
+                "lng": {
+                    "type": "number",
+                    "title": "Longitude",
+                    "description": "Longitude of the centre of the map",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "default": 0.09
+                },
+                "zoom": {
+                    "type": "integer",
+                    "title": "Map zoom",
+                    "description": "Map zoom level",
+                    "minimum": 0,
+                    "maximum": 21,
+                    "default": 15
+                }
+            }
+        }
+    }
+}

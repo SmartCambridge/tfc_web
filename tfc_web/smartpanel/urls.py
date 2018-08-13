@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.views.generic import TemplateView
 from smartpanel.views import smartpanel
 from smartpanel.views.decorator import smartpanel_valid_user
-from smartpanel.views.widgets import weather, station_board
+from smartpanel.views.widgets import weather, station_board, bikes
 
 
 urlpatterns = [
@@ -21,11 +21,15 @@ urlpatterns = [
 # TODO Re-enamble once opt-in option done
 #    url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),
     url(r'^layout/(?P<slug>\w+)/config/$', smartpanel.layout_config, name='smartpanel-layout-config'),
+    url(r'^layout/(?P<slug>\w+)/export/$', smartpanel.layout_export, name='smartpanel-layout-export'),
+    url(r'^layout/import/$', smartpanel.layout_import, name='smartpanel-layout-import'),
     url(r'^layout/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<slug>\w+)/$', smartpanel.layout, name='smartpanel-layout'),
-    url(r'^weather$', weather.weather, name='smartpanel-weather'),
-    url(r'^station_board$', station_board.station_board, name='station-board'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     url(r'^tcs/accept$', smartpanel.accept_tcs, name='smartpanel-accept-tcs'),
     url(r'^tcs/$', smartpanel.tcs, name='smartpanel-tcs'),
+    # Widgets specific URLs
+    url(r'^weather$', weather.weather, name='smartpanel-weather'),
+    url(r'^station_board$', station_board.station_board, name='station-board'),
+    url(r'^widgets/bikes', bikes.bikes, name='smartpanel-widgets-bikes'),
 ]

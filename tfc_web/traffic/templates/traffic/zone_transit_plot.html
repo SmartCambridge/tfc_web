@@ -14,8 +14,7 @@ This page is pre-populated with JSON data from the TFC api's for zone CONFIG and
 from which it will draw a transit time chart for the selected day.
 
 -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+{% include 'leaflet_snippet.html' %}
 <!-- load the d3 library for the chart plot -->
 <script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
   
