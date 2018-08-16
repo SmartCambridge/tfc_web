@@ -51,4 +51,7 @@ urlpatterns = [
 
     # API
     url(r'^api/', include('api.urls')),
+
+    # SmartCambridge
+    url(r'^smartcambridge/', include('smartcambridge.urls')),
 ]
