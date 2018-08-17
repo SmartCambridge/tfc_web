@@ -7,11 +7,13 @@
 {% block content %}
     <h1 class="mdl-typography--display-1-color-contrast" style="margin-top: 0;">My Displays</h1>
     <p>Displays are the devices that will show your chosen layout.
-    Your display web address will be like:</p>
-    <h4>https://smartcambridge.org/smartpanel/display/&lt;id&gt;</h4>
+    The web address for your selected display is:</p>
+    <h4 id="current_display_url">https://smartcambridge.org/smartpanel/display/&lt;unique display id&gt;</h4>
     <div style="height: 70vh;">
         <div id="map" style="height: 100%; width: 100%;"></div>
     </div>
+
+    <!-- HTML 5.2 modal dialog for Delete ? Yes | No -->
     <dialog id="dialog-delete" class="mdl-dialog">
         <div class="mdl-dialog__content">
             <p>
@@ -26,15 +28,20 @@
             </form>
         </div>
     </dialog>
+
     <script>
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var info_map = L.control();
         var displays = [{% for display in displays %}
             {
-                "display_url": "{% url 'smartpanel-display' display.slug %}", "layout_name": "{{ display.layout.name }}",
+                "id": {{ display.id }},
+                "display_url": "{% url 'smartpanel-display' display.slug %}", 
+                "layout_name": "{{ display.layout.name }}",
                 "display_id": "{{ display.slug }}",
                 "layout_url": "{% url 'smartpanel-layout' display.layout.slug %}",
-                "lat": "{{ display.location.y }}", "lon": "{{ display.location.x }}", "name": "{{ display.name }}",
+                "lat": "{{ display.location.y }}", 
+                "lon": "{{ display.location.x }}", 
+                "name": "{{ display.name }}",
                 "edit_url": "{% url 'smartpanel-edit-display' display.slug %}",
                 "delete_url": "{% url 'smartpanel-delete-display' display.slug %}"
             },
@@ -49,44 +56,99 @@
             return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
         }
 
+        // Display (pun intended) the "Delete ? Ok | Cancel" modal dialog
+        // 'this' will be the element (<a...>Delete display</a>) that was clicked
+        function show_delete_ok_cancel(el) {
+            var dialog_delete = document.querySelector('#dialog-delete'); // === getElementById
+            dialog_delete.showModal(); // open the dialog
+            // read the custom data-url property of the clicked element and assign to dialog form action
+            document.querySelector('#form_delete_display').action = el.dataset.url;
+        }
+
+        function update_current_url(display) {
+            // display the URL at top of page
+            var current_url = location.protocol+'//'+location.hostname+display['display_url'];
+            document.querySelector('#current_display_url').innerHTML = current_url;
+        }
+
         $(document).ready(function() {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             info_map.addTo(map);
+
+            // we'll note most recent display (with highest django 'id') to for popup and URL at top of page
+            var newest_display_index = 0;
+            var newest_display_id = 0;
+
+            // iterate to show each display on map
             for (var i = 0; i < displays.length; i++) {
+
+                // Accumulate id/index for newest display
+                if ( displays[i]['id'] > newest_display_id ) { // keep track of newest display
+                    newest_display_index = i;
+                    newest_display_id = displays[i]['id'];
+                }
+
+                // create marker for current display
                 displays[i]['marker'] = L.marker([displays[i]['lat'], displays[i]['lon']]);
-                displays[i]['marker'].addTo(map).bindTooltip(
+
+                // add popup to marker
+                displays[i]['marker'].addTo(map).bindPopup(
+                    // Here we create the looonng string for the popup HTML
+                    "<b>Display: "+displays[i]['name']+"</b><br/>"+
 /*
-                    "<b>"+displays[i]['name']+"</b><br/>"+
-                    "id: <a class=\"aqua-link\" href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
+                    "id: <a class='aqua-link' href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
                             displays[i]['display_id']+"</a><br/>"+
-                    "Using Layout <a class=\"aqua-link\" href='"+displays[i]['layout_url']+"'>"+
+                    "Using Layout <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
                             displays[i]['layout_name']+"</a><br>"+
 */
-                    "Display <a class=\"aqua-link\" href='"+displays[i]['display_url']+"'>"+
-                    displays[i]['name']+"</a><br> using Layout <a class=\"aqua-link\" href='"+displays[i]['layout_url']+"'>"+
-                    displays[i]['layout_name']+"</a><br>"+
-                    "<a class=\"aqua-link\" href='"+displays[i]['display_url']+"' target='_blank'>View display " +
-                    "<i class=\"material-icons\" style='font-size: 18px;' >chevron_right</i></a><br>" +
-                    "<a class=\"aqua-link\" href='"+displays[i]['edit_url']+"'>Edit display " +
-                    "<i class=\"material-icons\" style='font-size: 18px;'>chevron_right</i></a><br>" +
-                    "<a class=\"delete-link aqua-link\" data-display-delete-url='"+displays[i]['delete_url']+"'>\n" +
-                    "Delete <i class=\"material-icons\" style='font-size: 18px;' " +
-                    "data-display-delete-url='"+displays[i]['delete_url']+"'>chevron_right</i></a>",
-                    { permanent: true, interactive: true });
+                    "<a class='aqua-link' href='"+displays[i]['display_url']+"'>"+
+                        location.protocol+"//"+location.hostname+displays[i]['display_url']+
+                    "</a><br/>"+
+                    "Layout: <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
+                                 displays[i]['layout_name']+
+                                 "<i class='material-icons' style='font-size: 18px;' >chevron_right</i>"+
+                            "</a><br/>" +
+                    "<a class='aqua-link' href='"+displays[i]['edit_url']+"'>"+
+                        "Edit display " +
+                        "<i class='material-icons' style='font-size: 18px;'>chevron_right</i>"+
+                    "</a><br/>" +
+                    "<a class='aqua-link' "+
+                       "href='#' "+
+                       "onclick='show_delete_ok_cancel(this)' "+
+                       "data-url='"+displays[i]['delete_url']+"'>"+
+                       "Delete display " +
+                       "<i class='material-icons' style='font-size: 18px;'>chevron_right</i>"+
+                    "</a>",
+                    { permanent: false, interactive: true, maxWidth: 800 });
+
+                // add onclick function to update URL display at top of page
+                displays[i]['marker'].on('click', function (d) { return function () { update_current_url(d);} }(displays[i]));
+
+            } // end for
+
+            // Open the map popup for the newest display
+            if (displays.length > 0) {
+
+                console.log('opening popup');
+
+                // open relevant popup on map
+                displays[newest_display_index]['marker'].openPopup();
+
+                // display the URL at top of page
+                update_current_url(displays[newest_display_index]);
             }
+
+            // register (html 5.2) modal dialog with dialog-polyfill shim if necessary
             var dialog_delete = document.querySelector('#dialog-delete');
-            var deleteModalButtons = document.querySelectorAll('.delete-link');
+
+            // If browser doesn't support <dialog> html tag, then register element with poly-fill.js
             if (! dialog_delete.showModal) {
                 dialogPolyfill.registerDialog(dialog_delete);
             }
-            for (var i = 0; i < deleteModalButtons.length; i++) {
-                deleteModalButtons[i].addEventListener('click', function(event) {
-                    dialog_delete.showModal();
-                    document.querySelector('#form_delete_display').action = event.target.dataset.displayDeleteUrl;
-                });
-            }
+
+            // Add 'close' capability to the 'Delete Yes|No' dialog
             dialog_delete.querySelector('.close').addEventListener('click', function() {
                 dialog_delete.close();
             });
