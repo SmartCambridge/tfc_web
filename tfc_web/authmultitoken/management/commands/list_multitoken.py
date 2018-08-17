@@ -35,3 +35,7 @@ class Command(BaseCommand):
                 token.name,
                 token.created,
                 disabled))
+            if token.referers:
+                print('    Restrictions:')
+                for referer in token.referers.all().order_by('id'):
+                    print('        {0}'.format(referer.value))
