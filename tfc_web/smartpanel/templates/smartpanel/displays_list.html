@@ -1,17 +1,63 @@
 {% extends "smartpanel/base.html" %}
 {% load static %}
 {% block head %}
-    {% include 'leaflet_snippet.html' %}
-    <link rel="stylesheet" href="{% static 'map.css' %}" />
 {% endblock %}
 {% block content %}
-    <h1 class="mdl-typography--display-1-color-contrast" style="margin-top: 0;">My Displays</h1>
+<h1 class="mdl-typography--display-1-color-contrast" style="margin-top: 0;">My Displays List (<a href="{% url 'smartpanel-map-my-displays' %}">Map</a>)</h1>
     <p>Displays are the devices that will show your chosen layout.
-    The web address for your selected display is:</p>
+    The web address for your most recent display is:</p>
     <h4 id="current_display_url">https://smartcambridge.org/smartpanel/display/&lt;unique display id&gt;</h4>
-    <div style="height: 70vh;">
-        <div id="map" style="height: 100%; width: 100%;"></div>
-    </div>
+        <div class="cards-section" style="padding: 0;">
+            <div class="card-container mdl-grid">
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp"
+                     style="background-color: #ddffdd;">
+                    <div class="mdl-card__media">
+                        <img src="">
+                    </div>
+                    <div class="mdl-card__title">
+                        <h4 class="mdl-card__title-text">New Display</h4>
+                    </div>
+                    <div class="mdl-card__supporting-text" style="padding-bottom: 125px;">
+                        <span class="mdl-typography--font-light mdl-typography--subhead">
+                            Create your SmartPanel display
+                        </span>
+                    </div>
+                    <div class="mdl-card__actions">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-new-display' %}" target="_blank">
+                            Create <i class="material-icons">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
+                {% for display in displays %}
+                <div class="mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                    <div class="mdl-card__media">
+                        <img src="">
+                    </div>
+                    <div class="mdl-card__title">
+                        <h4 class="mdl-card__title-text">{{ display.name }}</h4>
+                    </div>
+                    <div class="mdl-card__actions">
+                    {% if edit %}
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-edit-display' display.slug %}">
+                            Edit
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                        <a class="delete-link aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" data-display-id="{{ display.slug }}">
+                            Delete <i class="material-icons" data-display-id="{{ display.slug }}">chevron_right</i>
+                        </a>
+                    {% endif %}
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase"
+                           href="{% url 'smartpanel-display' display.slug %}" target="_blank">
+                            View
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
 
     <!-- HTML 5.2 modal dialog for Delete ? Yes | No -->
     <dialog id="dialog-delete" class="mdl-dialog">
@@ -21,8 +67,9 @@
             </p>
         </div>
         <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-            <form id="form_delete_display" action="" method="post">
+            <form action="{% url 'smartpanel-display-delete' %}" method="post">
                 {% csrf_token %}
+                <input id="form_delete_display_id" type="hidden" name="display_id">
                 <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
                 <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
             </form>
@@ -30,8 +77,7 @@
     </dialog>
 
     <script>
-        var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
-        var info_map = L.control();
+
         var displays = [{% for display in displays %}
             {
                 "id": {{ display.id }},
@@ -46,11 +92,6 @@
                 "delete_url": "{% url 'smartpanel-delete-display' display.slug %}"
             },
         {% endfor %}];
-
-        info_map.onAdd = function (map) {
-            this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
-            return this._div;
-        };
 
         function hasClass(element, className) {
             return (' ' + element.className + ' ').indexOf(' ' + className+ ' ') > -1;
@@ -71,12 +112,17 @@
             document.querySelector('#current_display_url').innerHTML = current_url;
         }
 
-        $(document).ready(function() {
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            info_map.addTo(map);
+        var deleteModalButtons = document.querySelectorAll('.delete-link');
 
+        for (var i = 0; i < deleteModalButtons.length; i++) {
+            deleteModalButtons[i].addEventListener('click', function(event) {
+                dialog_delete.showModal();
+                document.querySelector('#form_delete_display_id').value = event.target.dataset.displayId;
+            });
+        }
+
+        $(document).ready(function() {
+/*
             // we'll note most recent display (with highest django 'id') to for popup and URL at top of page
             var newest_display_index = 0;
             var newest_display_id = 0;
@@ -90,19 +136,14 @@
                     newest_display_id = displays[i]['id'];
                 }
 
-                // create marker for current display
-                displays[i]['marker'] = L.marker([displays[i]['lat'], displays[i]['lon']]);
-
-                // add popup to marker
-                displays[i]['marker'].addTo(map).bindPopup(
                     // Here we create the looonng string for the popup HTML
-                    "<b>Display: "+displays[i]['name']+"</b><br/>"+
-/*
-                    "id: <a class='aqua-link' href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
-                            displays[i]['display_id']+"</a><br/>"+
-                    "Using Layout <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
-                            displays[i]['layout_name']+"</a><br>"+
-*/
+var html =          "<b>Display: "+displays[i]['name']+"</b><br/>"+
+//
+//                    "id: <a class='aqua-link' href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
+//                            displays[i]['display_id']+"</a><br/>"+
+//                    "Using Layout <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
+//                            displays[i]['layout_name']+"</a><br>"+
+//
                     "<a class='aqua-link' href='"+displays[i]['display_url']+"'>"+
                         location.protocol+"//"+location.hostname+displays[i]['display_url']+
                     "</a><br/>"+
@@ -120,24 +161,13 @@
                        "data-url='"+displays[i]['delete_url']+"'>"+
                        "Delete display " +
                        "<i class='material-icons' style='font-size: 18px;'>chevron_right</i>"+
-                    "</a>",
-                    { permanent: false, interactive: true, maxWidth: 800 });
-
-                // add onclick function to update URL display at top of page
-                displays[i]['marker'].on('click', function (d) { return function () { update_current_url(d);} }(displays[i]));
-
+                    "</a>";
             } // end for
-
+*/
             // Open the map popup for the newest display
             if (displays.length > 0) {
-
-                console.log('opening popup');
-
-                // open relevant popup on map
-                displays[newest_display_index]['marker'].openPopup();
-
                 // display the URL at top of page
-                update_current_url(displays[newest_display_index]);
+                update_current_url(displays[0]); // note displays are sorted by id/descending in view before this template
             }
 
             // register (html 5.2) modal dialog with dialog-polyfill shim if necessary

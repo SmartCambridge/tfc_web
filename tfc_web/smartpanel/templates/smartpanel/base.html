@@ -76,7 +76,7 @@
                 {% endif %}
                 {% block navigation %}
                 {% if user.is_authenticated %}
-                    <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-my' %}">My SmartPanel layouts</a>
+                    <a class="mdl-navigation__link" href="{% url 'smartpanel-list-my-layouts' %}">My SmartPanel layouts</a>
                     <a class="mdl-navigation__link" href="{% url 'smartpanel-design' %}">New SmartPanel layout</a>
                 {% endif %}
 {#                    TODO Re-enable once public opt-in done#}

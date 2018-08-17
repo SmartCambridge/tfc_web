@@ -46,12 +46,12 @@ def accept_tcs(request):
 
 
 def all(request):
-    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all().order_by('-id')})
+    return render(request, 'smartpanel/layouts_list.html', {'smartpanels': Layout.objects.all().order_by('-id')})
 
 
 @smartpanel_valid_user
-def my(request):
-    return render(request, 'smartpanel/my.html',
+def layouts_list(request):
+    return render(request, 'smartpanel/layouts_list.html',
                   {'smartpanels': Layout.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
@@ -134,7 +134,7 @@ def layout_config(request, slug, reload=False):
                 layout.save()
                 messages.info(request, 'SmartPanel layout published')
             elif request.POST.get('submit-button', None) == "save":
-                return redirect('smartpanel-layout-my')
+                return redirect('smartpanel-list-my-layouts')
             if reload:
                 return redirect('smartpanel-layout-config', slug)
     except:
@@ -176,7 +176,7 @@ def layout_delete(request):
             get_object_or_404(Layout, slug=request.POST['layout_id'], owner=request.user).delete()
         except IntegrityError:
             messages.error(request, "This Layout is being used by a Display, remove it from the Display first.")
-    return redirect('smartpanel-layout-my')
+    return redirect('smartpanel-list-may-layouts')
 
 
 def layout(request, slug, display=None):
@@ -240,9 +240,14 @@ def displays_debug(request):
 
 
 @smartpanel_valid_user
-def my_displays(request):
-    return render(request, 'smartpanel/displays.html',
+def displays_map(request):
+    return render(request, 'smartpanel/displays_map.html',
                   {'displays': Display.objects.filter(owner=request.user), 'edit': True})
+
+@smartpanel_valid_user
+def displays_list(request):
+    return render(request, 'smartpanel/displays_list.html',
+                  {'displays': Display.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
 @smartpanel_valid_user
@@ -265,3 +270,14 @@ def delete_display(request, slug):
         display.delete()
         return redirect('smartpanel-list-my-displays')
     return redirect('smartpanel-edit-display', display.slug)
+
+def display_delete(request):
+    if request.method == "POST" and 'display_id' in request.POST:
+        display = get_object_or_404(Display, slug=slug, owner=request.user)
+        try:
+            get_object_or_404(Display, slug=request.POST['display_id'], owner=request.user).delete()
+        except:
+            messages.error(request, "Can't delete this display")
+        return redirect('smartpanel-list-my-displays')
+    return redirect('smartpanel-edit-display', display.slug)
+
