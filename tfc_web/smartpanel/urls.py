@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^$', smartpanel_valid_user(TemplateView.as_view(template_name="smartpanel/home.html")), name='smartpanel-home'),
     url(r'^display/new/$', smartpanel.new_display, name='smartpanel-new-display'),
     url(r'^display/(?P<slug>[-\w]+)/edit/', smartpanel.edit_display, name='smartpanel-edit-display'),
-    url(r'^display/(?P<slug>[-\w]+)/delete/', smartpanel.delete_display, name='smartpanel-delete-display'),
     url(r'^display/delete/$', smartpanel.display_delete, name='smartpanel-display-delete'),
     url(r'^display/(?P<display_slug>[-\w]+)/refresh/(?P<layout_slug>\w+)/(?P<version>\d+)', smartpanel.display_refresh,
         name='smartpanel-display-refresh'),

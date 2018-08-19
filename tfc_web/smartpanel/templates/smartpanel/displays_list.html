@@ -70,6 +70,7 @@
             <form action="{% url 'smartpanel-display-delete' %}" method="post">
                 {% csrf_token %}
                 <input id="form_delete_display_id" type="hidden" name="display_id">
+                <input type="hidden" name="source" value="list"> <!-- list | map -->
                 <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
                 <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
             </form>
@@ -77,6 +78,8 @@
     </dialog>
 
     <script>
+
+        var dialog_delete; // global var for #dialog-delete <dialog> element
 
         var displays = [{% for display in displays %}
             {
@@ -88,8 +91,7 @@
                 "lat": "{{ display.location.y }}", 
                 "lon": "{{ display.location.x }}", 
                 "name": "{{ display.name }}",
-                "edit_url": "{% url 'smartpanel-edit-display' display.slug %}",
-                "delete_url": "{% url 'smartpanel-delete-display' display.slug %}"
+                "edit_url": "{% url 'smartpanel-edit-display' display.slug %}"
             },
         {% endfor %}];
 
@@ -100,17 +102,17 @@
         // Display (pun intended) the "Delete ? Ok | Cancel" modal dialog
         // 'this' will be the element (<a...>Delete display</a>) that was clicked
         function show_delete_ok_cancel(el) {
-            var dialog_delete = document.querySelector('#dialog-delete'); // === getElementById
             dialog_delete.showModal(); // open the dialog
-            // read the custom data-url property of the clicked element and assign to dialog form action
-            document.querySelector('#form_delete_display').action = el.dataset.url;
-        }
+       }
 
         function update_current_url(display) {
             // display the URL at top of page
             var current_url = location.protocol+'//'+location.hostname+display['display_url'];
             document.querySelector('#current_display_url').innerHTML = current_url;
         }
+
+        // For each 'DELETE' link on the display card, set a 'click' handler that injects the
+        // display_id into the 'delete modal dialog' form.
 
         var deleteModalButtons = document.querySelectorAll('.delete-link');
 
@@ -122,56 +124,14 @@
         }
 
         $(document).ready(function() {
-/*
-            // we'll note most recent display (with highest django 'id') to for popup and URL at top of page
-            var newest_display_index = 0;
-            var newest_display_id = 0;
-
-            // iterate to show each display on map
-            for (var i = 0; i < displays.length; i++) {
-
-                // Accumulate id/index for newest display
-                if ( displays[i]['id'] > newest_display_id ) { // keep track of newest display
-                    newest_display_index = i;
-                    newest_display_id = displays[i]['id'];
-                }
-
-                    // Here we create the looonng string for the popup HTML
-var html =          "<b>Display: "+displays[i]['name']+"</b><br/>"+
-//
-//                    "id: <a class='aqua-link' href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
-//                            displays[i]['display_id']+"</a><br/>"+
-//                    "Using Layout <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
-//                            displays[i]['layout_name']+"</a><br>"+
-//
-                    "<a class='aqua-link' href='"+displays[i]['display_url']+"'>"+
-                        location.protocol+"//"+location.hostname+displays[i]['display_url']+
-                    "</a><br/>"+
-                    "Layout: <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
-                                 displays[i]['layout_name']+
-                                 "<i class='material-icons' style='font-size: 18px;' >chevron_right</i>"+
-                            "</a><br/>" +
-                    "<a class='aqua-link' href='"+displays[i]['edit_url']+"'>"+
-                        "Edit display " +
-                        "<i class='material-icons' style='font-size: 18px;'>chevron_right</i>"+
-                    "</a><br/>" +
-                    "<a class='aqua-link' "+
-                       "href='#' "+
-                       "onclick='show_delete_ok_cancel(this)' "+
-                       "data-url='"+displays[i]['delete_url']+"'>"+
-                       "Delete display " +
-                       "<i class='material-icons' style='font-size: 18px;'>chevron_right</i>"+
-                    "</a>";
-            } // end for
-*/
-            // Open the map popup for the newest display
+            // Display the URL for the newest display
             if (displays.length > 0) {
                 // display the URL at top of page
                 update_current_url(displays[0]); // note displays are sorted by id/descending in view before this template
             }
 
             // register (html 5.2) modal dialog with dialog-polyfill shim if necessary
-            var dialog_delete = document.querySelector('#dialog-delete');
+            dialog_delete = document.querySelector('#dialog-delete');
 
             // If browser doesn't support <dialog> html tag, then register element with poly-fill.js
             if (! dialog_delete.showModal) {

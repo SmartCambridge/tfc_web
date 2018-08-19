@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{% static 'map.css' %}" />
 {% endblock %}
 {% block content %}
-<h1 class="mdl-typography--display-1-color-contrast" style="margin-top: 0;">My Displays Map (<a href="{% url 'smartpanel-list-my-displays' %}">Map</a>)</h1>
+<h1 class="mdl-typography--display-1-color-contrast" style="margin-top: 0;">My Displays Map (<a href="{% url 'smartpanel-list-my-displays' %}">List</a>)</h1>
     <p>Displays are the devices that will show your chosen layout.
     The web address for your selected display is:</p>
     <h4 id="current_display_url">https://smartcambridge.org/smartpanel/display/&lt;unique display id&gt;</h4>
@@ -21,8 +21,10 @@
             </p>
         </div>
         <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-            <form id="form_delete_display" action="" method="post">
+            <form action="{% url 'smartpanel-display-delete' %}" method="post">
                 {% csrf_token %}
+                <input id="form_delete_display_id" type="hidden" name="display_id">
+                <input type="hidden" name="source" value="map"> <!-- list | map -->
                 <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
                 <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
             </form>
@@ -30,6 +32,8 @@
     </dialog>
 
     <script>
+        var dialog_delete; // global var to hold ref to delete <dialog> element
+
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
         var info_map = L.control();
         var displays = [{% for display in displays %}
@@ -42,8 +46,7 @@
                 "lat": "{{ display.location.y }}", 
                 "lon": "{{ display.location.x }}", 
                 "name": "{{ display.name }}",
-                "edit_url": "{% url 'smartpanel-edit-display' display.slug %}",
-                "delete_url": "{% url 'smartpanel-delete-display' display.slug %}"
+                "edit_url": "{% url 'smartpanel-edit-display' display.slug %}"
             },
         {% endfor %}];
 
@@ -59,10 +62,11 @@
         // Display (pun intended) the "Delete ? Ok | Cancel" modal dialog
         // 'this' will be the element (<a...>Delete display</a>) that was clicked
         function show_delete_ok_cancel(el) {
-            var dialog_delete = document.querySelector('#dialog-delete'); // === getElementById
+            // Inject the display_id into the 'delete modal dialog' form.
+
+            console.log('showing delete dialog for', el.dataset.displayId);
+            document.querySelector('#form_delete_display_id').value = el.dataset.displayId;
             dialog_delete.showModal(); // open the dialog
-            // read the custom data-url property of the clicked element and assign to dialog form action
-            document.querySelector('#form_delete_display').action = el.dataset.url;
         }
 
         function update_current_url(display) {
@@ -97,12 +101,6 @@
                 displays[i]['marker'].addTo(map).bindPopup(
                     // Here we create the looonng string for the popup HTML
                     "<b>Display: "+displays[i]['name']+"</b><br/>"+
-/*
-                    "id: <a class='aqua-link' href='"+displays[i]['display_url']+"' target='smartpanel_display'>"+
-                            displays[i]['display_id']+"</a><br/>"+
-                    "Using Layout <a class='aqua-link' href='"+displays[i]['layout_url']+"'>"+
-                            displays[i]['layout_name']+"</a><br>"+
-*/
                     "<a class='aqua-link' href='"+displays[i]['display_url']+"'>"+
                         location.protocol+"//"+location.hostname+displays[i]['display_url']+
                     "</a><br/>"+
@@ -117,7 +115,7 @@
                     "<a class='aqua-link' "+
                        "href='#' "+
                        "onclick='show_delete_ok_cancel(this)' "+
-                       "data-url='"+displays[i]['delete_url']+"'>"+
+                       "data-display-id='"+displays[i]['display_id']+"'>"+
                        "Delete display " +
                        "<i class='material-icons' style='font-size: 18px;'>chevron_right</i>"+
                     "</a>",
@@ -131,7 +129,7 @@
             // Open the map popup for the newest display
             if (displays.length > 0) {
 
-                console.log('opening popup');
+                console.log('opening popup',displays[newest_display_index]['display_id']);
 
                 // open relevant popup on map
                 displays[newest_display_index]['marker'].openPopup();
@@ -141,7 +139,7 @@
             }
 
             // register (html 5.2) modal dialog with dialog-polyfill shim if necessary
-            var dialog_delete = document.querySelector('#dialog-delete');
+            dialog_delete = document.querySelector('#dialog-delete');
 
             // If browser doesn't support <dialog> html tag, then register element with poly-fill.js
             if (! dialog_delete.showModal) {

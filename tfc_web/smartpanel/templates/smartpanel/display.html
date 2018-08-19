@@ -19,8 +19,10 @@
             <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="{% url 'smartpanel-list-my-displays' %}">Cancel</a>
         </form>
         {% if edit %}
-        <form action="{% url 'smartpanel-delete-display' display_form.instance.slug %}" method="post" style="margin-top: 20px;">
+        <form action="{% url 'smartpanel-display-delete' %}" method="post" style="margin-top: 20px;">
             {% csrf_token %}
+            <input name="display_id" type="hidden" value="{{ display_form.instance.slug }}"></input>
+            <input name="source" type="hidden" value="list"></input> <!-- list | map -->
             <input class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit" value="Delete Display">
         </form>
         {% endif %}

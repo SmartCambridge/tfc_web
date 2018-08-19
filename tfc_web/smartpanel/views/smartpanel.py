@@ -176,7 +176,7 @@ def layout_delete(request):
             get_object_or_404(Layout, slug=request.POST['layout_id'], owner=request.user).delete()
         except IntegrityError:
             messages.error(request, "This Layout is being used by a Display, remove it from the Display first.")
-    return redirect('smartpanel-list-may-layouts')
+    return redirect('smartpanel-list-my-layouts')
 
 
 def layout(request, slug, display=None):
@@ -262,22 +262,16 @@ def edit_display(request, slug):
         display_form = DisplayForm(instance=display, user=request.user)
     return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
-
 @smartpanel_valid_user
-def delete_display(request, slug):
-    display = get_object_or_404(Display, slug=slug, owner=request.user)
-    if request.method == "POST":
-        display.delete()
-        return redirect('smartpanel-list-my-displays')
-    return redirect('smartpanel-edit-display', display.slug)
-
 def display_delete(request):
     if request.method == "POST" and 'display_id' in request.POST:
-        display = get_object_or_404(Display, slug=slug, owner=request.user)
         try:
             get_object_or_404(Display, slug=request.POST['display_id'], owner=request.user).delete()
         except:
             messages.error(request, "Can't delete this display")
-        return redirect('smartpanel-list-my-displays')
-    return redirect('smartpanel-edit-display', display.slug)
+        if request.POST['source'] == 'map':
+            return redirect('smartpanel-map-my-displays')
+        else:
+            return redirect('smartpanel-list-my-displays')
+    return redirect('smartpanel-list-my-displays')
 
