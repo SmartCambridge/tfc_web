@@ -1,4 +1,4 @@
-##[![Smart Cambridge logo](images/smart_cambridge_logo.jpg)](https://github.com/ijl20/tfc_web) TFC Web
+[![Smart Cambridge logo](images/smart_cambridge_logo.jpg)](https://github.com/ijl20/tfc_web)
 
 # Part of the Smart Cambridge programme.
 
