@@ -48,8 +48,8 @@ class AcceptedTCs(BasePermission):
     message = 'Terms and Conditions not yet accepted'
 
     def has_permission(self, request, view):
-        return (hasattr(request.user, 'smartpanel_user') and
-                request.user.smartpanel_user.accepted_tcs)
+        return (hasattr(request.user, 'smartcambridge_user') and
+                request.user.smartcambridge_user.accepted_tcs)
 
 
 default_authentication = (MultiTokenAuthentication, SessionAuthentication)

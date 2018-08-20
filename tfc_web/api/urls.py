@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 
 from rest_framework.documentation import include_docs_urls
 
-from smartpanel.views.decorator import smartpanel_valid_user
+from smartcambridge.decorator import smartcambridge_valid_user
 
 
 # Nasty hack to create a set of patterns to feed to
@@ -19,7 +19,7 @@ docpatterns = [
 
 
 urlpatterns = [
-    url(r'^$', smartpanel_valid_user(TemplateView.as_view(template_name="api/index.html"))),
+    url(r'^$', smartcambridge_valid_user(TemplateView.as_view(template_name="api/index.html"))),
     # url(r'', include('authmultitoken.endpoint_urls')),
     url(r'', include('authmultitoken.html_urls')),
     url(r'^auth/', include('api.auth_urls')),
