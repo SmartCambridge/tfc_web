@@ -40,3 +40,6 @@ class SmartCambridgeUser(models.Model):
             SmartCambridgeUser.objects.create(user=user, accepted_tcs=True, accepted_tcs_datetime=now(),
                                               account_type=account_type, company_name=company_name,
                                               company_email=company_email)
+
+    def __str__(self):
+        return self.user.username
