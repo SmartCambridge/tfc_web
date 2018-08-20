@@ -220,7 +220,7 @@ def displays_map(request):
     return render(request, 'smartpanel/displays_map.html',
                   {'displays': Display.objects.filter(owner=request.user), 'edit': True})
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def displays_list(request):
     return render(request, 'smartpanel/displays_list.html',
                   {'displays': Display.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
