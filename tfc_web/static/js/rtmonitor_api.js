@@ -140,7 +140,7 @@ this.connect = function()
                     self.disconnect_callbacks[i].callback.call(self.disconnect_callbacks[i].caller)
                 }
                 // start interval timer trying to reconnect
-                clearInterval(this.sock_timer);
+                clearInterval(self.sock_timer);
                 self.sock_timer = setInterval(function (rt) { return function () { rt.reconnect(); } }(self), 10000);
     };
 };
