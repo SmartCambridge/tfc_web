@@ -90,10 +90,11 @@
         </div>
     </div>
     <div class="logos" style="height: 50px; padding-top: 10px;">
+        <!-- This is the form that gets submitted when the user clicks 'SAVE' on the layout_config -->
         <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
             {% csrf_token %}
-            <input id="design" name="design" type="hidden">
-            <input type="hidden" name="data" id="form-data">
+            <input id="design"    name="design" type="hidden">
+            <!-- <input id='form-data' name="data"   type="hidden"> -->
             <div class="mdl-textfield mdl-js-textfield" style="padding: 0">
                 <input class="mdl-textfield__input" type="text" id="name" name="name" required {% if layout %} value="{{ layout.name }}"{% endif %}>
                 <label class="mdl-textfield__label" for="name" style="top: 4px;">Layout name...</label>
@@ -131,25 +132,10 @@
         </div>
     </div>
     <script>
-        var defaultGrid =
-            {% if layout %}
-                {{ layout.design|jsonify|safe }}
-            {% elif layout_design %}
-                {{ layout_design|jsonify|safe }}
-            {% else %}
-                {
-                    '0': {w: 1, h: 2, x: 0, y: 0}
-                }
-            {% endif %};
-        var data = {
+        // layout_design is the global variable containing all the configuration data for this layout and its widgets
+        var layout_design = {
             {% if layout %}
                 {% for key, value in layout.design.items %}
-                    {% if value.widget %}
-                    "{{ key }}": {{ value|jsonify|safe }},
-                    {% endif %}
-                {% endfor %}
-            {% elif layout_design %}
-                {% for key, value in layout_design.items %}
                     {% if value.widget %}
                     "{{ key }}": {{ value|jsonify|safe }},
                     {% endif %}

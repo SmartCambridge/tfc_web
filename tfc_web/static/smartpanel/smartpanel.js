@@ -1,14 +1,34 @@
 
+
+// JS code for layout_config
+//
+// Is loaded by the smartpanel template layout_config.html
+//
+// Note the layout_config.html template initializes the global var "layout_design" to contain the current config JSON,
+// which has been loaded from the Django layouts table.  This config can be viewed easily via the 'Export' button.
+//
 $(function () {
+
+    var PANEL_WIDTH = 1920;        // Target screensize is 1920 x 1080
+    var PANEL_HEIGHT = 1080;
+    var PANEL_HEADER_HEIGHT = 60;  // Assume clock/logo header is 60px
+    var GRID_COLUMNS = 6;          // grid layout of SmartPanel is GRID_COLUMNS x GRID_ROWS
+    var GRID_ROWS = 4;
+    var GRID_WIDTH = PANEL_WIDTH;  // Width of grid area in px
+    var GRID_HEIGHT = PANEL_HEIGHT - PANEL_HEADER_HEIGHT; // Height of grid area in px
+
     const idx = (props, object) => props.reduce((prefix, val) => (prefix && prefix[val]) ? prefix[val] : null, object);
 
-    var nboxes = Math.max.apply(null, Object.keys(defaultGrid).map(function(elem){ return parseInt(elem) })) + 1;
+    var grid_container = $('.grid-container');
+
+    var next_widget_id = jQuery.isEmptyObject(layout_design) ? 0 :
+                        Math.max.apply(null, Object.keys(layout_design).map(function(elem){ return parseInt(elem) })) + 1;
 
     $('.grid-stack').gridstack({
-        width: 6,
-        height: 4,
+        width: GRID_COLUMNS,
+        height: GRID_ROWS,
         float: true,
-        cellHeight: 255,
+        //cellHeight: 255,
         disableOneColumnMode: true,
         verticalMargin: 0,
         removable: true,
@@ -16,11 +36,12 @@ $(function () {
             handles: 'n, ne, e, se, s, sw, w, nw'
         }
     });
+
     var grid = $('.grid-stack').data('gridstack');
 
     function widget_el(id, title, text) {
         if( typeof title == 'undefined' || title === null ) {
-            title = "Widget unconfigured, click configure button to configure it"
+            title = "Click configure button"
         }
         if( typeof text == 'undefined' || text === null ) {
             text = ""
@@ -45,7 +66,7 @@ $(function () {
         widget.find('.delete-widget').click(function (e) {
             e.preventDefault();
             var widget_id = $(e.currentTarget).data('widget-id').toString();
-            delete data[widget_id];
+            delete layout_design[widget_id];
             grid.removeWidget($("#section-"+widget_id).parent());
         });
     }
@@ -54,8 +75,8 @@ $(function () {
         widget.find('.edit-widget').click(function (e) {
             active_widget_id = $(e.currentTarget).data('widget-id').toString();
             // We check if the widget has already a configuration
-            if (Object.keys(data).indexOf(active_widget_id) > -1)
-                $("#widget-selector").val(data[active_widget_id]['widget']).trigger("change");
+            if (Object.keys(layout_design).indexOf(active_widget_id) > -1)
+                $("#widget-selector").val(layout_design[active_widget_id]['widget']).trigger("change");
             else
                 $("#widget-selector").prop('selectedIndex', 0);
             $('#overlay-configure-widget').css( "display", "flex" );
@@ -63,14 +84,14 @@ $(function () {
         });
     }
 
-    function add_new_widget() {
-        new_widget = grid.addWidget(widget_el(nboxes, null, null),
-            null, null, 1, 1, true, null, null, null, null, nboxes);
+    function add_new_widget(width,height) {
+        new_widget = grid.addWidget(widget_el(next_widget_id, null, null),
+            null, null, width, height, true, null, null, null, null, next_widget_id);
         setup_delete_button(new_widget);
         setup_edit_button(new_widget);
         // Draw tooltips
         componentHandler.upgradeDom();
-        nboxes += 1;
+        next_widget_id += 1;
     }
 
     function add_existing_widget(x, y, width, height, id, title, text) {
@@ -82,44 +103,67 @@ $(function () {
         componentHandler.upgradeDom();
     }
 
-    Object.keys(defaultGrid).forEach(function(key) {
-        add_existing_widget(defaultGrid[key]['x'], defaultGrid[key]['y'],
-            defaultGrid[key]['w'], defaultGrid[key]['h'], key, idx(['placeholder', 'title'], defaultGrid[key]),
-            idx(['placeholder', 'text'], defaultGrid[key]))
-    });
+    // set the px width & height of the grid
+    function reset_grid_size() {
+        grid_container.height(grid_container.width() * GRID_HEIGHT / GRID_WIDTH);
+        grid.cellHeight(grid_container.height() / GRID_ROWS);
+    }
 
-    var grid_container = $('.grid-container');
-    grid_container.height(grid_container.width()*9/16);
-    grid.cellHeight(grid_container.height()/4);
+    // Any existing widget configs (i.e. on 'EDIT') are in 'layout_design' object set on layout_config.html template.
+    // If layout_design = {} then just create a new unconfigured widget
+    if (jQuery.isEmptyObject(layout_design)) {
+        add_new_widget(1,2);
+    } else {
+        // We have pre-defined widget configs in the 'layout_design' object so layout those.
+        Object.keys(layout_design).forEach(function(key) {
+            add_existing_widget( layout_design[key]['x'],
+                                 layout_design[key]['y'],
+                                 layout_design[key]['w'],
+                                 layout_design[key]['h'],
+                                 key,
+                                 idx(['placeholder', 'title'], layout_design[key]),
+                                 idx(['placeholder', 'text'], layout_design[key]))
+        });
+    }
 
+    // set the px width, height of the grid
+    reset_grid_size();
+
+    // On a window resize, call the grid-stack width() & height() methods to update grid
     $(window).resize(function() {
-        grid_container.height(grid_container.width()*9/16);
-        grid.cellHeight(grid_container.height()/4);
+        reset_grid_size();
     });
 
+
+    // Add onclick callback to the 'ADD WIDGET' button
     $('#add-widget').click(function(e) {
         e.preventDefault();
-        if (grid.willItFit(null, null, 1, 1, true)) {
-            add_new_widget();
+        // Use a 'default' size of 1x2 if grid has at least 4 rows and it'll fit
+        if (GRID_ROWS >= 4 && grid.willItFit(null, null, 1, 2, true)) {
+            add_new_widget(1,2);
+        }
+        // Otherwise try to add a 1x1 widget
+        else if (grid.willItFit(null, null, 1, 1, true)) {
+            add_new_widget(1,1);
         }
         else {
             alert('Not enough free space to place a new widget');
         }
     });
 
+    // Send the complete configuration data back to tfc_web smartpanel.py/layout_config()
     $('#smartpanel-design-form').submit(function() {
-        var serializedData = {};
+        // Iterate each widget to fix up the x,y,w,h properties
         $('.grid-stack > .grid-stack-item:visible').each(function() {
             var node = $(this).data('_gridstack_node');
-            serializedData[node.id] = {
-                x: node.x,
-                y: node.y,
-                w: node.width,
-                h: node.height
-            };
+            layout_design[node.id].x = node.x;
+            layout_design[node.id].y = node.y;
+            layout_design[node.id].w = node.width;
+            layout_design[node.id].h = node.height;
         });
-        $('input[name=design]').val(JSON.stringify(serializedData));
-        $('#form-data').val(JSON.stringify(data));
+
+        // Embed this widget config in the submit form
+        $('#design').val(JSON.stringify(layout_design));
     });
 
     // WIDGET CONFIGURATION
@@ -139,8 +183,8 @@ $(function () {
         // Initialise the Widget passing widget_id
         var widget = new window[functionalise(widget_name)](active_widget_id);
         var params = {};
-        if (Object.keys(data).indexOf(active_widget_id) > -1)
-            params = data[active_widget_id]['data'];
+        if (Object.keys(layout_design).indexOf(active_widget_id) > -1)
+            params = layout_design[active_widget_id]['data'];
         // Call widget configuration script with config and preexisting params (if any).
         // It will return a dictionary with three functions:
         // valid() [to validate the form], value() [to retrieve the data from the form],
@@ -175,7 +219,7 @@ $(function () {
             $('body').css('overflow','auto');
             $("#configuration-widget-form").empty();
             var placeholder = save_button.data("config")();
-            data[save_button.data("widget_id")] = {
+            layout_design[save_button.data("widget_id")] = {
                 "widget": save_button.data("widget_name"),
                 "data": save_button.data("value")(),
                 "placeholder": placeholder
@@ -212,3 +256,4 @@ $(function () {
         submit_form_with_action('display', false);
     });
 });
+

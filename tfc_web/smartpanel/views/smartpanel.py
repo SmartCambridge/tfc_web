@@ -90,15 +90,15 @@ def layout_config(request, slug, reload=False):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     error = False
     try:
-        if request.method == "POST" and 'data' in request.POST and 'name' in request.POST and 'design' in request.POST:
+        if request.method == "POST" and 'name' in request.POST and 'design' in request.POST:
             name = request.POST['name']
             design = json.loads(request.POST['design'])
-            data = json.loads(request.POST['data'])
-            for key, value in design.items():
-                if key in data and 'data' in data[key] and 'widget' in data[key] and 'placeholder' in data[key]:
-                    design[key]['widget'] = data[key]['widget']
-                    design[key]['data'] = data[key]['data']
-                    design[key]['placeholder'] = data[key]['placeholder']
+            #data = json.loads(request.POST['data'])
+            #for key, value in design.items():
+            #    if key in data and 'data' in data[key] and 'widget' in data[key] and 'placeholder' in data[key]:
+            #        design[key]['widget'] = data[key]['widget']
+            #        design[key]['data'] = data[key]['data']
+            #        design[key]['placeholder'] = data[key]['placeholder']
             layout.name = name
             layout.design = design
             layout.save()
