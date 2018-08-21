@@ -64,5 +64,8 @@ class Referer(models.Model):
 
     value = models.CharField(_("Value"), max_length=256)
 
+    class Meta:
+        unique_together = (('token', 'value'),)
+
     def __str__(self):
         return self.value
