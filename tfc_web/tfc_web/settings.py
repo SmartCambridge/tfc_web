@@ -34,6 +34,7 @@ PROJECT_APPS = [
     'smartpanel',
     'api',
     'authmultitoken',
+    'smartcambridge'
 ]
 
 INSTALLED_APPS = [
