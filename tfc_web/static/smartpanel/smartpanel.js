@@ -7,37 +7,35 @@
 // Note the layout_config.html template initializes the global var "layout_design" to contain the current config JSON,
 // which has been loaded from the Django layouts table.  This config can be viewed easily via the 'Export' button.
 //
+// This code uses the gridstack.js library https://github.com/gridstack/gridstack.js/tree/develop/doc
+//
 $(function () {
 
     var PANEL_WIDTH = 1920;        // Target screensize is 1920 x 1080
     var PANEL_HEIGHT = 1080;
     var PANEL_HEADER_HEIGHT = 60;  // Assume clock/logo header is 60px
-    var GRID_COLUMNS = 6;          // grid layout of SmartPanel is GRID_COLUMNS x GRID_ROWS
-    var GRID_ROWS = 4;
-    var GRID_WIDTH = PANEL_WIDTH;  // Width of grid area in px
-    var GRID_HEIGHT = PANEL_HEIGHT - PANEL_HEADER_HEIGHT; // Height of grid area in px
 
+    var GRID_RATIO_LANDSCAPE = PANEL_WIDTH / (PANEL_HEIGHT - PANEL_HEADER_HEIGHT);
+    var GRID_RATIO_PORTRAIT = PANEL_HEIGHT / (PANEL_WIDTH - PANEL_HEADER_HEIGHT);
+
+    // *******************************************************************************************
+    // GLOBALS
+    // *******************************************************************************************
+    var grid_columns;          // grid layout of SmartPanel is GRID_COLUMNS x GRID_ROWS
+    var grid_rows;
+
+    var grid_ratio;
+
+    var grid_container;
+
+    var grid;
+
+    var next_widget_id;
+
+    // *******************************************************************************************
+    // FUNCTIONS
+    // *******************************************************************************************
     const idx = (props, object) => props.reduce((prefix, val) => (prefix && prefix[val]) ? prefix[val] : null, object);
-
-    var grid_container = $('.grid-container');
-
-    var next_widget_id = jQuery.isEmptyObject(layout_design) ? 0 :
-                        Math.max.apply(null, Object.keys(layout_design).map(function(elem){ return parseInt(elem) })) + 1;
-
-    $('.grid-stack').gridstack({
-        width: GRID_COLUMNS,
-        height: GRID_ROWS,
-        float: true,
-        //cellHeight: 255,
-        disableOneColumnMode: true,
-        verticalMargin: 0,
-        removable: true,
-        resizable: {
-            handles: 'n, ne, e, se, s, sw, w, nw'
-        }
-    });
-
-    var grid = $('.grid-stack').data('gridstack');
 
     function widget_el(id, title, text) {
         if( typeof title == 'undefined' || title === null ) {
@@ -103,31 +101,22 @@ $(function () {
         componentHandler.upgradeDom();
     }
 
+    function submit_form_with_action(action, reload) {
+        var form = $('#smartpanel-design-form');
+        var save_button = $('#save');
+        if (reload === true)
+            form.attr('target','_blank');
+        save_button.val(action);
+        save_button.click();
+        save_button.val('save');
+        form.attr('target','_self');
+    }
+
     // set the px width & height of the grid
     function reset_grid_size() {
-        grid_container.height(grid_container.width() * GRID_HEIGHT / GRID_WIDTH);
-        grid.cellHeight(grid_container.height() / GRID_ROWS);
+        grid_container.height(grid_container.width() / grid_ratio);
+        grid.cellHeight(grid_container.height() / grid_rows);
     }
-
-    // Any existing widget configs (i.e. on 'EDIT') are in 'layout_design' object set on layout_config.html template.
-    // If layout_design = {} then just create a new unconfigured widget
-    if (jQuery.isEmptyObject(layout_design)) {
-        add_new_widget(1,2);
-    } else {
-        // We have pre-defined widget configs in the 'layout_design' object so layout those.
-        Object.keys(layout_design).forEach(function(key) {
-            add_existing_widget( layout_design[key]['x'],
-                                 layout_design[key]['y'],
-                                 layout_design[key]['w'],
-                                 layout_design[key]['h'],
-                                 key,
-                                 idx(['placeholder', 'title'], layout_design[key]),
-                                 idx(['placeholder', 'text'], layout_design[key]))
-        });
-    }
-
-    // set the px width, height of the grid
-    reset_grid_size();
 
     // On a window resize, call the grid-stack width() & height() methods to update grid
     $(window).resize(function() {
@@ -135,11 +124,39 @@ $(function () {
     });
 
 
+    // Register 'onChange' handler for the layout_orientation <select> element.
+    // Will return landscape | portrait
+    $('#layout_orientation').change(function(e) {
+        switch ($('#layout_orientation').val()) {
+            case 'landscape':
+                grid_ratio = GRID_RATIO_LANDSCAPE;
+                reset_grid_size();
+                break;
+
+            case 'portrait':
+                grid_ratio = GRID_RATIO_PORTRAIT;
+                reset_grid_size();
+                break;
+
+            default:
+        }
+    });
+
+    $('#layout_gridsize').change(function(e) {
+        var gridsize = JSON.parse($('#layout_gridsize').val());
+        grid_columns = gridsize.grid_columns;
+        grid_rows = gridsize.grid_rows;
+        //alert('layout_gridsize '+gridsize.grid_columns+'x'+gridsize.grid_rows);
+        //grid.setGridWidth( grid_columns, true ); // true == doNotPropagate i.e. not adjust widget widths
+        grid.destroy();
+        init();
+    });
+
     // Add onclick callback to the 'ADD WIDGET' button
     $('#add-widget').click(function(e) {
         e.preventDefault();
         // Use a 'default' size of 1x2 if grid has at least 4 rows and it'll fit
-        if (GRID_ROWS >= 4 && grid.willItFit(null, null, 1, 2, true)) {
+        if (grid_rows >= 4 && grid.willItFit(null, null, 1, 2, true)) {
             add_new_widget(1,2);
         }
         // Otherwise try to add a 1x1 widget
@@ -166,7 +183,77 @@ $(function () {
         $('#design').val(JSON.stringify(layout_design));
     });
 
+    $('#view-layout-and-save').click(function() {
+        submit_form_with_action('view', true);
+    });
+
+    $('#update-display-submit').click(function() {
+        submit_form_with_action('display', false);
+    });
+
+    function init() {
+        // <div id="grid" class="grid grid-stack grid-stack-6">
+        // </div>
+        //
+        $('.grid-container').append($('<div class="grid grid-stack grid-stack-'+grid_columns+'"></div>'));
+
+        $('.grid-stack').gridstack({
+            width: grid_columns,
+            height: grid_rows,
+            float: true,
+            //cellHeight: 255,
+            disableOneColumnMode: true,
+            verticalMargin: 0,
+            removable: true,
+            resizable: {
+                handles: 'n, ne, e, se, s, sw, w, nw'
+            }
+        });
+
+        grid = $('.grid-stack').data('gridstack');
+
+        next_widget_id = jQuery.isEmptyObject(layout_design) ? 0 :
+                            Math.max.apply(null, Object.keys(layout_design).map(function(elem){ return parseInt(elem) })) + 1;
+
+        console.log('grid rows',grid_rows);
+
+        // Any existing widget configs (i.e. on 'EDIT') are in 'layout_design' object set on layout_config.html template.
+        // If layout_design = {} then just create a new unconfigured widget
+        if (jQuery.isEmptyObject(layout_design)) {
+            add_new_widget(1,2);
+        } else {
+            // We have pre-defined widget configs in the 'layout_design' object so layout those.
+            Object.keys(layout_design).forEach(function(key) {
+                add_existing_widget( layout_design[key]['x'],
+                                     layout_design[key]['y'],
+                                     layout_design[key]['w'],
+                                     layout_design[key]['h'],
+                                     key,
+                                     idx(['placeholder', 'title'], layout_design[key]),
+                                     idx(['placeholder', 'text'], layout_design[key]))
+            });
+        }
+
+        // set the px width, height of the grid
+        reset_grid_size();
+    }
+
+    // *******************************************************************************************
+    // INIT CODE
+    // *******************************************************************************************
+
+    grid_columns = 6;          // grid layout of SmartPanel is GRID_COLUMNS x GRID_ROWS
+    grid_rows = 4;
+    // The current assumed ratio of height/width for the display. User can change this from "layout_orientation" <select>
+    grid_ratio = GRID_RATIO_LANDSCAPE;
+
+    grid_container = $('.grid-container');
+
+    init();
+
+    // ******************************************************************************
     // WIDGET CONFIGURATION
+    // ******************************************************************************
 
     var active_widget_id;
 
@@ -237,23 +324,5 @@ $(function () {
         $("#widget-selector").prop('selectedIndex', 0);
     });
 
-    function submit_form_with_action(action, reload) {
-        var form = $('#smartpanel-design-form');
-        var save_button = $('#save');
-        if (reload === true)
-            form.attr('target','_blank');
-        save_button.val(action);
-        save_button.click();
-        save_button.val('save');
-        form.attr('target','_self');
-    }
-
-    $('#view-layout-and-save').click(function() {
-        submit_form_with_action('view', true);
-    });
-
-    $('#update-display-submit').click(function() {
-        submit_form_with_action('display', false);
-    });
 });
 

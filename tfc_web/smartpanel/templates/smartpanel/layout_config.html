@@ -89,7 +89,7 @@
             </div>
         </div>
     </div>
-    <div class="logos" style="height: 50px; padding-top: 10px;">
+    <div class="logos" style="padding-top: 10px;">
         <!-- This is the form that gets submitted when the user clicks 'SAVE' on the layout_config -->
         <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
             {% csrf_token %}
@@ -104,6 +104,7 @@
         <a href="{% url 'smartpanel-list-my-layouts' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
         <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
 
+        <!-- layout buttons that are disabled unless for existing saved layout config -->
         {% if layout %}
             <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
         {% else %}
@@ -116,6 +117,27 @@
             <div id="update-display-submit" style="display: inline-flex;"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button></div>
         {% endif %}
 
+        <!-- layout orientation and grid rows/cols -->
+        <div style="display: inline-flex">
+            <select id="layout_orientation" class="mdl-textfield__input" style="width: 7em; margin-left: 10px;">
+                <option value="" selected disabled>Orientation</option>
+                <option value="landscape">Landscape</option>
+                <option value="portrait">Portrait</option>
+            </select>
+        </div>
+
+        <div style="display: inline-flex">
+            <select id="layout_gridsize" class="mdl-textfield__input" style="width: 4em; margin-left: 10px;">
+                <option value="" selected disabled>Grid</option>
+                <option value='{ "grid_rows": 4, "grid_columns": 6 }'>6x4</option>
+                <option value='{ "grid_rows": 6, "grid_columns": 4 }'>4x6</option>
+                <option value='{ "grid_rows": 8, "grid_columns": 12 }'>12x8</option>
+                <option value='{ "grid_rows": 12, "grid_columns": 8 }'>8x12</option>
+            </select>
+        </div>
+
+        <!-- Pre-defined pop-up messages -->
+
         {% if layout %}
             <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
@@ -126,10 +148,8 @@
         {% endif %}
     </div>
 
-    <div class="grid-container mdl-color--teal-900" style="width: 97%; min-width: 1000px; padding: 1px 1px 2px 1px; overflow: hidden;">
+    <div class="grid-container mdl-color--teal-900" style="margin-left: 10px; margin-right: 10px; min-width: 700px; padding: 1px 1px 2px 1px; overflow: hidden;">
 {#    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">#}
-        <div id="grid" class="grid grid-stack grid-stack-6">
-        </div>
     </div>
     <script>
         // layout_design is the global variable containing all the configuration data for this layout and its widgets
