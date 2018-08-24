@@ -133,16 +133,18 @@ def layout_export(request, slug):
 def layout_import(request):
     if request.method == "POST":
         try:
-            layout_design = json.loads(request.POST.get("design", "{}"))
+            design = json.loads(request.POST.get("design", "{}"))
         except json.JSONDecodeError as e:
             messages.error(request, "Layout import failed: %s" % e.msg)
-            return redirect(my)
+            return redirect('smartpanel-list-my-layouts')
         except Exception:
             messages.error(request, "Layout import failed, unknown error")
-            return redirect(my)
+            return redirect('smartpanel-list-my-layouts')
         return render(request, 'smartpanel/layout_config.html',
-                      {'layout_design': layout_design, 'widgets_list': generate_widget_list()})
-    return redirect(my)
+                      {'design': design,
+                       'widgets_list': generate_widget_list(request.user)
+                       })
+    return redirect('smartpanel-list-my-layouts')
 
 
 @smartcambridge_valid_user
@@ -162,15 +164,27 @@ def layout(request, slug, display=None):
         layout = get_object_or_404(Layout, slug=slug)
     else:
         layout = get_object_or_404(Layout, slug=slug, owner=request.user)
+
+    # Build unique widget list from layout.design.widgets, with backsupport for layout.design
     uwl = []  # unique widget list
-    for key, value in layout.design.items():
+    if 'widgets' in layout.design:
+        widgets = layout.design['widgets']
+    else:
+        widgets = layout.design
+
+    for key, value in widgets.items():
         if 'widget' in value and value['widget'] not in uwl:
             uwl.append(value['widget'])
+
     dependencies_files_list = generate_dependencies_files_list(uwl)
     return render(request, 'smartpanel/layout.html',
-                  {'layout': layout, 'stylesheets': dependencies_files_list[0],
-                   'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
+                  {'layout': layout,
+                   'stylesheets': dependencies_files_list[0],
+                   'scripts': dependencies_files_list[1],
+                   'external_scripts': dependencies_files_list[2],
+                   'external_stylesheets': dependencies_files_list[3],
+                   'display': display,
+                   'rt_token': '778'})
 
 
 @smartcambridge_valid_user

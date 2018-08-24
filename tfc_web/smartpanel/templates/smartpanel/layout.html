@@ -18,9 +18,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
     <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+
+    <!-- External scripts -->
     {% for script in external_scripts %}
         <script src="{{ script.src }}"{% if script.integrity %} integrity="{{ script.integrity }}"  crossorigin="anonymous"{% endif %}></script>
     {% endfor %}
+    <!-- Widget scripts -->
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
@@ -35,16 +38,17 @@
     </div>
     <div class="grid-container mdl-color--teal-900" style="height: calc(({{display_width|default:"1920px"}} * 0.5625) - 60px); width: {{display_width|default:"1920px"}}; overflow: hidden;">
         <ul id="grid" class="grid">
-            {% for key, value in layout.design.items %}
-                <li style="height: calc({{ value.h }}*100%/4);
-                        width: calc({{ value.w }}*100%/6); top: calc({{ value.y }}*100%/4);
-                        left: calc({{ value.x }}*100%/6);">
+            {# Note we are providing fallback to layout.design contains list of widgets. Newer version has them in layout.design.widgets #}
+            {% for key, value in layout.design.widgets.items|default:layout.design.items %}
+                <li style="height: calc({{ value.h }}*100%/4); width: calc({{ value.w }}*100%/6); top: calc({{ value.y }}*100%/4); left: calc({{ value.x }}*100%/6);">
                     <div id="widget-{{ key }}" class="widget {{ value.widget }}" style="height: 100%; width: 100%; overflow: hidden; position: relative">
-                        {% if not value.widget %}Unconfigured{% endif %}</div></li>
+                    {% if not value.widget %}Unconfigured{% endif %}</div>
+                </li>
             {% endfor %}
         </ul>
     </div>
     <script>
+
         // Note we must instatiate RTMonitorAPI before widgets
         var RTMONITOR_API = new RTMonitorAPI(
                             {
@@ -93,17 +97,21 @@
             setInterval(update_screen_clock, 1000);
 
             // We initialise the widgets
-            {% for key, value in layout.design.items %}
+            {% for key, value in layout.design.widgets.items|default:layout.design.items %}
                 {% if value.widget %}
                     {% with 'smartpanel/widgets/'|add:value.widget|add:'/' as widget_location %}
                         widget = new {{ value.widget|title|remove_underscore }}("{{ key }}");
                         widget.display(
                             {
-                                'container_id': 'widget-{{ key }}', 'static_url': '{% static widget_location %}',
-                                'display_id': '{{ display.slug }}', 'layout_id': '{{ layout.slug }}',
-                                'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
-                                'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
-                                'display_owner': '{{ display.owner.username }}'
+                                container_id: 'widget-{{ key }}', 
+                                static_url: '{% static widget_location %}',
+                                display_id: '{{ display.slug }}', 
+                                layout_id: '{{ layout.slug }}',
+                                rt_token: '{{ rt_token }}', 
+                                layout_name: '{{ layout.name }}',
+                                display_name: '{{ display.name }}', 
+                                layout_owner: '{{ layout.owner.username }}',
+                                display_owner: '{{ display.owner.username }}'
                             },
                             JSON.parse("{{ value.data|jsonify|escapejs }}"));
                         widgets.push(widget);

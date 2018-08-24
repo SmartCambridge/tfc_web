@@ -64,7 +64,7 @@ $(function () {
         widget.find('.delete-widget').click(function (e) {
             e.preventDefault();
             var widget_id = $(e.currentTarget).data('widget-id').toString();
-            delete layout_design[widget_id];
+            delete layout_design.widgets[widget_id];
             grid.removeWidget($("#section-"+widget_id).parent());
         });
     }
@@ -73,8 +73,8 @@ $(function () {
         widget.find('.edit-widget').click(function (e) {
             active_widget_id = $(e.currentTarget).data('widget-id').toString();
             // We check if the widget has already a configuration
-            if (Object.keys(layout_design).indexOf(active_widget_id) > -1)
-                $("#widget-selector").val(layout_design[active_widget_id]['widget']).trigger("change");
+            if (Object.keys(layout_design.widgets).indexOf(active_widget_id) > -1)
+                $("#widget-selector").val(layout_design.widgets[active_widget_id]['widget']).trigger("change");
             else
                 $("#widget-selector").prop('selectedIndex', 0);
             $('#overlay-configure-widget').css( "display", "flex" );
@@ -173,10 +173,10 @@ $(function () {
         // Iterate each widget to fix up the x,y,w,h properties
         $('.grid-stack > .grid-stack-item:visible').each(function() {
             var node = $(this).data('_gridstack_node');
-            layout_design[node.id].x = node.x;
-            layout_design[node.id].y = node.y;
-            layout_design[node.id].w = node.width;
-            layout_design[node.id].h = node.height;
+            layout_design.widgets[node.id].x = node.x;
+            layout_design.widgets[node.id].y = node.y;
+            layout_design.widgets[node.id].w = node.width;
+            layout_design.widgets[node.id].h = node.height;
         });
 
         // Embed this widget config in the submit form
@@ -212,25 +212,27 @@ $(function () {
 
         grid = $('.grid-stack').data('gridstack');
 
-        next_widget_id = jQuery.isEmptyObject(layout_design) ? 0 :
-                            Math.max.apply(null, Object.keys(layout_design).map(function(elem){ return parseInt(elem) })) + 1;
+        next_widget_id = jQuery.isEmptyObject(layout_design.widgets) ? 0 :
+                            Math.max.apply(null, Object.keys(layout_design.widgets).map(function(elem){ return parseInt(elem) })) + 1;
 
         console.log('grid rows',grid_rows);
 
-        // Any existing widget configs (i.e. on 'EDIT') are in 'layout_design' object set on layout_config.html template.
-        // If layout_design = {} then just create a new unconfigured widget
-        if (jQuery.isEmptyObject(layout_design)) {
+        // Any existing widget configs (i.e. on 'EDIT') are in 'layout_design.widgets' object set on layout_config.html template.
+        // If layout_design.widgets = {} then just create a new unconfigured widget
+        if (jQuery.isEmptyObject(layout_design.widgets)) {
+            //debug ijl20
+            console.log('Empty obj layout_design.widgets',layout_design);
             add_new_widget(1,2);
         } else {
-            // We have pre-defined widget configs in the 'layout_design' object so layout those.
-            Object.keys(layout_design).forEach(function(key) {
-                add_existing_widget( layout_design[key]['x'],
-                                     layout_design[key]['y'],
-                                     layout_design[key]['w'],
-                                     layout_design[key]['h'],
+            // We have pre-defined widget configs in the 'layout_design.widgets' object so layout those.
+            Object.keys(layout_design.widgets).forEach(function(key) {
+                add_existing_widget( layout_design.widgets[key]['x'],
+                                     layout_design.widgets[key]['y'],
+                                     layout_design.widgets[key]['w'],
+                                     layout_design.widgets[key]['h'],
                                      key,
-                                     idx(['placeholder', 'title'], layout_design[key]),
-                                     idx(['placeholder', 'text'], layout_design[key]))
+                                     idx(['placeholder', 'title'], layout_design.widgets[key]),
+                                     idx(['placeholder', 'text'], layout_design.widgets[key]))
             });
         }
 
@@ -248,6 +250,20 @@ $(function () {
     grid_ratio = GRID_RATIO_LANDSCAPE;
 
     grid_container = $('.grid-container');
+
+    // fixup layout_design to have list of widgets in 'widgets' property
+    if ( jQuery.isEmptyObject(layout_design) ||  !(layout_design.hasOwnProperty('widgets')) ) {
+        //debug ijl20
+        console.log('layout_design fixup');
+        // note we have to CLONE layout_design into new_design for correct copy.
+        var new_design = { grid: { rows: grid_rows,
+                                   columns: grid_columns,
+                                   orientation: 'landscape'
+                                 },
+                           widgets: JSON.parse(JSON.stringify(layout_design))
+                         };
+        layout_design = new_design;
+    }
 
     init();
 
@@ -270,8 +286,8 @@ $(function () {
         // Initialise the Widget passing widget_id
         var widget = new window[functionalise(widget_name)](active_widget_id);
         var params = {};
-        if (Object.keys(layout_design).indexOf(active_widget_id) > -1)
-            params = layout_design[active_widget_id]['data'];
+        if (Object.keys(layout_design.widgets).indexOf(active_widget_id) > -1)
+            params = layout_design.widgets[active_widget_id]['data'];
         // Call widget configuration script with config and preexisting params (if any).
         // It will return a dictionary with three functions:
         // valid() [to validate the form], value() [to retrieve the data from the form],
@@ -306,7 +322,7 @@ $(function () {
             $('body').css('overflow','auto');
             $("#configuration-widget-form").empty();
             var placeholder = save_button.data("config")();
-            layout_design[save_button.data("widget_id")] = {
+            layout_design.widgets[save_button.data("widget_id")] = {
                 "widget": save_button.data("widget_name"),
                 "data": save_button.data("value")(),
                 "placeholder": placeholder

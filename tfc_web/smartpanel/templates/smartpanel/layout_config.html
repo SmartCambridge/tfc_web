@@ -90,9 +90,15 @@
         </div>
     </div>
     <div class="logos" style="padding-top: 10px;">
+        <!-- ************************************************************************************* -->
         <!-- This is the form that gets submitted when the user clicks 'SAVE' on the layout_config -->
-        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
+        <!-- ************************************************************************************* -->
+        <form id="smartpanel-design-form" 
+              action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" 
+              method="post" 
+              style="float: left; margin-left: 10px;">
             {% csrf_token %}
+            <!-- this 'design' form element will contain the layout_config JSON -->
             <input id="design"    name="design" type="hidden">
             <!-- <input id='form-data' name="data"   type="hidden"> -->
             <div class="mdl-textfield mdl-js-textfield" style="padding: 0">
@@ -101,6 +107,7 @@
             </div>
             <input id="save" name="submit-button" type="submit" value="save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="float: none">
         </form>
+
         <a href="{% url 'smartpanel-list-my-layouts' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
         <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
 
@@ -136,8 +143,7 @@
             </select>
         </div>
 
-        <!-- Pre-defined pop-up messages -->
-
+        <!-- Pre-defined tooltip messages -->
         {% if layout %}
             <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
@@ -153,15 +159,14 @@
     </div>
     <script>
         // layout_design is the global variable containing all the configuration data for this layout and its widgets
-        var layout_design = {
-            {% if layout %}
-                {% for key, value in layout.design.items %}
-                    {% if value.widget %}
-                    "{{ key }}": {{ value|jsonify|safe }},
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        };
+        // Note an 'import' only provides the 'design' data, while a layout 'edit' provides 'layout' with the design in 'layout.design'
+        var layout_design = {};
+        {% if layout %}
+            layout_design = {{ layout.design|jsonify|safe }};
+        {% elif design %}
+            layout_design = {{ design|jsonify|safe }};
+        {% endif %}
+
         var widget_location = '{% static widget_location %}';
 
         {% if messages %}
