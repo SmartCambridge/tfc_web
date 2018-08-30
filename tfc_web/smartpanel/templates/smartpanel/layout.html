@@ -103,7 +103,8 @@
                                 'display_id': '{{ display.slug }}', 'layout_id': '{{ layout.slug }}',
                                 'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
                                 'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
-                                'display_owner': '{{ display.owner.username }}'
+                                'display_owner': '{{ display.owner.username }}',
+                                'settings': JSON.parse('{{ settings|jsonify|escapejs }}')
                             },
                             JSON.parse("{{ value.data|jsonify|escapejs }}"));
                         widgets.push(widget);

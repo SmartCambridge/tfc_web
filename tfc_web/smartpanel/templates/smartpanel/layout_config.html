@@ -157,6 +157,7 @@
             {% endif %}
         };
         var widget_location = '{% static widget_location %}';
+        var settings = JSON.parse('{{ settings|jsonify|escapejs }}');
 
         {% if messages %}
             $().ready(function () {

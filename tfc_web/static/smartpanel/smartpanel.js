@@ -148,7 +148,8 @@ $(function () {
         widget_conf = widget.configure(
             {
                 'container_id': 'configuration-widget-form',
-                'static_url': widget_location
+                'static_url': widget_location,
+                'settings': settings
             },
             params);
         var save_button = document.getElementById('configuration-widget-save-button');

@@ -243,6 +243,12 @@ TFC_PROD_EMAIL = 'cl-smartcambridge@lists.cam.ac.uk'
 LOCAL_API_KEY = SYSTEM_API_TOKENS['TFC_WEB INTERNAL']['key']
 JS_API_KEY = SYSTEM_API_TOKENS['TFC_WEB JS']['key']
 
+# SMARTPANEL CONFIGURATION =============================================
+# Everything prefixed by SMARTPANEL_ is passed to widget instances
+
+SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/'
+SMARTPANEL_API_TOKEN = JS_API_KEY
+
 # ======================================================================
 
 # An attempt to adapt the default Django logging to log useful stuff

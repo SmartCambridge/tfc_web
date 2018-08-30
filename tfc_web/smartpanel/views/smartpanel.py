@@ -84,6 +84,18 @@ def generate_widget_list(user):
                 })
     return list_widgets
 
+def smartpanel_settings():
+    '''
+    Return a dictionary containing configuration items with names
+    starting 'SMARTPANEL_' for consumption by smartpanel widgets
+    '''
+
+    filtered_settings = {}
+    for attr in dir(settings):
+        if attr.startswith('SMARTPANEL_'):
+            value = getattr(settings, attr)
+            filtered_settings[attr] = value
+    return filtered_settings
 
 @smartcambridge_valid_user
 def layout_config(request, slug, reload=False):
@@ -118,7 +130,9 @@ def layout_config(request, slug, reload=False):
         messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'error': error,
-                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(request.user)})
+                   'debug': request.GET.get('debug', False), 
+                   'widgets_list': generate_widget_list(request.user),
+                   'settings': smartpanel_settings()})
 
 @smartcambridge_valid_user
 def layout_export(request, slug):
@@ -170,7 +184,8 @@ def layout(request, slug, display=None):
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout, 'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
+                   'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777',
+                   'settings': smartpanel_settings()})
 
 
 @smartcambridge_valid_user
