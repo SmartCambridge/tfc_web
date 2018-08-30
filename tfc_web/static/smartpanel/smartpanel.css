@@ -232,3 +232,12 @@
 .mdl-button {
     min-width: 20px;
 }
+
+.delete-widget {
+    margin: 2px;
+}
+
+.edit-widget {
+    margin: 2px;
+}
+
