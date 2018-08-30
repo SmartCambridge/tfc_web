@@ -6,15 +6,14 @@ var BusStopChooser = (function() {
 
     'use strict';
 
-    // TODO: Move to smartcambridge.org when available there (#1)
-    var DEFAULT_ENDPOINT = 'https://smartcambridge.org/transport/api';
+    var DEFAULT_ENDPOINT = 'https://smartcambridge.org/api/v1/';
 
     var OSM_TILES = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var OSM_MAX_ZOOM = 19;
     var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
     'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
 
-    var DEBUG = true;
+    var DEBUG;
 
     var stop_icon = L.divIcon({
         className: 'bus_stop_chooser_stop',
@@ -70,6 +69,7 @@ var BusStopChooser = (function() {
             var multi_select = params.multi_select || false;
             var zoom_threshold = params.zoom_threshold || 15;
             var api_endpoint = params.api_endpoint || DEFAULT_ENDPOINT;
+            var api_token = params.api_token
 
             var map;
             var osm = new L.TileLayer(OSM_TILES,
@@ -80,12 +80,6 @@ var BusStopChooser = (function() {
             var selected_stops = L.featureGroup();
             var other_stops = L.featureGroup();
 
-            //var map_div = document.createElement('div');
-            //map_div.setAttribute('style', 'height: 100%; width: 100%; position: relative; flex: 1');
-            //map_div.style.height = "100%";
-            //map_div.style.width =  "100%";
-            //map_div.style.position = "relative";
-
             var warning_div = document.createElement('div');
             warning_div.className = 'bus_stop_chooser_warning';
             warning_div.style.display = 'none';
@@ -95,7 +89,12 @@ var BusStopChooser = (function() {
             spinner_img.style.display = 'none';
 
 
-            function render(parent_el, current) {
+            function render(raw_parent_el, current) {
+
+                var parent_el = raw_parent_el;
+                if (typeof parent_el === 'string') {
+                    parent_el = document.getElementById(parent_el);
+                }
 
                 var current_stops = [];
                 if (current && current.stops) {
@@ -114,8 +113,6 @@ var BusStopChooser = (function() {
                     current_stops.splice(1);
                 }
 
-                //map_div.setAttribute('style', 'height: 350px; width: 350px; position: relative; flex: 1');
-                //parent_el.appendChild(map_div);
                 parent_el.appendChild(warning_div);
                 parent_el.appendChild(spinner_img);
 
@@ -218,7 +215,7 @@ var BusStopChooser = (function() {
                     var bounds = map.getBounds().pad(0.7).toBBoxString();
                     var qs = '?bounding_box=' + encodeURIComponent(bounds);
                     qs += '&page_size='+encodeURIComponent(50);
-                    uri = api_endpoint + '/stops' + qs;
+                    uri = api_endpoint + 'transport/stops' + qs;
                 }
                 if (!new_stops) {
                     new_stops = [];
@@ -226,6 +223,9 @@ var BusStopChooser = (function() {
 
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', uri, true);
+                if (api_token) {
+                    xhr.setRequestHeader('Authorization', 'Token ' + api_token);
+                }
                 xhr.send();
                 xhr.onreadystatechange = function() {
                     if(xhr.readyState === XMLHttpRequest.DONE) {
