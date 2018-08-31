@@ -19,7 +19,7 @@ function StopBusMap(widget_id) {
 
     'use strict';
 
-    var DEBUG = ' stop_bus_map_log';
+    //var DEBUG = ' stop_bus_map_log';
 
     var self = this;
 

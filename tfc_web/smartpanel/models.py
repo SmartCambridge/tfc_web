@@ -31,7 +31,6 @@ class Layout(models.Model):
     def __str__(self):
         return self.name
 
-
 class Display(models.Model):
     name = models.CharField(max_length=100)
     location = PointField(null=True)

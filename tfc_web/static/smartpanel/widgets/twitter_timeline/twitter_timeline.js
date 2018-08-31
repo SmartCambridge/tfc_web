@@ -7,7 +7,7 @@ function TwitterTimeline(widget_id, params) {
 
     'use strict';
 
-    //var DEBUG = ' twitter_timeline_log';
+    var DEBUG = ' twitter_timeline_log';
 
     var CONFIG_SHIM = true;
 
@@ -54,8 +54,8 @@ function TwitterTimeline(widget_id, params) {
             container_height = $('#' + self.config.container_id).height(),
             tag = $('<a class="twitter-timeline" ' +
                 'data-lang="en" ' +
-                'data-width="' + container_width + '" ' +
-                'data-height="' + container_height + '" ' +
+                //'data-width="' + container_width + '" ' +
+                //'data-height="' + container_height + '" ' +
                 'data-dnt="true" ' +
                 'data-link-color="#000000"' +
                 'href="https://twitter.com/' + self.params.who + '">Tweets by ' + self.params.who + ' </a>' +

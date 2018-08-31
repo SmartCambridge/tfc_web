@@ -48,7 +48,7 @@
         line-height 0.1s;
     */
 }
-
+/*
 .grid li .inner {
     height: 100%;
     background: #fff;
@@ -104,6 +104,7 @@
     margin: 4px 4px 0 0;
     height: 35px;
 }
+*/
 
 .logos {
   font-family: Arial, sans-serif;
@@ -118,9 +119,8 @@
 .logos span {
     font-weight: bold;
     font-size: 50px;
-    position: absolute;
     right: 0.5em;
-    line-height: 60px;
+    vertical-align: top;
 }
 
 #screen_clock {
@@ -133,7 +133,7 @@
     margin-left: 20px;
     vertical-align: top;
 }
-
+/*
 .grid-stack-item {
     background-color: white;
     border: black solid 1px;
@@ -240,4 +240,4 @@
 .edit-widget {
     margin: 2px;
 }
-
+*/

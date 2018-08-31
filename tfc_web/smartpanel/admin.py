@@ -4,3 +4,4 @@ from smartpanel.models import Layout, Display
 
 admin.site.register(Layout, ModelAdmin)
 admin.site.register(Display, ModelAdmin)
+
