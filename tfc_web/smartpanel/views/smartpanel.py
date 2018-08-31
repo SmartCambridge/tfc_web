@@ -36,7 +36,9 @@ def design(request):
     if request.method == "POST":
         layout = Layout.objects.create(owner=request.user, design="{}")
         return layout_config(request, layout.slug, reload=True)
-    return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list(request.user)})
+    return render(request, 'smartpanel/layout_config.html',
+                  {'widgets_list': generate_widget_list(request.user),
+                   'settings': smartpanel_settings()})
 
 
 def generate_dependencies_files_list(uwl):
@@ -155,7 +157,9 @@ def layout_import(request):
             messages.error(request, "Layout import failed, unknown error")
             return redirect(my)
         return render(request, 'smartpanel/layout_config.html',
-                      {'layout_design': layout_design, 'widgets_list': generate_widget_list()})
+                      {'layout_design': layout_design,
+                       'widgets_list': generate_widget_list(),
+                       'settings': smartpanel_settings()})
     return redirect(my)
 
 
