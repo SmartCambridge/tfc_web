@@ -45,12 +45,12 @@ def generate_dependencies_files_list(uwl):
     external_js_files_list = []
     external_css_files_list = []
     for widget in uwl:
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
             js_files_list.append(static('smartpanel/widgets/%s/%s.js' % (widget, widget)))
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
             css_files_list.append(static('smartpanel/widgets/%s/%s.css' % (widget, widget)))
         try:
-            requirements_file = open(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/requirements.json'
+            requirements_file = open(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/requirements.json'
                                                   % widget))
             requirements = json.load(requirements_file)
             if 'scripts' in requirements:
@@ -71,11 +71,11 @@ def generate_dependencies_files_list(uwl):
 
 
 def generate_widget_list(user):
-    widget_directory = os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets')
+    widget_directory = os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets')
     list_widget_files = os.listdir(widget_directory)
     list_widgets = []
     for widget_file in list_widget_files:
-        if os.path.isdir(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets', widget_file)):
+        if os.path.isdir(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets', widget_file)):
             if (widget_file != "bikes") or (widget_file == "bikes" and user.is_superuser):
                 list_widgets.append({
                     'name': json.load(open(os.path.join(widget_directory, '%s/%s_schema.json' %
