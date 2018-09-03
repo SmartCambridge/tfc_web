@@ -187,30 +187,6 @@ $(function () {
         reset_grid_size();
     });
 
-    // portrait | landscape => set layout_design.grid.ratio
-    function set_grid_ratio(orientation) {
-        switch (orientation) {
-            case 'landscape':
-                layout_design.grid.ratio = GRID_RATIO_LANDSCAPE;
-                break;
-
-            case 'portrait':
-                layout_design.grid.ratio = GRID_RATIO_PORTRAIT;
-                break;
-
-            default:
-        }
-    }
-
-    // Register 'onChange' handler for the layout_orientation <select> element.
-    // Will set layout_design.grid.ratio for landscape | portrait and redraw 'draw' area
-    $('#layout_orientation').change(function(e) {
-        //debug ijl20
-        console.log('layout_orientation change');
-        set_grid_ratio($('#layout_orientation').val());
-        reset_grid_size();
-    });
-
     // Register 'onChange' handler for the grid size <select> element
     $('#layout_gridsize').change(function(e) {
         //debug ijl20
@@ -239,6 +215,8 @@ $(function () {
         // set new grid size
         layout_design.grid.columns = gridsize[0];
         layout_design.grid.rows = gridsize[1];
+        layout_design.grid.ratio = gridsize[0] >= gridsize[1] ? GRID_RATIO_LANDSCAPE : GRID_RATIO_PORTRAIT;
+
         //grid.setGridWidth( grid_columns, true ); // true == doNotPropagate i.e. not adjust widget widths
         grid.destroy();
         init(); // init will delete widgets that are outside the current grid

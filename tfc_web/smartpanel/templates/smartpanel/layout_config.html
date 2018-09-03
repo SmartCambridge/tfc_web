@@ -124,16 +124,8 @@
             <div id="update-display-submit" style="display: inline-flex;"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button></div>
         {% endif %}
 
-        <!-- layout orientation and grid rows/cols -->
-        <!-- Note the page uses concept of 'landscape | portrait' but the actual grid contains a more flexible 'ratio' property width/height -->
+        <!-- layout grid rows/cols -->
         <!-- On loading an existing layout, any layout_design.grid.ratio < 1 is portrait. -->
-        <div style="display: inline-flex">
-            <select id="layout_orientation" class="mdl-textfield__input" style="width: 7em; margin-left: 10px;">
-                <option value="landscape" selected>Landscape</option>
-                <option value="portrait">Portrait</option>
-            </select>
-        </div>
-
         <div style="display: inline-flex">
             <select id="layout_gridsize" class="mdl-textfield__input" style="width: 4em; margin-left: 10px;">
                 <option value='' disabled>Landscape:</option>
