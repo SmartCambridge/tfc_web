@@ -36,25 +36,24 @@ class EpochField(serializers.Field):
 MAX_DAYS = 31
 
 
-list_args_schema = AutoSchema(
-    manual_fields=[
-        coreapi.Field(
-            "start_date",
-            required=True,
-            location="query",
-            schema=coreschema.String(
-                description="Start date for returned data (YYYY-MM-DD)")
-        ),
-        coreapi.Field(
-            "end_date",
-            location="query",
-            schema=coreschema.String(
-                description="End date for returned data (YYYY-MM-DD). "
-                "Defaults to start_date and must be no more than 31 days "
-                "from start_date")
-        ),
-    ]
-)
+list_args_fields = [
+    coreapi.Field(
+        "start_date",
+        required=True,
+        location="query",
+        schema=coreschema.String(
+            description="Start date for returned data. YYYY-MM-DD "
+            "(e.g. 2018-01-01)")
+    ),
+    coreapi.Field(
+        "end_date",
+        location="query",
+        schema=coreschema.String(
+            description="End date for returned data. YYYY-MM-DD "
+            "(e.g.2018-01-15). Defaults to start_date and must be no "
+            "more than 31 days from start_date")
+    ),
+]
 
 
 class ListArgsSerializer(serializers.Serializer):

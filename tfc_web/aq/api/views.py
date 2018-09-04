@@ -26,7 +26,7 @@ def get_aq_config(station_id=None):
 
 
 class AQList(auth.AuthenticateddAPIView):
-    ''' Return metadata for all stations '''
+    ''' Return metadata for all stations, including each station's _station_id_.'''
     def get(self, request):
         data = get_aq_config()
         serializer = AQListSerializer(data)
@@ -41,14 +41,15 @@ AQConfig_schema = AutoSchema(
             location="path",
             schema=coreschema.String(
                 description="Air quality sensor station id (e.g. 'S-1134')"),
-            description="Air quality sensor station id (e.g. 'S-1134')"
+            description="Air quality sensor station id (e.g. 'S-1134')",
+            example="S-1134",
         ),
     ]
 )
 
 
 class AQConfig(auth.AuthenticateddAPIView):
-    ''' Return metadata for a single station '''
+    ''' Return metadata for a single station identified by _station_id_.'''
     schema = AQConfig_schema
 
     def get(self, request, station_id):
@@ -64,7 +65,8 @@ AQHistory_schema = AutoSchema(
             location="path",
             schema=coreschema.String(
                 description="Air quality sensor station id (e.g. 'S-1134')"),
-            description="Air quality sensor station id (e.g. 'S-1134')"
+            description="Air quality sensor station id (e.g. 'S-1134')",
+            example="S-1134",
         ),
         coreapi.Field(
             "sensor_type",
@@ -72,21 +74,25 @@ AQHistory_schema = AutoSchema(
             location="path",
             schema=coreschema.String(
                 description="Which sensor on the station to query (e.g. 'NO2')"),
-            description="Which sensor on the station to query (e.g. 'NO2')"
+            description="Which sensor on the station to query (e.g. 'NO2')",
+            example="NO2",
         ),
         coreapi.Field(
             "month",
             required=True,
             location="path",
             schema=coreschema.String(
-                description="Which month to return data for YYYY-MM (e.g. '2016-06')"),
-            description="Which month to return data for YYYY-MM (e.g. '2016-06')"
+                description="The month for which to return data. YYYY-MM (e.g. '2016-06')"),
+            description="The month for which to return data. YYYY-MM (e.g. '2016-06')",
+            example="2016-06",
         ),
     ]
 )
 
+
 class AQHistory(auth.AuthenticateddAPIView):
-    ''' Return historic data for a station/sensor/month '''
+    ''' Return historic data for a single sensor identified by _sensor_type_
+    on a station identified by _station_id_ for a particular _month_.'''
     schema = AQHistory_schema
 
     def get(self, request, station_id, sensor_type, month):
