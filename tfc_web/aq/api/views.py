@@ -1,14 +1,12 @@
 from .serializers import (
     AQListSerializer, AQConfigSerializer,
     AQDataSerializer)
-from api import util, auth
+from api import util, auth, api_docs
 from datetime import datetime
 from rest_framework.response import Response
 from rest_framework.schemas import AutoSchema
 import logging
 from rest_framework.exceptions import NotFound
-import coreapi
-import coreschema
 
 
 logger = logging.getLogger(__name__)
@@ -33,67 +31,20 @@ class AQList(auth.AuthenticateddAPIView):
         return Response(serializer.data)
 
 
-AQConfig_schema = AutoSchema(
-    manual_fields=[
-        coreapi.Field(
-            "station_id",
-            required=True,
-            location="path",
-            schema=coreschema.String(
-                description="Air quality sensor station id (e.g. 'S-1134')"),
-            description="Air quality sensor station id (e.g. 'S-1134')",
-            example="S-1134",
-        ),
-    ]
-)
-
-
 class AQConfig(auth.AuthenticateddAPIView):
     ''' Return metadata for a single station identified by _station_id_.'''
-    schema = AQConfig_schema
+    schema = AutoSchema(manual_fields=api_docs.station_id_fields)
 
     def get(self, request, station_id):
         data = get_aq_config(station_id)
         serializer = AQConfigSerializer(data)
         return Response(serializer.data)
 
-AQHistory_schema = AutoSchema(
-    manual_fields=[
-        coreapi.Field(
-            "station_id",
-            required=True,
-            location="path",
-            schema=coreschema.String(
-                description="Air quality sensor station id (e.g. 'S-1134')"),
-            description="Air quality sensor station id (e.g. 'S-1134')",
-            example="S-1134",
-        ),
-        coreapi.Field(
-            "sensor_type",
-            required=True,
-            location="path",
-            schema=coreschema.String(
-                description="Which sensor on the station to query (e.g. 'NO2')"),
-            description="Which sensor on the station to query (e.g. 'NO2')",
-            example="NO2",
-        ),
-        coreapi.Field(
-            "month",
-            required=True,
-            location="path",
-            schema=coreschema.String(
-                description="The month for which to return data. YYYY-MM (e.g. '2016-06')"),
-            description="The month for which to return data. YYYY-MM (e.g. '2016-06')",
-            example="2016-06",
-        ),
-    ]
-)
-
 
 class AQHistory(auth.AuthenticateddAPIView):
     ''' Return historic data for a single sensor identified by _sensor_type_
     on a station identified by _station_id_ for a particular _month_.'''
-    schema = AQHistory_schema
+    schema = AutoSchema(manual_fields=api_docs.aq_history_fields)
 
     def get(self, request, station_id, sensor_type, month):
         # Note that this validates station_id!

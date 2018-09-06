@@ -7,22 +7,12 @@ from rest_framework.schemas import AutoSchema
 
 from .serializers import (
     ZoneListSerializer, ZoneConfigSerializer, ZoneHistorySerializer)
-from api import util, auth
+from api import util, auth, api_docs
 
 import coreapi
 import coreschema
 
 logger = logging.getLogger(__name__)
-
-zone_id_fields = [coreapi.Field(
-    "zone_id",
-    required=True,
-    location="path",
-    schema=coreschema.String(
-        description="Zone identifier (e.g. 'east_road_in')"),
-    description="Zone identifier (e.g. 'east_road_in')",
-    example="east_road_in",
-)]
 
 
 def get_zone_config(zone_id=None):
@@ -61,7 +51,7 @@ class ZoneConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single zone identified by _zone_id_.
     '''
-    schema = AutoSchema(manual_fields=zone_id_fields)
+    schema = AutoSchema(manual_fields=api_docs.zone_id_fields)
 
     def get(self, request, zone_id):
         data = get_zone_config(zone_id)
@@ -75,7 +65,7 @@ class ZoneHistory(auth.AuthenticateddAPIView):
     Data is returned in 24-hour chunks from _start_date_ to _end_date_
     inclusive. A most 31 day's data can be retrieved in a single request.
     '''
-    schema = AutoSchema(manual_fields=zone_id_fields+util.list_args_fields)
+    schema = AutoSchema(manual_fields=api_docs.zone_id_fields+api_docs.list_args_fields)
 
     def get(self, request, zone_id):
 

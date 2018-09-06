@@ -1,27 +1,14 @@
 from .serializers import (
     ParkingListSerializer, ParkingConfigSerializer,
     ParkingRecordSerializer, ParkingHistorySerializer)
-from api import util, auth
+from api import util, auth, api_docs
 from datetime import timedelta
 from rest_framework.response import Response
 from rest_framework.schemas import AutoSchema
 import logging
 from rest_framework.exceptions import NotFound
 
-import coreapi
-import coreschema
-
 logger = logging.getLogger(__name__)
-
-parking_id_fields = [coreapi.Field(
-    "parking_id",
-    required=True,
-    location="path",
-    schema=coreschema.String(
-        description="Car park identifier (e.g. 'grafton-east-car-park')"),
-    description="Car park identifier (e.g. 'grafton-east-car-park')",
-    example="grafton-east-car-park",
-)]
 
 
 def get_feed_config(feed_id):
@@ -75,7 +62,7 @@ class ParkingConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single car park identified by _parking_id_.
     '''
-    schema = AutoSchema(manual_fields=parking_id_fields)
+    schema = AutoSchema(manual_fields=api_docs.parking_id_fields)
 
     def get(self, request, parking_id):
         data = get_parking_config(parking_id)
@@ -90,7 +77,7 @@ class ParkingHistory(auth.AuthenticateddAPIView):
     _start_date_ to _end_date_ inclusive. A most 31 day's data can be
     retrieved in a single request.
     '''
-    schema = AutoSchema(manual_fields=parking_id_fields + util.list_args_fields);
+    schema = AutoSchema(manual_fields=api_docs.parking_id_fields + api_docs.list_args_fields);
 
     def get(self, request, parking_id):
 
@@ -126,7 +113,7 @@ class ParkingLatest(auth.AuthenticateddAPIView):
     Return most recent car park occupancy data for the car park
     identified by _parking_id_.
     '''
-    schema = AutoSchema(manual_fields=parking_id_fields)
+    schema = AutoSchema(manual_fields=api_docs.parking_id_fields)
 
     def get(self, request, parking_id):
         data = get_parking_monitor(parking_id)
@@ -139,7 +126,7 @@ class ParkingPrevious(auth.AuthenticateddAPIView):
     Return previous most recent car park occupancy data for the car park
     identified by _parking_id_.
     '''
-    schema = AutoSchema(manual_fields=parking_id_fields)
+    schema = AutoSchema(manual_fields=api_docs.parking_id_fields)
 
     def get(self, request, parking_id):
         data = get_parking_monitor(parking_id, '.prev')

@@ -1,6 +1,103 @@
+import coreapi
+import coreschema
+
 
 api_description = '''
 Mary had a **little** lamb.
 
 ...and suchlike
 '''
+
+station_id_fields = [
+    coreapi.Field(
+        "station_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Air quality sensor station id (e.g. 'S-1134')"),
+        description="Air quality sensor station id (e.g. 'S-1134')",
+        example="S-1134",
+    ),
+]
+
+parking_id_fields = [
+    coreapi.Field(
+        "parking_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Car park identifier (e.g. 'grafton-east-car-park')"),
+        description="Car park identifier (e.g. 'grafton-east-car-park')",
+        example="grafton-east-car-park",
+    ),
+]
+
+zone_id_fields = [
+    coreapi.Field(
+        "zone_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Zone identifier (e.g. 'east_road_in')"),
+        description="Zone identifier (e.g. 'east_road_in')",
+        example="east_road_in",
+    ),
+]
+
+aq_history_fields = [
+    coreapi.Field(
+        "station_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Air quality station id (e.g. 'S-1134')"),
+        description="Air quality station id (e.g. 'S-1134')",
+        example="S-1134",
+    ),
+    coreapi.Field(
+        "sensor_type",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Air quality sensor id (e.g. 'NO2')"),
+        description="Air quality sensor id (e.g. 'NO2')",
+        example="NO2",
+    ),
+    coreapi.Field(
+        "month",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="The month for which to return data. YYYY-MM "
+                        "(e.g. '2016-06')"),
+        description="The month for which to return data. YYYY-MM "
+                    "(e.g. '2016-06')",
+        example="2016-06",
+    ),
+]
+
+list_args_fields = [
+    coreapi.Field(
+        "start_date",
+        required=True,
+        location="query",
+        schema=coreschema.String(
+            description="Start date for returned data. YYYY-MM-DD "
+                        "(e.g. '2018-01-01')"),
+        description="Start date for returned data. YYYY-MM-DD "
+                    "(e.g. '2018-01-01')",
+        example="2018-01-01",
+    ),
+    coreapi.Field(
+        "end_date",
+        location="query",
+        schema=coreschema.String(
+            description="End date for returned data. YYYY-MM-DD "
+            "(e.g. '2018-01-15'). Defaults to start_date and must be no "
+            "more than 31 days from start_date"),
+        description="End date for returned data. YYYY-MM-DD "
+            "(e.g. '2018-01-15'). Defaults to start_date and must be no "
+            "more than 31 days from start_date",
+        example="2018-01-15",
+    ),
+]
