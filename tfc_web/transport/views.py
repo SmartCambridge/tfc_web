@@ -25,40 +25,6 @@ def area_home(request, area_id):
 def map_real_time(request):
     return render(request, 'transport/map_real_time.html', {})
 
-
-def bus_map_sirivm(request):
-    return render(request, 'transport/routes_sirivm.html', {})
-
-
-def busdata_json(request):
-    if 'north' in request.GET and 'south' in request.GET and 'east' in request.GET and 'west' in request.GET:
-        north = float(request.GET['north'])
-        south = float(request.GET['south'])
-        east = float(request.GET['east'])
-        west = float(request.GET['west'])
-        boundaries_enabled = True
-        bus_list = []
-        if 'border' in request.GET and request.GET['border'] is "true":
-            extra1 = (north - south)/2
-            north += extra1
-            south -= extra1
-            extra2 = (east - west)/2
-            west -= extra2
-            east += extra2
-    else:
-        boundaries_enabled = False
-
-    bus_data = requests.get(settings.API_ENDPOINT+'/api/dataserver/feed/now/vix2').json() \
-        if 'previous' not in request.GET else \
-        requests.get(settings.API_ENDPOINT+'/api/dataserver/feed/previous/vix2').json()
-    if boundaries_enabled:
-        for index, bus in enumerate(bus_data['request_data']['entities']):
-            if north > bus['latitude'] > south and west < bus['longitude'] < east:
-                bus_list += [bus]
-        bus_data['request_data']['entities'] = bus_list
-    return JsonResponse(bus_data)
-
-
 def bus_lines_list(request, area_id=None):
     if area_id:
         area = get_object_or_404(Area, id=area_id)
@@ -69,17 +35,6 @@ def bus_lines_list(request, area_id=None):
     else:
         bus_lines = Line.objects.all().order_by('line_name')
     return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
-
-
-def bus_line(request, bus_line_id):
-    return render(request, 'bus_line.html', {'bus_line': Line.objects.get(id=bus_line_id)})
-
-
-def bus_line_timetable(request, bus_line_id):
-    bus_line = get_object_or_404(Line, id=bus_line_id)
-    return render(request, 'bus_line_timetable.html', {'bus_line': bus_line,
-                                                       'stop_list': bus_line.get_stop_list()})
-
 
 def bus_route_map(request, bus_route_id):
     return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
@@ -130,29 +85,6 @@ def bus_route_timetable(request, bus_route_id):
     bus_route = Route.objects.get(id=bus_route_id)
     journeys = VehicleJourney.objects.filter(journey_pattern__route=bus_route).order_by('departure_time')
     return render(request, 'bus_route_timetable.html', {'bus_route': bus_route, 'journeys': journeys})
-
-
-def zones_list(request):
-    reader = codecs.getreader("utf-8")
-    zones = json.load(reader(urlopen(
-        settings.API_ENDPOINT+'/api/dataserver/zone/list')))['request_data']['zone_list']
-    return render(request, 'zones.html', {'zones': zones})
-
-
-def zone(request, zone_id):
-    reader = codecs.getreader("utf-8")
-    zone = json.load(reader(urlopen(
-        settings.API_ENDPOINT+'/api/dataserver/zone/config/%s' % zone_id)))['request_data']['options']['config']
-    zone['name'] = zone['zone.name']
-    zone['center'] = zone['zone.center']
-    zone['zoom'] = zone['zone.zoom']
-    zone['path'] = zone['zone.path']
-    return render(request, 'zone.html', {
-        'zone': zone,
-        'tooltips_permanent': True,
-        'mapcenter': "[%s, %s], %s" % (zone['center']['lat'], zone['center']['lng'], zone['zoom'])
-    })
-
 
 def vehicle_journey_real_time(request, vehicle_journey_id):
     vj = get_object_or_404(VehicleJourney, id=vehicle_journey_id)
