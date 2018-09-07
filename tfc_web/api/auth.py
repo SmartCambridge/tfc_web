@@ -1,7 +1,7 @@
 import logging
 
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
 
@@ -44,8 +44,16 @@ class SustainedTokenRate(TokenRateThrottle):
     scope = 'token_sustained'
 
 
+class AcceptedTCs(BasePermission):
+    message = 'Terms and Conditions not yet accepted'
+
+    def has_permission(self, request, view):
+        return (hasattr(request.user, 'smartcambridge_user') and
+                request.user.smartcambridge_user.accepted_tcs)
+
+
 default_authentication = (MultiTokenAuthentication, SessionAuthentication)
-default_permission = (IsAuthenticated,)
+default_permission = (IsAuthenticated, AcceptedTCs)
 default_throttle = (BurstTokenRate, SustainedTokenRate,)
 
 

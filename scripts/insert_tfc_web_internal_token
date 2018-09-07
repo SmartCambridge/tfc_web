@@ -1,10 +1,13 @@
 #!/bin/bash
 
+echo "Please run 'manage.py setup_tfc_prod' which replaces this script"
+exit
+
 # Prompt for the hash value of an API key and insert it
 # into the authmultitoken_token table with the name 'TFC_WEB INTERNAL'
 # for the user tfc_prod
 #
-# This is the token listed in secrets.py tha tthe tfc_web application
+# This is the token listed in secrets.py that the tfc_web application
 # uses when it needs to access the API
 
 date=$(date --iso-8601='seconds')
