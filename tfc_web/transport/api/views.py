@@ -472,10 +472,6 @@ StopList_schema = AutoSchema(
     ]
 )
 
-    authentication_classes = default_authentication
-    permission_classes = default_permission
-    throttle_classes = default_throttle
-
 
 class StopList(generics.ListAPIView):
     """
@@ -488,9 +484,7 @@ class StopList(generics.ListAPIView):
     ordering = ('atco_code', )
     search_fields = ('atco_code', 'common_name', 'locality_name')
 
-<<<<<<< HEAD
     schema = StopList_schema
-=======
     authentication_classes = default_authentication
     permission_classes = default_permission
     throttle_classes = default_throttle
@@ -516,7 +510,6 @@ class StopList(generics.ListAPIView):
             )
         ]
     )
->>>>>>> jw35-api-tcs
 
     def list(self, request, *args, **kwargs):
         # Retrieve the bounding box from the list of GET parameters
@@ -573,11 +566,8 @@ class StopRetrieve(generics.RetrieveAPIView):
     """
     queryset = Stop.objects.all()
     serializer_class = StopSerializer
-<<<<<<< HEAD
     schema = StopRetrieve_schema
-=======
 
     authentication_classes = default_authentication
     permission_classes = default_permission
     throttle_classes = default_throttle
->>>>>>> jw35-api-tcs
