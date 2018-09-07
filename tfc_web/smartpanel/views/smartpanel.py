@@ -4,7 +4,6 @@ import os
 import copy
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import IntegrityError
@@ -13,49 +12,26 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.timezone import now
+
+from smartcambridge.decorator import smartcambridge_valid_user
 from smartpanel.forms import DisplayForm
-from smartpanel.models import Layout, Display, SmartPanelUser
-from smartpanel.views.decorator import smartpanel_valid_user
+from smartpanel.models import Layout, Display
 
 
 logger = logging.getLogger(__name__)
-
-
-@login_required
-def tcs(request):
-    smartpaneluser = SmartPanelUser.objects.filter(user=request.user)
-    accepted_tcs = False
-    if smartpaneluser:
-        accepted_tcs = smartpaneluser[0].accepted_tcs
-    return render(request, 'smartpanel/tcs.html',
-                  {'accepted_tcs': accepted_tcs})
-
-
-@login_required
-def accept_tcs(request):
-    if request.method == "POST":
-        account_type = request.POST.get('account_type', None)
-        company_name = request.POST.get('company_name', None)
-        company_email = request.POST.get('company_email', None)
-        if account_type == "business" and company_name and company_email:
-            SmartPanelUser.accept_tcs(request.user, account_type, company_name, company_email)
-        elif account_type == "personal":
-            SmartPanelUser.accept_tcs(request.user, account_type)
-        return redirect('smartpanel-home')
-    return redirect('home')
 
 
 def all(request):
     return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all().order_by('-id')})
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def my(request):
     return render(request, 'smartpanel/my.html',
                   {'smartpanels': Layout.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def design(request):
     if request.method == "POST":
         layout = Layout.objects.create(owner=request.user, design="{}")
@@ -69,12 +45,12 @@ def generate_dependencies_files_list(uwl):
     external_js_files_list = []
     external_css_files_list = []
     for widget in uwl:
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
             js_files_list.append(static('smartpanel/widgets/%s/%s.js' % (widget, widget)))
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
             css_files_list.append(static('smartpanel/widgets/%s/%s.css' % (widget, widget)))
         try:
-            requirements_file = open(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets/%s/requirements.json'
+            requirements_file = open(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/requirements.json'
                                                   % widget))
             requirements = json.load(requirements_file)
             if 'scripts' in requirements:
@@ -95,11 +71,11 @@ def generate_dependencies_files_list(uwl):
 
 
 def generate_widget_list(user):
-    widget_directory = os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets')
+    widget_directory = os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets')
     list_widget_files = os.listdir(widget_directory)
     list_widgets = []
     for widget_file in list_widget_files:
-        if os.path.isdir(os.path.join(settings.BASE_DIR, 'static/smartpanel/widgets', widget_file)):
+        if os.path.isdir(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets', widget_file)):
             if (widget_file != "bikes") or (widget_file == "bikes" and user.is_superuser):
                 list_widgets.append({
                     'name': json.load(open(os.path.join(widget_directory, '%s/%s_schema.json' %
@@ -109,7 +85,7 @@ def generate_widget_list(user):
     return list_widgets
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def layout_config(request, slug, reload=False):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     error = False
@@ -144,7 +120,7 @@ def layout_config(request, slug, reload=False):
                   {'layout': layout, 'error': error,
                    'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(request.user)})
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def layout_export(request, slug):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     response = JsonResponse(layout.design, json_dumps_params={'indent': 2})
@@ -153,7 +129,7 @@ def layout_export(request, slug):
     return response
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def layout_import(request):
     if request.method == "POST":
         try:
@@ -169,7 +145,7 @@ def layout_import(request):
     return redirect(my)
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def layout_delete(request):
     if request.method == "POST" and 'layout_id' in request.POST:
         try:
@@ -197,7 +173,7 @@ def layout(request, slug, display=None):
                    'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777'})
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def new_display(request):
     if request.method == "POST":
         display_form = DisplayForm(request.POST, user=request.user)
@@ -239,13 +215,13 @@ def displays_debug(request):
     return JsonResponse(results)
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def my_displays(request):
     return render(request, 'smartpanel/displays.html',
                   {'displays': Display.objects.filter(owner=request.user), 'edit': True})
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def edit_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
@@ -258,7 +234,7 @@ def edit_display(request, slug):
     return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
 
-@smartpanel_valid_user
+@smartcambridge_valid_user
 def delete_display(request, slug):
     display = get_object_or_404(Display, slug=slug, owner=request.user)
     if request.method == "POST":
