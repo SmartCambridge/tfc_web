@@ -38,7 +38,11 @@ resources.
 
 The API operates over HTTP using REST-like conventions with parameters
 encoded in URL paths and query parameters. It can be accessed by any
-tool capable of making HTTP requests and interpreting the results. 
+tool capable of making HTTP requests and interpreting the results. This
+page, if accessed with an `Accept:application/coreapi+json` header will
+return a machine-readable description of the API in
+[CoreAPI](http://www.coreapi.org/) format but its use is not restricted
+to CoreAPI-aware tools.
 
 # Authentication
 
@@ -65,12 +69,25 @@ For example:
     curl -X GET https://smartambridge.org/api/v1/aq/ -H 'Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b' 
 
 Tokens used by JavaScript applications are of necessity exposed. To
-minimise the impact of this you can associate tokens with a
-list of 'referer' URLs such that access will be rejected when using
-those tokens if the refers don't match. While this is easily subverted
-in server-side scripts and by using custom proxies it does make it
-slightly harder to misuse tokens exposed in this way. You can setup
-restrictions on tokens from the [token management page]({manage}).
+minimise the impact of this you can associate any token with a list of
+'referer' patterns. Access using that token will then be rejected if the
+'Referer' header provided by a browser don't match any of the patterns.
+While this is easily subverted in server-side scripts and by using
+custom proxies it does make it slightly harder to misuse tokens exposed
+in this way.
+
+Patterns that don't include a `/` character are compared with the host
+name component of the referer URL only. Patterns containing at least one
+`/` are compared against the entire referer URL. Patterns can include
+shell-style wildcard characters: `*` matches anything (including
+nothing), `?` matches a single character, `[seq]` matches any character
+in `seq`, and `[!seq]` matches any character not in `seq`. For a literal
+match wrap meta-characters in brackets, for example `[?]` matches the
+character `?`. A pattern must compare exactly (allowing for wildcards)
+to count as matched.
+
+You can setup referer restrictions on tokens from the [token management
+page]({manage}).
 
 # Rate limiting
 
