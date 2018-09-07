@@ -52,3 +52,17 @@ class Token(models.Model):
 
     def __str__(self):
         return '%s - %s' % (self.user, self.name)
+
+
+@python_2_unicode_compatible
+class Referer(models.Model):
+
+    token = models.ForeignKey(
+        Token, related_name='referers',
+        on_delete=models.CASCADE, verbose_name=_("Token")
+    )
+
+    value = models.CharField(_("Value"), max_length=256)
+
+    def __str__(self):
+        return self.value

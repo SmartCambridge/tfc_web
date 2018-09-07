@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models.functions import Lower
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.template.defaultfilters import pluralize
@@ -14,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema
 from rest_framework.views import APIView
 
-from .models import Token
+from .models import Token, Referer
 from .serializers import AuthTokenSerializer
 
 
@@ -37,7 +38,7 @@ def manage_tokens(request):
             )
         return HttpResponseRedirect(reverse('manage_tokens'))
     else:
-        tokens = Token.objects.filter(user=request.user)
+        tokens = Token.objects.filter(user=request.user).order_by(Lower('name').desc())
         logger.info("Tokens found: %s", tokens)
         return render(
             request,
@@ -80,6 +81,53 @@ def create_token(request):
     else:
         form = TokenForm()
     return render(request, 'authmultitoken/new_token.html', {'form': form})
+
+
+class RestrictionForm(forms.Form):
+    value = forms.CharField(label='Restriction', max_length=256)
+
+
+@login_required
+def manage_token(request, token_id):
+    if request.method == 'POST':
+        referers = Referer.objects.filter(
+            token__user=request.user,
+            id__in=request.POST.getlist('items')
+        )
+        if referers:
+            n_referers = len(referers)
+            referers.delete()
+            messages.add_message(
+                request, messages.SUCCESS,
+                'Deleted {0} restrictions{1}'.format(n_referers, pluralize(n_referers))
+            )
+        return HttpResponseRedirect(reverse('manage_token', args=[token_id]))
+    else:
+        token = Token.objects.get(
+            user=request.user,
+            id=token_id)
+        logger.info("Token found %s with referers: %s", token_id, token.referers)
+        return render(
+            request,
+            'authmultitoken/token_management.html',
+            {'token': token,
+             'referers': token.referers.all().order_by('id'),
+             'form': RestrictionForm(),
+             }
+        )
+
+
+@login_required
+def add_restriction(request, token_id):
+    if request.method == 'POST':
+        form = RestrictionForm(request.POST)
+        if form.is_valid():
+            token = Token.objects.get(
+                user=request.user,
+                id=token_id)
+            token.referers.create(
+                value=form.cleaned_data['value'])
+            return HttpResponseRedirect(reverse('manage_token', args=[token_id]))
 
 
 class ObtainAuthToken(APIView):

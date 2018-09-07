@@ -4,6 +4,7 @@
     <h1>Your tokens</h1>
 
     {% if token_list %}
+    <p>
     <form method = "post" action="">
       {% csrf_token %}
       <table>
@@ -17,11 +18,13 @@
           <td><input name="items" type="checkbox" value="{{ token.id }}"></td>
           <td>{{ token.name }}</td>
           <td>{{ token.created }}</td>
+          <td><a href="{% url 'manage_token' token_id=token.id %}">Manage restrictions</a></a></td>
         </tr>
         {% endfor %}
       </table>
       <input type="submit" value="Delete selected">
     </form>
+  </p>
     {% else %}
       <p>You have no current tokens.</p>
     {% endif %}
