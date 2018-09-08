@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Restrictions for your token "{{ token.name}}"</h1>
+
+    <p>Restrictions can be applied to an API token so that it can only
+    be used from JavaScript running on particular pages by requiring
+    that the HTTP 'Referer' header in API requests matches one of the patterns
+    listed here. API tokens with no restrictions can be used from
+    anywhere.</p>
+
+    <p>Paterns that don't include a '/' character are compared with the
+    host name component of the referer URL only. Patterns containing at
+    least one '/' are compared with the entire referer URL. Patterns
+    can include shell-style wildcard characters: '*' matches anything
+    (including nothing), '?' matches a single character, '[seq]' matches
+    any character in  <em>seq</em>, and '[!seq]' matches any character
+    not in <em>seq</em>. For a literal match, wrap the meta-characters
+    in brackets - for example, '[?]' matches the character '?'.</p>
+
+    <p>A pattern must compare exactly (allowing for wildcards) for it to
+    match.</p>
+
+    {% if referers %}
+    <p>
+    <form method = "post" action="">
+      {% csrf_token %}
+      <table>
+        <tr>
+          <th>Select</th>
+          <th>Restriction</th>
+        </tr>
+        {% for referer in referers %}
+        <tr>
+          <td><input name="items" type="checkbox" value="{{ referer.id }}"></td>
+          <td>{{ referer.value }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      <input type="submit" value="Delete selected">
+    </form>
+    </p>
+    {% else %}
+      <p>This token has no restrictions.</p>
+    {% endif %}
+
+    <p>
+    <form method = "post" action="{% url 'add_restriction' token_id=token.id %}">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Add" />
+    </form>
+    </p>
+
+    <p><a href="{% url 'manage_tokens' %}">Manage tokens</a></p>
+
+{% endblock %}

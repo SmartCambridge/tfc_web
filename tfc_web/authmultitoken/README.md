@@ -9,6 +9,8 @@ but with the following differences:
 
 * Support for multiple tokens per user
 * Tokens are stored hashed to reduce the ridk of compromise
+* Tokens can optionally be restricted so that they are only valid in requests with
+  particular HTTP 'Referer' headers
 * An HTML interface through which users can manage
   their own tokens
 
@@ -35,8 +37,8 @@ There are various ways to create tokens (see below). For testing, the simplest i
 manage.py create_multitoken <userid> <name for token>
 ```
 
-For clients to authenticate, the token key should be included in the `Authorization`
-HTTP header. The key should be prefixed by the string literal "Token", with whitespace
+For clients to authenticate, the token should be included in the `Authorization`
+HTTP header. It should be prefixed by the string literal "Token", with whitespace
 separating the two strings. For example:
 
 ```
@@ -52,7 +54,24 @@ credentials.
 * `request.user` will be a Django `User` instance.
 * `request.auth` will be a `authmultitoken.models.Token` instance.
 
-The Token model includes an `is_active` flag which defaults to `True`. Authentication will only succeed for tokens and corresponding users for which `is_active` is `True`.
+The Token model includes an `is_active` flag which defaults to `True`.
+Authentication will only succeed for tokens and corresponding users for
+which `is_active` is `True`.
+
+The Token model allows for zero or more 'Referer' restrictions. If any are present,
+the corresponding token is only valid when used in a request in which the
+HTTP 'Referer' header matches at least one restriction pattern. Tokens with
+no restrictions are valid with any Referer header (or none).
+
+Restriction paterns that don't include a `/` character are compared with
+the host name component of the referer URL only. Patterns containing at
+least one `/` are compared against the entire referer URL. Patterns can
+include shell-style wildcard characters: `*` matches anything (including
+nothing), `?` matches a single character, `[seq]` matches any character
+in *seq*, and `[!seq]` matches any character not in *seq*. For a literal
+match, wrap the meta-characters in brackets - for example, `[?]` matches
+the character `?`. A pattern must compare exactly (allowing for wildcards)
+for it to match.
 
 Unauthenticated responses that are denied permission will result in an
 `HTTP 401 Unauthorized` response with an appropriate WWW-Authenticate header.
@@ -96,13 +115,25 @@ manage.py list_multitoken <userid>
 and deleted with:
 
 ```
-delete_multitoken <userid> <name for token>
+manage.py delete_multitoken <userid> <name for token>
+```
+
+Referer restrictions can be added with
+
+```
+manage.py add_restriction <userid> <name for token> <retriction pattern>
+```
+
+and deleted with
+
+```
+manage.py delete_restriction <userid> <name for token> <retriction pattern>
 ```
 
 ### By administrators using Django admin
 
-Tokens can be listed, manipulated, and deleted using Django Admin. It is not
-currently possible to create tokens.
+Tokens and their restrictions can be listed, manipulated, and deleted using Django Admin. It is not
+currently possible to create tokens but it is possible to add restrictions.
 
 ### By users interactively
 
@@ -116,8 +147,8 @@ urlpatterns += [
 ```
 
 This exposes a `create-token/` endpoint for creating new tokens and a
-`tokens/` endpoint for listing and deleting them. Both endpoints
-require Django session authentication and will trigger authentication
+`tokens/` endpoint for listing and deleting them and for mnaging restrictions.
+All endpoints require Django session authentication and will trigger authentication
 as necessary.
 
 ### By users, programmaticly
@@ -147,6 +178,9 @@ attribute.
 If you need a customized version of this endpoint you can create one
 by subclassing the `ObtainAuthToken` view class, and using that in
 your url conf instead.
+
+Currently this endpoint can only create tokens and can't subsequently manage them
+or manage restrictions.
 
 ### By administrators, programmaticly
 

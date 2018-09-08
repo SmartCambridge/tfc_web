@@ -19,7 +19,7 @@
         of roads within Cambridge based on bus position reports from
         October 2017 onward.
     </li>
-    <li>API access to bus transport data from the
+    <li>Bus transport data from the
         <a href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan">National
         Public Transport Access Nodes (NaPTAN)</a> and
         <a href="http://www.travelinedata.org.uk/traveline-open-data/traveline-national-dataset/">Traveline
@@ -27,13 +27,20 @@
     </li>
 </ul>
 
-<p>Access to the 'Air Quality', 'Car Parking', and 'Traffic Speed' endpoints
-    required free registration, even when accessed via the auto-genereted API
-    documentation. Both session authentication (by logging in to SmartCambridge)
-    and API Token authentication (see 'Create an API token' below) are supported.
-</p>
+<p>Access to all endpoints
+    requires free registration and authentication.
+    Both session authentication (by logging in to SmartCambridge)
+    and API Token authentication are supported. API tokens are created
+    and managed through pages linked below. For clients to authenticate
+    using a token it must be included in an <i>Authorization</i> HTTP header.
+    The token should be prefixed by the string literal "Token", with whitespace
+    separating the two strings. For example:</p>
 
-<p>Access to the 'Air Quality', 'Car Parking', and 'Traffic Speed' endpoints
+<pre>
+Authorization: Token xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</pre>
+
+<p>Access to all endpoints
     is also rate-limited, currently to 1200 requests per minute and 12000 requests
     per hour per token (for token-based access) or per user (for session
     authentication).
@@ -47,10 +54,6 @@
 <ul>
     <li><a href={% url 'create_token' %}>Create an API token</a></li>
     <li><a href={% url 'manage_tokens' %}>Manage API tokens</a></li>
-</ul>
-<ul>
-    <li><a href={% url 'account_login' %}?next={{ request.get_full_path }}>Login to SmartCambridge</a></li>
-    <li><a href={% url 'account_logout' %}?next={{ request.get_full_path }}>Logout from SmartCambridge</a></li>
 </ul>
 
 {% endblock %}

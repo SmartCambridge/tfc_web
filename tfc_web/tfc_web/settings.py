@@ -233,6 +233,26 @@ REST_FRAMEWORK = {
     }
 }
 
+# API authorisation settings ===========================================
+
+TFC_PROD_USERNAME = 'tfc_prod'
+TFC_PROD_EMAIL = 'cl-smartcambridge@lists.cam.ac.uk'
+# TFC_PROD_PASSWORD = ''
+
+# SYSTEM_API_TOKENS = { }
+try:
+    LOCAL_API_KEY = SYSTEM_API_TOKENS['TFC_WEB INTERNAL']['key']
+    JS_API_KEY = SYSTEM_API_TOKENS['TFC_WEB JS']['key']
+except NameError:
+    LOCAL_API_KEY = ''
+    JS_API_KEY = ''
+
+# SMARTPANEL CONFIGURATION =============================================
+# Everything prefixed by SMARTPANEL_ is passed to widget instances
+
+SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
+SMARTPANEL_API_TOKEN = JS_API_KEY
+
 # ======================================================================
 
 # An attempt to adapt the default Django logging to log useful stuff

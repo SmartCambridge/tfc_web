@@ -22,6 +22,8 @@ DATA_PATH = '/usr/src/app/api/tests/data'
 
 NEW_API_ENDPOINT = 'http://127.0.0.1:8000'
 
+SMARTPANEL_API_ENDPOINT = 'http://127.0.0.1:8000/api/v1/'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
