@@ -423,6 +423,10 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     serializer_class = VehicleJourneySerializer
     schema = VehicleJourneyRetrieve_schema
 
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
+
 
 StopList_schema = AutoSchema(
     manual_fields=[
@@ -488,28 +492,6 @@ class StopList(generics.ListAPIView):
     authentication_classes = default_authentication
     permission_classes = default_permission
     throttle_classes = default_throttle
-
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field(
-                "bounding_box",
-                required=False,
-                location="query",
-                schema=coreschema.String(
-                    description="Limit results to stops within a bounding "
-                                "box, specified as "
-                                "'southwest_lng,southwest_lat,northeast_lng,"
-                                "northeast_lat' (matching Leaflet's "
-                                "toBBoxString() method"
-                    ),
-                description="Limit results to stops within a bounding "
-                            "box, specified as "
-                            "'southwest_lng,southwest_lat,northeast_lng,"
-                            "northeast_lat' (matching Leaflet's "
-                            "toBBoxString() method"
-            )
-        ]
-    )
 
     def list(self, request, *args, **kwargs):
         # Retrieve the bounding box from the list of GET parameters
