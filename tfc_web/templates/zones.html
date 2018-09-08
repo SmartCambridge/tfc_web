@@ -1,4 +1,4 @@
-{% extends "template.html" %}
+{% extends "base.html" %}
 {% block content %}
     {% for zone in zones %}
         <a href="{% url 'zone' zone.zone_id %}">{{ zone.zone_id }}<br></a>
