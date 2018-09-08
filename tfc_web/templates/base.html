@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <script src="{% static 'js/functions.js' %}"></script>
 
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
     {% block head %}{% endblock %}
     {% block extra_head %}{% endblock %}
@@ -29,7 +29,7 @@
         <div class="mdl-snackbar__text"></div>
         <button type="button" class="mdl-snackbar__action"></button>
     </div>
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer has-drawer">
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header has-drawer {% block extra_drawer_css %}{% endblock %}">
         <div class="header mdl-layout__header mdl-layout__header--waterfall">
             <div class="mdl-layout__header-row">
                 <span class="title mdl-layout-title" style="display: inline-block;">
@@ -42,15 +42,11 @@
                 <div class="navigation-container">
                     <nav class="navigation mdl-navigation">
                         {% block header_menu %}
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'smartpanel-home' %}">SmartPanels</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'bus-home' %}">Bus</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'parking_home' %}">Parking</a>
+                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'forum:index' %}">Forum</a>
                         {% endblock %}
-                        {% if user.is_authenticated %}
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_change_password' %}">Change Password</a>
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_email' %}">Change E-mail</a>
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_logout' %}">Sign Out</a>
-                        {% else %}
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_login' %}">Sign In</a>
-                            <a class="mdl-navigation__link mdl-typography--text-uppercase" href="{% url 'account_signup' %}">Sign Up</a>
-                        {% endif %}
                     </nav>
                 </div>
                 <span class="mobile-title mdl-layout-title">
@@ -63,18 +59,42 @@
 
         <div class="drawer mdl-layout__drawer">
             {% if user.is_authenticated %}
-            <header class="drawer-header">
-                <div class="avatar-dropdown">
-                    Hello <span>{{ user.username }}</span>
-                </div>
-            </header>
+                <header class="drawer-header">
+                    <div class="avatar-dropdown">
+                        Hello <span>{{ user.username }}</span>
+                    </div>
+                </header>
+            {% else %}
+                <span class="mdl-layout-title">
+                    <img class="logo-image" src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
+                </span>
             {% endif %}
+
             <nav class="mdl-navigation">
                 {% if not user.is_authenticated %}
-                    <a class="mdl-navigation__link" href="{% url 'account_login' %}">Sign In</a>
-                    <a class="mdl-navigation__link" href="{% url 'account_signup' %}">Sign Up</a>
+                    <a class="mdl-navigation__link" href="{% url 'account_login' %}?next={{request.path}}">Sign In</a>
+                    <a class="mdl-navigation__link" href="{% url 'account_signup' %}?next={{request.path}}">Sign Up</a>
                 {% endif %}
                 {% block navigation %}
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'smartpanel-home' %}" style="color: #1cb2b5;">SmartPanels</a>
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'bus-home' %}" style="color: #1cb2b5;">Buses</a>
+                    <a class="mdl-navigation__link" href="{% url 'bus-map' %}">Bus Map</a>
+                    <a class="mdl-navigation__link" href="{% url 'bus-stops-list' %}">Bus Stops</a>
+                    <a class="mdl-navigation__link" href="{% url 'zones-list' %}" style="color: #1cb2b5;">Zones</a>
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'traffic_home' %}" style="color: #1cb2b5;">Traffic</a>
+                    <a class="mdl-navigation__link" href="{% url 'parking_home' %}" style="color: #1cb2b5;">Parking</a>
+                    <a class="mdl-navigation__link" href="{% url 'aq_home' %}" style="color: #1cb2b5;">Air Quality</a>
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'csn-home' %}" style="color: #1cb2b5;">Cambridge Sensor Network</a>
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'forum:index' %}" style="color: #1cb2b5;">Forum</a>
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'api_home' %}" style="color: #1cb2b5;">API</a>
+                    <div class="drawer-separator"></div>
+                    <a class="mdl-navigation__link" href="{% url 'about' %}" style="color: #1cb2b5;">About</a>
                 {% endblock %}
                 {% if user.is_authenticated %}
                     <div class="drawer-separator"></div>

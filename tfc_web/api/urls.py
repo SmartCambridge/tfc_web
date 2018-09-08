@@ -19,7 +19,7 @@ docpatterns = [
 
 
 urlpatterns = [
-    url(r'^$', smartcambridge_valid_user(TemplateView.as_view(template_name="api/index.html"))),
+    url(r'^$', smartcambridge_valid_user(TemplateView.as_view(template_name="api/index.html")), name="api_home"),
     # url(r'', include('authmultitoken.endpoint_urls')),
     url(r'', include('authmultitoken.html_urls')),
     url(r'^auth/', include('api.auth_urls')),
