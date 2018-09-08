@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class TokenManager(models.Manager):
-    def create(self, user, name):
-
+    def new_token(self, user, name):
+        '''Create a new token for a user'''
         token = binascii.hexlify(os.urandom(20)).decode()
         digest = hashlib.sha256(token.encode()).hexdigest()
 
-        super(TokenManager, self).create(
-            digest=digest, format=1, user=user, name=name)
+        self.create(
+            digest=digest, user=user, name=name)
         # Note only the token - not the AuthToken object - is returned
         # and the token isn't stored anywhere
         return token
@@ -32,7 +32,7 @@ class Token(models.Model):
     digest = models.CharField(_("Digest"), max_length=64, unique=True,
                               db_index=True)
 
-    format = models.IntegerField(_("Key format"))
+    format = models.IntegerField(_("Key format"), default=1)
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='auth_multi_tokens',
@@ -63,6 +63,9 @@ class Referer(models.Model):
     )
 
     value = models.CharField(_("Value"), max_length=256)
+
+    class Meta:
+        unique_together = (('token', 'value'),)
 
     def __str__(self):
         return self.value

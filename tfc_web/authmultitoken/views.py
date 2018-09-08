@@ -69,7 +69,7 @@ def create_token(request):
     if request.method == 'POST':
         form = TokenForm(request.POST, user=request.user)
         if form.is_valid():
-            token = Token.objects.create(
+            token = Token.objects.new_token(
                 user=request.user,
                 name=form.cleaned_data['name']
             )
@@ -178,7 +178,7 @@ class ObtainAuthToken(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         name = serializer.validated_data['name']
-        token = Token.objects.create(user=user, name=name)
+        token = Token.objects.new_token(user=user, name=name)
         return Response({'token': token})
 
 

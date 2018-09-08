@@ -11,15 +11,11 @@ class RefererInline(admin.TabularInline):
 
 class TokenAdmin(admin.ModelAdmin):
     list_display = ('user', 'name', 'created', 'is_active')
-    fields = ('user', 'name', 'is_active')
-    ordering = ('-created',)
+    fields = ('user', 'name', 'digest', 'is_active')
+    ordering = ('user', '-created',)
     inlines = [
         RefererInline
     ]
-
-    def has_add_permission(self, request):
-        ''' Disable the 'Add' button since it won't work '''
-        return False
 
 
 admin.site.register(Token, TokenAdmin)

@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def create_user_token(self, username, tokenname):
         user = UserModel._default_manager.get_by_natural_key(username)
-        token = Token.objects.create(user=user, name=tokenname)
+        token = Token.objects.new_token(user=user, name=tokenname)
         return token
 
     def add_arguments(self, parser):

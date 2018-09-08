@@ -10,7 +10,8 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, filters
-from rest_framework.decorators import api_view, renderer_classes, schema, parser_classes
+from rest_framework.decorators import api_view, renderer_classes, schema, \
+    parser_classes, authentication_classes, permission_classes, throttle_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
@@ -21,6 +22,8 @@ from transport.api.serializers import VehicleJourneySerializer, LineSerializer, 
 from transport.models import Stop, Timetable, VehicleJourney
 from urllib.parse import quote
 import re
+from api.auth import default_authentication, default_permission, \
+    default_throttle, AuthenticateddAPIView
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -115,6 +118,9 @@ journeys_by_time_and_stop_schema = ManualSchema(
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @schema(journeys_by_time_and_stop_schema)
 def journeys_by_time_and_stop(request):
     try:
@@ -220,6 +226,9 @@ departure_to_journey_schema = ManualSchema(
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @schema(departure_to_journey_schema)
 def departure_to_journey(request):
     '''Using a Departure Stop and a Departure time tries to match it with a VehicleJourney.
@@ -262,6 +271,9 @@ siriVM_POST_to_journey_schema = AutoSchema(
 @csrf_exempt
 @api_view(['POST'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @parser_classes((JSONParser,))
 @schema(siriVM_POST_to_journey_schema)
 def siriVM_POST_to_journey(request):
@@ -299,6 +311,9 @@ siriVM_to_journey_schema = ManualSchema(
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @schema(siriVM_to_journey_schema)
 def siriVM_to_journey(request):
     """Reads last data from siriVM feed and tries to match it with a VehicleJourney
@@ -338,6 +353,10 @@ class VehicleJourneyList(generics.ListAPIView):
     serializer_class = VehicleJourneySerializer
     pagination_class = Pagination
 
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
+
 
 class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     """
@@ -345,6 +364,10 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
+
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
 
 
 class StopList(generics.ListAPIView):
@@ -357,6 +380,10 @@ class StopList(generics.ListAPIView):
     ordering_fields = ('atco_code', 'common_name', 'locality_name')
     ordering = ('atco_code', )
     search_fields = ('atco_code', 'common_name', 'locality_name')
+
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
 
     schema = AutoSchema(
         manual_fields=[
@@ -419,3 +446,7 @@ class StopRetrieve(generics.RetrieveAPIView):
     """
     queryset = Stop.objects.all()
     serializer_class = StopSerializer
+
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle

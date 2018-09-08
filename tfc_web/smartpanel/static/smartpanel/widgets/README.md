@@ -1,6 +1,6 @@
 # SmartCambridge SmartPanel Framework
 
-_Version 5_
+_Version 6_
 
 This directory contains the widgets for the SmartCambridge SmartPanel
 Framework.
@@ -133,9 +133,9 @@ contains the following keys:
 * `settings`: an object containing a copy of configuration parameters
   inherited from the enclosing framework's setup. Only parameters with
   names starting `SMARTPANEL_` are included [object, required]. Currently
-  use values:
-      * `SMARTPANEL_TRANSPORT_API`: URL base for the TFC transport API
-      * `SMARTPANEL_RT_API`: URL base for the real time bus traffic data
+  used values:
+      * `SMARTPANEL_API_ENDPOINT`: URL base for the TFC transport API
+      * `SMARTPANEL_API_TOKEN`: Access token for the API
 
 ### Constructor
 

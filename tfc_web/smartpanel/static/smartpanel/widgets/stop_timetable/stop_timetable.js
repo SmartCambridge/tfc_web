@@ -68,8 +68,6 @@ function StopTimetable(widget_id) {
 
     // Configuration constants
 
-        // Endpoint for the timetable API
-        TIMETABLE_URI                 = 'https://smartcambridge.org/transport/api',
         // Maximum refresh interval for the display
         DISPLAY_REFRESH_INTERVAL      = 30 * SECONDS,
         // MAximum refresh interval for real-time subscriptions
@@ -292,11 +290,12 @@ function StopTimetable(widget_id) {
         qs += '&expand_journey=true';
         qs += '&nresults='+encodeURIComponent(JOURNEY_BATCH_SIZE);
 
-        var uri = TIMETABLE_URI + '/journeys_by_time_and_stop/' + qs;
+        var uri = self.config.settings.SMARTPANEL_API_ENDPOINT + 'transport/journeys_by_time_and_stop/' + qs;
         self.log('get_journey_batch - fetching', uri);
 
         var xhr = new XMLHttpRequest();
         xhr.open('GET', uri, true);
+        xhr.setRequestHeader('Authorization', 'Token ' + self.config.settings.SMARTPANEL_API_TOKEN);
         xhr.send();
         xhr.onreadystatechange = function() {
             if(xhr.readyState === XMLHttpRequest.DONE) {
