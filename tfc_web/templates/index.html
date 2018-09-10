@@ -1,6 +1,6 @@
-{% extends "template.html" %}
+{% extends "base.html" %}
 {% load static %}
-{% block content %}
+{% block inner_content %}
         <div class="presentation-band">
             <div class="presentation-band-text">
                 <div class="mdl-typography--display-2 mdl-typography--font-thin">Smart Cambridge</div>
@@ -144,6 +144,25 @@
                     </div>
                     <div class="mdl-card__actions">
                         <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'aq_home' %}">
+                            View
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                    <div class="mdl-card__media">
+                        <img src="{% static 'images/home/api.jpg' %}">
+                    </div>
+                    <div class="mdl-card__title">
+                        <h4 class="mdl-card__title-text">API</h4>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        <span class="mdl-typography--font-light mdl-typography--subhead">Programmatic
+                        access to SmartCambridge data</span>
+                    </div>
+                    <div class="mdl-card__actions">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'api_home' %}">
                             View
                             <i class="material-icons">chevron_right</i>
                         </a>
