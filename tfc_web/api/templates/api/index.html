@@ -47,26 +47,37 @@ way restricted to CoreAPI-aware tools.</p>
 
 <h2>Authentication</h2>
 
-<p>All API calls must be authenticated. You make authenticated calls
-either by 
-<a href="{% url 'account_login' %}?next={{ request.get_full_path }}">logging
-in</a>, or by including an API token
-with the call. Beware that API calls made from browsers, for example
-from JavaScript, will always succeed for as long as you are logged in to
-this website <em>even if you are not successfully
-supplying a token</em>.</p>
+<p>All API calls must be authenticated by someone who has agreed to the
+platform's 
+<a href="{% url 'smartcambridge-tcs' %}">Terms and
+Conditions</a>. You make authenticated calls either:</p>
+
+<ul>
+
+<li>by <a href="{% url 'login-and-agree' %}">signing in</a> (and
+agreeing the terms and conditions if you haven't already)</li>
+
+<li>by including an API token with the call. Beware that API calls made
+from browsers, for example from JavaScript, will always succeed for as
+long as you are logged in to this website <em>even if you are not
+successfully supplying a token</em>.</li>
+
+</ul>
 
 <p>To call the API using the 'Interact' links on the
 <a href="{% url 'api-docs:docs-index' %}">reference page</a>
-can authenticate using the
-'Authentication' menu at the bottom-left of that page.</p>
+you can also authenticate using the
+'Authentication' menu at the bottom-left of that page providing you
+have already agreed to the terms and conditions.</p>
+
+<h2>Tokens</h2>
 
 <p>You can <a href="{% url 'create_token' %}">create</a> and
 subsequently
 <a href="{% url 'manage_tokens' %}">manage</a> as many API tokens as you
 want.</p>
 
-<p>To use a token for authentication you should include it in an
+<p>To use a token for authentication, include it in an
 <tt>Authorization</tt> HTTP header in your requests, proceeded by the
 word <tt>Token</tt> and a single space:</p>
 
@@ -85,8 +96,8 @@ minimise the impact of this you can associate any token with a list of
 'referer' patterns. Access using that token will then be rejected if the
 'Referer' header provided by a browser don't match any of the patterns.
 While this is easily subverted in server-side scripts and by using
-custom proxies it does make it slightly harder for tokens
-exposed in this way to be misused.</p>
+custom proxies it does make it slightly harder to misuse tokens
+that are exposed in this way.</p>
 
 <p>You can setup referer restrictions on tokens from the 
 <a href="{% url 'manage_tokens' %}">token management page</a>.</p>
@@ -114,8 +125,8 @@ information. Some errors, in particular any that generate bogus URLs,
 generate generic HTML <tt>404 Not found</tt> pages with 
 <tt>Content-Type: text/html</tt>.
 
-<p>Individual output formats are not documented, but should be self-
-explanatory. Some API calls that return lists of data items will return
+<p>Individual output formats are not documented, but should be 
+self-explanatory. Some API calls that return lists of data items will return
 <tt>200 OK</tt> responses with empty lists, rather than <tt>404 Not
 found</tt>, if called with a valid request for which there happens to be
 no data available (e.g because of the chosen date range).</p>

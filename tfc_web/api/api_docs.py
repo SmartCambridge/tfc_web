@@ -10,7 +10,7 @@ api_description = '''
 Programmatic access to data held by the Smartcambridge project.
 
 See [the main API documentation](/api/) for important information about
-using this API.
+using this API, **in particular about the need for authentication**.
 '''
 
 station_id_fields = [
