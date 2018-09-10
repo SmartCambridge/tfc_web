@@ -14,7 +14,7 @@ function IframeArea(widget_id) {
     this.display = function (config, params) {
         self.config = config;
         self.params = params;
-        self.log(widget_id, 'IframeArea',"Running display");
+        self.log(widget_id, 'IframeArea',"Running display", params);
         do_load();
     };
 
@@ -25,21 +25,31 @@ function IframeArea(widget_id) {
     };
 
     function do_load() {
-        self.log("Running do_load", self.config.container_id);
+        var container_box = $('#'+self.config.container_id)[0].getBoundingClientRect();
+        self.log(widget_id,'IframeArea','Running do_load', self.config.container_id, container_box.width, container_box.height);
         var frame = $('<iframe>')
                 .attr('src', self.params.url)
         // 'scrolling=no' is deprecated but I can't find a cosponsoring CSS attribute
                 .attr('scrolling', 'no');
         // Use scale to make the iframe bigger, and then transform it back down to fit.
+
+        var offsetx = self.params.offsetx ? self.params.offsetx : 0;
+        var offsety = self.params.offsety ? self.params.offsety : 0;
+        var scale = self.params.scale ? self.params.scale : 1;
+
+        var width_percent = 100 * (container_box.width + parseInt(offsetx)) / container_box.width / scale + '%';
+        var height_percent = 100 * (container_box.height + parseInt(offsety)) / container_box.height / scale + '%';
+
         if ((typeof self.params.scale !== 'undefined') && self.params.scale > 0) {
             self.log('Scale factor', self.params.scale);
-            frame.css({'width': 100/self.params.scale + '%',
-                       'height': 100/self.params.scale + '%',
-                       '-ms-transform': 'scale(' + self.params.scale + ')',
-                       '-moz-transform': 'scale(' + self.params.scale + ')',
-                       '-o-transform': 'scale(' + self.params.scale + ')',
-                       '-webkit-transform': 'scale(' + self.params.scale + ')',
-                       'transform': 'scale(' + self.params.scale + ')',
+            frame.css({'width': width_percent,
+                       'height': height_percent,
+                       'border': 'none',
+                       '-ms-transform': 'scale(' + scale + ') translate(-'+offsetx+'px, -'+offsety+'px)',
+                       '-moz-transform': 'scale(' + scale + ') translate(-'+offsetx+'px, -'+offsety+'px)',
+                       '-o-transform': 'scale(' + scale + ') translate(-'+offsetx+'px, -'+offsety+'px)',
+                       '-webkit-transform': 'scale(' + scale + ') translate(-'+offsetx+'px, -'+offsety+'px)',
+                       '-transform': 'scale(' + scale + ') translate(-'+offsetx+'px, -'+offsety+'px)',
                        '-ms-transform-origin': '0 0',
                        '-moz-transform-origin': '0 0',
                        '-o-transform-origin': '0 0',
@@ -108,15 +118,24 @@ function IframeArea(widget_id) {
         config_info1.appendChild(document.createTextNode(config_info_text));
         parent_el.appendChild(config_info1);
 
-        var config_info3 = document.createElement('p');
+        var config_info2 = document.createElement('p');
         config_info_text = "'Scale' shrinks or magnifies the web page, e.g. 0.5 will shrink to half size, 2 will magnify.";
+        config_info2.appendChild(document.createTextNode(config_info_text));
+        parent_el.appendChild(config_info2);
+
+        var config_info3 = document.createElement('p');
+        config_info_text = "Offset X and Y are used to 'shift' the iframe view to an area of the source page."+
+                           "'Offset X' shifts the iframe to the right (relative to the page), and similarly 'Offset Y' shifts the iframe downwards, e.g."+
+                           "20,20 will move the top-left corner of the iframe diagonally into the web page by 20px";
         config_info3.appendChild(document.createTextNode(config_info_text));
         parent_el.appendChild(config_info3);
 
         var config_table = document.createElement('table');
         config_table.className = 'config_input_iframe_area';
+        parent_el.appendChild(config_table);
 
         var config_tbody = document.createElement('tbody');
+        config_table.appendChild(config_tbody);
 
         // Each config_input(...) will return a .value() callback function for the input data
 
@@ -137,8 +156,24 @@ function IframeArea(widget_id) {
                                            title: 'E.g. 0.5 will display page at half normal size, 2 will magnify to double'
                                          },
                                          params.scale);
-        config_table.appendChild(config_tbody);
-        parent_el.appendChild(config_table);
+
+        // OFFSETX
+        //
+        var offsetx_result = widget_config.input( config_tbody,
+                                         'number',
+                                         { text: 'X Offset:',
+                                           title: 'E.g. 300 will shift the iframe right into the page by 300px'
+                                         },
+                                         params.offsetx);
+
+        // OFFSETY
+        //
+        var offsety_result = widget_config.input( config_tbody,
+                                         'number',
+                                         { text: 'Y Offset:',
+                                           title: 'E.g. 100 will shift the iframe down the page by 100px'
+                                         },
+                                         params.offsety);
 
         // value() is the function for this input element that returns its value
         var value_fn = function () {
@@ -147,6 +182,10 @@ function IframeArea(widget_id) {
             config_params.url = url_result.value();
 
             config_params.scale = scale_result.value();
+
+            config_params.offsetx = offsetx_result.value();
+
+            config_params.offsety = offsety_result.value();
 
             self.log(self.widget_id,'input_iframe_area returning params:',config_params);
 

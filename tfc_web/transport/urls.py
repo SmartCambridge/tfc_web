@@ -27,11 +27,7 @@ urlpatterns = [
     url(r'^area/(?P<area_id>\d+)/$', views.area_home, name='transport-area-home'),
 
     # Bus movements
-    url(r'^map_old/$', views.bus_map_sirivm, name='old-bus-map'),
     url(r'^map/$', views.map_real_time, name='bus-map'),
-#    url(r'^map/$', views.bus_map_sirivm, name='bus-map'),
-#    url(r'^map_real_time/$', views.map_real_time, name='map-real-time'),
-    url(r'^busdata.json$', views.busdata_json, name='busdata-json'),
 
     # Bus Stops
     url(r'^stops/$', views.bus_stops_list, name='bus-stops-list'),
@@ -42,8 +38,6 @@ urlpatterns = [
     # Bus Lines
     url(r'^lines/$', views.bus_lines_list, name='bus-lines-list'),
     url(r'^lines/area/(?P<area_id>\d+)/$', views.bus_lines_list, name='bus-lines-list-area'),
-#    url(r'^line/(?P<bus_line_id>+)/$', views.bus_line_timetable, name='bus-line'),
-#    url(r'^line/old/(?P<bus_line_id>.+)/$', views.bus_line, name='bus-line-old'),
 
     # Bus Routes
     url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),

@@ -1,0 +1,111 @@
+
+.layout {
+    background-image: url("/static_web/smartpanel/layout.png");
+}
+
+.grid-stack-item {
+    background-color: white;
+    border: black solid 1px;
+    box-sizing: border-box;
+}
+
+.grid-stack-item-content {
+    text-align: center;
+    padding-top: 10px;
+    background-color: white;
+}
+
+.widget_id_p {
+    padding-top: 30px;
+    font-size: 26px;
+}
+
+#overlay-configure-widget-map {
+    height: 100%;
+    width: 100%;
+    z-index: 2000;
+    background-color: rgba(0,0,0,0.75);
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#configuration-widget-map {
+    height: 75%;
+    width: 75%;
+    background-color: white;
+    padding: 20px 10px 50px 10px;
+    position: relative;
+}
+
+#overlay-configure-widget {
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+    background-color: rgba(0,0,0,0.75);
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#configuration-widget-div {
+    height: 75%;
+    width: 75%;
+    background-color: white;
+    padding: 20px 10px 50px 10px;
+    position: relative;
+}
+
+#configuration-widget-form {
+    height: calc(100% - 30px);
+    overflow: auto;
+}
+
+#configuration-widget-buttons {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+.widget-configured-text {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.widget-configured-text h1 {
+    font-size: 1.75vw;
+    margin: 10px 0;
+}
+
+.mdl-textfield__label[for="name"] {
+    top: 4px;
+}
+
+.mdl-textfield__label[for="name"]::after {
+    bottom: 0;
+}
+
+.logos .mdl-button {
+    margin-bottom: 10px;
+    margin-left: 10px;
+    min-width: 20px;
+}
+
+.mdl-button {
+    min-width: 20px;
+}
+
+.delete-widget {
+    margin: 2px;
+}
+
+.edit-widget {
+    margin: 2px;
+}
+

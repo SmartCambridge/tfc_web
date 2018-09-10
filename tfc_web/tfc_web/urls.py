@@ -15,8 +15,6 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import TemplateView
-from transport import views
-
 
 urlpatterns = [
     # auth
@@ -38,10 +36,6 @@ urlpatterns = [
 
     # Air Quality
     url(r'^aq/', include('aq.urls')),
-
-    # Zones
-    url(r'^zones/$', views.zones_list, name='zones-list'),
-    url(r'^zone/(?P<zone_id>\w+)/$', views.zone, name='zone'),
 
     # Cambridge Sensor Network
     url(r'^csn/', include('csn.urls')),

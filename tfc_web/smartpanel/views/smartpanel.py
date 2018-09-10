@@ -22,12 +22,12 @@ logger = logging.getLogger(__name__)
 
 
 def all(request):
-    return render(request, 'smartpanel/my.html', {'smartpanels': Layout.objects.all().order_by('-id')})
+    return render(request, 'smartpanel/layouts_list.html', {'smartpanels': Layout.objects.all().order_by('-id')})
 
 
 @smartcambridge_valid_user
-def my(request):
-    return render(request, 'smartpanel/my.html',
+def layouts_list(request):
+    return render(request, 'smartpanel/layouts_list.html',
                   {'smartpanels': Layout.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
@@ -104,15 +104,15 @@ def layout_config(request, slug, reload=False):
     layout = get_object_or_404(Layout, slug=slug, owner=request.user)
     error = False
     try:
-        if request.method == "POST" and 'data' in request.POST and 'name' in request.POST and 'design' in request.POST:
+        if request.method == "POST" and 'name' in request.POST and 'design' in request.POST:
             name = request.POST['name']
             design = json.loads(request.POST['design'])
-            data = json.loads(request.POST['data'])
-            for key, value in design.items():
-                if key in data and 'data' in data[key] and 'widget' in data[key] and 'placeholder' in data[key]:
-                    design[key]['widget'] = data[key]['widget']
-                    design[key]['data'] = data[key]['data']
-                    design[key]['placeholder'] = data[key]['placeholder']
+            #data = json.loads(request.POST['data'])
+            #for key, value in design.items():
+            #    if key in data and 'data' in data[key] and 'widget' in data[key] and 'placeholder' in data[key]:
+            #        design[key]['widget'] = data[key]['widget']
+            #        design[key]['data'] = data[key]['data']
+            #        design[key]['placeholder'] = data[key]['placeholder']
             layout.name = name
             layout.design = design
             layout.save()
@@ -124,7 +124,7 @@ def layout_config(request, slug, reload=False):
                 layout.save()
                 messages.info(request, 'SmartPanel layout published')
             elif request.POST.get('submit-button', None) == "save":
-                return redirect('smartpanel-layout-my')
+                return redirect('smartpanel-list-my-layouts')
             if reload:
                 return redirect('smartpanel-layout-config', slug)
     except:
@@ -149,18 +149,19 @@ def layout_export(request, slug):
 def layout_import(request):
     if request.method == "POST":
         try:
-            layout_design = json.loads(request.POST.get("design", "{}"))
+            design = json.loads(request.POST.get("design", "{}"))
         except json.JSONDecodeError as e:
             messages.error(request, "Layout import failed: %s" % e.msg)
-            return redirect(my)
+            return redirect('smartpanel-list-my-layouts')
         except Exception:
             messages.error(request, "Layout import failed, unknown error")
-            return redirect(my)
+            return redirect('smartpanel-list-my-layouts')
         return render(request, 'smartpanel/layout_config.html',
-                      {'layout_design': layout_design,
-                       'widgets_list': generate_widget_list(),
-                       'settings': smartpanel_settings()})
-    return redirect(my)
+                      {'design': design,
+                       'widgets_list': generate_widget_list(request.user),
+                       'settings': smartpanel_settings()
+                       })
+    return redirect('smartpanel-list-my-layouts')
 
 
 @smartcambridge_valid_user
@@ -170,7 +171,7 @@ def layout_delete(request):
             get_object_or_404(Layout, slug=request.POST['layout_id'], owner=request.user).delete()
         except IntegrityError:
             messages.error(request, "This Layout is being used by a Display, remove it from the Display first.")
-    return redirect('smartpanel-layout-my')
+    return redirect('smartpanel-list-my-layouts')
 
 
 def layout(request, slug, display=None):
@@ -180,15 +181,27 @@ def layout(request, slug, display=None):
         layout = get_object_or_404(Layout, slug=slug)
     else:
         layout = get_object_or_404(Layout, slug=slug, owner=request.user)
+
+    # Build unique widget list from layout.design.widgets, with backsupport for layout.design
     uwl = []  # unique widget list
-    for key, value in layout.design.items():
+    if 'widgets' in layout.design:
+        widgets = layout.design['widgets']
+    else:
+        widgets = layout.design
+
+    for key, value in widgets.items():
         if 'widget' in value and value['widget'] not in uwl:
             uwl.append(value['widget'])
+
     dependencies_files_list = generate_dependencies_files_list(uwl)
     return render(request, 'smartpanel/layout.html',
-                  {'layout': layout, 'stylesheets': dependencies_files_list[0],
-                   'scripts': dependencies_files_list[1], 'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3], 'display': display, 'rt_token': '777',
+                  {'layout': layout,
+                   'stylesheets': dependencies_files_list[0],
+                   'scripts': dependencies_files_list[1],
+                   'external_scripts': dependencies_files_list[2],
+                   'external_stylesheets': dependencies_files_list[3],
+                   'display': display,
+                   'rt_token': '778',
                    'settings': smartpanel_settings()})
 
 
@@ -235,9 +248,14 @@ def displays_debug(request):
 
 
 @smartcambridge_valid_user
-def my_displays(request):
-    return render(request, 'smartpanel/displays.html',
+def displays_map(request):
+    return render(request, 'smartpanel/displays_map.html',
                   {'displays': Display.objects.filter(owner=request.user), 'edit': True})
+
+@smartcambridge_valid_user
+def displays_list(request):
+    return render(request, 'smartpanel/displays_list.html',
+                  {'displays': Display.objects.filter(owner=request.user).order_by('-id'), 'edit': True})
 
 
 @smartcambridge_valid_user
@@ -252,11 +270,16 @@ def edit_display(request, slug):
         display_form = DisplayForm(instance=display, user=request.user)
     return render(request, 'smartpanel/display.html', {'display_form': display_form, 'edit': True})
 
-
 @smartcambridge_valid_user
-def delete_display(request, slug):
-    display = get_object_or_404(Display, slug=slug, owner=request.user)
-    if request.method == "POST":
-        display.delete()
-        return redirect('smartpanel-list-my-displays')
-    return redirect('smartpanel-edit-display', display.slug)
+def display_delete(request):
+    if request.method == "POST" and 'display_id' in request.POST:
+        try:
+            get_object_or_404(Display, slug=request.POST['display_id'], owner=request.user).delete()
+        except:
+            messages.error(request, "Can't delete this display")
+        if request.POST['source'] == 'map':
+            return redirect('smartpanel-map-my-displays')
+        else:
+            return redirect('smartpanel-list-my-displays')
+    return redirect('smartpanel-list-my-displays')
+

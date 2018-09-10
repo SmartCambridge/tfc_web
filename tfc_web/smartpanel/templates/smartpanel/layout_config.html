@@ -56,7 +56,7 @@
     <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}">
 
     <script src="{% static 'smartpanel/smartpanel.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel_config.css' %}"/>
 
     {# Load all the widgets so the widget configuration is available immediatly #}
     {% for widget in widgets_list %}
@@ -84,25 +84,34 @@
             </select>
             <div id="configuration-widget-form" class="widget_config"></div>
             <div id="configuration-widget-buttons">
-                <a id="configuration-widget-save-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Save</a>
+                <a id="configuration-widget-save-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">OK</a>
                 <a id="configuration-widget-cancel-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
             </div>
         </div>
     </div>
-    <div class="logos" style="height: 50px; padding-top: 10px;">
-        <form id="smartpanel-design-form" action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" method="post" style="float: left; margin-left: 10px;">
+    <div class="logos" style="padding-top: 10px;">
+        <!-- ************************************************************************************* -->
+        <!-- This is the form that gets submitted when the user clicks 'SAVE' on the layout_config -->
+        <!-- ************************************************************************************* -->
+        <form id="smartpanel-design-form" 
+              action="{% if layout %}{% url 'smartpanel-layout-config' layout.slug %}{% else %}{% url 'smartpanel-design' %}{% endif %}" 
+              method="post" 
+              style="float: left; margin-left: 10px;">
             {% csrf_token %}
-            <input id="design" name="design" type="hidden">
-            <input type="hidden" name="data" id="form-data">
+            <!-- this 'design' form element will contain the layout_config JSON -->
+            <input id="design"    name="design" type="hidden">
+            <!-- <input id='form-data' name="data"   type="hidden"> -->
             <div class="mdl-textfield mdl-js-textfield" style="padding: 0">
                 <input class="mdl-textfield__input" type="text" id="name" name="name" required {% if layout %} value="{{ layout.name }}"{% endif %}>
                 <label class="mdl-textfield__label" for="name" style="top: 4px;">Layout name...</label>
             </div>
             <input id="save" name="submit-button" type="submit" value="save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" style="float: none">
         </form>
-        <a href="{% url 'smartpanel-layout-my' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
+
+        <a href="{% url 'smartpanel-list-my-layouts' %}" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Cancel</a>
         <a id="add-widget" href="#add-widget" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Add Widget</a>
 
+        <!-- layout buttons that are disabled unless for existing saved layout config -->
         {% if layout %}
             <a id="view-layout-and-save" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">View</a>
         {% else %}
@@ -115,6 +124,22 @@
             <div id="update-display-submit" style="display: inline-flex;"><button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" disabled>Refresh display</button></div>
         {% endif %}
 
+        <!-- layout grid rows/cols -->
+        <!-- On loading an existing layout, any layout_design.grid.ratio < 1 is portrait. -->
+        <div style="display: inline-flex">
+            <select id="layout_gridsize" class="mdl-textfield__input" style="width: 4em; margin-left: 10px;">
+                <option value='' disabled>Landscape:</option>
+                <option value='6x4' selected>6x4</option>
+                <option value='9x6'>9x6</option>
+                <option value='12x8'>12x8</option>
+                <option value='' disabled>Portrait:</option>
+                <option value='4x6'>4x6</option>
+                <option value='6x9'>6x9</option>
+                <option value='8x12'>8x12</option>
+            </select>
+        </div>
+
+        <!-- Pre-defined tooltip messages -->
         {% if layout %}
             <div class="mdl-tooltip" data-mdl-for="view-layout-and-save">Clicking this button will cause your configuration to be saved</div>
             <div class="mdl-tooltip" data-mdl-for="update-display-submit">Clicking this button will save the current configuration and push the new layout to all displays using it</div>
@@ -125,37 +150,22 @@
         {% endif %}
     </div>
 
-    <div class="grid-container mdl-color--teal-900" style="width: 97%; min-width: 1000px; padding: 1px 1px 2px 1px; overflow: hidden;">
+    <!-- HERE IS THE GRID CONTAINER DIV -->
+    <!-- The init() function in smartpanel.js will create the div class="grid-stack" used by gridstack.js within this containter -->
+    <div class="grid-container mdl-color--teal-900" style="margin-left: 10px; margin-right: 10px; min-width: 700px; padding: 1px 1px 2px 1px; overflow: hidden;">
 {#    <div class="grid-container mdl-color--teal-900" style="height: calc((100vw - 80px) * 0.5625); overflow: hidden;">#}
-        <div id="grid" class="grid grid-stack grid-stack-6">
-        </div>
     </div>
+
     <script>
-        var defaultGrid =
-            {% if layout %}
-                {{ layout.design|jsonify|safe }}
-            {% elif layout_design %}
-                {{ layout_design|jsonify|safe }}
-            {% else %}
-                {
-                    '0': {w: 1, h: 2, x: 0, y: 0}
-                }
-            {% endif %};
-        var data = {
-            {% if layout %}
-                {% for key, value in layout.design.items %}
-                    {% if value.widget %}
-                    "{{ key }}": {{ value|jsonify|safe }},
-                    {% endif %}
-                {% endfor %}
-            {% elif layout_design %}
-                {% for key, value in layout_design.items %}
-                    {% if value.widget %}
-                    "{{ key }}": {{ value|jsonify|safe }},
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        };
+        // layout_design is the global variable containing all the configuration data for this layout and its widgets
+        // Note an 'import' only provides the 'design' data, while a layout 'edit' provides 'layout' with the design in 'layout.design'
+        var layout_design = {};
+        {% if layout %}
+            layout_design = {{ layout.design|jsonify|safe }};
+        {% elif design %}
+            layout_design = {{ design|jsonify|safe }};
+        {% endif %}
+
         var widget_location = '{% static widget_location %}';
         var settings = JSON.parse('{{ settings|jsonify|escapejs }}');
 

@@ -1,13 +1,13 @@
 from django.contrib.gis.forms import OSMWidget
 from django import forms
-from django.forms import ModelForm, TextInput
+from django.forms import ModelForm, TextInput, Select
 from smartpanel.models import Display, Layout
 
 
 class LayoutChoiceField(forms.ModelChoiceField):
     def __init__(self, user, **kwargs):
         super().__init__(queryset=Layout.objects.filter(owner=user),
-                         label="Layout", widget=forms.Select(attrs={'class': 'mdl-textfield__input'}), **kwargs)
+                         label="Layout", widget=Select(attrs={'class': 'mdl-textfield__input'}), **kwargs)
 
     def label_from_instance(self, obj):
         return obj.name
