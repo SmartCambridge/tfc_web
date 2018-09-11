@@ -1,181 +1,1462 @@
-{ "zone_list":
-  [ 
-
-                 {
-        "module.name":      "zone",
-        "module.id":        "east_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "east_road_in",
-        "zone.center":{"lat":52.2031306184964,"lng":0.12281446378325622},
-        "zone.zoom":15,
-        "zone.path":[{"lat":52.207861111317555,"lng":0.1360158924217103},
-                     {"lat":52.20780851435752,"lng":0.13889122048567515},
-                     {"lat":52.20249590066629,"lng":0.13253974953840952},
-                     {"lat":52.20310083426891,"lng":0.13069438973616343}],
-        "zone.finish_index":2,
-        "zone.name":"East Road IN",
-        "zone.reverse.id": "east_road_out"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "hills_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "hills_road_in",
-        "zone.center":{"lat":52.197957151813746,"lng":0.1301417231559432},
-        "zone.zoom":18,
-        "zone.path":[{"lat":52.17929377243817,"lng":0.14041900634765625},
-                     {"lat":52.17939903379436,"lng":0.14471054077148438},
-                     {"lat":52.19071317679521,"lng":0.13715744018554688},
-                     {"lat":52.195974588058064,"lng":0.13192176818847656},
-                     {"lat":52.19907852861959,"lng":0.12917518615722656},
-                     {"lat":52.19734245298547,"lng":0.1267719268798828}],
-        "zone.finish_index":4,
-        "zone.name":"Hills Road IN",
-        "zone.reverse.id": "hills_road_out"
-           
-               },
-                 {
-        "module.name":      "zone",
-        "module.id":        "histon_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "histon_road_in",
-        "zone.center":{"lat":52.20825841138823,"lng":0.13840560913082722},
-        "zone.zoom":13,
-        "zone.path":[{"lat":52.23354793984571,"lng":0.10907363786827773},
-                     {"lat":52.23365307275228,"lng":0.1150817860616371},
-                     {"lat":52.21630277403146,"lng":0.11285018816124648},
-                     {"lat":52.21756484254275,"lng":0.10855865373741835}],
-        "zone.finish_index":2,
-        "zone.name":"Histon Road IN",
-        "zone.reverse.id": "histon_road_out"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "huntingdon_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "huntingdon_road_in",
-        "zone.center":{"lat":52.21839850870647,"lng":0.1003611564635909},
-        "zone.zoom":15,
-        "zone.path":[{"lat":52.2261926176202,"lng":0.08900642395019531},
-                     {"lat":52.22487821753175,"lng":0.08595943450927734},
-                     {"lat":52.211442817717945,"lng":0.11248111724853516},
-                     {"lat":52.21267872871188,"lng":0.11509895324707031}],
-        "zone.finish_index":2,
-        "zone.name":"Huntingdon Road IN",
-        "zone.reverse.id": "huntingdon_road_out"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "madingley_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.center":{"lat":52.21132533651944,"lng":0.0969279289245284},
-        "zone.zoom":15,
-        "zone.path":[{"lat":52.212783911038585,"lng":0.08480072021484375},
-                     {"lat":52.214335321429296,"lng":0.08514404296875},
-                     {"lat":52.212257996914616,"lng":0.10570049285888672},
-                     {"lat":52.21065392038191,"lng":0.10548591613769531}],
-        "zone.finish_index":2,
-        "zone.name":"Madingley Road IN",
-        "zone.id":          "madingley_road_in",
-        "zone.reverse.id": "madingley__road_out"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "milton_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "milton_road_in",
-        "zone.center":{"lat":52.224208710767265,"lng":0.13572340011593464},
-        "zone.zoom":15,
-        "zone.path":[{"lat":52.22932073333277,"lng":0.14964580535888672},
-                     {"lat":52.23052986185695,"lng":0.14814376831054688},
-                     {"lat":52.217490565224445,"lng":0.12638568878173828},
-                     {"lat":52.21543968225301,"lng":0.12462615966796875},
-                     {"lat":52.21528191810207,"lng":0.12754440307617188}],
-        "zone.finish_index":3,
-        "zone.name":"Milton Road IN",
-        "zone.reverse.id": "madingley_road_out"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "newmarket_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "newmarket_road_in",
-        "zone.center":{"lat":52.20786459390002,"lng":0.15028028409575622},
-        "zone.zoom":15,
-        "zone.path":[{"lat":52.213462330741216,"lng":0.1618509303079918},
-                     {"lat":52.21120089036989,"lng":0.16150760755408555},
-                     {"lat":52.2102542067302,"lng":0.15189457044471055},
-                     {"lat":52.207755916933955,"lng":0.13923454389441758},
-                     {"lat":52.209675667908364,"lng":0.1387195597635582},
-                     {"lat":52.214750774354144,"lng":0.1510791789041832}],
-        "zone.finish_index":3,
-        "zone.name":"Newmarket Road IN",
-        "zone.reverse.id": "newmarket_road_out"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "the_backs_south",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "the_backs_south",
-        "zone.center":{"lat":52.20289390648686,"lng":0.11839418332671325},
-        "zone.zoom":15,
-        "zone.path":[{"lat":52.21056977058616,"lng":0.10507392889849143},
-                     {"lat":52.21035939519873,"lng":0.10756301886431174},
-                     {"lat":52.2035742548225,"lng":0.1069622040449758},
-                     {"lat":52.20402136960313,"lng":0.11297035223833518},
-                     {"lat":52.19865569531303,"lng":0.1152019501387258},
-                     {"lat":52.19876091083966,"lng":0.11151123053423362},
-                     {"lat":52.202311788804906,"lng":0.10910797125688987},
-                     {"lat":52.201812052764666,"lng":0.10387229925981956}],
-        "zone.finish_index":4,
-        "zone.name":"The Backs SOUTH",
-        "zone.reverse.id": "the_backs_north"
-                 },
-                 {
-        "module.name":      "zone",
-        "module.id":        "trumpington_road_in",
-
-        "eb.system_status": "system_status",
-        "eb.zone":          "tfc.zone",
-                     
-        "zone.id":          "trumpington_road_in",
-        "zone.center":{"lat":52.18307729908614,"lng":0.11913661956783894},
-        "zone.zoom":14,
-        "zone.path":[{"lat":52.16755556871268,"lng":0.11140823364257812},
-                     {"lat":52.16876637871859,"lng":0.10831832885742188},
-                     {"lat":52.17929377243817,"lng":0.11072158813476562},
-                     {"lat":52.195185416067034,"lng":0.12110710144042969},
-                     {"lat":52.19502757998752,"lng":0.12514114379882812},
-                     {"lat":52.190239619236685,"lng":0.12642860412597656},
-                     {"lat":52.17918851083284,"lng":0.11990547180175781},
-                     {"lat":52.16992451397959,"lng":0.11458396911621094}],
-        "zone.finish_index":3,
-        "zone.name":"Trumpington Road IN",
-        "zone.reverse.id": "trumpington_road_out"
-                 }
-]
+{
+  "zone_list": [
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "babraham_road_in",
+      "zone.id": "babraham_road_in",
+      "zone.reverse.id": "babraham_road_out",
+      "zone.name": "Babraham Road IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.17026956336517,
+        "lng": 0.16709525138139725
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.16874293603874,
+          "lng": 0.15838343650102618
+        },
+        {
+          "lat": 52.16632128180139,
+          "lng": 0.15529353171586993
+        },
+        {
+          "lat": 52.1743754045358,
+          "lng": 0.14456469565629962
+        },
+        {
+          "lat": 52.17642818302177,
+          "lng": 0.1485129073262215
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "bar_hill_in",
+      "zone.id": "bar_hill_in",
+      "zone.reverse.id": "bar_hill_out",
+      "zone.name": "Bar Hill (A14) IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.246892981975684,
+        "lng": 0.04169628024101257
+      },
+      "zone.zoom": 13,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.24899496061214,
+          "lng": 0.03302738070487977
+        },
+        {
+          "lat": 52.253198619129044,
+          "lng": 0.03817722201347351
+        },
+        {
+          "lat": 52.24100691198031,
+          "lng": 0.06392642855644227
+        },
+        {
+          "lat": 52.23659184707941,
+          "lng": 0.05808994174003602
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "barton_east",
+      "zone.id": "barton_east",
+      "zone.reverse.id": "barton_west",
+      "zone.name": "Barton Road EAST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.19703460484424,
+        "lng": 0.11025823652744295
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.19608761935759,
+          "lng": 0.10137476027011871
+        },
+        {
+          "lat": 52.198455045245026,
+          "lng": 0.10206140577793121
+        },
+        {
+          "lat": 52.19861286915409,
+          "lng": 0.1101294904947281
+        },
+        {
+          "lat": 52.19719243379715,
+          "lng": 0.11373437941074373
+        },
+        {
+          "lat": 52.195245837542906,
+          "lng": 0.11133112013339998
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "barton_road_outer_in",
+      "zone.id": "barton_road_outer_in",
+      "zone.reverse.id": "barton_road_outer_out",
+      "zone.name": "Barton Road outer IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.187881622139905,
+        "lng": 0.08744604885578157
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.18235611821151,
+          "lng": 0.06946451961994173
+        },
+        {
+          "lat": 52.183934903681426,
+          "lng": 0.06525881588459016
+        },
+        {
+          "lat": 52.19182799029922,
+          "lng": 0.07487185299396516
+        },
+        {
+          "lat": 52.18988115911946,
+          "lng": 0.07882006466388702
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "brooklands_ave_east",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "brooklands_ave_east",
+      "zone.reverse.id": "brooklands_ave_west",
+      "zone.center": {
+        "lat": 52.19360744109708,
+        "lng": 0.1349422708153725
+      },
+      "zone.zoom": 15,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.19284453443958,
+          "lng": 0.1320884004235268
+        },
+        {
+          "lat": 52.19150283924828,
+          "lng": 0.13324711471796039
+        },
+        {
+          "lat": 52.19095036475281,
+          "lng": 0.12444946914911272
+        },
+        {
+          "lat": 52.192107922484794,
+          "lng": 0.12500736862421039
+        }
+      ],
+      "zone.name": "Brooklands Avenue EAST",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "busway_north_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "busway_north_in",
+      "zone.reverse.id": "busway_north_out",
+      "zone.center": {
+        "lat": 52.23153422669769,
+        "lng": 0.13287864625453952
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.23981305638554,
+          "lng": 0.11446796357631683
+        },
+        {
+          "lat": 52.241757700329934,
+          "lng": 0.11584125459194185
+        },
+        {
+          "lat": 52.23113995819567,
+          "lng": 0.14682613313198092
+        },
+        {
+          "lat": 52.22924742064292,
+          "lng": 0.14545284211635592
+        }
+      ],
+      "zone.name": "Guided Busway (north) IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "busway_north_outer_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "busway_north_outer_in",
+      "zone.reverse.id": "busway_north_outer_out",
+      "zone.center": {
+        "lat": 52.24686937520481,
+        "lng": 0.09952738881111146
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.26105580601783,
+          "lng": 0.07768347859382631
+        },
+        {
+          "lat": 52.26320964501791,
+          "lng": 0.08154585957527162
+        },
+        {
+          "lat": 52.244294314285355,
+          "lng": 0.109526664018631
+        },
+        {
+          "lat": 52.24213955663541,
+          "lng": 0.106780081987381
+        }
+      ],
+      "zone.name": "Guided Busway (northern) outer IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "busway_south_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "busway_south_in",
+      "zone.reverse.id": "busway_south_out",
+      "zone.center": {
+        "lat": 52.18387600858932,
+        "lng": 0.1350626349449158
+      },
+      "zone.zoom": 15,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.17529725442963,
+          "lng": 0.12757390737533572
+        },
+        {
+          "lat": 52.17582360601056,
+          "lng": 0.12568563222885135
+        },
+        {
+          "lat": 52.18450750791967,
+          "lng": 0.12950509786605838
+        },
+        {
+          "lat": 52.18976965359115,
+          "lng": 0.1328954100608826
+        },
+        {
+          "lat": 52.18908560987063,
+          "lng": 0.13512700796127322
+        },
+        {
+          "lat": 52.17748157278151,
+          "lng": 0.12929052114486697
+        }
+      ],
+      "zone.name": "Guided Busway (southern) IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "cherry_hinton_road_in",
+      "zone.id": "cherry_hinton_road_in",
+      "zone.reverse.id": "cherry_hinton_road_out",
+      "zone.name": "Cherry Hinton Road IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.188101148069435,
+        "lng": 0.15220563858747485
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.187838045702875,
+          "lng": 0.1518194004893303
+        },
+        {
+          "lat": 52.18589103980225,
+          "lng": 0.15070360153913498
+        },
+        {
+          "lat": 52.18778542504274,
+          "lng": 0.13817232102155688
+        },
+        {
+          "lat": 52.19031114648298,
+          "lng": 0.136970691382885
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "cherry_hinton_road_outer_in",
+      "zone.id": "cherry_hinton_road_outer_in",
+      "zone.reverse.id": "cherry_hinton_road_outer_out",
+      "zone.name": "Cherry Hinton Road outer IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.182373386480755,
+        "lng": 0.16139321029186252
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.18521515886723,
+          "lng": 0.17001919448375702
+        },
+        {
+          "lat": 52.18342591594646,
+          "lng": 0.16924671828746798
+        },
+        {
+          "lat": 52.18542565330131,
+          "lng": 0.15285305678844455
+        },
+        {
+          "lat": 52.18742530072848,
+          "lng": 0.15362553298473358
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "chesterton_road_a_east",
+      "zone.id": "chesterton_road_a_east",
+      "zone.reverse.id": "chesterton_road_a_west",
+      "zone.name": "Chesterton Road A EAST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.211945681098165,
+        "lng": 0.11861189268529417
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.21085438175524,
+          "lng": 0.11621936224400999
+        },
+        {
+          "lat": 52.21164327553157,
+          "lng": 0.11508210562169553
+        },
+        {
+          "lat": 52.21302380593106,
+          "lng": 0.11842950247228147
+        },
+        {
+          "lat": 52.21394413569626,
+          "lng": 0.12188418768346311
+        },
+        {
+          "lat": 52.21312898744069,
+          "lng": 0.12259229086339475
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "checterton_road_b_east",
+      "zone.id": "chesterton_road_b_east",
+      "zone.reverse.id": "chesterton_road_b_west",
+      "zone.name": "Chesterton Road B WEST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.214485539533044,
+        "lng": 0.13127862475812438
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.214117414401876,
+          "lng": 0.12755571864545348
+        },
+        {
+          "lat": 52.21519548652791,
+          "lng": 0.12686907313764098
+        },
+        {
+          "lat": 52.216431293118056,
+          "lng": 0.1332205440849066
+        },
+        {
+          "lat": 52.21540583901395,
+          "lng": 0.13399302028119567
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "east_road_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "east_road_in",
+      "zone.reverse.id": "east_road_out",
+      "zone.center": {
+        "lat": 52.2031306184964,
+        "lng": 0.12281446378325622
+      },
+      "zone.zoom": 15,
+      "zone.path": [
+        {
+          "lat": 52.207861111317555,
+          "lng": 0.1360158924217103
+        },
+        {
+          "lat": 52.20780851435752,
+          "lng": 0.13889122048567515
+        },
+        {
+          "lat": 52.20249590066629,
+          "lng": 0.13253974953840952
+        },
+        {
+          "lat": 52.20310083426891,
+          "lng": 0.13069438973616343
+        }
+      ],
+      "zone.finish_index": 2,
+      "zone.name": "East Road IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "elizabeth_way_outer_south",
+      "zone.id": "elizabeth_way_outer_south",
+      "zone.reverse.id": "elizabeth_way_outer_north",
+      "zone.name": "Elizabeth Way outer SOUTH",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.214485539533044,
+        "lng": 0.13127862475812438
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.21846898421334,
+          "lng": 0.13180433772504332
+        },
+        {
+          "lat": 52.21908684626767,
+          "lng": 0.1332205440849066
+        },
+        {
+          "lat": 52.21769335797753,
+          "lng": 0.13491570018231872
+        },
+        {
+          "lat": 52.21720694139353,
+          "lng": 0.13500153087079528
+        },
+        {
+          "lat": 52.21708862304058,
+          "lng": 0.13352095149457457
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "elizabeth_way_south",
+      "zone.id": "elizabeth_way_south",
+      "zone.reverse.id": "elizabeth_way_north",
+      "zone.name": "Elizabeth Way SOUTH",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.212631992344235,
+        "lng": 0.1346580404788256
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.21560330034108,
+          "lng": 0.13445419259369376
+        },
+        {
+          "lat": 52.21589253209703,
+          "lng": 0.13623517937958243
+        },
+        {
+          "lat": 52.21449894358532,
+          "lng": 0.13767284341156485
+        },
+        {
+          "lat": 52.2091871298822,
+          "lng": 0.13831657357513907
+        },
+        {
+          "lat": 52.20901619463617,
+          "lng": 0.1365355867892504
+        },
+        {
+          "lat": 52.21290809571114,
+          "lng": 0.134947719052434
+        },
+        {
+          "lat": 52.21410452380418,
+          "lng": 0.13556999154388907
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "fen_causeway_west",
+      "zone.id": "fen_causeway_west",
+      "zone.reverse.id": "fen_causeway_east",
+      "zone.name": "Fen Causeway WEST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.198603827174445,
+        "lng": 0.11715880595147611
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.19786731065421,
+          "lng": 0.1213537808507681
+        },
+        {
+          "lat": 52.19703871498032,
+          "lng": 0.12156835757195951
+        },
+        {
+          "lat": 52.196933495376754,
+          "lng": 0.11899343691766263
+        },
+        {
+          "lat": 52.197775245231036,
+          "lng": 0.11328569613397123
+        },
+        {
+          "lat": 52.19847230726237,
+          "lng": 0.11367193423211576
+        },
+        {
+          "lat": 52.19781470186432,
+          "lng": 0.1183926220983267
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "gonville_place_in",
+      "zone.id": "gonville_place_in",
+      "zone.reverse.id": "gonville_place_out",
+      "zone.name": "Gonville Place IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.20237165598558,
+        "lng": 0.12592837214469912
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.202411108538335,
+          "lng": 0.13020917773246768
+        },
+        {
+          "lat": 52.20199027950281,
+          "lng": 0.13147518038749698
+        },
+        {
+          "lat": 52.19936000774216,
+          "lng": 0.12814924120903018
+        },
+        {
+          "lat": 52.19999128716193,
+          "lng": 0.1274196803569794
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "grange_road_north",
+      "zone.id": "grange_road_north",
+      "zone.reverse.id": "grange_road_south",
+      "zone.name": "Grange Road NORTH",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.19722819184143,
+        "lng": 0.1198394224047661
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.20333047666347,
+          "lng": 0.10709356516599655
+        },
+        {
+          "lat": 52.20306746442462,
+          "lng": 0.10374616831541063
+        },
+        {
+          "lat": 52.21058900008147,
+          "lng": 0.10477613657712938
+        },
+        {
+          "lat": 52.2102208426591,
+          "lng": 0.10769437998533249
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "hauxton_in",
+      "zone.id": "hauxton_in",
+      "zone.reverse.id": "hauxton_out",
+      "zone.name": "Hauxton (A10) IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.15607858783419,
+        "lng": 0.09964775294065477
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.14596706375856,
+          "lng": 0.09325336664915085
+        },
+        {
+          "lat": 52.146704440010744,
+          "lng": 0.08707355707883836
+        },
+        {
+          "lat": 52.155762637467454,
+          "lng": 0.08664440363645555
+        },
+        {
+          "lat": 52.16023839184964,
+          "lng": 0.09857486933469774
+        },
+        {
+          "lat": 52.15771096233742,
+          "lng": 0.10226558893918991
+        },
+        {
+          "lat": 52.15391954896584,
+          "lng": 0.09514164179563522
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "hills_road_inner_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "hills_road_inner_in",
+      "zone.reverse.id": "hills_road_inner_out",
+      "zone.center": {
+        "lat": 52.19360744109708,
+        "lng": 0.1349422708153725
+      },
+      "zone.zoom": 15,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.195448885982465,
+          "lng": 0.13217423111200335
+        },
+        {
+          "lat": 52.195448885982465,
+          "lng": 0.12964222580194476
+        },
+        {
+          "lat": 52.19857916722058,
+          "lng": 0.12711022049188617
+        },
+        {
+          "lat": 52.199368278957905,
+          "lng": 0.12814018875360492
+        }
+      ],
+      "zone.name": "Hills Road inner IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "hills_road_outer_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "hills_road_outer_in",
+      "zone.reverse.id": "hills_road_outer_out",
+      "zone.center": {
+        "lat": 52.18597871034476,
+        "lng": 0.1408074237406254
+      },
+      "zone.zoom": 15,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.17947931596988,
+          "lng": 0.14336088672280314
+        },
+        {
+          "lat": 52.17942668541791,
+          "lng": 0.14087179675698283
+        },
+        {
+          "lat": 52.19163530467588,
+          "lng": 0.1331470347940922
+        },
+        {
+          "lat": 52.19195100036438,
+          "lng": 0.13516405597329142
+        }
+      ],
+      "zone.name": "Hills Road outer IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "histon_road_2_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "histon_road_2_in",
+      "zone.center": {
+        "lat": 52.22435180109905,
+        "lng": 0.11204455161282567
+      },
+      "zone.zoom": 15,
+      "zone.path": [
+        {
+          "lat": 52.23292109111349,
+          "lng": 0.1101562764663413
+        },
+        {
+          "lat": 52.232158859330546,
+          "lng": 0.1135895040054038
+        },
+        {
+          "lat": 52.21520239018069,
+          "lng": 0.11208746695706395
+        },
+        {
+          "lat": 52.21462391579756,
+          "lng": 0.10998461508938817
+        }
+      ],
+      "zone.finish_index": 2,
+      "zone.name": "Histon Road v2 IN",
+      "zone.reverse.id": "histon_road_2_out",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "huntingdon_road_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "huntingdon_road_in",
+      "zone.reverse.id": "huntingdon_road_out",
+      "zone.center": {
+        "lat": 52.21839850870647,
+        "lng": 0.1003611564635909
+      },
+      "zone.zoom": 15,
+      "zone.path": [
+        {
+          "lat": 52.2261926176202,
+          "lng": 0.08900642395019531
+        },
+        {
+          "lat": 52.22487821753175,
+          "lng": 0.08595943450927734
+        },
+        {
+          "lat": 52.211442817717945,
+          "lng": 0.11248111724853516
+        },
+        {
+          "lat": 52.21267872871188,
+          "lng": 0.11509895324707031
+        }
+      ],
+      "zone.finish_index": 2,
+      "zone.name": "Huntingdon Road IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "lensfield_road_west",
+      "zone.id": "lensfield_road_west",
+      "zone.reverse.id": "lensfield_road_east",
+      "zone.name": "Lensfield Road WEST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.20237165598558,
+        "lng": 0.12592837214469912
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.19926794541094,
+          "lng": 0.12645408511161807
+        },
+        {
+          "lat": 52.19857089585798,
+          "lng": 0.1274196803569794
+        },
+        {
+          "lat": 52.19792644409274,
+          "lng": 0.12533828616142276
+        },
+        {
+          "lat": 52.19768970436282,
+          "lng": 0.12276336550712587
+        },
+        {
+          "lat": 52.19841307179987,
+          "lng": 0.1224629580974579
+        },
+        {
+          "lat": 52.19857089585798,
+          "lng": 0.12456580996513368
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "madingley_road_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.center": {
+        "lat": 52.21132533651944,
+        "lng": 0.0969279289245284
+      },
+      "zone.zoom": 15,
+      "zone.path": [
+        {
+          "lat": 52.212783911038585,
+          "lng": 0.08480072021484375
+        },
+        {
+          "lat": 52.214335321429296,
+          "lng": 0.08514404296875
+        },
+        {
+          "lat": 52.212257996914616,
+          "lng": 0.10570049285888672
+        },
+        {
+          "lat": 52.21065392038191,
+          "lng": 0.10548591613769531
+        }
+      ],
+      "zone.finish_index": 2,
+      "zone.name": "Madingley Road IN",
+      "zone.id": "madingley_road_in",
+      "zone.reverse.id": "madingley_road_out",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "madingley_road_outer_in",
+      "zone.id": "madingley_road_outer_in",
+      "zone.reverse.id": "madingley_road_outer_out",
+      "zone.name": "Madingley Road outer IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.21196237292157,
+        "lng": 0.058733336627483375
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.21396082676875,
+          "lng": 0.04150819033384324
+        },
+        {
+          "lat": 52.21711609716539,
+          "lng": 0.04185151308774948
+        },
+        {
+          "lat": 52.21648506101688,
+          "lng": 0.07515382021665573
+        },
+        {
+          "lat": 52.21338233621669,
+          "lng": 0.07472466677427293
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "maids_causeway_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "maids_causeway_in",
+      "zone.reverse.id": "maids_causeway_out",
+      "zone.center": {
+        "lat": 52.20844308422573,
+        "lng": 0.1293684728443623
+      },
+      "zone.zoom": 15,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.20904793686798,
+          "lng": 0.13621347025036815
+        },
+        {
+          "lat": 52.2078119248633,
+          "lng": 0.13638513162732127
+        },
+        {
+          "lat": 52.20725965306618,
+          "lng": 0.12823121622204783
+        },
+        {
+          "lat": 52.20828529522567,
+          "lng": 0.12818830087780955
+        }
+      ],
+      "zone.name": "Maids Causeway IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "mill_road_in",
+      "zone.id": "mill_road_in",
+      "zone.reverse.id": "mill_road_out",
+      "zone.name": "Mill Road IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.19092960571867,
+        "lng": 0.1526186987757683
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.19745363126274,
+          "lng": 0.15437822788953784
+        },
+        {
+          "lat": 52.19482309100422,
+          "lng": 0.15360575169324878
+        },
+        {
+          "lat": 52.195980547897406,
+          "lng": 0.1451085135340691
+        },
+        {
+          "lat": 52.200557468538705,
+          "lng": 0.1324914023280144
+        },
+        {
+          "lat": 52.20266164170528,
+          "lng": 0.13472300022840503
+        },
+        {
+          "lat": 52.19871623529082,
+          "lng": 0.14639597386121753
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "milton_in",
+      "zone.id": "milton_in",
+      "zone.reverse.id": "milton_out",
+      "zone.name": "Milton (A10) IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.24546054143251,
+        "lng": 0.15161991119384768
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.244041603746204,
+          "lng": 0.1502037048339844
+        },
+        {
+          "lat": 52.243358395343456,
+          "lng": 0.15346527099609378
+        },
+        {
+          "lat": 52.23915380439046,
+          "lng": 0.15234947204589847
+        },
+        {
+          "lat": 52.23941660299614,
+          "lng": 0.14917373657226565
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "milton_road_2_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "milton_road_2_in",
+      "zone.reverse.id": "milton_road_2_out",
+      "zone.center": {
+        "lat": 52.224208710767265,
+        "lng": 0.13572340011593464
+      },
+      "zone.zoom": 15,
+      "zone.path": [
+        {
+          "lat": 52.23017754695493,
+          "lng": 0.14650897656997586
+        },
+        {
+          "lat": 52.22899469479659,
+          "lng": 0.1499636617811575
+        },
+        {
+          "lat": 52.21875513525759,
+          "lng": 0.13318376218398953
+        },
+        {
+          "lat": 52.22021431816311,
+          "lng": 0.13146714841445828
+        }
+      ],
+      "zone.finish_index": 2,
+      "zone.name": "Milton Road (v2) IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "milton_road_inner_west",
+      "zone.id": "milton_road_inner_west",
+      "zone.reverse.id": "milton_road_inner_east",
+      "zone.name": "Milton Road inner WEST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.214485539533044,
+        "lng": 0.13127862475812438
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.215326956948424,
+          "lng": 0.12659012340009215
+        },
+        {
+          "lat": 52.21558989662205,
+          "lng": 0.1246160175651312
+        },
+        {
+          "lat": 52.21697030437245,
+          "lng": 0.12540995143353942
+        },
+        {
+          "lat": 52.21937605533975,
+          "lng": 0.13043104670941832
+        },
+        {
+          "lat": 52.21820606158316,
+          "lng": 0.1319545414298773
+        },
+        {
+          "lat": 52.21619465196452,
+          "lng": 0.12759863398969176
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "newmarket_road_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "newmarket_road_in",
+      "zone.reverse.id": "newmarket_road_out",
+      "zone.center": {
+        "lat": 52.20786459390002,
+        "lng": 0.15028028409575622
+      },
+      "zone.zoom": 15,
+      "zone.path": [
+        {
+          "lat": 52.213462330741216,
+          "lng": 0.1618509303079918
+        },
+        {
+          "lat": 52.21120089036989,
+          "lng": 0.16150760755408555
+        },
+        {
+          "lat": 52.2102542067302,
+          "lng": 0.15189457044471055
+        },
+        {
+          "lat": 52.207755916933955,
+          "lng": 0.13923454389441758
+        },
+        {
+          "lat": 52.209675667908364,
+          "lng": 0.1387195597635582
+        },
+        {
+          "lat": 52.214750774354144,
+          "lng": 0.1510791789041832
+        }
+      ],
+      "zone.finish_index": 3,
+      "zone.name": "Newmarket Road IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "newmarket_road_outer_in",
+      "zone.id": "newmarket_road_outer_in",
+      "zone.reverse.id": "newmarket_road_outer_out",
+      "zone.name": "Newmarket Road outer IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.213465535783335,
+        "lng": 0.18613155931234363
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.212150758973564,
+          "lng": 0.18119629472494128
+        },
+        {
+          "lat": 52.210152223695076,
+          "lng": 0.18128212541341784
+        },
+        {
+          "lat": 52.209678873223716,
+          "lng": 0.17484482377767563
+        },
+        {
+          "lat": 52.211519652282746,
+          "lng": 0.16428764909505847
+        },
+        {
+          "lat": 52.21341294545809,
+          "lng": 0.16506012529134753
+        },
+        {
+          "lat": 52.212098167091774,
+          "lng": 0.17535980790853503
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "perne_road_south",
+      "zone.id": "perne_road_south",
+      "zone.reverse.id": "perne_road_north",
+      "zone.name": "Perne Road SOUTH",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.18685879790186,
+        "lng": 0.1610146835446358
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.19569837945495,
+          "lng": 0.15341866761446002
+        },
+        {
+          "lat": 52.19517226308182,
+          "lng": 0.1580535247921944
+        },
+        {
+          "lat": 52.19196281835607,
+          "lng": 0.15676606446504596
+        },
+        {
+          "lat": 52.192383742341505,
+          "lng": 0.1525603607296944
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "shelford_road_in",
+      "zone.id": "shelford_road_in",
+      "zone.reverse.id": "shelford_road_out",
+      "zone.name": "Shelford Road IN",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.15394546792691,
+        "lng": 0.13792891055345538
+      },
+      "zone.zoom": 14,
+      "zone.finish_index": 2,
+      "zone.path": [
+        {
+          "lat": 52.15568323812947,
+          "lng": 0.13453859835863116
+        },
+        {
+          "lat": 52.152681592443095,
+          "lng": 0.12913126498460772
+        },
+        {
+          "lat": 52.16563461519741,
+          "lng": 0.11642832309007646
+        },
+        {
+          "lat": 52.16716134917367,
+          "lng": 0.12011904269456865
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "the_backs_2_north",
+      "zone.id": "the_backs_2_north",
+      "zone.reverse.id": "the_backs_2_south",
+      "zone.name": "The Backs v2 NORTH",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.20531842897708,
+        "lng": 0.11251062154769899
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.201294351453974,
+          "lng": 0.11363714933395387
+        },
+        {
+          "lat": 52.20084720923513,
+          "lng": 0.1118561625480652
+        },
+        {
+          "lat": 52.20747497413687,
+          "lng": 0.10977476835250856
+        },
+        {
+          "lat": 52.20993383389159,
+          "lng": 0.11065453290939332
+        },
+        {
+          "lat": 52.209539373576646,
+          "lng": 0.11219948530197145
+        },
+        {
+          "lat": 52.20750127282208,
+          "lng": 0.11181324720382692
+        }
+      ]
+    },
+    {
+      "module.name": "zone",
+      "module.id": "trumpington_road_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "trumpington_road_in",
+      "zone.reverse.id": "trumpington_road_out",
+      "zone.center": {
+        "lat": 52.18307729908614,
+        "lng": 0.11913661956783894
+      },
+      "zone.zoom": 14,
+      "zone.path": [
+        {
+          "lat": 52.16755556871268,
+          "lng": 0.11140823364257812
+        },
+        {
+          "lat": 52.16876637871859,
+          "lng": 0.10831832885742188
+        },
+        {
+          "lat": 52.17929377243817,
+          "lng": 0.11072158813476562
+        },
+        {
+          "lat": 52.195185416067034,
+          "lng": 0.12110710144042969
+        },
+        {
+          "lat": 52.19502757998752,
+          "lng": 0.12514114379882812
+        },
+        {
+          "lat": 52.190239619236685,
+          "lng": 0.12642860412597656
+        },
+        {
+          "lat": 52.17918851083284,
+          "lng": 0.11990547180175781
+        },
+        {
+          "lat": 52.16992451397959,
+          "lng": 0.11458396911621094
+        }
+      ],
+      "zone.finish_index": 3,
+      "zone.name": "Trumpington Road IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "module.id": "victoria_ave_in",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "zone.id": "victoria_ave_in",
+      "zone.reverse.id": "victoria_ave_out",
+      "zone.center": {
+        "lat": 52.20844308422573,
+        "lng": 0.1293684728443623
+      },
+      "zone.zoom": 15,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.21359721675433,
+          "lng": 0.12492673471570016
+        },
+        {
+          "lat": 52.21393905133755,
+          "lng": 0.12655751779675486
+        },
+        {
+          "lat": 52.21070466498111,
+          "lng": 0.12857453897595408
+        },
+        {
+          "lat": 52.2086797666751,
+          "lng": 0.12797372415661815
+        },
+        {
+          "lat": 52.2087586605447,
+          "lng": 0.1262571103870869
+        },
+        {
+          "lat": 52.210520587130524,
+          "lng": 0.1262571103870869
+        },
+        {
+          "lat": 52.212808357676494,
+          "lng": 0.12471215799450876
+        }
+      ],
+      "zone.name": "Victoria Avenue IN",
+      "zone.map": true
+    },
+    {
+      "module.name": "zone",
+      "eb.system_status": "system_status",
+      "eb.zone": "tfc.zone",
+      "module.id": "victoria_road_east",
+      "zone.id": "victoria_road_east",
+      "zone.reverse.id": "victoria_road_west",
+      "zone.name": "Victoria Road EAST",
+      "zone.map": true,
+      "zone.center": {
+        "lat": 52.211945681098165,
+        "lng": 0.11861189268529417
+      },
+      "zone.zoom": 16,
+      "zone.finish_index": 3,
+      "zone.path": [
+        {
+          "lat": 52.21447002985833,
+          "lng": 0.11229260824620725
+        },
+        {
+          "lat": 52.21549550556676,
+          "lng": 0.11164887808263303
+        },
+        {
+          "lat": 52.216244876689736,
+          "lng": 0.11456712149083616
+        },
+        {
+          "lat": 52.21519312416525,
+          "lng": 0.12263520620763303
+        },
+        {
+          "lat": 52.21406246242557,
+          "lng": 0.12212022207677366
+        },
+        {
+          "lat": 52.21506165334862,
+          "lng": 0.11486752890050413
+        }
+      ]
+    }
+  ]
 }
