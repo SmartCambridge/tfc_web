@@ -1,9 +1,10 @@
 from .serializers import (
     AQListSerializer, AQConfigSerializer,
     AQDataSerializer)
-from api import util, auth
+from api import util, auth, api_docs
 from datetime import datetime
 from rest_framework.response import Response
+from rest_framework.schemas import AutoSchema
 import logging
 from rest_framework.exceptions import NotFound
 
@@ -23,7 +24,7 @@ def get_aq_config(station_id=None):
 
 
 class AQList(auth.AuthenticateddAPIView):
-    ''' Return metadata for all stations '''
+    ''' Return metadata for all stations, including each station's _station_id_.'''
     def get(self, request):
         data = get_aq_config()
         serializer = AQListSerializer(data)
@@ -31,7 +32,9 @@ class AQList(auth.AuthenticateddAPIView):
 
 
 class AQConfig(auth.AuthenticateddAPIView):
-    ''' Return metadata for a single station '''
+    ''' Return metadata for a single station identified by _station_id_.'''
+    schema = AutoSchema(manual_fields=api_docs.station_id_fields)
+
     def get(self, request, station_id):
         data = get_aq_config(station_id)
         serializer = AQConfigSerializer(data)
@@ -39,7 +42,10 @@ class AQConfig(auth.AuthenticateddAPIView):
 
 
 class AQHistory(auth.AuthenticateddAPIView):
-    ''' Return historic data for a station/sensor/month '''
+    ''' Return historic data for a single sensor identified by _sensor_type_
+    on a station identified by _station_id_ for a particular _month_.'''
+    schema = AutoSchema(manual_fields=api_docs.aq_history_fields)
+
     def get(self, request, station_id, sensor_type, month):
         # Note that this validates station_id!
         config = get_aq_config(station_id)

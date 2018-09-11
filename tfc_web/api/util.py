@@ -3,10 +3,7 @@ from django.conf import settings
 from urllib.request import Request, urlopen
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
-from rest_framework.schemas import AutoSchema
 import codecs
-import coreapi
-import coreschema
 import json
 import logging
 import os
@@ -34,27 +31,6 @@ class EpochField(serializers.Field):
 
 # maximum days allowed in one hit
 MAX_DAYS = 31
-
-
-list_args_schema = AutoSchema(
-    manual_fields=[
-        coreapi.Field(
-            "start_date",
-            required=True,
-            location="query",
-            schema=coreschema.String(
-                description="Start date for returned data (YYYY-MM-DD)")
-        ),
-        coreapi.Field(
-            "end_date",
-            location="query",
-            schema=coreschema.String(
-                description="End date for returned data (YYYY-MM-DD). "
-                "Defaults to start_date and must be no more than 31 days "
-                "from start_date")
-        ),
-    ]
-)
 
 
 class ListArgsSerializer(serializers.Serializer):
@@ -87,7 +63,7 @@ def safe_build(path):
     if result.startswith(os.path.join(DATA_PATH, '')):
         return result
     logger.error("Requested file outside DATA_PATH: path '{0}', result '{1}'"
-                   .format(path, result))
+                 .format(path, result))
     raise TFCValidationError()
 
 
@@ -121,7 +97,7 @@ def read_json_fragments(path):
                 results.append(json.loads(line))
     except json.JSONDecodeError:
         logger.error("Failed to parse '{0}' from '{1}'"
-                    .format(line, filename))
+                     .format(line, filename))
         raise
     except FileNotFoundError:
         logger.info("Failed to open '{0}'".format(filename))

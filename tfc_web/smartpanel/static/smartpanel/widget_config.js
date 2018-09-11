@@ -301,7 +301,13 @@ function WidgetConfig(config) {
         };
 
         var chooser_fn = function (input_div) {
-            return choose_bus_stops( input_div, { multi_select: false }, { stops: [ param_current ] } );
+            return choose_bus_stops(
+                input_div,
+                { multi_select: false,
+                  api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
+                  api_token: config.settings.SMARTPANEL_API_TOKEN },
+                { stops: [ param_current ] }
+            );
         };
 
         var chooser_link = document.createElement('a');
@@ -366,7 +372,12 @@ function WidgetConfig(config) {
         };
 
         var chooser_fn = function (input_div) {
-            return choose_bus_stops( input_div, { multi_select: true }, param_current );
+            return choose_bus_stops(
+                input_div,
+                { multi_select: true,
+                  api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
+                  api_token: config.settings.SMARTPANEL_API_TOKEN },
+                param_current );
         };
 
         var chooser_link = document.createElement('a');
@@ -436,7 +447,12 @@ function WidgetConfig(config) {
         };
 
         var chooser_stops_fn = function (input_div) {
-            return choose_bus_stops( input_div, { multi_select: true }, param_current ? param_current : null );
+            return choose_bus_stops(
+                input_div,
+                { multi_select: true,
+                  api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
+                  api_token: config.settings.SMARTPANEL_API_TOKEN },
+                param_current ? param_current : null );
         };
 
         var chooser_area_fn = function (input_div) {

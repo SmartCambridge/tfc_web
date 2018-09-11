@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}SmartCambridge: API{% endblock %}
+{% block header_menu %}
+{% endblock %}
+{% block extra_drawer_css %}mdl-layout--fixed-drawer{% endblock %}
+{% block navigation %}
+    <div class="drawer-separator"></div>
+    <a class="mdl-navigation__link" href="{% url 'create_token' %}">Create API Tokens</a>
+    <a class="mdl-navigation__link" href="{% url 'manage_tokens' %}">Manage API Tokens</a>
+    <div class="drawer-separator"></div>
+    <a class="mdl-navigation__link" href="{% url 'smartcambridge-tcs' %}">Terms and Conditions</a>
+{% endblock %}

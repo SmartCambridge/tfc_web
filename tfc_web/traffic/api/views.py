@@ -3,11 +3,14 @@ import logging
 
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.schemas import AutoSchema
 
 from .serializers import (
     ZoneListSerializer, ZoneConfigSerializer, ZoneHistorySerializer)
-from api import util, auth
+from api import util, auth, api_docs
 
+import coreapi
+import coreschema
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +34,7 @@ def swap_dot_and_underscore(data):
 class ZoneList(auth.AuthenticateddAPIView):
     '''
     List metadata for all known zones, including each zone's
-    zone_id
+    _zone_id_.
     '''
     def get(self, request):
         data = get_zone_config()
@@ -46,8 +49,10 @@ class ZoneList(auth.AuthenticateddAPIView):
 
 class ZoneConfig(auth.AuthenticateddAPIView):
     '''
-    Return the metadata for a single zone identified by zone_id
+    Return the metadata for a single zone identified by _zone_id_.
     '''
+    schema = AutoSchema(manual_fields=api_docs.zone_id_fields)
+
     def get(self, request, zone_id):
         data = get_zone_config(zone_id)
         serializer = ZoneConfigSerializer(swap_dot_and_underscore(data))
@@ -56,11 +61,11 @@ class ZoneConfig(auth.AuthenticateddAPIView):
 
 class ZoneHistory(auth.AuthenticateddAPIView):
     '''
-    Return historic zone data for the single zone identified by zone_id.
-    Data is returned in 24-hour chunks from start_date to end_date
+    Return historic zone data for the single zone identified by _zone_id_.
+    Data is returned in 24-hour chunks from _start_date_ to _end_date_
     inclusive. A most 31 day's data can be retrieved in a single request.
     '''
-    schema = util.list_args_schema
+    schema = AutoSchema(manual_fields=api_docs.zone_id_fields+api_docs.list_args_fields)
 
     def get(self, request, zone_id):
 

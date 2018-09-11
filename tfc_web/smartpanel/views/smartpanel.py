@@ -36,7 +36,9 @@ def design(request):
     if request.method == "POST":
         layout = Layout.objects.create(owner=request.user, design="{}")
         return layout_config(request, layout.slug, reload=True)
-    return render(request, 'smartpanel/layout_config.html', {'widgets_list': generate_widget_list(request.user)})
+    return render(request, 'smartpanel/layout_config.html',
+                  {'widgets_list': generate_widget_list(request.user),
+                   'settings': smartpanel_settings()})
 
 
 def generate_dependencies_files_list(uwl):
@@ -84,6 +86,18 @@ def generate_widget_list(user):
                 })
     return list_widgets
 
+def smartpanel_settings():
+    '''
+    Return a dictionary containing configuration items with names
+    starting 'SMARTPANEL_' for consumption by smartpanel widgets
+    '''
+
+    filtered_settings = {}
+    for attr in dir(settings):
+        if attr.startswith('SMARTPANEL_'):
+            value = getattr(settings, attr)
+            filtered_settings[attr] = value
+    return filtered_settings
 
 @smartcambridge_valid_user
 def layout_config(request, slug, reload=False):
@@ -118,7 +132,9 @@ def layout_config(request, slug, reload=False):
         messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'error': error,
-                   'debug': request.GET.get('debug', False), 'widgets_list': generate_widget_list(request.user)})
+                   'debug': request.GET.get('debug', False), 
+                   'widgets_list': generate_widget_list(request.user),
+                   'settings': smartpanel_settings()})
 
 @smartcambridge_valid_user
 def layout_export(request, slug):
@@ -142,7 +158,8 @@ def layout_import(request):
             return redirect('smartpanel-list-my-layouts')
         return render(request, 'smartpanel/layout_config.html',
                       {'design': design,
-                       'widgets_list': generate_widget_list(request.user)
+                       'widgets_list': generate_widget_list(request.user),
+                       'settings': smartpanel_settings()
                        })
     return redirect('smartpanel-list-my-layouts')
 
@@ -184,7 +201,8 @@ def layout(request, slug, display=None):
                    'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3],
                    'display': display,
-                   'rt_token': '778'})
+                   'rt_token': '778',
+                   'settings': smartpanel_settings()})
 
 
 @smartcambridge_valid_user

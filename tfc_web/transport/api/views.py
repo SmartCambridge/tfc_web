@@ -10,7 +10,8 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, filters
-from rest_framework.decorators import api_view, renderer_classes, schema, parser_classes
+from rest_framework.decorators import api_view, renderer_classes, schema, \
+    parser_classes, authentication_classes, permission_classes, throttle_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
@@ -21,6 +22,8 @@ from transport.api.serializers import VehicleJourneySerializer, LineSerializer, 
 from transport.models import Stop, Timetable, VehicleJourney
 from urllib.parse import quote
 import re
+from api.auth import default_authentication, default_permission, \
+    default_throttle, AuthenticateddAPIView
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -70,51 +73,72 @@ def calculate_vehicle_journey(departure_time, departure_stop_id, destination_sto
 
 
 journeys_by_time_and_stop_schema = ManualSchema(
-    fields = [
+    fields=[
         coreapi.Field(
             "stop_id",
             required=True,
             location="query",
-            schema=coreschema.String(description="Stop id atco_code."),
-            description="Stop atco_code."
+            schema=coreschema.String(
+                description="Stop atco_code "
+                            "(e.g. '0500CCITY111')"),
+            description="Stop atco_code (e.g. '0500CCITY111')",
+            example='0500CCITY111',
         ),
         coreapi.Field(
             "datetime_from",
             required=False,
             location="query",
-            schema=coreschema.String(description="Start datetime or time to give results from. "
-                                                 "If time is given insetad of a datetime, "
-                                                 "today is used as date. If nothing given, "
-                                                 "now is used. The datetime or date must be "
-                                                 "given in ISO 8601 format."),
-            description="Start datetime or time to give results from. If time is given insetad "
-                        "of a datetime, today is used as date. If nothing given, now is used. "
-                        "The datetime or date must be given in ISO 8601 format."
+            schema=coreschema.String(
+                description="Start datetime or time for returned results. "
+                            "If time is given insetad of a datetime, "
+                            "today is used as date. Defaults to now. "
+                            "YYYY-MM-DDTHH:MM:SS or HH:MM:SS "
+                            "(e.g. '2018-06-01T12:00:00')"),
+            description="Start datetime or time for returned results. "
+                        "If time is given insetad of a datetime, "
+                        "today is used as date. Defaults to now. "
+                        "YYYY-MM-DDTHH:MM:SS or HH:MM:SS "
+                        "(e.g. '2018-06-01T12:00:00')",
+            example="2018-06-01T12:00:00",
         ),
         coreapi.Field(
             "nresults",
             required=False,
             location="query",
-            schema=coreschema.Integer(description="Maximum number of journeys to return. 10 by default"),
-            description="Maximum number of journeys to return. 10 by default"
+            schema=coreschema.Integer(
+                description="Maximum number of journeys to return, default "
+                            "10. (e.g. 20)"),
+            description="Maximum number of journeys to return, default 10. "
+                        "(e.g. 20)",
+            example="20",
         ),
         coreapi.Field(
             "expand_journey",
             required=False,
             location="query",
-            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
-            description="Exdpands the resulted Journey into a full object"
+            schema=coreschema.Boolean(
+                description="Expands the resulting journey into a full "
+                            "journey object"),
+            description="Expands the resulting journey into a full "
+                        "journey object",
         ),
     ],
-    description="Will return the timetable (Journeys) expected for a given stop (stop_id) from a specific date and "
-                "time datetime_from (optional, default = now). All results are paginated and a 'next' attribute is "
-                "also returned containing the URL to use to retrieve more results. The pagination can return up to n "
-                "(page size) results but also less if there are no more results for a day, for example."
+    description="Return the timetabled vehicle journeys expected for a given "
+                "stop identified by _stop_id_ from a specific date and time "
+                "identified by _datetime_from_ (optional, default = now). "
+                "\n\n"
+                "All results are paginated based on _nresults_ and a _next_ "
+                "attribute is returned containing the URL to use to retrieve "
+                "more results. The pagination can return up to _nresults_ "
+                "or less if there are no more results for a day, for example."
 )
 
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @schema(journeys_by_time_and_stop_schema)
 def journeys_by_time_and_stop(request):
     try:
@@ -178,48 +202,71 @@ def journeys_by_time_and_stop(request):
 
 
 departure_to_journey_schema = ManualSchema(
-    fields = [
+    fields=[
         coreapi.Field(
             "departure_stop_id",
             required=True,
             location="query",
-            schema=coreschema.String(description="Departure Stop atco_code. First stop of a Journey."),
-            description="Departure Stop atco_code. First stop of a Journey."
+            schema=coreschema.String(
+                description="Departure stop atco_code - the first stop "
+                            "of a journey (e.g. '0500CCITY544')"),
+            description="Departure stop id atco_code - the first stop "
+                        "of a journey (e.g. '0500CCITY544')",
+            example="0500CCITY544",
         ),
         coreapi.Field(
             "departure_time",
             required=True,
             location="query",
-            schema=coreschema.String(description="Departure datetime or time. "
-                                                 "The date or time when the Journey starts. "
-                                                 "If time is given insetad of a datetime, today is used as date. "
-                                                 "The datetime or date must be given in ISO 8601 format."),
-            description="Departure datetime or time. The date or time when the Journey starts. "
-                        "If time is given insetad of a datetime, today is used as date. "
-                        "The datetime or date must be given in ISO 8601 format."
+            schema=coreschema.String(
+                description="Departure datetime or time for returned "
+                            "journeys. "
+                            "If time is given instead of a datetime, "
+                            "today is used as date. Defaults to now. "
+                            "YYYY-MM-DDTHH:MM:SS or HH:MM:SS "
+                            "(e.g. '2018-09-06T14:18:00')"),
+            description="Departure datetime or time for returned journeys. "
+                        "If time is given instead of a datetime, "
+                        "today is used as date. Defaults to now. "
+                        "YYYY-MM-DDTHH:MM:SS or HH:MM:SS "
+                        "(e.g. '2018-09-06T14:18:00')",
+            example="2018-09-06T14:18:00",
         ),
         coreapi.Field(
             "destination_stop_id",
             required=False,
             location="query",
-            schema=coreschema.String(description="Destination Stop atco_code. Last stop of a Journey."),
-            description="Destination Stop atco_code. Last stop of a Journey."
+            schema=coreschema.String(
+                description="Destination stop atco_code - the last stop "
+                            "of a journey (e.g. '0500CCITY517')"),
+            description="Destination stop atco_code - the last stop "
+                        "of a journey (e.g. '0500CCITY517')",
+            example="0500CCITY517",
         ),
         coreapi.Field(
             "expand_journey",
             required=False,
             location="query",
-            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
-            description="Exdpands the resulted Journey into a full object"
+            schema=coreschema.Boolean(
+                description="Expands the resulting journey into a full "
+                            "journey object"),
+            description="Expands the resulting journey into a full "
+                        "journey object"
         ),
     ],
-    description="Using a Departure Stop and a Departure time tries to match it with a VehicleJourney. "
-                "Returns the list of VehicleJourney that match."
+    description="Using a departure stop identified by _departure_stop_id_ "
+                "and a departure time identified by _departure_time_, "
+                "and optionally a destination stop identified by "
+                "_destination_stop_id_, return "
+                "a list of timetabled vehicle journeys that match. "
 )
 
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @schema(departure_to_journey_schema)
 def departure_to_journey(request):
     '''Using a Departure Stop and a Departure time tries to match it with a VehicleJourney.
@@ -247,7 +294,7 @@ def departure_to_journey(request):
 
 
 siriVM_POST_to_journey_schema = AutoSchema(
-    manual_fields = [
+    manual_fields=[
         coreapi.Field(
             "body",
             required=True,
@@ -259,13 +306,18 @@ siriVM_POST_to_journey_schema = AutoSchema(
     ]
 )
 
+
 @csrf_exempt
 @api_view(['POST'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
 @parser_classes((JSONParser,))
 @schema(siriVM_POST_to_journey_schema)
 def siriVM_POST_to_journey(request):
-    '''Reads sirivm_data from POST and adds VehicleJourney data to its entries'''
+    '''Reads sirivm_data from the body of the request and returns it with
+    matching vehicle journey data added to its entries'''
     try:
         jsondata = json.loads(request.body.decode("utf-8"))
         if jsondata.__class__ == str:
@@ -284,22 +336,26 @@ def siriVM_POST_to_journey(request):
     return Response(jsondata)
 
 
-siriVM_to_journey_schema = ManualSchema(
-    fields = [
-        coreapi.Field(
-            "expand_journey",
-            required=False,
-            location="query",
-            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
-            description="Expands the resulted Journey into a full object"
-        ),
-    ],
-    description="Reads last data from siriVM feed and tries to match it with a VehicleJourney."
-)
+# siriVM_to_journey_schema = ManualSchema(
+#    fields = [
+#        coreapi.Field(
+#            "expand_journey",
+#            required=False,
+#            location="query",
+#            schema=coreschema.Boolean(description="Exdpands the resulted Journey into a full object"),
+#            description="Expands the resulted Journey into a full object"
+#        ),
+#    ],
+#    description="Reads last data from siriVM feed and tries to match it with a VehicleJourney."
+#)
 
 @api_view(['GET'])
 @renderer_classes((JSONRenderer, BrowsableAPIRenderer))
-@schema(siriVM_to_journey_schema)
+@authentication_classes(default_authentication)
+@permission_classes(default_permission)
+@throttle_classes(default_throttle)
+# hide from online documentation
+@schema(None)
 def siriVM_to_journey(request):
     """Reads last data from siriVM feed and tries to match it with a VehicleJourney
 
@@ -332,24 +388,98 @@ def siriVM_to_journey(request):
 
 class VehicleJourneyList(generics.ListAPIView):
     """
-    Return a list of all the existing VehicleJourney.
+    Return a list of all known vehicle journeys.
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
     pagination_class = Pagination
 
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
+
+
+VehicleJourneyRetrieve_schema = AutoSchema(
+    manual_fields=[
+        coreapi.Field(
+            "id",
+            required=True,
+            location="path",
+            schema=coreschema.String(
+                description="Journey identifier (e.g. "
+                            "'ea-20-PR2-_-y08-1-429-UL')"),
+            description="Journey identifier (e.g. 'ea-20-PR2-_-y08-1-429-UL')",
+            example="ea-20-PR2-_-y08-1-429-UL",
+        ),
+    ]
+)
+
 
 class VehicleJourneyRetrieve(generics.RetrieveAPIView):
     """
-    Return the VehicleJourney corresponding to the given id.
+    Return information about the vehicle journey identified by _id_.
     """
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
+    schema = VehicleJourneyRetrieve_schema
+
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
+
+
+StopList_schema = AutoSchema(
+    manual_fields=[
+        coreapi.Field(
+            "bounding_box",
+            required=False,
+            location="query",
+            schema=coreschema.String(
+                description="Limit results to stops within a bounding "
+                            "box, specified as "
+                            "'southwest_lng,southwest_lat,northeast_lng,"
+                            "northeast_lat', "
+                            "(e.g. '0.08,52.20,0.11,52.21')"
+                ),
+            description="Limit results to stops within a bounding "
+                        "box, specified as "
+                        "'southwest_lng,southwest_lat,northeast_lng,"
+                        "northeast_lat', "
+                        "(e.g. '0.08,52.20,0.11,52.21')"
+        ),
+        coreapi.Field(
+            "search",
+            required=False,
+            location="query",
+            schema=coreschema.String(
+                description="Limit results to stops that contain "
+                            "this text somewhere within their stop_id, "
+                            "common_name or locality_name fields "
+                            "(e.g. 'madingley')"
+                ),
+            description="Limit results to stops that contain "
+                        "this text somewhere within their stop_id, "
+                        "common_name or locality_name fields "
+                        "(e.g. 'madingley')"
+        ),
+        coreapi.Field(
+            "ordering",
+            required=False,
+            location="query",
+            schema=coreschema.String(
+                description="Field to sort results by. One of "
+                            "'atco_code', 'common_name', or 'locality_name'."
+                ),
+            description="Field to sort results by. One of "
+                        "'atco_code', 'common_name', or 'locality_name'."
+        ),
+    ]
+)
 
 
 class StopList(generics.ListAPIView):
     """
-    Return a list of all the existing Stops.
+    Return a list of bus stops.
     """
     serializer_class = StopSerializer
     pagination_class = Pagination
@@ -358,27 +488,10 @@ class StopList(generics.ListAPIView):
     ordering = ('atco_code', )
     search_fields = ('atco_code', 'common_name', 'locality_name')
 
-    schema = AutoSchema(
-        manual_fields=[
-            coreapi.Field(
-                "bounding_box",
-                required=False,
-                location="query",
-                schema=coreschema.String(
-                    description="Limit results to stops within a bounding "
-                                "box, specified as "
-                                "'southwest_lng,southwest_lat,northeast_lng,"
-                                "northeast_lat' (matching Leaflet's "
-                                "toBBoxString() method"
-                    ),
-                description="Limit results to stops within a bounding "
-                            "box, specified as "
-                            "'southwest_lng,southwest_lat,northeast_lng,"
-                            "northeast_lat' (matching Leaflet's "
-                            "toBBoxString() method"
-            )
-        ]
-    )
+    schema = StopList_schema
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
 
     def list(self, request, *args, **kwargs):
         # Retrieve the bounding box from the list of GET parameters
@@ -413,9 +526,30 @@ class StopList(generics.ListAPIView):
             return Stop.objects.all()
 
 
+StopRetrieve_schema = AutoSchema(
+    manual_fields=[
+        coreapi.Field(
+            "atco_code",
+            required=True,
+            location="path",
+            schema=coreschema.String(
+                description="Stop atco_code (e.g. '0500CCITY111')"
+                ),
+            description="Stop atco_code (e.g. '0500CCITY111')",
+            example="0500CCITY111",
+        ),
+    ]
+)
+
+
 class StopRetrieve(generics.RetrieveAPIView):
     """
-    Return the Stop corresponding to the given id (atco_code).
+    Return information about the bus stop identified by _atco_code_.
     """
     queryset = Stop.objects.all()
     serializer_class = StopSerializer
+    schema = StopRetrieve_schema
+
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle
