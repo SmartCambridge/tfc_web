@@ -20,5 +20,6 @@ Only a very limited sub-set of data is available:
     <dd>Archived data for 2018-01-01, latest and previous-latest data for
         some time on 2018-06-19</dd>
     <dt>Zones</dt>
-    <dd>Data for 2018-01-02</dd>
+    <dd>Data for 2018-01-02 and 2018-09-01 (the latter including 
+    'distance' and 'avg_speed' fields)</dd>
 </dl>

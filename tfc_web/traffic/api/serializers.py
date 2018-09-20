@@ -9,6 +9,8 @@ class ZoneRecordSerializer(serializers.Serializer):
     ts = serializers.IntegerField()
     ts_delta = serializers.IntegerField()
     vehicle_id = serializers.CharField()
+    distance = serializers.FloatField(required=False)
+    avg_speed = serializers.FloatField(required=False)
 
 
 class ZoneHistorySerializer(serializers.Serializer):
