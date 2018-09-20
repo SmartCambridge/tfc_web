@@ -24,6 +24,7 @@ from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
     default_throttle, AuthenticateddAPIView
+from api.api_docs import transport_pagination_fields
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -386,6 +387,11 @@ def siriVM_to_journey(request):
     return Response(real_time)
 
 
+VehicleJourneyList_schema = AutoSchema(
+    manual_fields=transport_pagination_fields
+)
+
+
 class VehicleJourneyList(generics.ListAPIView):
     """
     Return a list of all known vehicle journeys.
@@ -393,6 +399,7 @@ class VehicleJourneyList(generics.ListAPIView):
     queryset = VehicleJourney.objects.all()
     serializer_class = VehicleJourneySerializer
     pagination_class = Pagination
+    schema = VehicleJourneyList_schema
 
     authentication_classes = default_authentication
     permission_classes = default_permission
@@ -429,7 +436,7 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
 
 
 StopList_schema = AutoSchema(
-    manual_fields=[
+    manual_fields=transport_pagination_fields + [
         coreapi.Field(
             "bounding_box",
             required=False,
