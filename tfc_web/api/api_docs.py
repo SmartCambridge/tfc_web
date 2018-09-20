@@ -106,3 +106,28 @@ list_args_fields = [
         example="2018-01-15",
     ),
 ]
+
+transport_pagination_fields = [
+    coreapi.Field(
+        "page",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="A page number within the paginated result set "
+                        "(e.g. 2). Default 1"),
+        description="A page number within the paginated result set. "
+                    "(e.g. 2)",
+        example="2",
+    ),
+    coreapi.Field(
+        "page_size",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="Number of results to return per page. "
+                        "(e.g. 10). Default 25, maximum 50."),
+        description="Number of results to return per page. "
+                    "(e.g. 10). Default 25, maximum 50.",
+        example="10",
+        )
+    ]
