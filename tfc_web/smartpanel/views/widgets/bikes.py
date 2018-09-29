@@ -6,7 +6,7 @@ import requests
 from django.core.cache import cache
 from django.http import JsonResponse
 from django.conf import settings
-from requests import Request
+
 
 logger = logging.getLogger(__name__)
 
