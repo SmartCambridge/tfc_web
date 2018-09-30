@@ -48,4 +48,7 @@ urlpatterns = [
 
     # SmartCambridge
     url(r'^smartcambridge/', include('smartcambridge.urls')),
+
+    # Bikes
+    url(r'^bikes/', include('bikes.urls'))
 ]

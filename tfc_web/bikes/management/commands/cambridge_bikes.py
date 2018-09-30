@@ -72,7 +72,6 @@ class Command(BaseCommand):
         Retrieve shared bikes from around the area from ofo and mobike
         """
         while True:
-            time.sleep(600)
             lat = CAMBRIDGE_COORDINATES[0][0]
             lng = CAMBRIDGE_COORDINATES[0][1]
             while lat > CAMBRIDGE_COORDINATES[2][0]:
@@ -83,3 +82,4 @@ class Command(BaseCommand):
                     time.sleep(5)
                     lat, lng, z = vincenty(meters=500).destination(Point(lat, lng), 90) # Go east
                 lat, lng, z = vincenty(meters=500).destination(Point(lat_p, lng_p), 180)  # Go south
+            time.sleep(600)
