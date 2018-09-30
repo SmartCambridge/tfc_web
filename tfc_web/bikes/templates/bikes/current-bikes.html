@@ -33,7 +33,7 @@
 
         function insert_bikes() {
             {% for bike in bikes %}
-                L.marker([ {{ bike.lat }}, {{ bike.lng }} ], { icon: icons['{{ bike.company }}'] }).addTo(map);
+                L.marker([ {{ bike.lat }}, {{ bike.lng }} ], { icon: icons['{{ bike.company }}'] }).bindPopup("Last seen: {{ bike.timestamp }}").addTo(map);
             {% endfor %}
         }
 
