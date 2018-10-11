@@ -8,13 +8,13 @@
         var route = "";
         function route_change(bus_route) {
             route = bus_route;
-            retrieve_busdata();
+            //retrieve_busdata();
         }
     </script>
 {% endblock %}
 {% block content %}
-    <div style="height: 80vh;">
-        <div id="title" style="height: 5%; width: 100%;"><h3 style="margin-left: 20px;">{{ journey.journey_pattern.route.line }}</h3></div>
+    <div style="height: 90vh;">
+        <div id="title" style="height: 5%; width: 100%;"><h3 style="margin-left: 20px;">{{ vj.journey_pattern.route.line }}</h3></div>
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
     <script>
@@ -75,60 +75,8 @@
             }
         }
 
-        function retrieve_busdata(previous=false) {
-            var url;
-            url = '{% url 'siriVM-to-journey' %}';
-            $.ajax({
-                url: url,
-                dataType: 'application/json',
-                complete: function (data) {
-                    var json = JSON.parse(data.responseText);
-                    info_map.update(new Date(json['ts']*1000));
-                    var tooltip_content = '';
-                    for (var i = 0; i < json['request_data'].length; i++) {
-                        var bus = json['request_data'][i];
-                        if ((bus["vehicle_journeys"] !== undefined) && (bus["vehicle_journeys"].length > 0) && (bus["vehicle_journeys"][0] === vehicle_journey)) {
-                            if (bus_marker !== undefined) {
-                                if (bus['RecordedAtTime'] !== bus_marker['RecordedAtTime']) {
-                                    bus['marker'] = bus_marker['marker'];
-                                    bus['marker'].moveTo([bus["Latitude"], bus["Longitude"]], [new Date(bus['RecordedAtTime']) - new Date(bus_marker['RecordedAtTime'])]);
-                                    bus['marker'].resume();
-                                    if (debug)
-                                        tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' +
-                                            'Delay: ' + bus["Delay"];
-                                    if (bus["Delay"] !== undefined)
-                                        update_delay(bus["Delay"]);
-                                    bus['marker'].setTooltipContent(tooltip_content);
-                                    bus_marker = bus;
-                                }
-                            } else {
-                                bus['marker'] = L.Marker.movingMarker([[bus["Latitude"], bus["Longitude"]], [bus["Latitude"], bus["Longitude"]]], [1000], {icon: busIcon});
-                                if (debug)
-                                    tooltip_content = 'VehicleRef: ' + bus["VehicleRef"] + '<br>' + 'Delay: ' + bus["Delay"];
-                                if (bus["Delay"] !== undefined)
-                                    update_delay(bus["Delay"]);
-                                if (tooltip_content === '') {
-                                    bus['marker'].addTo(map).start();
-                                } else bus['marker'].addTo(map).bindTooltip(tooltip_content, {
-                                    permanent: true,
-                                    className: "bus-tooltip",
-                                    interactive: true
-                                }).start();
-                                bus_marker = bus;
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function retrieve_busdata_repeat() {
-            retrieve_busdata();
-            setTimeout(retrieve_busdata_repeat, 2000);
-        }
-
         $(document).ready(function() {
-            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             info_map.addTo(map);
@@ -141,9 +89,8 @@
             mapbounds = map.getBounds();
             for (var i = 0; i < timetable.length; i++) {
                 timetable[i]['marker'] = L.marker([timetable[i]['stop_lat'], timetable[i]['stop_lon']]);
-                timetable[i]['marker'].addTo(map).bindTooltip("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { permanent: true, interactive: true });
+                timetable[i]['marker'].addTo(map).bindPopup("<a href='/transport/stop/"+timetable[i]['stop_id']+"/'>"+timetable[i]['stop_name']+"</a><br>Timetable: "+timetable[i]['time']+"<br>Expected: "+timetable[i]['time_rt'], { autoClose: false, closeOnClick:false, permanent: false, interactive: true });
             }
-            retrieve_busdata_repeat();
         });
     </script>
 {% endblock %}
