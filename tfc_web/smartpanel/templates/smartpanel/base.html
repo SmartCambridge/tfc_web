@@ -5,19 +5,18 @@
 {% endblock %}
 {% block extra_drawer_css %}mdl-layout--fixed-drawer{% endblock %}
 {% block navigation %}
+    <a class="mdl-navigation__link" href="{% url 'smartpanel-home' %}">SmartPanels Home</a>
     {% if user.is_authenticated %}
+        <div class="drawer-separator"></div>
         <a class="mdl-navigation__link" href="{% url 'smartpanel-list-my-layouts' %}">My SmartPanel layouts</a>
-        <a class="mdl-navigation__link" href="{% url 'smartpanel-design' %}">New SmartPanel layout</a>
     {% endif %}
 {# TODO Re-enable once public opt-in done #}
 {# <a class="mdl-navigation__link" href="{% url 'smartpanel-layout-all' %}">SmartPanel layouts</a> #}
     {% if user.is_authenticated %}
-        <div class="drawer-separator"></div>
         <a class="mdl-navigation__link" href="{% url 'smartpanel-list-my-displays' %}">My SmartPanel displays</a>
-        <a class="mdl-navigation__link" href="{% url 'smartpanel-new-display' %}">New SmartPanel display</a>
     {% endif %}
     <div class="drawer-separator"></div>
-    <a class="mdl-navigation__link" href="{% url 'smartpanel-home' %}">SmartPanels Home</a>
+    <a class="mdl-navigation__link" href="/csn/forum/forum/smartpanel-3/">SmartPanel forum</a>
     <a class="mdl-navigation__link" href="{% url 'smartcambridge-tcs' %}">Terms and Conditions</a>
     <a class="mdl-navigation__link" href="{% url 'smartpanel-info' %}">About</a>
 {% endblock %}
