@@ -123,8 +123,9 @@ class Command(BaseCommand):
                                     stops.append(route['RouteLink']['From']['StopPointRef'])
                                     stops.append(route['RouteLink']['To']['StopPointRef'])
                                 route_objects.append(
-                                    Route(id=routes_desc[route_id]['@id'], line=bus_line, stops_list=','.join(stops),
-                                    description=routes_desc[route_id]['Description']))
+                                    Route(id=tnds_zone+'-'+routes_desc[route_id]['@id'], line=bus_line,
+                                          stops_list=','.join(stops),
+                                          description=routes_desc[route_id]['Description']))
                             if route_objects:
                                 Route.objects.bulk_create(route_objects)
 
@@ -183,7 +184,7 @@ class Command(BaseCommand):
                             for journey_pattern in journey_patterns:
                                 journey_pattern_objects.append(JourneyPattern(
                                     id=journey_pattern['@id'], direction=journey_pattern['Direction'],
-                                    route_id=journey_pattern['RouteRef'],
+                                    route_id=tnds_zone+'-'+journey_pattern['RouteRef'],
                                     section_id=journey_pattern['JourneyPatternSectionRefs'])
                                 )
                             if journey_pattern_objects:
