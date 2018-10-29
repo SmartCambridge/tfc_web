@@ -490,10 +490,13 @@ function WidgetConfig(config) {
         parent_el.appendChild(row);
 
         return { value: function() {
-                            // the 'chooser' may not have been used, so start with param_current for return value
+                            // the 'chooser' may not have been used, so start with param_current or {} for return value
                             var return_value = param_current;
-                            // in any case update 'description' (i.e. the 'Title:' of this destination
-                            return_value.description = input.value;
+                            if (return_value)
+                            {
+                                // in any case update 'description' (i.e. the 'Title:' of this destination
+                                return_value.description = input.value;
+                            }
 
                             if (chooser_value && chooser_value.stops && chooser_value.stops.length > 0)
                             {
