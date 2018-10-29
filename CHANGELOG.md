@@ -1,3 +1,11 @@
+## Release 7 bugfix / minor updates (2018-10-29)
+
+* removed fixed-width limitations on some plot and map templates
+
+* smartpanel removed 'New Layout' and 'New Display' from left menu (as user has 'New' card on Layouts / Displays pages).
+
+* smartpanel BusStopsChooser bugfix - trailing slash added to 'transport/stops/' API call
+
 ## Release 7 (2018-09-11)
 
 * smartpanel 'displays map' page moved to 'displays list' + 'displays map', with list as the default for 'My displays'
