@@ -123,8 +123,9 @@ class Command(BaseCommand):
                                     stops.append(route['RouteLink']['From']['StopPointRef'])
                                     stops.append(route['RouteLink']['To']['StopPointRef'])
                                 route_objects.append(
-                                    Route(id=routes_desc[route_id]['@id'], line=bus_line, stops_list=','.join(stops),
-                                    description=routes_desc[route_id]['Description']))
+                                    Route(id=tnds_zone+'-'+routes_desc[route_id]['@id'], line=bus_line,
+                                          stops_list=','.join(stops),
+                                          description=routes_desc[route_id]['Description']))
                             if route_objects:
                                 Route.objects.bulk_create(route_objects)
 
@@ -138,7 +139,7 @@ class Command(BaseCommand):
                             journey_pattern_timing_link_objects = []
                             for journey_pattern_section in journey_pattern_sections:
                                 journey_pattern_section_objects.append(
-                                    JourneyPatternSection(id=journey_pattern_section['@id']))
+                                    JourneyPatternSection(id=tnds_zone+'-'+journey_pattern_section['@id']))
                                 journey_pattern_timing_links = journey_pattern_section['JourneyPatternTimingLink']
                                 if journey_pattern_timing_links.__class__ is not list:
                                     journey_pattern_timing_links = list([journey_pattern_timing_links])
@@ -158,7 +159,7 @@ class Command(BaseCommand):
                                                             naptan_code="Unknown", common_name="Unknown", indicator="Unknown",
                                                             locality_name="", longitude=0, latitude=0)
                                     journey_pattern_timing_link_objects.append(JourneyPatternTimingLink(
-                                        id=journey_pattern_timing_link['@id'],
+                                        id=tnds_zone+'-'+journey_pattern_timing_link['@id'],
                                         stop_from_id=journey_pattern_timing_link['From']['StopPointRef'],
                                         stop_to_id=journey_pattern_timing_link['To']['StopPointRef'],
                                         stop_from_timing_status=journey_pattern_timing_link['From']['TimingStatus'],
@@ -167,7 +168,7 @@ class Command(BaseCommand):
                                         stop_to_sequence_number=journey_pattern_timing_link['To']['@SequenceNumber'],
                                         run_time=xml_timedelta_to_python(journey_pattern_timing_link['RunTime']),
                                         wait_time=wait_time,
-                                        journey_pattern_section_id=journey_pattern_section['@id']
+                                        journey_pattern_section_id=tnds_zone+'-'+journey_pattern_section['@id']
                                     ))
                             if journey_pattern_section_objects:
                                 JourneyPatternSection.objects.bulk_create(journey_pattern_section_objects)
@@ -182,9 +183,9 @@ class Command(BaseCommand):
                             journey_pattern_objects = []
                             for journey_pattern in journey_patterns:
                                 journey_pattern_objects.append(JourneyPattern(
-                                    id=journey_pattern['@id'], direction=journey_pattern['Direction'],
-                                    route_id=journey_pattern['RouteRef'],
-                                    section_id=journey_pattern['JourneyPatternSectionRefs'])
+                                    id=tnds_zone+'-'+journey_pattern['@id'], direction=journey_pattern['Direction'],
+                                    route_id=tnds_zone+'-'+journey_pattern['RouteRef'],
+                                    section_id=tnds_zone+'-'+journey_pattern['JourneyPatternSectionRefs'])
                                 )
                             if journey_pattern_objects:
                                 JourneyPattern.objects.bulk_create(journey_pattern_objects)
@@ -247,7 +248,7 @@ class Command(BaseCommand):
                                             operation_bank_holidays = list(
                                                 element['BankHolidayOperation']['DaysOfOperation'].keys())
                                 vehicle_journey_objects.append(VehicleJourney(
-                                    id=journey['PrivateCode'], journey_pattern_id=journey['JourneyPatternRef'],
+                                    id=journey['PrivateCode'], journey_pattern_id=tnds_zone+'-'+journey['JourneyPatternRef'],
                                     departure_time=journey['DepartureTime'], days_of_week=' '.join(regular_days),
                                     nonoperation_bank_holidays=' '.join(nonoperation_bank_holidays),
                                     operation_bank_holidays=' '.join(operation_bank_holidays), order=order_journey)
