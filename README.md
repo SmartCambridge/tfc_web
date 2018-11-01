@@ -159,3 +159,26 @@ This project uses:
 - [Material Design Lite](https://getmdl.io/)
 - [django-machina](https://github.com/ellmetha/django-machina)
 - [django-allauth](https://github.com/pennersr/django-allauth)
+
+## Overriding default Django config
+
+The `run.sh` script in the root of this repository is used to startup
+the application under gunicorn at system boot and at other times. This
+script sources a file
+
+    /home/tfc_prod/tfc_web_envvars
+
+if it exists before starting gunicorn. One use for this is to export
+environment variables that affect the application's behaviour.
+
+This can be used to override the default Django configuration.
+Django reads the name of the configuration module to use from the environment
+variable `DJANGO_SETTINGS_MODULE`. This is defaulted by `tfc_web/tfc_web/wsgi.py`
+to `tfc_web.settings_production` but isn't altered if already set. By setting
+this variable in `tfc_web_envvars` you can choose a different module.
+
+A common choice is `tfc_web.settings` which is better suited the development
+work. Alternatively you could create your own module which imports from
+`tfc_web.settings` and then overrides as many parameters as you want (see
+`tfc_web/tfc_web/setings_production.py` and `tfc_web/tfc_web/setings_dev.py`
+for examples).
