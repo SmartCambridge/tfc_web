@@ -1,0 +1,23 @@
+{
+
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "http://smartcambridge.org/schemas/widgets/rss_reader_schema.json",
+    "$comment": "Uses server as an RSS proxy",
+    "description": "Read an external RSS URL and display the feed in a widget",
+    "title": "RSS Reader",
+
+    "type": "object",
+    "required": ["title", "url"],
+    "properties": {
+        "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "RSS Reader title"
+        },
+        "url": {
+            "type": "string",
+            "title": "url",
+            "description": "http or https URL of a feed"
+        }
+    }
+}
