@@ -16,10 +16,13 @@ function Weather(widget_id) {
     self.widget_id = widget_id;
 
     var WEATHER_OPTIONS = [ { value: '310042', text: 'Cambridge' },
+                            { value: '324249', text: 'Ely' },
                             { value: '351524', text: 'Fulbourn' },
+                            { value: '324061', text: 'Huntingdon' },
                             { value: '310105', text: 'Luton' },
                             { value: '310120', text: 'Peterborough' },
-                            { value: '353656', text: 'Stansted' }
+                            { value: '353656', text: 'Stansted' },
+                            { value: '353330', text: 'St. Neots' }
                           ];
 
     this.display = function(config, params) {
