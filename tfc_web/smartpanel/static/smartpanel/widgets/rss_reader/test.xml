@@ -1,0 +1,1092 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:cf="http://www.microsoft.com/schemas/rss/core/2005" version="2.0" xmlns:ev="http://purl.org/rss/1.0/modules/event/">
+  <channel>
+    <cf:treatAs>list</cf:treatAs>
+    <cf:listinfo>
+      <cf:sort data-type="date" label="Start time" ns="http://purl.org/rss/1.0/modules/event/" element="startdate" default="true"/>
+    </cf:listinfo>
+    <title>Computer Laboratory talks</title>
+    <link>http://talks.cam.ac.uk/show/index/6330</link>
+    <managingEditor>mgk25@cl.cam.ac.uk</managingEditor>
+    <pubDate>Sun, 04 Nov 2018 08:58:16 GMT</pubDate>
+    <description>Merged list of all talks taking place in the Computer Laboratory. This talk series can also be used to announce individual talks that do not fit into any of the established Lab seminars.</description>
+    <item>
+      <title>Mon 05 Nov 13:05: Declarative Software Design in Python Lunch provided</title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114331" class="click link"&gt;Declarative Software Design in Python&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;In the Engineering Core Workflows team we deal with very complex business rules. We need to create services that can continue to take on more business complexity while keeping the code maintainable.&lt;/p&gt;
+
+
+	&lt;p&gt;This has driven us to design software that is declarative in nature instead of imperative (along the lines of how ReactJS treats UI state).&lt;/p&gt;
+
+
+	&lt;p&gt;The advantage is that we get to isolate business logic to a stateless configuration file thus separating business logic from infrastructure logic.&lt;/p&gt;
+
+
+	&lt;p&gt;Our talk will focus on this design and when may want to choose this approach.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;Lunch provided&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Elmer Landaverde, Bloomberg Team Leader of Engineering Core Workflows &lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181105T130500'&gt;Monday 05 November 2018, 13:05&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181105T140500'&gt;14:05&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/50582"&gt;Computer Laboratory Tech Talks&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/23509"&gt;Jan Samols&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114331"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114331"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 30 Oct 2018 11:33:00 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114331</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114331#1540899180</guid>
+      <ev:startdate>2018-11-05T13:05</ev:startdate>
+      <ev:enddate>2018-11-05T14:05</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Jan Samols</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 06 Nov 13:15: Q&amp;amp;A session </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114232" class="click link"&gt;Q&amp;amp;A session&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Chris is giving a Security Seminar on reproducible builds at 2pm, so I&amp;#8217;ve invited him to stop by for a Q&amp;#38;A session with the systems research group before the talk.&lt;/p&gt;
+
+
+	&lt;p&gt;Here are a few questions to get started, bring your own to the session:&lt;/p&gt;
+
+
+	&lt;p&gt;- You got your start in open source while you were an undergraduate in computer science at a UK university, what do you think we could do to help more of our students engage with open source projects?&lt;/p&gt;
+
+
+	&lt;p&gt;- A number of open source projects now maintain lists of potential student-sized activities as potential Google Summer of Code or Outreachy projects. CS students at Cambridge do a series of practical implementation projects as part of completing their degrees. Possible synergy? Students working on real-world open source projects as part of their degree requirements?&lt;/p&gt;
+
+
+	&lt;p&gt;- I use Debian/Ubuntu in my research or/and I work on open source project X, how do I make sure Y package is up-to-date in Debian?&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Chris Lamb, Debian Project Leader&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181106T131500'&gt;Tuesday 06 November 2018, 13:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181106T134500'&gt;13:45&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/6333"&gt;Computer Laboratory, William Gates Building, Room FW11&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/10085"&gt;Computer Laboratory NetOS Group Talklets&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71926"&gt;Allison Randal&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114232"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114232"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Sun, 28 Oct 2018 17:06:19 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114232</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114232#1540746379</guid>
+      <ev:startdate>2018-11-06T13:15</ev:startdate>
+      <ev:enddate>2018-11-06T13:45</ev:enddate>
+      <ev:location>Computer Laboratory, William Gates Building, Room FW11</ev:location>
+      <ev:organizer>Allison Randal</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 06 Nov 14:00: You think you're not a target? A tale of three developers </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114274" class="click link"&gt;You think you're not a target? A tale of three developers&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;If you develop or distribute software of any kind, you are vulnerable to whole categories of attacks upon yourself or your loved ones. This includes blackmail, extortion or &amp;#8220;just&amp;#8221; simple malware injection. By targeting software developers such as yourself, malicious actors, including nefarious governments, can infect and attack thousands &#8212; if not millions &#8212; of end users. How can we avert this?&lt;/p&gt;
+
+
+	&lt;p&gt;The idea behind &amp;#8220;reproducible&amp;#8221; builds is to allow verification that no flaws have been introduced during build processes; this prevents against the installation of backdoor-introducing malware on developers&amp;#8217; machines, ensuring attempts at extortion and other forms of subterfuge are quickly uncovered and thus ultimately futile.&lt;/p&gt;
+
+
+	&lt;p&gt;Through a story of three different developers, this talk will engage you on this growing threat to you and how it affects everyone involved in the production lifecycle of software development, as well as how reproducible builds can help prevent against it.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Chris Lamb, Debian Project Leader&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181106T140000'&gt;Tuesday 06 November 2018, 14:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181106T150000'&gt;15:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/43799"&gt;FW26, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/5695"&gt;Computer Laboratory Security Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/44107"&gt;Alexander Vetterl&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114274"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114274"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Wed, 31 Oct 2018 11:05:22 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114274</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114274#1540983922</guid>
+      <ev:startdate>2018-11-06T14:00</ev:startdate>
+      <ev:enddate>2018-11-06T15:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Alexander Vetterl</ev:organizer>
+    </item>
+    <item>
+      <title>Wed 07 Nov 16:15: Scalable Intelligent Systems by 2025 </title>
+      <description>&lt;div class='vevent'&gt;
+	&lt;img alt="Computer Laboratory Wednesday Seminars logo" class="logo" src="http://talks.cam.ac.uk/image/show/8785/image.png;" /&gt;
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113071" class="click link"&gt;Scalable Intelligent Systems by 2025&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;A project to build the technology stack outlined in this seminar can bring Scalable Intelligent Systems to fruition by 2025. Scalable Intelligent Systems have the following characteristics: Interactively acquire information from video, Web pages, hologlasses, online data bases, sensors, articles, human speech and gestures, etc.; Real-time integration of massive pervasively inconsistent information; Scalability in all important dimensions meaning that there are no hard barriers to continual improvement in the above areas; Close human collaboration with hologlasses for secure mobile interaction.
+Computers alone cannot implement the above capabilities; No closed-form algorithmic solution is possible to implement the above capabilities. For example, pain management could greatly benefit from Scalable Intelligent Systems. Complexities of dealing with pain have led to the current opioid crisis.  It&#8217;s now become routine for providers to check the state databases to see if there&#8217;s multi-sourcing &#8212; getting prescriptions from other providers. Providers are also now supposed to use urine drug screenings and, if there are unusual results, to do a confirmation.  Pain management requires much more than just prescribing opioids, which are often critical for short-term and less often longer-term use. [Coker 2015; Friedberg 2012; Holt 2017; Marchant 2017; McKinney 2015; Spiegel 2018; Tedesco, et. al. 2017; White 2017] Organizational aspects play an important role in pain management. [Fagerhaugh and Strauss 1977].&lt;/p&gt;
+
+
+	&lt;p&gt;More details at:
+&lt;a href="https://blogs.cs.st-andrews.ac.uk/csblog/2018/10/04/dls-scalable-intelligent-systems-carl-hewitt/"&gt;https://blogs.cs.st-andrews.ac.uk/csblog/2018/10/04/dls-scalable-intelligent-systems-carl-hewitt/&lt;/a&gt;&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Carl Hewitt - Emeritus professor at MIT&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181107T161500'&gt;Wednesday 07 November 2018, 16:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181107T170000'&gt;17:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/26445"&gt;Lecture Theatre 2, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6180"&gt;Computer Laboratory Wednesday Seminars&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71707"&gt;jo de bono&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113071"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113071"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Mon, 15 Oct 2018 10:27:17 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113071</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113071#1539599237</guid>
+      <ev:startdate>2018-11-07T16:15</ev:startdate>
+      <ev:enddate>2018-11-07T17:00</ev:enddate>
+      <ev:location>Lecture Theatre 2, Computer Laboratory</ev:location>
+      <ev:organizer>jo de bono</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 08 Nov 15:00: The Elusive Internet Flatening: 10 Years of IXP Growth </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114184" class="click link"&gt;The Elusive Internet Flatening: 10 Years of IXP Growth&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract:
+Over the past decade, Internet eXchange Points (IXPs) have been playing a key role in enabling interdomain connectivity by providing a shared fabric where Autonomous Systems (ASes) typically peer. While the relevance of IXPs is undeniable, their contribution to the shaping of the current Internet is not fully understood yet. Using historical  IXP  membership and traceroute data (2008-2016), we show that the impact of IXPs on path-length is limited. Surprisingly, Internet path-lengths have globally barely decreased over the last decade, regardless of whether they cross IXPs or not. Instead of a &#8220;path-shortening&#8221;, we observe a diversion of the routes away from the central Tier-1 ASes, supported by IXPs. This diversion has however not fundamentally changed the existence of a hierarchy, but rather replaced the central Tier-1s with a new set of players.&lt;/p&gt;
+
+
+	&lt;p&gt;Bio:
+Ignacio Castro is a postdoctoral research associate at Queen Mary University of London  where he holds an  EPSRC  grant (researcher Co-I for the &#163;2.4M  EARL  project). He obtained his PhD while researching at the Institute  IMDEA  Networks (Dr. Sergey Gorinsky), and visiting the International Computer Science Institute at Berkeley (Prof. Scott Shenker). His  research combines networked systems and economics with an special focus on interdomain network interconnections and the macroscopic evolution of the Internet (e.g.,  IEEE /ACM ToN,  IEEE JSAC , WWW,   ACM  CoNEXT). He is also actively involved in conference organization (e.g.,  ACM IMC  treasurer and social chair,  ACM SIGCOMM  Publicity chair) and obtaining and managing large research grants (e.g.,  EPSRC , H2020).&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Ignacio Castro (Queen Mary)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181108T150000'&gt;Thursday 08 November 2018, 15:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181108T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/43799"&gt;FW26, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/8316"&gt;Computer Laboratory Systems Research Group Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/48511"&gt;Marco Caballero&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114184"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114184"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Fri, 26 Oct 2018 14:42:13 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114184</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114184#1540564933</guid>
+      <ev:startdate>2018-11-08T15:00</ev:startdate>
+      <ev:enddate>2018-11-08T16:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Marco Caballero</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 09 Nov 12:00: Knowledge Representation and Extraction at Scale </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/111586" class="click link"&gt;Knowledge Representation and Extraction at Scale&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;These days, most general knowledge question-answering systems rely on large-scale knowledge bases comprising billions of facts about millions of entities. Having a structured source of semantic knowledge means that we can answer questions involving single static facts (e.g. &amp;#8220;Who was the 8th president of the US?&amp;#8221;) or dynamically generated ones (e.g. &amp;#8220;How old is Donald Trump?). More importantly, we can answer questions involving multiple inference steps (&amp;#8220;Is the queen older than the president of the US?&amp;#8221;).&lt;/p&gt;
+
+
+	&lt;p&gt;In this talk, I&amp;#8217;m going to be discussing some of the unique challenges that are involved with building and maintaining a consistent knowledge base for Alexa, extending it with new facts and using it to serve answers in multiple languages. I will focus on three recent projects from our group. First, a way of measuring the completeness of a knowledge base, that is based on usage patterns. The definition of the usage of the KB is done in terms of the relation distribution of entities seen in question-answer logs. Instead of directly estimating the relation distribution of individual entities, it is generalized to the &amp;#8220;class signature&amp;#8221; of each entity. For example, users ask for baseball players&amp;#8217; height, age, and batting average, so a knowledge base is complete (with respect to baseball players) if every entity has facts for those three relations.&lt;/p&gt;
+
+
+	&lt;p&gt;Second, an investigation into fact extraction from unstructured text. I will present a method for creating distant (weak) supervision labels for training a large-scale relation extraction system. I will also discuss the effectiveness of neural network approaches by decoupling the model architecture from the feature design of a state-of-the-art neural network system. Surprisingly, a much simpler classifier trained on similar features performs on par with the highly complex neural network system (at 75x reduction to the training time), suggesting that the features are a bigger contributor to the final performance.&lt;/p&gt;
+
+
+	&lt;p&gt;Finally, I will present the Fact Extraction and VERification (FEVER) dataset and challenge. The dataset comprises more than 185,000 human-generated claims extracted from Wikipedia pages. False claims were generated by mutating true claims in a variety of ways, some of which were meaning-altering. During the verification step, annotators were required to label a claim for its validity and also supply full-sentence textual evidence from (potentially multiple) Wikipedia articles for the label. With  FEVER , we aim to help create a new generation of transparent and interpretable knowledge extraction systems.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Christos Christodoulopoulos, Amazon&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181109T120000'&gt;Friday 09 November 2018, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181109T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/111586"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=111586"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Thu, 27 Sep 2018 15:19:20 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/111586</link>
+      <guid>http://talks.cam.ac.uk/talk/index/111586#1538061560</guid>
+      <ev:startdate>2018-11-09T12:00</ev:startdate>
+      <ev:enddate>2018-11-09T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 09 Nov 13:05: How to Break the Internet  Food and drinks provided</title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114355" class="click link"&gt;How to Break the Internet &lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;The Internet itself is under constant attack from hating hackers, authoritarian agencies, boring bugs and annoying accidents. Core routers stand alone in the hurricane, far beyond the capacity of any protective firewall, left to defend themselves. How can they do this? And how safe is the Internet really? This talk will reveal all.&lt;/p&gt;
+
+
+	&lt;p&gt;Bio: The presenter is Director &amp;#38;  CTO  of Ensoft, whose experience includes helping to bring into existence the Guinness Book of Records&amp;#8217; &amp;#8220;World&amp;#8217;s Highest Capacity Internet Router&amp;#8221;.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;Food and drinks provided&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Simon Chatterjee, Ensoft Ltd &lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181109T130500'&gt;Friday 09 November 2018, 13:05&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181109T140500'&gt;14:05&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/26762"&gt;FW11, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/50582"&gt;Computer Laboratory Tech Talks&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/23509"&gt;Jan Samols&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114355"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114355"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 30 Oct 2018 17:37:03 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114355</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114355#1540921023</guid>
+      <ev:startdate>2018-11-09T13:05</ev:startdate>
+      <ev:enddate>2018-11-09T14:05</ev:enddate>
+      <ev:location>FW11, Computer Laboratory</ev:location>
+      <ev:organizer>Jan Samols</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 13 Nov 13:15: Rust for Systems Development </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113110" class="click link"&gt;Rust for Systems Development&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Marco Caballero Gutierrez&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181113T131500'&gt;Tuesday 13 November 2018, 13:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181113T134500'&gt;13:45&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/6333"&gt;Computer Laboratory, William Gates Building, Room FW11&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/10085"&gt;Computer Laboratory NetOS Group Talklets&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71926"&gt;Allison Randal&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113110"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113110"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Sat, 27 Oct 2018 08:37:51 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113110</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113110#1540629471</guid>
+      <ev:startdate>2018-11-13T13:15</ev:startdate>
+      <ev:enddate>2018-11-13T13:45</ev:enddate>
+      <ev:location>Computer Laboratory, William Gates Building, Room FW11</ev:location>
+      <ev:organizer>Allison Randal</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 13 Nov 14:00: Displacing big data: How cybercriminals cheat the system </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114364" class="click link"&gt;Displacing big data: How cybercriminals cheat the system&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Many technical approaches for detecting and preventing cybercrimes use big data and machine learning, drawing upon knowledge about the behaviour of legitimate customers and indicators of cybercrime. These include fraud detection systems, behavioural analysis, spam detection, intrusion detection systems, anti-virus software, and denial of service attack protection. However, criminals have adapted their methods in response to big data systems.&lt;/p&gt;
+
+
+	&lt;p&gt;I will present case studies for a number of different cybercrime types to highlight the methods used for cheating such systems. I will argue that big data solutions are not a silver bullet approach to disrupting cybercrime, but rather represent a Red Queen&#8217;s race, requiring constant running to stay in one spot.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Alice Hutchings, Computer Laboratory, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181113T140000'&gt;Tuesday 13 November 2018, 14:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181113T150000'&gt;15:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/30865"&gt;LT2, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/5695"&gt;Computer Laboratory Security Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/44107"&gt;Alexander Vetterl&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114364"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114364"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Wed, 31 Oct 2018 09:33:23 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114364</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114364#1540978403</guid>
+      <ev:startdate>2018-11-13T14:00</ev:startdate>
+      <ev:enddate>2018-11-13T15:00</ev:enddate>
+      <ev:location>LT2, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Alexander Vetterl</ev:organizer>
+    </item>
+    <item>
+      <title>Wed 14 Nov 13:05: Embracing the Volatility of AWS Spot Fleet Food provided</title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/112546" class="click link"&gt;Embracing the Volatility of AWS Spot Fleet&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;In this talk, Matthew Mead-Briggs from Yelp will explain what  AWS  Spot Instances are and how you can slash your  AWS  bill by using them. He&amp;#8217;ll include some lessons learned from using Spot Instances in production at Yelp and share some war stories from when things go wrong! There will be details on how Yelp uses spot instances to build their platform as a service (PaaSTA) and how they help us autoscale our services based on load.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;Food provided&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Matthew Mead-Briggs, Yelp&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181114T130500'&gt;Wednesday 14 November 2018, 13:05&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181114T143000'&gt;14:30&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/50582"&gt;Computer Laboratory Tech Talks&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/23509"&gt;Jan Samols&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/112546"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=112546"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Mon, 08 Oct 2018 09:46:01 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/112546</link>
+      <guid>http://talks.cam.ac.uk/talk/index/112546#1538991961</guid>
+      <ev:startdate>2018-11-14T13:05</ev:startdate>
+      <ev:enddate>2018-11-14T14:30</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Jan Samols</ev:organizer>
+    </item>
+    <item>
+      <title>Wed 14 Nov 16:15: Failing with Style: Why and How we Should Encourage Humans to Fail with Highly Capable Systems </title>
+      <description>&lt;div class='vevent'&gt;
+	&lt;img alt="Computer Laboratory Wednesday Seminars logo" class="logo" src="http://talks.cam.ac.uk/image/show/8785/image.png;" /&gt;
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/109615" class="click link"&gt;Failing with Style: Why and How we Should Encourage Humans to Fail with Highly Capable Systems&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Failure is a common artefact of challenging experiences, a fact of life for interactive systems but also a resource for aesthetic and improvisational performance. I will discuss an example of how three professional pianists performed an interactive piano composition that included playing hidden computational codes within the music so as to control their path through the piece and trigger system actions. I will reveal how their apparent failures to play the codes (at least when seen from the system&#8217;s point of view) occurred for diverse reasons including mistakes in their playing, limitations of the system, but also deliberate failures as a way of controlling the system, and how these failures provoked aesthetic and improvised responses from the performers. I will argue that creative interfaces should be designed to enable aesthetic failures and introduce a taxonomy that compares human approaches to failure with approaches to capable systems, revealing new creative design strategies of gaming, taming, riding and assimilating with the system.  I&#8217;ll try and persuade you that these strategies might also be applied to less obviously creative interfaces, from conversational interfaces to autonomous vehicles.&lt;/p&gt;
+
+
+	&lt;p&gt;Steve is Professor of Collaborative Computing in the Mixed Reality Laboratory at the University of Nottingham where he directs the Horizon &#8216;My Life in Data&#8217; Centre or Doctoral Training. He previously held an  EPSRC  Dream Fellowship, has been a Visiting Professor at the  BBC  and was elected to the  CHI  Academy in 2012.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Professor Steve Benford, Mixed Reality Laboratory, School of Computer Science, The University of Nottingham&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181114T161500'&gt;Wednesday 14 November 2018, 16:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181114T170000'&gt;17:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/26445"&gt;Lecture Theatre 2, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6180"&gt;Computer Laboratory Wednesday Seminars&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71707"&gt;jo de bono&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/109615"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=109615"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Thu, 18 Oct 2018 09:20:45 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/109615</link>
+      <guid>http://talks.cam.ac.uk/talk/index/109615#1539854445</guid>
+      <ev:startdate>2018-11-14T16:15</ev:startdate>
+      <ev:enddate>2018-11-14T17:00</ev:enddate>
+      <ev:location>Lecture Theatre 2, Computer Laboratory</ev:location>
+      <ev:organizer>jo de bono</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 15 Nov 11:30: Computer Laboratory Recruitment Fair </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113608" class="click link"&gt;Computer Laboratory Recruitment Fair&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Speaker to be confirmed&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181115T113000'&gt;Thursday 15 November 2018, 11:30&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181115T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/56929"&gt;The Street, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/50582"&gt;Computer Laboratory Tech Talks&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/23509"&gt;Jan Samols&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113608"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113608"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Sun, 21 Oct 2018 10:07:56 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113608</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113608#1540116476</guid>
+      <ev:startdate>2018-11-15T11:30</ev:startdate>
+      <ev:enddate>2018-11-15T16:00</ev:enddate>
+      <ev:location>The Street, Computer Laboratory</ev:location>
+      <ev:organizer>Jan Samols</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 16 Nov 11:30: Computer Laboratory Recruitment Fair </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113611" class="click link"&gt;Computer Laboratory Recruitment Fair&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Speaker to be confirmed&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181116T113000'&gt;Friday 16 November 2018, 11:30&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181116T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/56929"&gt;The Street, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/50582"&gt;Computer Laboratory Tech Talks&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/23509"&gt;Jan Samols&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113611"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113611"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Sun, 21 Oct 2018 10:08:44 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113611</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113611#1540116524</guid>
+      <ev:startdate>2018-11-16T11:30</ev:startdate>
+      <ev:enddate>2018-11-16T16:00</ev:enddate>
+      <ev:location>The Street, Computer Laboratory</ev:location>
+      <ev:organizer>Jan Samols</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 16 Nov 12:00: The Ethics of Artificially Intelligent Communications Technology Room changed</title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/112081" class="click link"&gt;The Ethics of Artificially Intelligent Communications Technology&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;Room changed&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Marcus Tomalin, CUED, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181116T120000'&gt;Friday 16 November 2018, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181116T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/26762"&gt;FW11, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/112081"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=112081"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Mon, 08 Oct 2018 14:16:43 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/112081</link>
+      <guid>http://talks.cam.ac.uk/talk/index/112081#1539008203</guid>
+      <ev:startdate>2018-11-16T12:00</ev:startdate>
+      <ev:enddate>2018-11-16T13:00</ev:enddate>
+      <ev:location>FW11, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 16 Nov 14:00: Pierre Ohlmann, IRIF, Universit&#233; Paris 7 </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113263" class="click link"&gt;Pierre Ohlmann, IRIF, Universit&#233; Paris 7&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Speaker to be confirmed&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181116T140000'&gt;Friday 16 November 2018, 14:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181116T150000'&gt;15:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/13544"&gt;FW26&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6375"&gt;Logic and Semantics Seminar (Computer Laboratory)&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/45205"&gt;Victor Gomes&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113263"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113263"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 16 Oct 2018 09:57:11 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113263</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113263#1539683831</guid>
+      <ev:startdate>2018-11-16T14:00</ev:startdate>
+      <ev:enddate>2018-11-16T15:00</ev:enddate>
+      <ev:location>FW26</ev:location>
+      <ev:organizer>Victor Gomes</ev:organizer>
+    </item>
+    <item>
+      <title>Mon 19 Nov 13:05: How search uses Machine Learning Food provided</title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114358" class="click link"&gt;How search uses Machine Learning&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Search systems are very complex pieces of software and, in order to be effective, must combine techniques coming from different branch of computer science, math, and statistics. Despite the fact that search systems have been around since just after the Web was created, search is still far from being a closed problem. This is even more true, if we consider searching through information that is produced every-day on social media systems. In this talk we will introduce search at FB and we will show some examples of very recent solutions to problems that we have addressed in the search team at FB.&lt;/p&gt;
+
+
+	&lt;p&gt;Register at: &lt;a href="https://cambridgemachinelearningtalkau.splashthat.com/"&gt;https://cambridgemachinelearningtalkau.splashthat.com/&lt;/a&gt;&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;Food provided&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Fabrizio Silvestri, Facebook&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181119T130500'&gt;Monday 19 November 2018, 13:05&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181119T143000'&gt;14:30&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/50582"&gt;Computer Laboratory Tech Talks&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/23509"&gt;Jan Samols&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114358"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114358"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 30 Oct 2018 17:42:38 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114358</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114358#1540921358</guid>
+      <ev:startdate>2018-11-19T13:05</ev:startdate>
+      <ev:enddate>2018-11-19T14:30</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Jan Samols</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 20 Nov 13:15: Bounding data races in space and time </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114307" class="click link"&gt;Bounding data races in space and time&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;If I read a variable twice, and the variable is not concurrently modified, then I expect to get the same value from both reads. Surprisingly enough, this isn&amp;#8217;t true in either C++ or Java! In this talk, I&amp;#8217;ll explain how the complicated effects of data races make this property fail, and talk about our new memory model (currently implemented for OCaml) for which this property holds.&lt;/p&gt;
+
+
+	&lt;p&gt;(See &lt;a href="https://dl.acm.org/citation.cfm?id=3192421"&gt;https://dl.acm.org/citation.cfm?id=3192421&lt;/a&gt; for the paper)&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Stephen Dolan&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181120T131500'&gt;Tuesday 20 November 2018, 13:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181120T134500'&gt;13:45&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/6333"&gt;Computer Laboratory, William Gates Building, Room FW11&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/10085"&gt;Computer Laboratory NetOS Group Talklets&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71926"&gt;Allison Randal&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114307"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114307"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 30 Oct 2018 23:09:53 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114307</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114307#1540940993</guid>
+      <ev:startdate>2018-11-20T13:15</ev:startdate>
+      <ev:enddate>2018-11-20T13:45</ev:enddate>
+      <ev:location>Computer Laboratory, William Gates Building, Room FW11</ev:location>
+      <ev:organizer>Allison Randal</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 20 Nov 14:00:  PP is not a monad </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113266" class="click link"&gt; PP is not a monad&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Correcting a persistent mistake from the literature, we prove that PP, the composition of the covariant powerset monad P with itself, does not admit any monad structure. The same applies to the n-fold composition of P for any n &gt; 1. As a consequence, P does not have any distributive law over itself, and it motivates a search for sufficient conditions for a monad to have a distributive law over P.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Bartek Klin, Warsaw University&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181120T140000'&gt;Tuesday 20 November 2018, 14:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181120T150000'&gt;15:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/13544"&gt;FW26&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6375"&gt;Logic and Semantics Seminar (Computer Laboratory)&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/45205"&gt;Victor Gomes&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113266"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113266"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Mon, 22 Oct 2018 09:01:17 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113266</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113266#1540198877</guid>
+      <ev:startdate>2018-11-20T14:00</ev:startdate>
+      <ev:enddate>2018-11-20T15:00</ev:enddate>
+      <ev:location>FW26</ev:location>
+      <ev:organizer>Victor Gomes</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 22 Nov 15:00: Chromebooks, USB-C and Google PI/SI Research </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114265" class="click link"&gt;Chromebooks, USB-C and Google PI/SI Research&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract: The Chromebook is a new, faster computer. It starts in seconds, and offers thousands of apps, including Web applications and Android apps. The Chrome OS operating system is automatically updated to ensure the computer remains secure and gets better over time. The Chrome OS hardware team makes Chromebook reference designs and develops new technologies for them. The team was heavily involved in the  USB -C development and Google was an early adopter in laptops, tablets and phones. The  USB -C connector is used to provide up to 100W of power, high speed signals for data and video, and low speed signals for configuration. It therefore presents many SI, PI and  EMC  challenges. Starting from a system view of  USB -C the presentation will introduce some of the research done by the Google Signal Integrity and Power teams as they implemented it in devices. It will conclude with some forward-looking speculation on SI tools.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Mark Hayter (Google)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181122T150000'&gt;Thursday 22 November 2018, 15:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181122T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/43799"&gt;FW26, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/8316"&gt;Computer Laboratory Systems Research Group Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/48511"&gt;Marco Caballero&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114265"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114265"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Mon, 29 Oct 2018 10:33:37 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114265</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114265#1540809217</guid>
+      <ev:startdate>2018-11-22T15:00</ev:startdate>
+      <ev:enddate>2018-11-22T16:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Marco Caballero</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 23 Nov 12:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/109894" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Paula Czarnowska &amp;amp; Chris Davis, NLIP, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181123T120000'&gt;Friday 23 November 2018, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181123T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/109894"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=109894"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Thu, 06 Sep 2018 08:33:52 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/109894</link>
+      <guid>http://talks.cam.ac.uk/talk/index/109894#1536222832</guid>
+      <ev:startdate>2018-11-23T12:00</ev:startdate>
+      <ev:enddate>2018-11-23T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 27 Nov 13:15: CHERI: a step change in security at the hardware/software interface </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113260" class="click link"&gt;CHERI: a step change in security at the hardware/software interface&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Simon Moore (University of Cambridge)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181127T131500'&gt;Tuesday 27 November 2018, 13:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181127T134500'&gt;13:45&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/6333"&gt;Computer Laboratory, William Gates Building, Room FW11&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/10085"&gt;Computer Laboratory NetOS Group Talklets&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71926"&gt;Allison Randal&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113260"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113260"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Wed, 17 Oct 2018 17:12:10 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113260</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113260#1539796330</guid>
+      <ev:startdate>2018-11-27T13:15</ev:startdate>
+      <ev:enddate>2018-11-27T13:45</ev:enddate>
+      <ev:location>Computer Laboratory, William Gates Building, Room FW11</ev:location>
+      <ev:organizer>Allison Randal</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 27 Nov 14:00: The ideal versus the real: A brief history of secure isolation in virtual machines and containers </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114181" class="click link"&gt;The ideal versus the real: A brief history of secure isolation in virtual machines and containers&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Allison Randal, Computer Laboratory, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181127T140000'&gt;Tuesday 27 November 2018, 14:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181127T150000'&gt;15:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/30865"&gt;LT2, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/5695"&gt;Computer Laboratory Security Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/44107"&gt;Alexander Vetterl&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114181"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114181"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Fri, 26 Oct 2018 12:51:03 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114181</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114181#1540558263</guid>
+      <ev:startdate>2018-11-27T14:00</ev:startdate>
+      <ev:enddate>2018-11-27T15:00</ev:enddate>
+      <ev:location>LT2, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Alexander Vetterl</ev:organizer>
+    </item>
+    <item>
+      <title>Wed 28 Nov 16:15: From molecules to recurrent visual hallucinations: multimodal imaging and computational modelling of Dementia with Lewy bodies </title>
+      <description>&lt;div class='vevent'&gt;
+	&lt;img alt="Computer Laboratory Wednesday Seminars logo" class="logo" src="http://talks.cam.ac.uk/image/show/8785/image.png;" /&gt;
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/109612" class="click link"&gt;From molecules to recurrent visual hallucinations: multimodal imaging and computational modelling of Dementia with Lewy bodies&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Dementia with Lewy bodies (DLB) is an important cause of
+dementia in older people. Although it is the second most common
+degenerative dementia in older people, it is currently under-studied
+compared with many other forms of dementia, and very little is known
+about its underlying neurobiology. Visual hallucinations is one of
+main symptoms in  DLB  affecting over 80% people. Using state-of-the-art brain scan techniques (e.g. Magnetic Resonance Imaging, multi-tracers positron emission tomography and super sensitive
+magnetetoencephalography), we have measured several important brain
+chemicals, brain waves, and connections between different parts of the
+brain to detect changes in  DLB  compared with similar aged healthy
+controls and other dementing disease such as Alzheimer&#8217;s. In my lab,
+we are developing computational models of hallucination in  DLB  in
+order to describe abnormalities found in neural activity and different
+chemicals in the brain. The model can predict and show what may happen in the brain during hallucinations on computers. They can also be used to identify potential therapeutic targets, and to validate effects of different drug treatments on the symptomology of  DLB . Developing new drug treatments by computationally driven approaches is safer, faster and cheaper by making much of the trial-and-error processes virtual before they are tested on humans.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Dr Li Su - Alzheimer&#8217;s Research UK Senior Research Fellow&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181128T161500'&gt;Wednesday 28 November 2018, 16:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181128T170000'&gt;17:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/26445"&gt;Lecture Theatre 2, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6180"&gt;Computer Laboratory Wednesday Seminars&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71707"&gt;jo de bono&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/109612"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=109612"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Mon, 01 Oct 2018 12:33:50 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/109612</link>
+      <guid>http://talks.cam.ac.uk/talk/index/109612#1538397230</guid>
+      <ev:startdate>2018-11-28T16:15</ev:startdate>
+      <ev:enddate>2018-11-28T17:00</ev:enddate>
+      <ev:location>Lecture Theatre 2, Computer Laboratory</ev:location>
+      <ev:organizer>jo de bono</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 29 Nov 15:00: Cross-modality Inference in Ubiquitous Human Identification </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/109126" class="click link"&gt;Cross-modality Inference in Ubiquitous Human Identification&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract:&lt;/p&gt;
+
+
+	&lt;p&gt;Biometric information, such as facial and vocal features are critical for identifying and authenticating individuals. This is an enabling service for smart-spaces, allowing building management agents to easily monitor `who is where&amp;#8217;, anticipating user needs and tailoring the local environment and user experiences. Although biometric recognition, especially through the use of deep neural networks, has achieved stellar performance with large datasets, the majority of approaches require supervised learning, that is, to be trained with tens or hundreds of images of users in different conditions. In the first part of my talk, I will talk our recent work on using cross-modality observations from wireless signals to supervise different biometric recognition systems. By learning and refining the noisy and weak association between a user&amp;#8217;s smart-phone and her biometric observations, we show that a deep neural network can be fine-tuned and tailored to the environment, users and conditions of a particular space, e.g., lighting variability and viewing angles. Following the same thread, the privacy and security implications of cross-modality inference will be discussed in the second part of my talk. I will introduce the leakage of passwords, for both PINs and android pattern locks, keystroked on the touch screens. Particularly, I will talk how the trained attack model with limited passwords can generalize to infer the whole universe of passwords.&lt;/p&gt;
+
+
+	&lt;p&gt;Bio:&lt;/p&gt;
+
+
+	&lt;p&gt;Chris Xiaoxuan Lu is a Ph.D student in Computer Science at Oxford University, co-advised by Professor Niki Trigoni and Andrew Markham. He received his M.Eng degree from Nanyang Technology University, Singapore. He is broadly interested in ubiquitous and mobile computing, with a focus on enabling ambient intelligence and calm technologies with cross-modality solutions.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Chris Lu (Oxford)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181129T150000'&gt;Thursday 29 November 2018, 15:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181129T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/10525"&gt;SS03, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/8316"&gt;Computer Laboratory Systems Research Group Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/48511"&gt;Marco Caballero&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/109126"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=109126"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 30 Oct 2018 12:10:38 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/109126</link>
+      <guid>http://talks.cam.ac.uk/talk/index/109126#1540901438</guid>
+      <ev:startdate>2018-11-29T15:00</ev:startdate>
+      <ev:enddate>2018-11-29T16:00</ev:enddate>
+      <ev:location>SS03, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Marco Caballero</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 30 Nov 14:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113008" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Jonathan Protzenko, MSR Redmond&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20181130T140000'&gt;Friday 30 November 2018, 14:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20181130T150000'&gt;15:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/13544"&gt;FW26&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6375"&gt;Logic and Semantics Seminar (Computer Laboratory)&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/45205"&gt;Victor Gomes&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113008"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113008"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Thu, 11 Oct 2018 17:57:08 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113008</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113008#1539280628</guid>
+      <ev:startdate>2018-11-30T14:00</ev:startdate>
+      <ev:enddate>2018-11-30T15:00</ev:enddate>
+      <ev:location>FW26</ev:location>
+      <ev:organizer>Victor Gomes</ev:organizer>
+    </item>
+    <item>
+      <title>Tue 15 Jan 13:15: Mobile Systems group research </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114376" class="click link"&gt;Mobile Systems group research&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Cecilia Mascolo (University of Cambridge)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190115T131500'&gt;Tuesday 15 January 2019, 13:15&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190115T134500'&gt;13:45&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/6333"&gt;Computer Laboratory, William Gates Building, Room FW11&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/10085"&gt;Computer Laboratory NetOS Group Talklets&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/71926"&gt;Allison Randal&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114376"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114376"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Wed, 31 Oct 2018 11:16:08 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114376</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114376#1540984568</guid>
+      <ev:startdate>2019-01-15T13:15</ev:startdate>
+      <ev:enddate>2019-01-15T13:45</ev:enddate>
+      <ev:location>Computer Laboratory, William Gates Building, Room FW11</ev:location>
+      <ev:organizer>Allison Randal</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 18 Jan 12:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/109819" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Karina Vold, Centre for the Future of Intelligence / Faculty of Philosophy&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190118T120000'&gt;Friday 18 January 2019, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190118T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/109819"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=109819"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Wed, 05 Sep 2018 09:08:07 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/109819</link>
+      <guid>http://talks.cam.ac.uk/talk/index/109819#1536138487</guid>
+      <ev:startdate>2019-01-18T12:00</ev:startdate>
+      <ev:enddate>2019-01-18T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 24 Jan 15:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/110596" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Daniel Williams (IBM)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190124T150000'&gt;Thursday 24 January 2019, 15:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190124T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/43799"&gt;FW26, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/8316"&gt;Computer Laboratory Systems Research Group Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/48511"&gt;Marco Caballero&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/110596"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=110596"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Thu, 27 Sep 2018 14:02:35 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/110596</link>
+      <guid>http://talks.cam.ac.uk/talk/index/110596#1538056955</guid>
+      <ev:startdate>2019-01-24T15:00</ev:startdate>
+      <ev:enddate>2019-01-24T16:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Marco Caballero</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 25 Jan 12:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113614" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Ryan Cotterell, NLIP, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190125T120000'&gt;Friday 25 January 2019, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190125T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113614"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113614"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Sun, 21 Oct 2018 10:55:07 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113614</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113614#1540119307</guid>
+      <ev:startdate>2019-01-25T12:00</ev:startdate>
+      <ev:enddate>2019-01-25T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 01 Feb 12:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113902" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Isabelle Lorge, TAL, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190201T120000'&gt;Friday 01 February 2019, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190201T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113902"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113902"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 23 Oct 2018 09:44:20 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113902</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113902#1540287860</guid>
+      <ev:startdate>2019-02-01T12:00</ev:startdate>
+      <ev:enddate>2019-02-01T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 14 Feb 15:00: Open Source Quantum Computing </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114193" class="click link"&gt;Open Source Quantum Computing&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract:
+Quantum computers are not just science fiction anymore, with many companies building increasingly more powerful quantum computers. While, concepts in quantum computing have been around for over 30 years, it hasn&amp;#8217;t been generally accessible until recently. Despite this quantum computing is still very much in its infancy and there are physical limitations preventing them from being generally usable. But the machines that are available today are useful for experimentation and showcasing certain applications where they will be useful in the future. Open source software for quantum computing has started being developed as these new machines are being built. Learning the lessons from the history of developing classical computers, there are already several open source SDKs, languages, and libraries being developed for quantum computers despite the current limitations of quantum computers. This means as the technology matures and becomes more practical there will already be an open source ecosystem for using quantum computing. This talk will provide an introduction to the basics of quantum information theory, look at some of the quantum computers out there, explore the open source tooling available for quantum computing, and show how you can use that to write your own quantum programs and run them on simulators and actual quantum computers.&lt;/p&gt;
+
+
+	&lt;p&gt;Bio:
+Matthew has been working on and contributing to Open Source software for most of his career. Matthew currently works for  IBM  Research developing open source software for quantum computing. He is also a long time OpenStack contributor and a former member of the OpenStack  TC  (Technical Committee) and was previously the  PTL  (project technical lead) of the OpenStack community&amp;#8217;s QA program. He has previously been a speaker at linux.conf.au, OpenStack summits, LinuxCons Japan, China, and North America, Open Source Summit Europe, SeaGL, OpenWest, and  FOSSASIA .&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Mathew Treinish (IBM)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190214T150000'&gt;Thursday 14 February 2019, 15:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190214T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/43799"&gt;FW26, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/8316"&gt;Computer Laboratory Systems Research Group Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/48511"&gt;Marco Caballero&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114193"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114193"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Tue, 30 Oct 2018 14:48:40 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114193</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114193#1540910920</guid>
+      <ev:startdate>2019-02-14T15:00</ev:startdate>
+      <ev:enddate>2019-02-14T16:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Marco Caballero</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 15 Feb 12:00: Title to be confirmed </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/113401" class="click link"&gt;Title to be confirmed&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract not available&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Miltos Allamanis, Microsoft Research&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190215T120000'&gt;Friday 15 February 2019, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190215T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/113401"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=113401"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Wed, 17 Oct 2018 13:24:02 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/113401</link>
+      <guid>http://talks.cam.ac.uk/talk/index/113401#1539782642</guid>
+      <ev:startdate>2019-02-15T12:00</ev:startdate>
+      <ev:enddate>2019-02-15T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+    <item>
+      <title>Thu 28 Feb 15:00: A Framework for Data Collection and Management for IoT </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114391" class="click link"&gt;A Framework for Data Collection and Management for IoT&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Abstract:
+More and more personal devices and industrial systems have the capability to collect and transmit users&amp;#8217; data in order to provide services that are tailored to the  specific needs of the customers. Such smart systems fall  into the category of Internet of Things (IoT). However, in many cases, the  data transmitted by such IoT devices includes sensitive information and  users are faced with an all-or-nothing choice: either they adopt the  proposed services and release their private data, or refrain from using  services which could be beneficial but pose significant privacy risks.  Unfortunately, encryption alone does not solve the problem, though  techniques to counter these privacy risks are emerging (e.g., by using  applications that alter, merge or bundle data to ensure they cannot be  linked to a particular user).  In this talk, we propose a general framework whereby users can not only  specify how their data is managed but also restrict data collection from  their connected devices. More precisely, we propose to use data collection  policies to govern the transmission of data from IoT devices, coupled with  policies to ensure that once the data has been transmitted, it is stored and  shared in a secure way. To achieve this goal, we have designed a layered architecture for secure data collection, storage and management, with logical foundations  that enable verification of policy properties.&lt;/p&gt;
+
+
+	&lt;p&gt;Bio:
+Maribel Fernandez is a Professor of Computer Science in the Department of Informatics at King&amp;#8217;s College London. She obtained her PhD in Paris in 1993, and her Habilitation in 2000  while she was a Maitre de conferences at the Ecole Normale Superieure (Paris).  Her research interests include computation models, security, and the development of tools  for the analysis and verification of complex systems. She uses rewriting-based techniques  to analyse the dynamic behaviour, security and reliability of systems (from software  applications to biochemical systems).&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Maribel Fernandez (KCL)&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190228T150000'&gt;Thursday 28 February 2019, 15:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190228T160000'&gt;16:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/43799"&gt;FW26, Computer Laboratory, William Gates Building&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/8316"&gt;Computer Laboratory Systems Research Group Seminar&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/48511"&gt;Marco Caballero&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114391"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114391"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Thu, 01 Nov 2018 15:39:34 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114391</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114391#1541086774</guid>
+      <ev:startdate>2019-02-28T15:00</ev:startdate>
+      <ev:enddate>2019-02-28T16:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory, William Gates Building</ev:location>
+      <ev:organizer>Marco Caballero</ev:organizer>
+    </item>
+    <item>
+      <title>Fri 01 Mar 12:00: MultiWOZ - A Large-Scale Multi-Domain Wizard-of-Oz Dataset for Task-Oriented Dialogue Modelling </title>
+      <description>&lt;div class='vevent'&gt;
+	
+	&lt;h1 class='summary'&gt;&lt;a href="http://talks.cam.ac.uk/talk/index/114535" class="click link"&gt;MultiWOZ - A Large-Scale Multi-Domain Wizard-of-Oz Dataset for Task-Oriented Dialogue Modelling&lt;/a&gt;&lt;/h1&gt;
+	&lt;div class='details'&gt;
+		&lt;p&gt;Even though machine learning has become the major scene in dialogue research community, the real breakthrough has been blocked by the scale of data available. To address this fundamental obstacle, we introduce the Multi-Domain Wizard-of-Oz dataset (MultiWOZ), a fully-labeled collection of human-human written conversations spanning over multiple domains and topics. At a size of 10k dialogues, it is at least one order of magnitude larger than all previous annotated task-oriented corpora. The contribution of this work apart from the open-sourced dataset labelled with dialogue belief states and dialogue actions is two-fold: firstly, a detailed description of the data collection procedure along with a summary of data structure and analysis is provided. The proposed data-collection pipeline is entirely based on crowd-sourcing without the need of hiring professional annotators; secondly, a set of benchmark results of belief tracking, dialogue act and response generation is reported, which shows the usability of the data and sets a base-line for future studies.&lt;/p&gt;
+
+		
+			&lt;p class='urgent'&gt;&lt;/p&gt;
+		
+
+		&lt;ul&gt;
+			&lt;li&gt;Speaker: Pawe&#322; Budzianowski, CUED, University of Cambridge&lt;/li&gt;
+			&lt;li&gt;&lt;abbr style='border:none' class='dtstart' title='20190301T120000'&gt;Friday 01 March 2019, 12:00&lt;/abbr&gt;-&lt;abbr style='border:none' class='dtend' title='20190301T130000'&gt;13:00&lt;/abbr&gt;&lt;/li&gt;
+			&lt;li&gt;Venue: &lt;a href="http://talks.cam.ac.uk/show/index/8162"&gt;FW26, Computer Laboratory&lt;/a&gt;.&lt;/li&gt;
+			&lt;li&gt;Series: &lt;a href="http://talks.cam.ac.uk/show/index/6401"&gt;NLIP Seminar Series&lt;/a&gt;; organiser: &lt;a href="http://talks.cam.ac.uk/user/show/4751"&gt;Andrew Caines&lt;/a&gt;. &lt;/li&gt;
+		&lt;/ul&gt;
+	&lt;/div&gt;
+	&lt;p&gt;&lt;a href="http://talks.cam.ac.uk/talk/vcal/114535"&gt;Add to your calendar&lt;/a&gt; or &lt;a href="http://talks.cam.ac.uk/user/add_talk?talk=114535"&gt;Include in your list&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;</description>
+      <pubDate>Sat, 03 Nov 2018 18:46:28 GMT</pubDate>
+      <link>http://talks.cam.ac.uk/talk/index/114535</link>
+      <guid>http://talks.cam.ac.uk/talk/index/114535#1541270788</guid>
+      <ev:startdate>2019-03-01T12:00</ev:startdate>
+      <ev:enddate>2019-03-01T13:00</ev:enddate>
+      <ev:location>FW26, Computer Laboratory</ev:location>
+      <ev:organizer>Andrew Caines</ev:organizer>
+    </item>
+  </channel>
+</rss>

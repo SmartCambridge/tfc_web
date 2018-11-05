@@ -16,11 +16,26 @@
 // smartpanel *layout* such that this widget code prompts for its 'params' configuration values. In
 // this way each widget contains both its rendering and configuration code, so it is largely self
 // contained and that simplifies the SmartPanel layout code.
+//
+// All parameters:
+//
+// var rss_reader = new RssReader(widget_id) // widget_id = unique string on *this* layout.
+// e.g. rss_reader = new RssReader('77');
+//
+// rss_reader.display(config, params) // config = { container_id: <DOM id of a DIV on the page> }
+//                                       params = { title: <heading title of this widget>,
+//                                                  url: <http/https URL of an RSS xml feed>
+//                                                }
+// e.g. rss_reader.display( { container_id: 'widget_5' },
+//                          { title: 'CL talks',
+//                            url: 'https://talks.cam.ac.uk/show/index/6330' }
+//                        )
+//
 function RssReader(widget_id) {
 
     'use strict';
 
-    //var DEBUG = ' rss_reader_log';
+    var DEBUG = ' rss_reader_log';
 
     var self = this;
 
@@ -34,10 +49,10 @@ function RssReader(widget_id) {
 
         self.params = params;
 
-        this.do_load();
+        do_load();
     };
 
-    this.do_load = function () {
+    function do_load() {
         log(self.widget_id, 'Running do_load()');
 
         log('Container', '#' + self.config.container_id);
@@ -52,8 +67,19 @@ function RssReader(widget_id) {
         log(' - fetching', uri);
 
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', uri, true);
+
+        xhr.overrideMimeType('text/xml');
+
+        // We will use the smartpanel RSS proxy, and pass the url as a querystring argument.
+        var qs = '?title='+encodeURIComponent(self.params.title);
+        qs += '&url='+encodeURIComponent(self.params.url);
+
+        console.log('get_xml','getting', uri);
+
+        xhr.open('GET', uri);
+
         xhr.send();
+
         xhr.onreadystatechange = function() {
             if(xhr.readyState === XMLHttpRequest.DONE) {
                 //var api_result = JSON.parse(xhr.responseText);
@@ -63,16 +89,21 @@ function RssReader(widget_id) {
                     return;
                 }
 
-                var rss_xml = xhr.responseText;
+                var elem = document.createElement('textarea');
+                // try and 'safely' decode string
+                elem.innerHTML = xhr.responseText;
+                var decoded_xml = elem.value;
 
-                update_display(rss_xml);
+                var xml_dom = (new window.DOMParser() ).parseFromString(decoded_xml, "text/xml");
+
+                update_display(xml_dom);
             }
         };
 
         log(self.widget_id,'do_load done');
     };
 
-    function update_display(rss_xml) {
+    function update_display(xml_dom) {
         var container = document.getElementById(self.config.container_id);
 
         // Empty the 'container' div (i.e. remove loading GIF or prior content)
@@ -89,9 +120,125 @@ function RssReader(widget_id) {
         title.appendChild(document.createTextNode(self.params.title));
         container.appendChild(title);
 
-        var rss_list = document.createElement('div');
-        rss_list.innerHTML = safe(rss_xml);
-        container.appendChild(rss_list);
+        // Quietly exit / do nothing if XML unavailable
+        if (!xml_dom) {
+            console.log('handle_xml','null parsed XML');
+            return;
+        }
+
+        var items = xml_dom.getElementsByTagName('item');
+
+        console.log('handle_xml','with',items.length,'items');
+
+        var page_items = document.createElement('ul');
+        page_items.class = 'rss_list';
+        container.appendChild(page_items);
+
+        print_items(page_items, items);
+        //rss_list.innerHTML = safe(rss_xml);
+    }
+
+    function print_items(page_items, items) {
+
+        for (var i = 0; i < items.length; i++) {
+            var titles = items[i].getElementsByTagName('title');
+            var title = titles[0];
+            console.log( 'loaded', title ) ;
+
+            print_item(page_items, items[i]);
+        }
+    }
+
+    function print_item(items, item) {
+        var li = document.createElement('li');
+
+        var title_el = item_element(item, 'title');
+        if (title_el) {
+            li.appendChild(title_el);
+        }
+
+        var description_div = document.createElement('div');
+        var descriptions = item.getElementsByTagName('description');
+        if (!descriptions) {
+            console.log('print_item','no descriptions');
+        }
+
+        if (!descriptions[0]) {
+            console.log('print_item','no descriptions[0]');
+        }
+
+        var description = null;
+        try {
+            description = decodeURIComponent(descriptions[0].textContent);
+        } catch (err) {
+            // decodeURI aborts with an exception for any %... value not a proper encode string
+            // But our descriptions might contain a single '%', so fall back to using unescape.
+            console.log('print_item','description error');
+            description = unescape(descriptions[0].textContent);
+        }
+
+        description_div.innerHTML = safe(description);
+
+        var start_date_div = document.createElement('div');
+        var start_dates = item.getElementsByTagName('ev:startdate');
+        var start_date = start_dates[0].textContent;
+        start_date_div.appendChild(document.createTextNode(start_date));
+
+        var location_div = document.createElement('div');
+        var locations = item.getElementsByTagName('ev:location');
+        var location = locations[0].textContent;
+        location_div.appendChild(document.createTextNode(location));
+
+        items.appendChild(li);
+        li.appendChild(start_date_div);
+        li.appendChild(location_div);
+        li.appendChild(description_div);
+    }
+
+    function item_element(item, label) {
+        var div = document.createElement('div');
+        var tag = label;
+        var slice_fn = function (x) { return x; }; // no slice by default
+        if (self.params.item && self.params.item[label]) {
+            var param = self.params.item[label];
+            if (param.style) {
+                div.style = param.style;
+            }
+            if (param.tag) {
+                tag = param.tag;
+            }
+            // create a slice function from params as tag_value.slice(from, to)
+            if (param.slice) {
+                var from = 0;
+                var append_str = '';
+                if (param.slice.from) {
+                    from = param.slice.from;
+                    if (param.slice.to) {
+                        if (param.slice.append) {
+                            append_str = param.slice.append;
+                        }
+                        slice_fn = function (x) { var newx = x.slice(from, param.slice.to);
+                                                  if ( param.slice.to < x.length ) {
+                                                      newx += append_str;
+                                                  }
+                                                  return newx;
+                        }
+                    } else {
+                        slice_fn = function (x) { return x.slice(from); };
+                    }
+                }
+            }
+        }
+
+        var tag_values = item.getElementsByTagName(tag);
+        if (tag_values.length > 0) {
+            var tag_value = tag_values[0].textContent;
+            // embed tag string value in div, after applying slice
+            div.appendChild(document.createTextNode(slice_fn(tag_value)));
+            return div;
+        }
+
+        return null;
     }
 
     // remove unwanted html tags from a string
@@ -111,7 +258,7 @@ function RssReader(widget_id) {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('rss_reader_log') >= 0) {
             console.log.apply(console, arguments);
             var args = Array.prototype.slice.call(arguments); // Make real array from arguments
-            args.unshift(self.name);
+            args.unshift('RssReader');
             console.log.apply(console, args);
         }
     };

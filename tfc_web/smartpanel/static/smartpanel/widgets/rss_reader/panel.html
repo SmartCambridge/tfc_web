@@ -1,0 +1,60 @@
+
+<html>
+<head>
+    <title>RSS Reader</title>
+<style>
+    h1 { font-family: "sans-serif"; }
+    #widget_div { width: 400px;
+                  height: 1000px;
+                  border: 1px solid black;
+                  overflow: hidden;
+    }
+
+</style>
+
+<script src="sanitize-html.js"></script>
+
+<script src="rss_reader.js"></script>
+
+<script>
+var rss_reader = new RssReader('77');
+
+var config = { container_id: 'widget_div' };
+
+var params = { title: 'CL Talks',
+               url:   'https://talks.cam.ac.uk/show/index/6330',
+               items: { tag: 'item',
+                        style: 'color: blue',
+                        sort: 'date'
+                      },
+               item: {  title: { tag: 'title',
+                                 style: 'color: green',
+                                 slice: { from: 17, to: 47, append: '...' }
+                        },
+
+                        description: { tag: 'description',
+                                   style: 'color: gray',
+                                   slice: { from: 0, to: 200, append: '...' }
+                        },
+
+                        date: { tag: 'ev:startdate',
+                                format: 'iso8609'
+                        },
+
+                        location: { tag: 'ev:location' }
+
+               },
+             };
+
+rss_reader.display(config, params);
+
+</script>
+
+</head>
+<body>
+    <h1>Widget test page</h1>
+<div id="widget_div">
+</div>
+</body>
+</html>
+
