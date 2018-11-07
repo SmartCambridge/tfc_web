@@ -126,119 +126,183 @@ function RssReader(widget_id) {
             return;
         }
 
-        var items = xml_dom.getElementsByTagName('item');
+        // items_xml is the list of xml DOM elements representing the RSS items
+        var items_xml = xml_dom.getElementsByTagName('item');
 
-        console.log('handle_xml','with',items.length,'items');
+        console.log('handle_xml','with',items_xml.length,'items');
 
-        var page_items = document.createElement('ul');
-        page_items.class = 'rss_list';
-        container.appendChild(page_items);
+        // items_el is the widget parent element that will contain the HTML items for display
+        var items_el = document.createElement('div');
+        items_el.class = 'rss_list';
+        container.appendChild(items_el);
 
-        print_items(page_items, items);
+        print_items(items_el, items_xml);
         //rss_list.innerHTML = safe(rss_xml);
     }
 
-    function print_items(page_items, items) {
+    function print_items(items_el, items_xml) {
 
-        for (var i = 0; i < items.length; i++) {
-            var titles = items[i].getElementsByTagName('title');
-            var title = titles[0];
-            console.log( 'loaded', title ) ;
-
-            print_item(page_items, items[i]);
+        log('print_items');
+        for (var i = 0; i < items_xml.length; i++) {
+            print_item(items_el, items_xml[i]);
         }
     }
 
-    function print_item(items, item) {
-        var li = document.createElement('li');
+    function print_item(items_el, item_xml) {
 
-        var title_el = item_element(item, 'title');
-        if (title_el) {
-            li.appendChild(title_el);
+        log('print_item',item_xml);
+
+        var item_params = self.params.item;
+
+        var item_el = document.createElement('div');
+
+        for (var i=0; i<item_params.length; i++) {
+            var element = item_element(item_xml, item_params[i]);
+            if (element) {
+                item_el.appendChild(element);
+            }
         }
 
-        var description_div = document.createElement('div');
-        var descriptions = item.getElementsByTagName('description');
-        if (!descriptions) {
-            console.log('print_item','no descriptions');
-        }
-
-        if (!descriptions[0]) {
-            console.log('print_item','no descriptions[0]');
-        }
-
-        var description = null;
-        try {
-            description = decodeURIComponent(descriptions[0].textContent);
-        } catch (err) {
-            // decodeURI aborts with an exception for any %... value not a proper encode string
-            // But our descriptions might contain a single '%', so fall back to using unescape.
-            console.log('print_item','description error');
-            description = unescape(descriptions[0].textContent);
-        }
-
-        description_div.innerHTML = safe(description);
-
-        var start_date_div = document.createElement('div');
-        var start_dates = item.getElementsByTagName('ev:startdate');
-        var start_date = start_dates[0].textContent;
-        start_date_div.appendChild(document.createTextNode(start_date));
-
-        var location_div = document.createElement('div');
-        var locations = item.getElementsByTagName('ev:location');
-        var location = locations[0].textContent;
-        location_div.appendChild(document.createTextNode(location));
-
-        items.appendChild(li);
-        li.appendChild(start_date_div);
-        li.appendChild(location_div);
-        li.appendChild(description_div);
+        items_el.appendChild(item_el);
     }
 
-    function item_element(item, label) {
+    // Write a piece (e.g. title, description) of the RSS item to the widget
+    // Each 'element' has a 'label', e.g. 'title', 'description', 'date'
+    // That 'label' is used in the params to provide configuration attributes, including
+    // the 'tag' (e.g. 'ev:startdate')
+    function item_element(item_xml, params) {
+
+        log('item_element', item_xml, params);
+
         var div = document.createElement('div');
-        var tag = label;
-        var slice_fn = function (x) { return x; }; // no slice by default
-        if (self.params.item && self.params.item[label]) {
-            var param = self.params.item[label];
-            if (param.style) {
-                div.style = param.style;
-            }
-            if (param.tag) {
-                tag = param.tag;
-            }
-            // create a slice function from params as tag_value.slice(from, to)
-            if (param.slice) {
-                var from = 0;
-                var append_str = '';
-                if (param.slice.from) {
-                    from = param.slice.from;
-                    if (param.slice.to) {
-                        if (param.slice.append) {
-                            append_str = param.slice.append;
-                        }
-                        slice_fn = function (x) { var newx = x.slice(from, param.slice.to);
-                                                  if ( param.slice.to < x.length ) {
-                                                      newx += append_str;
-                                                  }
-                                                  return newx;
-                        }
-                    } else {
-                        slice_fn = function (x) { return x.slice(from); };
-                    }
-                }
-            }
+        var tag = params.tag;
+        var tag_format = 'text';
+        // slice_function(from, to, append)
+        var slice_fn = slice_function(null,null,null); // defaults to identity
+
+        if (params.style) {
+            div.style = params.style;
+        }
+        if (params.format) {
+            tag_format = params.format;
+        }
+        // create a slice function from params as tag_value.slice(from, to)
+        if (params.slice) {
+            slice_fn = slice_function(params.slice.from, params.slice.to, params.slice.append);
         }
 
-        var tag_values = item.getElementsByTagName(tag);
-        if (tag_values.length > 0) {
-            var tag_value = tag_values[0].textContent;
-            // embed tag string value in div, after applying slice
-            div.appendChild(document.createTextNode(slice_fn(tag_value)));
+        var xml_values = item_xml.getElementsByTagName(tag);
+        if (xml_values.length > 0) {
+            var xml_value = xml_values[0].textContent;
+            var html;
+            switch (tag_format) {
+
+            // If item element format is 'html' then pass to widget 'as-is' and cannot slice (would break markup)
+                case 'html':
+                    try {
+                        html = decodeURIComponent(xml_value);
+                    } catch (err) {
+                        // decodeURI aborts with an exception for any %... value not a proper encode string
+                        // But e.g. our content might contain a single '%', so fall back to using unescape.
+                       html = unescape(xml_value);
+                    }
+                    div.innerHTML = safe(html);
+                    break;
+
+                case 'html_to_text':
+                    log('item_element','html_to_text',tag,xml_value);
+                    var parser = new DOMParser;
+                    var dom = parser.parseFromString('<!doctype html><body>' + xml_value, 'text/html');
+                    xml_value = dom.body.textContent;
+                    // For html_to_text, parse as above but strip ALL html tags (and then can slice)
+                    try {
+                        html = decodeURIComponent(xml_value);
+                    } catch (err) {
+                        // decodeURI aborts with an exception for any %... value not a proper encode string
+                        // But e.g. our content might contain a single '%', so fall back to using unescape.
+                       html = unescape(xml_value);
+                    }
+                    log('item_element','tag_value',xml_value);
+
+                    var text = html_to_text(html);
+                    log('item_element','text',text);
+                    var node_text = slice_fn(text);
+                    log('item_element','node_text',node_text);
+                    div.appendChild(document.createTextNode(node_text));
+                    break;
+
+                case 'iso8601':
+                    log('item_element','iso8601',tag,xml_value);
+                    var js_date = new Date(xml_value);
+                    div.appendChild(document.createTextNode(date_iso8601(js_date)));
+                    break;
+
+                default: // default tag_format value is 'text'
+                    // embed tag string value in div, after applying slice
+                    div.appendChild(document.createTextNode(slice_fn(xml_value)));
+                    break;
+            }
+
             return div;
         }
 
         return null;
+    }
+
+    function date_iso8601(d) {
+        var hours = d.getHours();
+        var mins = d.getMinutes()
+        var month = '' + (d.getMonth() + 1);
+        var day = '' + d.getDate();
+        var year = d.getFullYear();
+        var day_of_week = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+        var mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        var am_pm = 'PM';
+        if (hours < 12) {
+            am_pm = 'AM';
+        }
+        if (hours >= 13) {
+            hours = hours - 12;
+        }
+
+        var time = '12noon';
+        if (hours != 12 && mins != 0) {
+            time = hours + ':' + ('0'+mins).slice(-2) + am_pm;
+        }
+
+        return time + ' ' + day_of_week+' '+day+' '+mon;
+    }
+
+    // Return a function that trims a string using JS 'slice(from, to)'
+    // If the new string is shortened, and append string is given then append that.
+    // E.g. var slice_fn = slice_function(0,10,'...'); slice_fn("abcdefghijklmn") -> "abcdefghij..."
+    function slice_function(param_from, param_to, param_append) {
+        log('slice_function',param_from,param_to,param_append);
+        var slice_fn = function (x) { return x; }; // no slice by default
+        var from = 0;
+        var append_str = '';
+        if (param_from === 0 || param_from) {
+            from = param_from;
+            if (param_to) {
+                if (param_append) {
+                    append_str = param_append;
+                }
+                slice_fn = function (x) { var newx = x.slice(from, param_to);
+                                          if ( param_to < x.length ) {
+                                              newx += append_str;
+                                          }
+                                          return newx;
+                }
+            } else {
+                log('slice_function','no param_to so remove first',from,'chars');
+                slice_fn = function (x) { return x.slice(from); };
+            }
+        }
+        return slice_fn;
     }
 
     // remove unwanted html tags from a string
@@ -254,9 +318,12 @@ function RssReader(widget_id) {
         });
     }
 
+    function html_to_text(html) {
+        return sanitizeHtml(html, { allowedTags: [] });
+    }
+
     function log() {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('rss_reader_log') >= 0) {
-            console.log.apply(console, arguments);
             var args = Array.prototype.slice.call(arguments); // Make real array from arguments
             args.unshift('RssReader');
             console.log.apply(console, args);
