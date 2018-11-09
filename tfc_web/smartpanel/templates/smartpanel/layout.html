@@ -27,8 +27,13 @@
     {% for script in scripts %}
         <script src="{{ script }}"></script>
     {% endfor %}
+    {% if layout.design.grid.columns == "1" %}
+        <meta name="viewport" content="width=320" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+    {% endif %}
 </head>
 <body style="height: 100%">
+    {% if layout.design.grid.columns != "1" %}
     <div class="logos" style="height: 60px; line-height: 70px; width: 100%;">
         <div id="screen_clock"></div>
         <a href="http://www.connectingcambridgeshire.co.uk/smart-cambridge/"><img alt="Connecting Cambridgshire" src="{% static 'images/logo_sc_112.png' %}"></a>
@@ -36,11 +41,16 @@
         <a href="https://www.greatercambridge.org.uk/"><img alt="Greater Cambridge Partnership" src="{% static 'images/logo_gcp_112.png' %}"></a>
         <span>SmartPanel</span>
     </div>
+    {% endif %}
     <!-- {{ display.size }} {{ display.size.width }}x{{ display.size.height }} -->
 {% with grid_columns=layout.design.grid.columns|default:6 %}
 {% with grid_rows=layout.design.grid.rows|default:4 %}
 <!-- Grid size: {{ grid_columns }}x{{ grid_rows }} -->
+    {% if grid_columns == "1" %}
+    <div class="grid-container mdl-color--teal-900" style="height: 100%; overflow: hidden;">
+    {% else %}
     <div class="grid-container mdl-color--teal-900" style="height: calc(100% - 60px); overflow: hidden;">
+    {% endif %}
         <ul id="grid" class="grid">
             {# Note we are providing fallback to layout.design contains list of widgets. Newer version has them in layout.design.widgets #}
             {% for widget_id, value in layout.design.widgets.items|default:layout.design.items %}
