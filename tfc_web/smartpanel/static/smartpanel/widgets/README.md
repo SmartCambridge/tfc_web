@@ -103,6 +103,9 @@ widget configuration parameter (for JavaScript files).
 
 ## Widget JavaScript objects
 
+
+## Widget JavaScript objects
+
 ## Widget JavaScript objects
 
 Each widget is implemented by a JavaScript object presenting the interface
