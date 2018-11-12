@@ -52,8 +52,13 @@ function RssReader(widget_id) {
         do_load();
     };
 
+    this.reload = function () {
+        log('reload');
+        do_load();
+    };
+
     function do_load() {
-        log(self.widget_id, 'Running do_load()');
+        log('Running do_load()');
 
         log('Container', '#' + self.config.container_id);
 
@@ -61,10 +66,7 @@ function RssReader(widget_id) {
 
         var uri = SMARTPANEL_RSS_PROXY + qs;
 
-        log(self.widget_id, 'do_load uri', uri);
-
-
-        log(' - fetching', uri);
+        log('do_load uri', uri);
 
         var xhr = new XMLHttpRequest();
 
@@ -74,7 +76,7 @@ function RssReader(widget_id) {
         var qs = '?title='+encodeURIComponent(self.params.title);
         qs += '&url='+encodeURIComponent(self.params.url);
 
-        console.log('get_xml','getting', uri);
+        log('get_xml','getting', uri);
 
         xhr.open('GET', uri);
 
@@ -89,6 +91,7 @@ function RssReader(widget_id) {
                     return;
                 }
 
+                log('do_load GET succeeded');
                 var elem = document.createElement('textarea');
                 // try and 'safely' decode string
                 elem.innerHTML = xhr.responseText;
@@ -100,7 +103,7 @@ function RssReader(widget_id) {
             }
         };
 
-        log(self.widget_id,'do_load done');
+        log('do_load done');
     };
 
     function update_display(xml_dom) {
@@ -111,25 +114,30 @@ function RssReader(widget_id) {
         container.removeChild(container.firstChild);
         }
 
-        var title = document.createElement('h1');
         //var img = document.createElement('img');
         //img.setAttribute('src', self.config.static_url + 'black-bubble-speech.png');
         //img.setAttribute('alt', '');
         //title.appendChild(img);
-        title.appendChild(document.createTextNode(' '));
-        title.appendChild(document.createTextNode(self.params.title));
-        container.appendChild(title);
+        //
+        if (self.params.title && self.params.title.text) {
+            var title = document.createElement('div');
+            title.appendChild(document.createTextNode(self.params.title.text));
+            if (self.params.title.style) {
+                title.style = self.params.title.style;
+            }
+            container.appendChild(title);
+        }
 
         // Quietly exit / do nothing if XML unavailable
         if (!xml_dom) {
-            console.log('handle_xml','null parsed XML');
+            log('update_display','null parsed XML');
             return;
         }
 
         // items_xml is the list of xml DOM elements representing the RSS items
         var items_xml = xml_dom.getElementsByTagName('item');
 
-        console.log('handle_xml','with',items_xml.length,'items');
+        log('update_display',items_xml.length,'items');
 
         // items_el is the widget parent element that will contain the HTML items for display
         var items_el = document.createElement('div');
@@ -142,7 +150,7 @@ function RssReader(widget_id) {
 
     function print_items(items_el, items_xml) {
 
-        log('print_items');
+        log('print_items',items_xml);
         for (var i = 0; i < items_xml.length; i++) {
             print_item(items_el, items_xml[i]);
         }
@@ -231,10 +239,15 @@ function RssReader(widget_id) {
                     div.appendChild(document.createTextNode(node_text));
                     break;
 
+                case 'rfc2282':
+                    log('item_element','rfc2282',tag,xml_value);
+                    div.appendChild(document.createTextNode(date_rfc2282(xml_value)));
+                    break;
+
                 case 'iso8601':
                     log('item_element','iso8601',tag,xml_value);
                     var js_date = new Date(xml_value);
-                    div.appendChild(document.createTextNode(date_iso8601(js_date)));
+                    div.appendChild(document.createTextNode(date_iso8601(xml_value)));
                     break;
 
                 default: // default tag_format value is 'text'
@@ -249,7 +262,12 @@ function RssReader(widget_id) {
         return null;
     }
 
-    function date_iso8601(d) {
+    function date_rfc2282(xml_value) {
+        return date_iso8601(xml_value);
+    }
+
+    function date_iso8601(xml_value) {
+        var d = new Date(xml_value);
         var hours = d.getHours();
         var mins = d.getMinutes()
         var month = '' + (d.getMonth() + 1);
@@ -261,9 +279,9 @@ function RssReader(widget_id) {
         if (month.length < 2) month = '0' + month;
         if (day.length < 2) day = '0' + day;
 
-        var am_pm = 'PM';
+        var am_pm = 'pm';
         if (hours < 12) {
-            am_pm = 'AM';
+            am_pm = 'am';
         }
         if (hours >= 13) {
             hours = hours - 12;
@@ -274,7 +292,19 @@ function RssReader(widget_id) {
             time = hours + ':' + ('0'+mins).slice(-2) + am_pm;
         }
 
-        return time + ' ' + day_of_week+' '+day+' '+mon;
+        var return_str = null;
+        if (same_day(new Date(),d)) {
+            return_str = time + ' ' + day_of_week+' '+day+' '+mon;
+        } else {
+            return_str = day_of_week + ' ' + day + ' ' + mon + ' ' + time;
+        }
+        return return_str;
+    }
+
+    function same_day(d1, d2) {
+          return d1.getFullYear() === d2.getFullYear() &&
+                 d1.getMonth() === d2.getMonth() &&
+                 d1.getDate() === d2.getDate();
     }
 
     // Return a function that trims a string using JS 'slice(from, to)'
@@ -325,7 +355,7 @@ function RssReader(widget_id) {
     function log() {
         if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('rss_reader_log') >= 0) {
             var args = Array.prototype.slice.call(arguments); // Make real array from arguments
-            args.unshift('RssReader');
+            args.unshift('RssReader '+self.widget_id);
             console.log.apply(console, args);
         }
     };
@@ -385,18 +415,18 @@ function RssReader(widget_id) {
     // Input the params
     function input_rss_reader(widget_config, parent_el, params) {
 
-        var config_table = document.createElement('table');
-        // append this input table to the DOM object originally given in parent_el
-        parent_el.appendChild(config_table);
-        var config_tbody = document.createElement('tbody');
-        config_table.appendChild(config_tbody);
-
         // Add some guide text
         var config_info1 = document.createElement('p');
         var config_info_text = "This widget displays an RSS feed.";
         config_info_text += " 'Main Title' is any text to appear in bold at the top of the feed list.";
         config_info1.appendChild(document.createTextNode(config_info_text));
         parent_el.appendChild(config_info1);
+
+        var config_table = document.createElement('table');
+        // append this input table to the DOM object originally given in parent_el
+        parent_el.appendChild(config_table);
+        var config_tbody = document.createElement('tbody');
+        config_table.appendChild(config_tbody);
 
         // TITLE
         //
@@ -443,6 +473,6 @@ function RssReader(widget_id) {
 
     }// end input_rss_reader()
 
-    log(self.widget_id, 'Instantiated RSSReader');
+    log('Instantiated RSSReader');
 
 } // End of 'class' RSSReader

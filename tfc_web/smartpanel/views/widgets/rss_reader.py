@@ -13,8 +13,6 @@ from django.shortcuts import render
 
 logger = logging.getLogger(__name__)
 
-RSS_URL = 'https://talks.cam.ac.uk/show/rss/6330';
-
 uk_tz = pytz.timezone('Europe/London')
 utc_tz = pytz.utc
 
@@ -23,10 +21,10 @@ def rss_reader(request):
     HTTP GET the required RSS feed
     and render it for inclusion in a widgit
     '''
-    title = request.GET.get('title', '')
+    rss_url = request.GET.get('url','')
 
-    current_key = "rss_reader_current!{0}".format(title)
-    lng_key = "rss_reader_lng!{0}".format(title)
+    current_key = "rss_reader_current!{0}".format(rss_url)
+    lng_key = "rss_reader_lng!{0}".format(rss_url)
 
     rss_xml = cache.get(current_key)
 
@@ -38,13 +36,14 @@ def rss_reader(request):
         logger.info('Cache miss for %s', current_key)
         rss_xml = ''
         try:
-            r = requests.get(RSS_URL)
+            r = requests.get(rss_url)
             r.raise_for_status()
             # https://stackoverflow.com/questions/35042216/requests-module-return-json-with-items-unordered
             rss_xml = r.text
         except:
-            logger.error("Error retrieving rss feed for %s: %s %s",
+            logger.error("Error retrieving rss feed for %s: %s %s %s",
             title,
+            rss_url,
             sys.exc_info()[0],
             sys.exc_info()[1])
         # Whatever happens, cache what we got so we don't keep hitting the API
@@ -56,8 +55,9 @@ def rss_reader(request):
     try:
         cache.set(lng_key, rss_xml, timeout=None)
     except:
-        logger.error("Error cacheing current rss feed for %s: %s %s",
+        logger.error("Error cacheing current rss feed for %s: %s %s %s",
             title,
+            rss_url,
             sys.exc_info()[0],
             sys.exc_info()[1])
         logger.info("rss feed %s was: '%s'", title, rss_xml)

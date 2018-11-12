@@ -99,6 +99,8 @@ web-accessible and can be referenced by other components by relative URLs
 (from HTML and CSS files) or via the `static_url`
 widget configuration parameter (for JavaScript files).
 
+## DEBUG
+
 ## Widget JavaScript objects
 
 Each widget is implemented by a JavaScript object presenting the interface
