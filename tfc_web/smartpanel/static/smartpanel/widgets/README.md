@@ -99,14 +99,7 @@ web-accessible and can be referenced by other components by relative URLs
 (from HTML and CSS files) or via the `static_url`
 widget configuration parameter (for JavaScript files).
 
-## DEBUG
-
 ## Widget JavaScript objects
-
-
-## Widget JavaScript objects
-
-## Widget JavaScript objects
 
 Each widget is implemented by a JavaScript object presenting the interface
 below. The object must have a name based based on _`<name>`_ (see above)
@@ -191,6 +184,9 @@ reference any DOM objects.
 
 * `obj = configure(config_object, current_params_object)` (required)
 
+  For more detail on the _configure_ method see 
+  ["Programming the configuration for a widget"](#programming-the-configuration-for-a-widget) below.
+
   Render a configuration screen for the widget (initialised
   with current parameters if there are any), collect and validate
   new parameters and return them.
@@ -257,3 +253,109 @@ Widgets may assume the existence of a global `DEBUG` which will contain
     ]
 }
 ```
+
+## Programming the configuration for a widget
+
+The _layout_, i.e. the HTML page containing the widget, will provide a DOM object into which the
+_widget_ will draw its configuration input elements. In this way the details of the configuration of
+a widget are contained within the same widget, while the layout only needs to provide general purpose
+support to launch that configuration.
+
+### The configuration _layout_
+
+On the layout web page, a common div can be provided that will be used by any widget to draw its input
+elements. E.g.
+
+```
+<div id="config" class='config'>
+    <div id="widget_config" class="widget_config">
+    </div>
+    <div class="buttons">
+        <button onclick="config_ok()">OK</button>
+        <button onclick="config_cancel()">Cancel</button>
+    </div>
+</div>
+```
+Note the widget configuration will be drawn within the _widget\_config_ element in the example above, and
+the _layout_ is responsible for implementing the _config\__ok()_ and _config\_cancel()_ functions_ (more on
+these below).
+
+The _widget_ will provide a _configure()_ method, which will be passed the `id` of the configuration div
+(in our example this is _widget\_config_), as well as the `params` (see above) providing the current (or
+default) configuration parameters of the widget.  For example, using the `Weather` widget which only needs
+a `location` parameter:
+
+```
+var widget_id = '0';
+var params = { location: '310042' };
+var my_widget = new Weather(widget_id);
+var config = { container_id: 'widget_config',
+               static_url: {{ as defined by framework }},
+               settings: {{ as provided by framework }}
+               };
+var config_fns = my_widget.configure( config, params );
+```
+`static_url` and `settings` are as needed for the actual widget, e.g. for the current smartpanel implementation, 
+typical provided config values could be:
+
+```
+static_url = '/static_web/';
+settings = { SMARTPANEL_API_ENDPOINT: 'https://smartcambridge.org/api/v1/', SMARTPANEL_API_TOKEN: 'somerandomhex' };
+```
+
+At this point the widget will render its input elements onto the `widget_config` div
+and _immediately_ return an object containing a function that will return the input
+values.  I.e. as described above, the returned object (into `config_fns` above) will
+contain:
+```
+{ value: (a function that returns a 'params'-type object with all the input values),
+  valid: (a function that returns a boolean where true means the data is ok),
+  config: (a function that returns values useful to the 'config layout', i.e. 'title')
+}
+```
+At the appropriate time, the layout can call the `config_fns.value()` method and be returned
+a `params` object containing the properties with which the widget should be configured, in
+this case `{ location: 'XYZ' }` (where XYZ is the location code chosen by the user).
+
+Here is where you can see the 'OK' button (and cancel) being provided by the _layout_ makes
+sense - it is simply within the `config_ok()` function that the layout calls the
+`config_fns.value()` method to retrieve the params, and then the layout can close (i.e. hide)
+the `config` div. If the user clicks the 'Cancel' button then the layout can ignore the
+input and hide the `config` div.
+
+### Helper method in _widgets.js_
+
+`widgets.js` provides a `WidgetConfig` object that has a generally useful `.input()` method for the
+common input types that renders suitable input DOM elements and returns the required 
+`{ value: fn() {..}, valid: fn() {..}, config: fn() {..} }` object.  Note that it is the _widget_
+configure method that will instantiate the `WidgetConfig` and call its `input` method in order
+to provide its input UI.  For widget with simple configuration requirements (such as `Weather`) the
+configuration requirements can be _entirely_ supported via the `WidgetConfig` helper functions.
+
+The `WidgetConfig` is instantiated with:
+```
+var widget_config = new WidgetConfig(config);
+```
+and a new input element is placed on the config div with:
+```
+widget_config.input(parent_element, parameter_type, parameter_options, param);
+```
+where `param` is the _current_ input value for this parameter of the widget (e.g. `location`).
+
+Each parameter _type_ (see below) can be given suitable parameter _options_, e.g. a simple
+text input can be given a `title` which is text to be written alongside the input field.
+
+`parameter_type` can be:
+```
+string                  // Simple text input e.g. 'location'
+number                  // Simple numeric input
+select                  // Drop-down select box with multiple options
+bus_stop                // Leaflet Map-based single-stop chooser
+bus_stops               // Leaflet Map-based multiple-stop chooser
+bus_destination         // Bus destination as either list of stops or a bounded area
+leaflet_map             // Choose Leaflet map center and zoom level
+google_map_inline       // Choose Google map center and zoom, rendered inline
+google_map_with_chooser // Google map center and zoom, with chooser rendered in pop-up div
+area                    // Leaflet map bounded area
+```
+
