@@ -1,0 +1,27 @@
+html, body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.container {
+    height: 100%;
+    max-height: 600px;
+    max-width: 400px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.page {
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    /* will-change: transform; */
+    /* transition: -webkit-transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946); */
+    /* transition: transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946); */
+}
+
