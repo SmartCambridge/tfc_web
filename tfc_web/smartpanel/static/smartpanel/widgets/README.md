@@ -277,7 +277,7 @@ elements. E.g.
 </div>
 ```
 Note the widget configuration will be drawn within the _widget\_config_ element in the example above, and
-the _layout_ is responsible for implementing the _config\__ok()_ and _config\_cancel()_ functions_ (more on
+the _layout_ is responsible for implementing the _config\_ok()_ and _config\_cancel()_ functions_ (more on
 these below).
 
 The _widget_ will provide a _configure()_ method, which will be passed the `id` of the configuration div
@@ -300,7 +300,8 @@ typical provided config values could be:
 
 ```
 static_url = '/static_web/';
-settings = { SMARTPANEL_API_ENDPOINT: 'https://smartcambridge.org/api/v1/', SMARTPANEL_API_TOKEN: 'somerandomhex' };
+settings = { SMARTPANEL_API_ENDPOINT: 'https://smartcambridge.org/api/v1/', 
+             SMARTPANEL_API_TOKEN: 'somerandomhex' };
 ```
 
 At this point the widget will render its input elements onto the `widget_config` div
@@ -347,15 +348,15 @@ text input can be given a `title` which is text to be written alongside the inpu
 
 `parameter_type` can be:
 ```
-string                  // Simple text input e.g. 'location'
-number                  // Simple numeric input
-select                  // Drop-down select box with multiple options
-bus_stop                // Leaflet Map-based single-stop chooser
-bus_stops               // Leaflet Map-based multiple-stop chooser
-bus_destination         // Bus destination as either list of stops or a bounded area
-leaflet_map             // Choose Leaflet map center and zoom level
-google_map_inline       // Choose Google map center and zoom, rendered inline
-google_map_with_chooser // Google map center and zoom, with chooser rendered in pop-up div
-area                    // Leaflet map bounded area
+'string'                  // Simple text input e.g. 'location'
+'number'                  // Simple numeric input
+'select'                  // Drop-down select box with multiple options
+'bus_stop'                // Leaflet Map-based single-stop chooser
+'bus_stops'               // Leaflet Map-based multiple-stop chooser
+'bus_destination'         // Bus destination as either list of stops or a bounded area
+'leaflet_map'             // Choose Leaflet map center and zoom level
+'google_map_inline'       // Choose Google map center and zoom, rendered inline
+'google_map_with_chooser' // Google map center and zoom, with chooser rendered in pop-up div
+'area'                    // Leaflet map bounded area
 ```
 

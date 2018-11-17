@@ -25,6 +25,7 @@
 
 .widget_config_property_name {
     text-align: right;
+    vertical-align: top;
     padding-right: 5px;
 }
 

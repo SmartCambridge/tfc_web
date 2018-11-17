@@ -61,7 +61,7 @@ params.push( { title: { text: 'CL Talks',
                         },
                url:   'https://talks.cam.ac.uk/show/rss/6330',
                items: { tag: 'item',
-                        sort_tag: 'ev:startdate'
+                        sort: 'ev:startdate'
                       },
                item:  [ 
                         { tag: 'ev:startdate',
@@ -86,11 +86,11 @@ config.push( { container_id: 'widget_2' }
            );
 
 params.push({ title: { text: 'CL News',
-                          style: 'font-weight: bold; font-size: 1.5em'
-                        },
+                       style: 'font-weight: bold; font-size: 1.5em'
+                     },
                url:   'https://www.cst.cam.ac.uk/news/feed',
                items: { tag: 'item',
-                        sort_tag: 'ev:startdate'
+                        sort: 'pubDate'
                       },
                item:  [ 
                         { tag: 'title',
