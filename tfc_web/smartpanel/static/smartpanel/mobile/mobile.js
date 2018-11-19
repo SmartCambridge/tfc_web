@@ -1,4 +1,4 @@
-/* jshint esversion: 6 */
+'use strict';
 
 let PANELS = [];
 
@@ -12,7 +12,7 @@ const PAGES = {
         el: document.querySelector('.first'),
         init: function(page_element) {
             let button = page_element.querySelector('.accept');
-            button.addEventListener('click', function(evt) {
+            button.addEventListener('click', function() {
                 STORAGE.setItem('TCS_VERSION', TCS_VERSION);
                 show_page('panels');
             });
@@ -23,7 +23,7 @@ const PAGES = {
         el: document.querySelector('.panels'),
         init: function(page_element) {
             let add = page_element.querySelector('.new');
-            add.addEventListener('click', function(evt) {
+            add.addEventListener('click', function() {
                 display_config();
             });
         }
@@ -33,12 +33,12 @@ const PAGES = {
         el: document.querySelector('.panel'),
         init: function(page_element) {
             let back = page_element.querySelector('.back');
-            back.addEventListener('click', function(evt) {
+            back.addEventListener('click', function() {
                 show_page('panels');
             });
             let forward = page_element.querySelector('.forward');
-            forward.addEventListener('click', function(evt) {
-               show_page('panel_overlay');
+            forward.addEventListener('click', function() {
+                show_page('panel_overlay');
             });
         }
     },
@@ -47,8 +47,8 @@ const PAGES = {
         el: document.querySelector('.panel-overlay'),
         init: function(page_element) {
             let back = page_element.querySelector('.back');
-            back.addEventListener('click', function(evt) {
-               show_page('panel');
+            back.addEventListener('click', function() {
+                show_page('panel');
             });
         }
     },
@@ -57,8 +57,8 @@ const PAGES = {
         el: document.querySelector('.config'),
         init: function(page_element) {
             let save = page_element.querySelector('.save');
-            save.addEventListener('click', function(evt) {
-                el = page_element.querySelector('.data');
+            save.addEventListener('click', function() {
+                let el = page_element.querySelector('.data');
                 if (el.panel_id === '') {
                     PANELS.push(JSON.parse(el.value));
                     STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
@@ -71,12 +71,12 @@ const PAGES = {
                 show_page('panels');
             });
             let cancel = page_element.querySelector('.cancel');
-            cancel.addEventListener('click', function(evt) {
+            cancel.addEventListener('click', function() {
                 show_page('panels');
             });
             let forward = page_element.querySelector('.forward');
-            forward.addEventListener('click', function(evt) {
-               show_page('config_overlay');
+            forward.addEventListener('click', function() {
+                show_page('config_overlay');
             });
         }
     },
@@ -85,7 +85,7 @@ const PAGES = {
         el: document.querySelector('.config-overlay'),
         init: function(page_element) {
             let back = page_element.querySelector('.back');
-            back.addEventListener('click', function(evt) {
+            back.addEventListener('click', function() {
                 show_page('config');
             });
         }
@@ -97,9 +97,9 @@ function startup() {
     // Initialise every page
     for (let page_name in PAGES) {
         if (PAGES.hasOwnProperty(page_name)) {
-            page = PAGES[page_name];
+            let page = PAGES[page_name];
             if (page.hasOwnProperty('init')) {
-                    page.init(page.el);
+                page.init(page.el);
             }
         }
 
@@ -136,7 +136,7 @@ function show_page(page_name) {
     // ...and hide all the others
     for (let other_page_name in PAGES) {
         if (PAGES.hasOwnProperty(other_page_name)) {
-            if (!page_name || page_name != other_page_name) {
+            if (!page_name || page_name !== other_page_name) {
                 let page = PAGES[other_page_name];
                 page.el.hidden = true;
                 if (page.hasOwnProperty('hide')) {
@@ -151,8 +151,8 @@ function show_page(page_name) {
 
 // Display panel identified by 'panel_no'
 function display_panel(panel_no) {
-    el = PAGES.panel.el;
-    panel_title = el.querySelector('.title');
+    let el = PAGES.panel.el;
+    let panel_title = el.querySelector('.title');
     panel_title.textContent = PANELS[panel_no].title;
     show_page('panel');
 }
@@ -167,23 +167,23 @@ function populate_panel_list() {
     }
     for (let i = 0; i < PANELS.length; i++) {
         let text = document.createElement('span');
-        (function(i) {
+        (function(j) {
             text.addEventListener('click', function() {
-                display_panel(i);
+                display_panel(j);
             });
         })(i);
         text.innerHTML = PANELS[i].title;
         let edit = document.createElement('span');
-        (function(i) {
+        (function(j) {
             edit.addEventListener('click', function() {
-                display_config(i);
+                display_config(j);
             });
         })(i);
         edit.innerHTML = 'Edit';
         let del = document.createElement('span');
-        (function(i) {
+        (function(j) {
             del.addEventListener('click', function() {
-                PANELS.splice(i,1);
+                PANELS.splice(j,1);
                 STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
                 populate_panel_list();
             });
