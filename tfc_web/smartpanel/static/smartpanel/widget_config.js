@@ -214,6 +214,7 @@ function WidgetConfig(config) {
         if (param_options.type) input.type = param_options.type;
         if (param_options.step) input.step = param_options.step;
         if (param_options.title) input.title = param_options.title;
+        if (param_options.size) input.size = param_options.size;
 
         // set default value of input to value provided in param_current
         //self.log(param_name,'default set to',param_current);
@@ -253,7 +254,8 @@ function WidgetConfig(config) {
         parent_el.appendChild(row);
 
         return { value: function() { return input.value; },
-                 valid: function () { return true; }
+                 valid: function () { return true; },
+                 element: input
             };
     } // end config_string
 

@@ -388,7 +388,9 @@ function RssReader(widget_id) {
     // Default widget params for NEWS and EVENTS style RSS
     //   News items are sorted on a field 'pubDate'
     //   Events items can have another datetime in 'ev:startdate'
-    var PARAMS_NEWS = { title: { text: 'CL News',
+    //
+    var DEFAULT_PARAMS = {};
+    DEFAULT_PARAMS['news'] = { title: { text: 'CL News',
                                  style: 'font-weight: bold; font-size: 1.5em'
                                   },
                         url:   'https://www.cst.cam.ac.uk/news/feed',
@@ -414,8 +416,8 @@ function RssReader(widget_id) {
                                ]
     };
 
-    var PARAMS_EVENTS = { title: { text: 'CL Talks',
-                          style: 'font-weight: bold; color: #111111'
+    DEFAULT_PARAMS['events'] = { title: { text: 'CL Talks',
+                          style: 'font-weight: bold; font-size: 1.5em'
                         },
                url:   'https://talks.cam.ac.uk/show/rss/6330',
                feed_type: 'events',
@@ -429,7 +431,7 @@ function RssReader(widget_id) {
                         },
                         { tag: 'title',
                           style: 'color: #990000; font-weight: normal',
-                          slice: { from: 17, to: 120, append: '...' },
+                          // For talks.cam to remove date from title... slice: { from: 17 },
                           format: 'html_to_text'
                         },
                         { tag: 'ev:location' },
@@ -450,8 +452,13 @@ function RssReader(widget_id) {
     this.configure = function (config, params) {
 
         if (!params || JSON.stringify(params) == "{}") {
-            params = PARAMS_NEWS;
+            log('configure','empty params');
+            params = DEFAULT_PARAMS['news'];
         }
+
+        log('configure','feed_type',params.feed_type);
+
+        feed_type = params.feed_type;
 
         widget_config = new WidgetConfig(config);
 
@@ -508,34 +515,70 @@ function RssReader(widget_id) {
         var url_result = widget_config.input( config_tbody,
                                         'string',
                                         { text: 'RSS feed url:',
-                                          title: 'Include full url, including http/https://'
+                                          title: 'Include full url, including http/https://',
+                                          size: 50
                                         },
                                         params.url);
 
-        // Add News / Events / Custom radiobuttons
-        input_rss_choice(config_tbody, params.feed_type);
+        var custom_result; // will hold { valid:, value: } from input_rss_custom()
 
         // Create row on table to hold custom configuration params which we can hide/unhide
-        var tr = document.createElement('tr');
-        tr.id = rss_custom_id(); // create unique id for this widget
-                                 // although current layout_config only shows single config anyway
-        tr.style.display = 'none'; // Custom config input is initially hidded
-        config_tbody.appendChild(tr);
+        var custom_tr = document.createElement('tr');
+        var custom_div = document.createElement('div');
+
+        var click_fn = function (value) {
+            log('click_fn', value);
+            switch (value) {
+                case 'custom':
+                    log('Custom');
+                    feed_type = 'custom';
+                    custom_tr.style.display = null;
+                    break;
+
+                case 'news':
+                    log('News');
+                    feed_type = 'news';
+                    custom_result = input_rss_custom(custom_div, DEFAULT_PARAMS['news']);
+                    break;
+
+                case 'events':
+                    log('Events');
+                    feed_type = 'events';
+                    custom_result = input_rss_custom(custom_div, DEFAULT_PARAMS['events']);
+                    break;
+
+                default:
+                    break;
+            }
+        };
+
+        // Add News / Events / Custom radiobuttons
+        input_rss_choice(config_tbody, params.feed_type, click_fn);
+
+        if (feed_type != 'custom') {
+            custom_tr.style.display = 'none'; // Custom config input is initially hidden unless 'custom'
+        }
+        config_tbody.appendChild(custom_tr);
         var td = document.createElement('td');
         td.className = 'widget_config_property_name';
-        tr.appendChild(td);
+        custom_tr.appendChild(td);
         var label = document.createElement('label');
         td.appendChild(label);
         label.title = 'Custom configuration parameters for your RSS feed';
         label.innerHTML = 'Custom config:';
         td = document.createElement('td');
         td.className = 'widget_config_property_value';
-        tr.appendChild(td);
+        custom_tr.appendChild(td);
 
-        var custom_div = document.createElement('div');
         td.appendChild(custom_div);
 
-        var custom_result = input_rss_custom(custom_div, params);
+        custom_result = input_rss_custom(custom_div, params);
+
+        // currently the only validity check is on the JSON format of the "item" custom params
+        var valid_fn = function () {
+            var is_valid = custom_result.valid();
+            return is_valid;
+        }
 
         // value() is the function for this input element that returns its value
         var value_fn = function () {
@@ -549,11 +592,13 @@ function RssReader(widget_id) {
 
             config_params.url = url_result.value();
 
+            config_params.feed_type = feed_type;
+
             config_params.items = custom_params.items;
 
             config_params.item = custom_params.item;
 
-            log(self.widget_id,'returning params:',config_params);
+            log('input_rss_reader','returning params:',config_params);
 
             return config_params;
         };
@@ -567,14 +612,14 @@ function RssReader(widget_id) {
             return { title: 'RSS: ' + (title_text ? title_text : 'no title') };
         };
 
-        return { valid: function () { return true; }, //debug - still to be implemented,
+        return { valid: valid_fn,
                  config: config_fn,
                  value: value_fn };
 
     }// end input_rss_reader()
 
     // Add row to table with RSS Type radio buttons
-    function input_rss_choice(parent_el, feed_type) {
+    function input_rss_choice(parent_el, feed_type, click_fn) {
         // <tr><td><label>Feed type:</label></td>
         //     <td><input type="radio" name="rss_type" value="news"/>News<br/>...</td>
         // </tr>
@@ -590,38 +635,42 @@ function RssReader(widget_id) {
         td = document.createElement('td');
         td.className = 'widget_config_property_value';
         tr.appendChild(td);
-        add_radio_button(td, 'rss_type', 'news', 'News', click_news);
-        add_radio_button(td, 'rss_type', 'events', 'Events', click_events);
-        add_radio_button(td, 'rss_type', 'custom', 'Custom', click_custom);
+        add_radio_button(td, 'rss_type', 'news',   'News',   feed_type, click_fn);
+        add_radio_button(td, 'rss_type', 'events', 'Events', feed_type, click_fn);
+        add_radio_button(td, 'rss_type', 'custom', 'Custom', feed_type, click_fn);
     }
 
     // The 'custom' parameters are implemented in their own function so that
     // it can be called multiple times as user clicks the news/events/custom radio buttons
     function input_rss_custom(custom_div, params) {
 
-        // title style
+        // clear out any existing content
+        while (custom_div.firstChild) {
+                custom_div.removeChild(custom_div.firstChild);
+        }
+
+        // "title" "style"
         var title_style_result = widget_config.input( custom_div,
                                         'string',
                                         { text: 'Title style:',
                                           title: 'The CSS style properties to apply to the main RSS feed title'
                                         },
-                                        params.title ? params.title.style : PARAMS_NEWS.title.style);
-        // items tag
+                                        params.title ? params.title.style : DEFAULT_PARAMS[feed_type].title.style);
+        // "items" "tag"
         var items_tag_result = widget_config.input( custom_div,
                                         'string',
                                         { text: 'Items tag:',
                                           title: 'The RSS XML tag that contains the items, usually "items"'
                                         },
-                                        params.items ? params.items.tag : PARAMS_NEWS.items.tag);
-        // items sort
+                                        params.items ? params.items.tag : DEFAULT_PARAMS[feed_type].items.tag);
+        // "items" "sort"
         var items_sort_result = widget_config.input( custom_div,
                                         'string',
                                         { text: 'Item sort tag:',
                                           title: 'The RSS XML tag that contains the item property to sort on, usually "pubDate"'
                                         },
-                                        params.items ? params.items.sort : PARAMS_NEWS.items.sort);
-        // message input
-        //
+                                        params.items ? params.items.sort : DEFAULT_PARAMS[feed_type].items.sort);
+        // "item" textarea JSON input
         var item_result = widget_config.input( custom_div,
                                           'string',
                                           { text: 'Item format:',
@@ -629,7 +678,7 @@ function RssReader(widget_id) {
                                             format: 'textarea'
                                           },
                                           // pretty-print JSON into input textarea
-                                          params.item ? JSON.stringify(params.item,null,2) : JSON.stringify(PARAMS_NEWS.item,null,2));
+                                          params.item ? JSON.stringify(params.item,null,2) : JSON.stringify(DEFAULT_PARAMS[feed_type].item,null,2));
 
         var value_fn = function () {
             var params = { title: { style: title_style_result.value() },
@@ -641,40 +690,44 @@ function RssReader(widget_id) {
             return params;
         }
 
-        return { value: value_fn };
+        var valid_fn = function () {
+            try {
+                JSON.parse(item_result.value());
+            }
+            catch (e) {
+                log('input_rss_custom','valid_fn','item format JSON error');
+                item_result.element.style['background-color'] = '#ff8888';
+                return false;
+            }
+            log('input_rss_custom','valid_fn','item JSON format OK');
+            return true;
+        }
+
+        return { value: value_fn,
+                 valid: valid_fn
+        };
     }
 
-    function add_radio_button(parent_el, name, value, text, click_fn) {
+    // Add a radio button to the parent element, checked if name == name_selected
+    function add_radio_button(parent_el, name, value, text, value_selected, click_fn) {
         var label = document.createElement('label');
         parent_el.appendChild(label);
         var input = document.createElement('input');
         input.style['vertical-align'] = 'middle';
-        input.onclick = click_fn;
+        input.onclick = function () { return click_fn(value);};
         label.appendChild(input);
         input.type = 'radio';
         input.name = name;
         input.value = value;
+        if (value == value_selected) {
+            input.checked = 'checked';
+        }
         label.appendChild(document.createTextNode(text));
         parent_el.appendChild(document.createElement('br'));
     }
 
     function rss_custom_id() {
             return 'rss_custom_id_'+widget_id;
-    }
-
-    function click_news() {
-        alert('News');
-        feed_type = 'news';
-    }
-
-    function click_events() {
-        alert('Events');
-        feed_type = 'events';
-    }
-
-    function click_custom() {
-        feed_type = 'custom';
-        document.getElementById(rss_custom_id()).style.display = null;
     }
 
     log('Instantiated RSSReader');
