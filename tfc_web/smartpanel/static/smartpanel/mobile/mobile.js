@@ -6,12 +6,29 @@ const TCS_VERSION = 1;
 
 const STORAGE = window.localStorage;
 
+/*
+
+This object defines and configures all the pages in the application.
+Each property represents a page. Each property value is is further object.
+These 'page objects' have the following properties:
+
+  el: The DOM object into which the page is drawn
+  init: (optional) If present, an object method that is called once at
+    startup to set up the page
+  show: (optional) If present, an object method that is called before
+    displaying the page
+  hide: (optional) If present, an object method that is called before
+    hiding the page
+
+*/
+
 const PAGES = {
 
+    // Splash page displayed to new users of the appp
     first: {
         el: document.querySelector('.first'),
-        init: function(page_element) {
-            let button = page_element.querySelector('.accept');
+        init: function() {
+            let button = this.el.querySelector('.accept');
             button.addEventListener('click', function() {
                 STORAGE.setItem('TCS_VERSION', TCS_VERSION);
                 show_page('panels');
@@ -19,54 +36,64 @@ const PAGES = {
         }
     },
 
+    // Main index page, displaying all configured panels
     panels: {
         el: document.querySelector('.panels'),
-        init: function(page_element) {
-            let add = page_element.querySelector('.new');
+        init: function() {
+            let add = this.el.querySelector('.new');
             add.addEventListener('click', function() {
                 display_config();
             });
         }
     },
 
+    // Panel display page
     panel: {
         el: document.querySelector('.panel'),
-        init: function(page_element) {
-            let back = page_element.querySelector('.back');
+        init: function() {
+            let back = this.el.querySelector('.back');
             back.addEventListener('click', function() {
                 show_page('panels');
             });
-            let forward = page_element.querySelector('.forward');
+            let forward = this.el.querySelector('.forward');
             forward.addEventListener('click', function() {
                 show_page('panel_overlay');
             });
         }
     },
 
+    // Additional panel display page (e.g. for a map sowing the stop
+    // corresponding to a particular timetable)
     panel_overlay: {
         el: document.querySelector('.panel-overlay'),
-        init: function(page_element) {
-            let back = page_element.querySelector('.back');
+        init: function() {
+            let back = this.el.querySelector('.back');
             back.addEventListener('click', function() {
                 show_page('panel');
             });
         }
     },
 
+    // Panel config age
     config: {
         el: document.querySelector('.config'),
-        init: function(page_element) {
+        init: function() {
+            let page_element = this.el;
             let save = page_element.querySelector('.save');
             save.addEventListener('click', function() {
-                let el = page_element.querySelector('.data');
-                if (el.panel_id === '') {
-                    PANELS.push(JSON.parse(el.value));
+                let data_element = page_element.querySelector('.data');
+                let panel_id = data_element.dataset.panel_id;
+                // New panel (note panel_id can be 0 and hence false...)
+                if (panel_id === null) {
+                    PANELS.push(JSON.parse(data_element.value));
                     STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
                 }
+                // Edited existing panel
                 else {
-                    PANELS[el.panel_id] = JSON.parse(el.value);
+                    PANELS[panel_id] = JSON.parse(data_element.value);
                     STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
                 }
+                // Re-populate the list of available panels
                 populate_panel_list();
                 show_page('panels');
             });
@@ -81,10 +108,11 @@ const PAGES = {
         }
     },
 
+    // Additional config page (e.g. for displaying a stop selector  map)
     config_overlay: {
         el: document.querySelector('.config-overlay'),
-        init: function(page_element) {
-            let back = page_element.querySelector('.back');
+        init: function() {
+            let back = this.el.querySelector('.back');
             back.addEventListener('click', function() {
                 show_page('config');
             });
@@ -92,6 +120,7 @@ const PAGES = {
     }
 };
 
+// Startup the application
 function startup() {
 
     // Initialise every page
@@ -99,7 +128,7 @@ function startup() {
         if (PAGES.hasOwnProperty(page_name)) {
             let page = PAGES[page_name];
             if (page.hasOwnProperty('init')) {
-                page.init(page.el);
+                page.init();
             }
         }
 
@@ -121,14 +150,14 @@ function startup() {
 
 }
 
-// Show the page 'page' if defined and hide all the others
+// Show the page named 'page_pane' if defined and hide all the others
 function show_page(page_name) {
 
-    // show this page  (if defined
+    // show this page  (if defined)
     if (page_name && PAGES.hasOwnProperty(page_name)) {
         let page = PAGES[page_name];
         if (page.hasOwnProperty('show')) {
-            page.show(page.el);
+            page.show();
         }
         page.el.hidden = false;
     }
@@ -137,14 +166,56 @@ function show_page(page_name) {
     for (let other_page_name in PAGES) {
         if (PAGES.hasOwnProperty(other_page_name)) {
             if (!page_name || page_name !== other_page_name) {
-                let page = PAGES[other_page_name];
-                page.el.hidden = true;
-                if (page.hasOwnProperty('hide')) {
-                    page.hide(page.el);
+                let other_page = PAGES[other_page_name];
+                other_page.el.hidden = true;
+                if (other_page.hasOwnProperty('hide')) {
+                    other_page.hide();
                 }
             }
         }
 
+    }
+
+}
+
+// Update the list on the 'pannels' page with the current panels
+function populate_panel_list() {
+    let list = PAGES.panels.el.querySelector('.list');
+
+    // Remove existing entries
+    while (list.firstChild) {
+        list.removeChild(list.firstChild);
+    }
+
+    // Populate
+    for (let i = 0; i < PANELS.length; i++) {
+        let panel_number = i;
+
+        let text = document.createElement('span');
+        text.addEventListener('click', function() {
+            display_panel(panel_number);
+        });
+        text.innerHTML = PANELS[panel_number].title + ' ';
+
+        let edit = document.createElement('span');
+        edit.addEventListener('click', function() {
+            display_config(panel_number);
+        });
+        edit.innerHTML = '[edit] ';
+
+        let del = document.createElement('span');
+        del.addEventListener('click', function() {
+            PANELS.splice(panel_number, 1);
+            STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
+            populate_panel_list();
+        });
+        del.innerHTML = '[delete]';
+
+        let li = document.createElement('li');
+        li.appendChild(text);
+        li.appendChild(edit);
+        li.appendChild(del);
+        list.appendChild(li);
     }
 
 }
@@ -157,57 +228,16 @@ function display_panel(panel_no) {
     show_page('panel');
 }
 
-
-// Update the list on the 'pannels' page with the current panels
-function populate_panel_list() {
-    let page_element = PAGES.panels.el;
-    let list = page_element.querySelector('.list');
-    while (list.firstChild) {
-        list.removeChild(list.firstChild);
-    }
-    for (let i = 0; i < PANELS.length; i++) {
-        let text = document.createElement('span');
-        (function(j) {
-            text.addEventListener('click', function() {
-                display_panel(j);
-            });
-        })(i);
-        text.innerHTML = PANELS[i].title;
-        let edit = document.createElement('span');
-        (function(j) {
-            edit.addEventListener('click', function() {
-                display_config(j);
-            });
-        })(i);
-        edit.innerHTML = 'Edit';
-        let del = document.createElement('span');
-        (function(j) {
-            del.addEventListener('click', function() {
-                PANELS.splice(j,1);
-                STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
-                populate_panel_list();
-            });
-        })(i);
-        del.innerHTML = 'Delete';
-        let li = document.createElement('li');
-        li.appendChild(text);
-        li.appendChild(edit);
-        li.appendChild(del);
-        list.appendChild(li);
-    }
-
-}
-
 // Show a widget config populated by config (if provided)
-function display_config(config) {
+function display_config(panel_no) {
     let data_el = PAGES.config.el.querySelector('.data');
-    if (config !== undefined ) {
-        data_el.value = JSON.stringify(PANELS[config], null, 2);
-        data_el.panel_id = config;
+    if (panel_no !== undefined ) {
+        data_el.value = JSON.stringify(PANELS[panel_no], null, 2);
+        data_el.dataset.panel_id = panel_no;
     }
     else {
         data_el.value = '';
-        data_el.panel_id = '';
+        data_el.dataset.panel_id = null;
     }
     show_page('config');
 }
