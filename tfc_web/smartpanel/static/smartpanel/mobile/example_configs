@@ -1,0 +1,64 @@
+{
+    "data": {
+        "destinations": [
+            {
+                "description": "Station",
+                "area": [
+                    {
+                        "lat": 52.19197753899249,
+                        "lng": 0.13677924871444705
+                    },
+                    {
+                        "lat": 52.192535629143975,
+                        "lng": 0.13480497524142268
+                    },
+                    {
+                        "lat": 52.19397106749421,
+                        "lng": 0.13591658324003222
+                    },
+                    {
+                        "lat": 52.19351880617212,
+                        "lng": 0.13782187364995482
+                    },
+                    {
+                        "lat": 52.19351880617212,
+                        "lng": 0.13782187364995482
+                    }
+                ]
+            }
+        ],
+        "title": "Stop opp. Gates Bldg",
+        "stop": {
+          "naptan_code": "CMBDGDMT",
+          "latitude": 52.2112996707,
+          "locality_name": "Cambridge",
+          "common_name": "William Gates Building",
+          "atco_code": "0500CCITY424",
+          "indicator": "opp",
+          "lat": 52.2112996707,
+          "stop_id": "0500CCITY424",
+          "id": "0500CCITY424",
+          "longitude": 0.09107756159,
+          "lng": 0.09107756159
+        },
+        "layout": "multiline"
+    },
+    "widget": "stop_timetable",
+    "title": "Stop opp. Gates Bldg"
+}
+
+{
+    "data": {
+        "station": "CBG"
+    },
+    "widget": "station_board",
+    "title": "Cambridge Station"
+}
+
+{
+      "data": {
+          "location": "310042"
+      },
+      "widget": "weather",
+      "title": "Cambridge"
+}

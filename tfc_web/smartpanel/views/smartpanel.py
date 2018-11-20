@@ -205,6 +205,22 @@ def layout(request, slug, display=None):
                    'settings': smartpanel_settings()})
 
 
+def mobile(request):
+
+    # The mobile display only does these widgets
+    widgets = ['weather', 'station_board', 'stop_timetable', 'stop_map']
+
+    dependencies_files_list = generate_dependencies_files_list(widgets)
+    return render(request, 'smartpanel/mobile.html',
+                  {'stylesheets': dependencies_files_list[0],
+                   'scripts': dependencies_files_list[1],
+                   'external_scripts': dependencies_files_list[2],
+                   'external_stylesheets': dependencies_files_list[3],
+                   'display': 'mobile',
+                   'rt_token': '778',
+                   'settings': smartpanel_settings()})
+
+
 @smartcambridge_valid_user
 def new_display(request):
     if request.method == "POST":

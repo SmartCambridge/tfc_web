@@ -1,4 +1,12 @@
+/* globals RTMONITOR_API:true, RTMonitorAPI, DEBUG, Weather, StationBoard, StopTimetable, SMARTPANEL_CONFIG */
+
 'use strict';
+
+// Realtime widgets expect this global
+var RTMONITOR_API;
+
+// Widget spec requires a DEBUG global
+var DEBUG = '';
 
 let PANELS = [];
 
@@ -30,7 +38,7 @@ const PAGES = {
         init: function() {
             let button = this.el.querySelector('.accept');
             button.addEventListener('click', function() {
-                STORAGE.setItem('TCS_VERSION', TCS_VERSION);
+                STORAGE.setItem('TCS_VERSION', TCS_VERSION.toString());
                 show_page('panels');
             });
         }
@@ -84,7 +92,7 @@ const PAGES = {
                 let data_element = page_element.querySelector('.data');
                 let panel_id = data_element.dataset.panel_id;
                 // New panel (note panel_id can be 0 and hence false...)
-                if (panel_id === null) {
+                if (panel_id === '') {
                     PANELS.push(JSON.parse(data_element.value));
                     STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
                 }
@@ -141,7 +149,8 @@ function startup() {
     }
 
     // Opening page depends in STORAGE.TCS_VERSION
-    if (STORAGE.getItem('TCS_VERSION') >= TCS_VERSION) {
+    let raw_version = STORAGE.getItem('TCS_VERSION');
+    if (raw_version && parseInt(raw_version) >= TCS_VERSION) {
         show_page('panels');
     }
     else {
@@ -190,12 +199,13 @@ function populate_panel_list() {
     // Populate
     for (let i = 0; i < PANELS.length; i++) {
         let panel_number = i;
+        let panel_config = PANELS[panel_number];
 
         let text = document.createElement('span');
         text.addEventListener('click', function() {
             display_panel(panel_number);
         });
-        text.innerHTML = PANELS[panel_number].title + ' ';
+        text.innerHTML = `<b>${panel_config.widget}</b><br>${panel_config.title}<br>`;
 
         let edit = document.createElement('span');
         edit.addEventListener('click', function() {
@@ -222,9 +232,43 @@ function populate_panel_list() {
 
 // Display panel identified by 'panel_no'
 function display_panel(panel_no) {
-    let el = PAGES.panel.el;
-    let panel_title = el.querySelector('.title');
-    panel_title.textContent = PANELS[panel_no].title;
+
+    let panel_config = PANELS[panel_no];
+
+    let container_el = PAGES.panel.el.querySelector('#widget-container');
+    container_el.classList.add('widget', panel_config.widget);
+
+    let widget = null;
+    switch (panel_config.widget) {
+    case 'weather':
+        widget = new Weather('0');
+        break;
+    case 'station_board':
+        widget = new StationBoard('0');
+        break;
+    case 'stop_timetable':
+        widget = new StopTimetable('0');
+        break;
+    }
+
+    widget.display(
+        {
+            container_id: 'widget-container',
+            static_url: `/static_web/smartpanel/widgets/${panel_config.widget}/`,
+            display_id: '',
+            layout_id: '',
+            rt_token: '778',
+            layout_name: 'Layouts for mobile',
+            display_name: '',
+            layout_owner: '',
+            display_owner: '',
+            settings: WIDGET_CONFIG
+        },
+        panel_config.data
+    );
+
+    RTMONITOR_API.init();
+
     show_page('panel');
 }
 
@@ -237,7 +281,7 @@ function display_config(panel_no) {
     }
     else {
         data_el.value = '';
-        data_el.dataset.panel_id = null;
+        data_el.dataset.panel_id = '';
     }
     show_page('config');
 }
