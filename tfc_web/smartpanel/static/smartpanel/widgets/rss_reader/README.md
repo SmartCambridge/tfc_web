@@ -2,6 +2,10 @@
 
 Formats and displays an RSS feed retrieved from a web URL
 
+**NOTE:** this README refers to the Javascript configuration parameters as required by the RssReader
+widget. The user input of these parameters on the SmartPanel layout design page will necessarily be
+in **JSON format**.
+
 There are TWO parts to this SmartPanel RSS reader:
 
 1. tfc_web provides a web PROXY to retrieve the RSS XML, so the browser displaying the SmartPanel
@@ -34,9 +38,9 @@ from multiple SmartPanels) will not result in multiple requests to the original 
 
 At its simplest, the RssReader widget can be configured with
 
-* title. E.g. 'Computer Lab News'
+* `title`. E.g. 'Computer Lab News'
 
-* url. E.g. 'https://www.cst.cam.ac.uk/news/feed'
+* `url`. E.g. 'https://www.cst.cam.ac.uk/news/feed'
 
 The Feed type can be left to 'News' and the widget will provide a reasonable default display to the
 RSS items ordered by publication date, with each item displayed as:
@@ -68,7 +72,7 @@ I.e. at its simplest, an RSS feed can be thought of as:
   ...
 </rss>
 ```
-To view the content of a real news feed, visit (CL News)[https://www.cst.cam.ac.uk/news/feed].
+To view the content of a real news feed, visit [CL News](https://www.cst.cam.ac.uk/news/feed).
 
 #### Events
 
@@ -78,14 +82,14 @@ default RSS format would require you to bury the date and location information w
 item so there would be no reliable way to display the meetings in order of date or location. Note that 'pubDate' is
 the datestamp of when the author wrote the item and has nothing to do with the item content.
 
-As an example, see how we display the (Computer Science talks at Cambridge)[https://talks.cam.ac.uk/show/index/6330].
+As an example, see how we display the [Computer Science talks at Cambridge](https://talks.cam.ac.uk/show/index/6330).
 
-That information is also provided as (an XML RSS feed)[https://talks.cam.ac.uk/show/rss/6330].
+That information is also provided as [an XML RSS feed](https://talks.cam.ac.uk/show/rss/6330).
 
 So the natural thing has occurred, and 'extensions' to the RSS format have emerged that allow you to stuff additional
 _formatted_ data into each RSS item, but general support for these extensions is rare.
 
-In particular for 'events' there is (this suggested standard)[http://web.resource.org/rss/1.0/modules/event/], and
+In particular for 'events' there is [this suggested standard](http://web.resource.org/rss/1.0/modules/event/), and
 the _default_ support for 'Event' items in the RssReader supports these additional item properties:
 
 * `<ev:startdate>`
@@ -121,7 +125,7 @@ Object controlling display of the main title of the widget, containing:
 
 * `text` - the intended heading for the widget, e.g. "CL News".
 
-* `style` - CSS attributes for this main title, e.g. "font-weight: bold, color: green"
+* `style` - CSS attributes for this main title, e.g. "font-weight: bold; color: green"
 
 #### `url`
 
@@ -142,8 +146,10 @@ different configuration 'presets'.
 
 * `tag` - String, defaulting to `item`, i.e. the XML tag containing each RSS item
 
-* `sort` - String, containing the item property on which they should be sorted, defaults
+* `sort` - String, containing the item property on which items should be sorted, defaults
   to `pubDate` for news items and `ev:startdate` for events.
+
+* `sort_order` - String, `ascending` or `descending`
 
 ### RSS `item` configuration parameters
 
@@ -175,6 +181,10 @@ string. The `slice` object contains the following properties:
     * `html` - accepts a safe subset of the html markup in the sub-element value
     * `text` - accepts the source value unchanged
 
+For examples of the use of these configuration parameters see the news or events defaults below.
+
+## Default configuration parameters
+
 ```
     DEFAULT_PARAMS['news'] = { title: { text: 'CL News',
                                  style: 'font-weight: bold; font-size: 1.5em'
@@ -182,7 +192,8 @@ string. The `slice` object contains the following properties:
                         url:   'https://www.cst.cam.ac.uk/news/feed',
                         feed_type: 'news',
                         items: { tag: 'item',
-                                 sort: 'pubDate'
+                                 sort: 'pubDate',
+                                 sort_order: 'descending'
                                },
                         item:  [
                                  { tag: 'title',
@@ -208,7 +219,8 @@ string. The `slice` object contains the following properties:
                url:   'https://talks.cam.ac.uk/show/rss/6330',
                feed_type: 'events',
                items: { tag: 'item',
-                        sort: 'ev:startdate'
+                        sort: 'ev:startdate',
+                        sort_order: ascending
                       },
                item:  [
                         { tag: 'ev:startdate',

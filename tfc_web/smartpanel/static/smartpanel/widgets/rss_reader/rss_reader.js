@@ -134,6 +134,12 @@ function RssReader(widget_id) {
             return;
         }
 
+        var item_tag = 'item';
+        if (self.params.items && self.params.items.tag) {
+            item_tag = self.params.items.tag;
+        }
+        log('update_display','item_tag',item_tag);
+
         // items_xml is the list of xml DOM elements representing the RSS items
         var items_xml = xml_dom.getElementsByTagName('item');
 
@@ -145,14 +151,82 @@ function RssReader(widget_id) {
         container.appendChild(items_el);
 
         print_items(items_el, items_xml);
-        //rss_list.innerHTML = safe(rss_xml);
     }
 
+    // Display the list of RSS items in the widget
     function print_items(items_el, items_xml) {
-
         log('print_items',items_xml);
-        for (var i = 0; i < items_xml.length; i++) {
-            print_item(items_el, items_xml[i]);
+
+        // Convert to regular Array
+        var items = Array.prototype.slice.call(items_xml, 0);
+
+        // If the config includes a sort tag, then pre-sort the items on this tag
+        if (self.params.items && self.params.items.sort ) {
+            // Find the format of the sort tag from the item list (e.g. 'iso8601')
+            var sort_format = null;
+            for (var i=0; i<self.params.item.length; i++) {
+                if (self.params.item[i].tag == self.params.items.sort) {
+                    // sort tag found in params.item, so use format
+                    sort_format = self.params.item[i].format;
+                }
+            }
+
+            var sort_order = null;
+            if (self.params.items && self.params.items.sort_order) {
+                sort_order = self.params.items.sort_order;
+            }
+
+            log('print_items','sorting',self.params.items.sort, sort_format, sort_order);
+
+            // sort_compare will return a sort function based on the tag name and format
+            var sort_fn = sort_compare(self.params.items.sort, sort_format);
+
+            // To implement ascending (for events) and descending (for news)
+            // we'll either give sort_fn to Array.sort(), or create a
+            // function that reverses sort_fn by swapping the arguments.
+            if (sort_order == "ascending") {
+                items.sort( sort_fn );
+            } else {
+                items.sort( function(a,b) { return sort_fn(b,a); } );
+            }
+        }
+
+        // Print the sorted items
+        for (var i = 0; i < items.length; i++) {
+            print_item(items_el, items[i]);
+        }
+    }
+
+    // return a function(a,b) that returns a > b as +1, otherwise -1
+    function sort_compare(sort_tag, sort_format) {
+        return function (item1, item2) {
+            // Pick out the comparable values from the two items
+            var values1 = item1.getElementsByTagName(sort_tag);
+            if (values1.length == 0) {
+                return -1;
+            }
+            var values2 = item2.getElementsByTagName(sort_tag);
+            if (values2.length == 0) {
+                return -1;
+            }
+
+            // Now do comparison
+            //
+            // Comparing dates?
+            if (sort_format == 'rfc2282' || sort_format == 'iso8601') {
+                var date1 = new Date(values1[0].textContent);
+                var date2 = new Date(values2[0].textContent);
+                if (date1 > date2) {
+                    return +1;
+                }
+                return -1;
+            }
+
+            // Comparing any other formats
+            if (values1[0].textContent > values2[0].textContent) {
+                return +1;
+            }
+            return -1;
         }
     }
 
@@ -288,7 +362,7 @@ function RssReader(widget_id) {
         }
 
         var time = '12noon';
-        if (hours != 12 && mins != 0) {
+        if (hours != 12 || mins != 0) {
             time = hours + ':' + ('0'+mins).slice(-2) + am_pm;
         }
 
@@ -298,6 +372,7 @@ function RssReader(widget_id) {
         } else {
             return_str = day_of_week + ' ' + day + ' ' + mon + ' ' + time;
         }
+        log('date_iso8601',d,return_str);
         return return_str;
     }
 
@@ -390,57 +465,59 @@ function RssReader(widget_id) {
     //   Events items can have another datetime in 'ev:startdate'
     //
     var DEFAULT_PARAMS = {};
-    DEFAULT_PARAMS['news'] = { title: { text: 'CL News',
-                                 style: 'font-weight: bold; font-size: 1.5em'
-                                  },
-                        url:   'https://www.cst.cam.ac.uk/news/feed',
-                        feed_type: 'news',
-                        items: { tag: 'item',
-                                 sort: 'pubDate'
-                               },
-                        item:  [
-                                 { tag: 'title',
-                                   style: 'color: blue; font-weight: bold',
-                                   format: 'html_to_text'
-                                 },
-                                 { tag: 'ev:location' },
-                                 { tag: 'description',
-                                   style: 'margin-left: 20px; font-size: 0.8em; font-style: italic',
-                                   slice: { from: 0, to: 200, append: '...' },
-                                   format: 'html_to_text'
-                                 },
-                                 { tag: 'pubDate',
-                                   style: 'margin-left: 20px; margin-bottom: 10px; color: #222222; font-weight: normal; font-size: 0.8em; font-style: italic',
-                                   format: 'rfc2282'
-                                 }
-                               ]
+    DEFAULT_PARAMS['news'] = {  title: { text: 'CL News',
+                                         style: 'font-weight: bold; font-size: 1.5em'
+                                       },
+                                url: 'https://www.cst.cam.ac.uk/news/feed',
+                                feed_type: 'news',
+                                items: { tag: 'item',
+                                         sort: 'pubDate',
+                                         sort_order: 'descending'
+                                       },
+                                item:  [
+                                         { tag: 'title',
+                                           style: 'color: blue; font-weight: bold',
+                                           format: 'html_to_text'
+                                         },
+                                         { tag: 'ev:location' },
+                                         { tag: 'description',
+                                           style: 'margin-left: 20px; font-size: 0.8em; font-style: italic',
+                                           slice: { from: 0, to: 200, append: '...' },
+                                           format: 'html_to_text'
+                                         },
+                                         { tag: 'pubDate',
+                                           style: 'margin-left: 20px; margin-bottom: 10px; color: #222222; font-weight: normal; font-size: 0.8em; font-style: italic',
+                                           format: 'rfc2282'
+                                         }
+                                       ]
     };
 
-    DEFAULT_PARAMS['events'] = { title: { text: 'CL Talks',
-                          style: 'font-weight: bold; font-size: 1.5em'
-                        },
-               url:   'https://talks.cam.ac.uk/show/rss/6330',
-               feed_type: 'events',
-               items: { tag: 'item',
-                        sort: 'ev:startdate'
-                      },
-               item:  [
-                        { tag: 'ev:startdate',
-                          style: 'color: green; font-weight: bold',
-                          format: 'iso8601'
-                        },
-                        { tag: 'title',
-                          style: 'color: #990000; font-weight: normal',
-                          // For talks.cam to remove date from title... slice: { from: 17 },
-                          format: 'html_to_text'
-                        },
-                        { tag: 'ev:location' },
-                        { tag: 'description',
-                          style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic',
-                          slice: { from: 0, to: 200, append: '...' },
-                          format: 'html_to_text'
-                        }
-                      ]
+    DEFAULT_PARAMS['events'] = {   title: { text: 'CL Talks',
+                                            style: 'font-weight: bold; font-size: 1.5em'
+                                          },
+                                   url:   'https://talks.cam.ac.uk/show/rss/6330',
+                                   feed_type: 'events',
+                                   items: { tag: 'item',
+                                            sort: 'ev:startdate',
+                                            sort_order: 'ascending'
+                                          },
+                                   item:  [
+                                            { tag: 'ev:startdate',
+                                              style: 'color: green; font-weight: bold',
+                                              format: 'iso8601'
+                                            },
+                                            { tag: 'title',
+                                              style: 'color: #990000; font-weight: normal',
+                                              // For talks.cam to remove date from title... slice: { from: 17 },
+                                              format: 'html_to_text'
+                                            },
+                                            { tag: 'ev:location' },
+                                            { tag: 'description',
+                                              style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic',
+                                              slice: { from: 0, to: 200, append: '...' },
+                                              format: 'html_to_text'
+                                            }
+                                          ]
     };
 
     // params.feed_type is 'news'|'events'|'custom'
@@ -670,6 +747,16 @@ function RssReader(widget_id) {
                                           title: 'The RSS XML tag that contains the item property to sort on, usually "pubDate"'
                                         },
                                         params.items ? params.items.sort : DEFAULT_PARAMS[feed_type].items.sort);
+        // "items" "sort_order"
+        var items_sort_order_result = widget_config.input( custom_div,
+                                        'select',
+                                        { text: 'Item sort order:',
+                                          title: 'e.g. ascending for dates means earliest at top of list (useful for events)',
+                                          options: [ { value: 'descending', text: 'Descending' },
+                                                     { value: 'ascending', text: 'Ascending' }
+                                                   ]
+                                        },
+                                        params.items ? params.items.sort_order : DEFAULT_PARAMS[feed_type].items.sort_order);
         // "item" textarea JSON input
         var item_result = widget_config.input( custom_div,
                                           'string',
@@ -683,7 +770,8 @@ function RssReader(widget_id) {
         var value_fn = function () {
             var params = { title: { style: title_style_result.value() },
                            items: { tag: items_tag_result.value(),
-                                    sort: items_sort_result.value()
+                                    sort: items_sort_result.value(),
+                                    sort_order: items_sort_order_result.value()
                                   },
                            item: JSON.parse(item_result.value())
                          };
@@ -706,7 +794,7 @@ function RssReader(widget_id) {
         return { value: value_fn,
                  valid: valid_fn
         };
-    }
+    }// end input_rss_custom()
 
     // Add a radio button to the parent element, checked if name == name_selected
     function add_radio_button(parent_el, name, value, text, value_selected, click_fn) {
