@@ -5,7 +5,7 @@
     <head>
         <title>Mobile SmartPanel</title>
 
-        <meta name="viewport" content="width=320; initial-scale=1.0" />
+        <meta name="viewport" content="width=320, initial-scale=1.0" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' }%"/>
 
@@ -44,43 +44,41 @@
 
     <body>
 
-        <div class="container">
+        <div class="page-container">
 
-            <div class="page first">
+            <div class="page" id="first">
                 <p>First page</p>
                 <button class="accept">Accept conditions</button>
             </div>
 
-            <div class="page panels">
-                <p>My panels</p>
-                <ul class="list">
+            <div class="page" id="panels">
+                <h1>My panels</h1>
+                <ul class="panel-list" id="panel-list">
                 </ul>
-                <button class="new">+</button>
+                <button class="new">+ New panel</button>
             </div>
 
-            <div class="page panel">
-                <p class="title"></p>
-                <div id="widget-container"></div>
-                <button class="back">&lt; Back</button>
-                <button class="forward">Map &gt;</button>
+            <div class="page" id="panel">
+                <div class="widget-container" id="widget-container"></div>
+                <div class="nav-bar">
+                    <button class="back">&lt; Back</button>
+                   <button class="forward">Map &gt;</button>
+                </div>
             </div>
 
-            <div class="page panel-overlay">
+            <div class="page" id="panel-overlay">
                 <p>Panel overlay</p>
-                <button class="back">&lt; Back</button>
+                <div class="widget widget-container" id="overlay-container"></div>
+                <div class="nav-bar">
+                    <button class="back">&lt; Back</button>
+                </div>
             </div>
 
-            <div class="page config">
+            <div class="page" id="config">
                 <p>Panel config</p>
-                <p><textarea class="data"></textarea></p>
+                <p><textarea class="config-data" id="config-data"></textarea></p>
                 <button class="save">Save</button>
                 <button class="cancel">Cancel</button>
-                <button class="forward">Map &gt;</button>
-            </div>
-
-            <div class="page config-overlay">
-                <p>Config overlay</p>
-                <button class="back">&lt; Back</button>
             </div>
 
         </div>

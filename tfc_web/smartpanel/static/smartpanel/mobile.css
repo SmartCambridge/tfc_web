@@ -6,14 +6,14 @@ html, body {
     width: 100%;
 }
 
-.container {
+.page-container {
     height: 100%;
-    overflow: hidden;
     position: relative;
     width: 100%;
 }
 
 .page {
+    height: 100%;
     left: 0;
     position: absolute;
     top: 0;
@@ -23,3 +23,53 @@ html, body {
     /* transition: transform 0.3s cubic-bezier(0.465, 0.183, 0.153, 0.946); */
 }
 
+.widget-container {
+    height: calc(100% - 40px);
+    overflow: hidden;
+    position: relative;
+}
+
+.nav-bar {
+    bottom: 0;
+    height: 40px;
+    left: 0;
+    padding-top: 6px;
+    position: absolute;
+    width: 100%;
+}
+
+.config-data {
+    border: 1px solid black;
+    height: 200px;
+    width: 100%;
+}
+
+button {
+    color: rgb(90,200,250);
+    font-size: 1.2rem;
+}
+
+.back {
+    float: left;
+}
+
+.forward {
+    float: right;
+}
+
+.panel-list {
+    display: block;
+    list-style-type: none;
+    border: 1px solid black;
+    padding-left: 0;
+    margin: 0.5rem;
+}
+
+.panel-list li {
+    border: 1px solid black;
+    padding: 0.4rem;
+}
+
+.panel-list .edit, .panel-list .del {
+    font-size: 0.6rem;
+}

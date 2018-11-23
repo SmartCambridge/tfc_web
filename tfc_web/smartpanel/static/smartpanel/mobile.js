@@ -1,18 +1,12 @@
-/* globals RTMONITOR_API:true, RTMonitorAPI, DEBUG, Weather, StationBoard, StopTimetable, SMARTPANEL_CONFIG */
+/* globals RTMONITOR_API:true, RTMONITOR_API, DEBUG, Weather, StationBoard, StopTimetable, WIDGET_CONFIG */
 
 'use strict';
-
-// Realtime widgets expect this global
-var RTMONITOR_API;
-
-// Widget spec requires a DEBUG global
-var DEBUG = '';
-
-let PANELS = [];
 
 const TCS_VERSION = 1;
 
 const STORAGE = window.localStorage;
+
+let PANELS = [];
 
 /*
 
@@ -34,7 +28,7 @@ const PAGES = {
 
     // Splash page displayed to new users of the appp
     first: {
-        el: document.querySelector('.first'),
+        el: document.querySelector('#first'),
         init: function() {
             let button = this.el.querySelector('.accept');
             button.addEventListener('click', function() {
@@ -46,7 +40,7 @@ const PAGES = {
 
     // Main index page, displaying all configured panels
     panels: {
-        el: document.querySelector('.panels'),
+        el: document.querySelector('#panels'),
         init: function() {
             let add = this.el.querySelector('.new');
             add.addEventListener('click', function() {
@@ -57,10 +51,11 @@ const PAGES = {
 
     // Panel display page
     panel: {
-        el: document.querySelector('.panel'),
+        el: document.querySelector('#panel'),
         init: function() {
             let back = this.el.querySelector('.back');
             back.addEventListener('click', function() {
+                undisplay_panel();
                 show_page('panels');
             });
             let forward = this.el.querySelector('.forward');
@@ -73,7 +68,7 @@ const PAGES = {
     // Additional panel display page (e.g. for a map sowing the stop
     // corresponding to a particular timetable)
     panel_overlay: {
-        el: document.querySelector('.panel-overlay'),
+        el: document.querySelector('#panel-overlay'),
         init: function() {
             let back = this.el.querySelector('.back');
             back.addEventListener('click', function() {
@@ -84,12 +79,12 @@ const PAGES = {
 
     // Panel config age
     config: {
-        el: document.querySelector('.config'),
+        el: document.querySelector('#config'),
         init: function() {
             let page_element = this.el;
             let save = page_element.querySelector('.save');
             save.addEventListener('click', function() {
-                let data_element = page_element.querySelector('.data');
+                let data_element = page_element.querySelector('#config-data');
                 let panel_id = data_element.dataset.panel_id;
                 // New panel (note panel_id can be 0 and hence false...)
                 if (panel_id === '') {
@@ -109,23 +104,9 @@ const PAGES = {
             cancel.addEventListener('click', function() {
                 show_page('panels');
             });
-            let forward = page_element.querySelector('.forward');
-            forward.addEventListener('click', function() {
-                show_page('config_overlay');
-            });
         }
     },
 
-    // Additional config page (e.g. for displaying a stop selector  map)
-    config_overlay: {
-        el: document.querySelector('.config-overlay'),
-        init: function() {
-            let back = this.el.querySelector('.back');
-            back.addEventListener('click', function() {
-                show_page('config');
-            });
-        }
-    }
 };
 
 // Startup the application
@@ -189,7 +170,7 @@ function show_page(page_name) {
 
 // Update the list on the 'pannels' page with the current panels
 function populate_panel_list() {
-    let list = PAGES.panels.el.querySelector('.list');
+    let list = PAGES.panels.el.querySelector('#panel-list');
 
     // Remove existing entries
     while (list.firstChild) {
@@ -205,15 +186,17 @@ function populate_panel_list() {
         text.addEventListener('click', function() {
             display_panel(panel_number);
         });
-        text.innerHTML = `<b>${panel_config.widget}</b><br>${panel_config.title}<br>`;
+        text.innerHTML = `<b>[ICON] ${panel_config.title}<br>`;
 
         let edit = document.createElement('span');
+        edit.classList.add('edit');
         edit.addEventListener('click', function() {
             display_config(panel_number);
         });
-        edit.innerHTML = '[edit] ';
+        edit.innerHTML = '[edit]';
 
         let del = document.createElement('span');
+        del.classList.add('del');
         del.addEventListener('click', function() {
             PANELS.splice(panel_number, 1);
             STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
@@ -222,9 +205,7 @@ function populate_panel_list() {
         del.innerHTML = '[delete]';
 
         let li = document.createElement('li');
-        li.appendChild(text);
-        li.appendChild(edit);
-        li.appendChild(del);
+        li.append(text, edit, ' ', del);
         list.appendChild(li);
     }
 
@@ -235,8 +216,14 @@ function display_panel(panel_no) {
 
     let panel_config = PANELS[panel_no];
 
-    let container_el = PAGES.panel.el.querySelector('#widget-container');
+    let widget_container = PAGES.panel.el.querySelector('#widget-container');
+    while (widget_container.firstChild) {
+        widget_container.removeChild(widget_container.firstChild);
+    }
+    let container_el = document.createElement('div');
+    container_el.id = 'widget';
     container_el.classList.add('widget', panel_config.widget);
+    widget_container.appendChild(container_el);
 
     let widget = null;
     switch (panel_config.widget) {
@@ -253,7 +240,7 @@ function display_panel(panel_no) {
 
     widget.display(
         {
-            container_id: 'widget-container',
+            container_id: 'widget',
             static_url: `/static_web/smartpanel/widgets/${panel_config.widget}/`,
             display_id: '',
             layout_id: '',
@@ -272,15 +259,22 @@ function display_panel(panel_no) {
     show_page('panel');
 }
 
+function undisplay_panel() {
+    let widget_container = PAGES.panel.el.querySelector('#widget-container');
+    while (widget_container.firstChild) {
+        widget_container.removeChild(widget_container.firstChild);
+    }
+}
+
 // Show a widget config populated by config (if provided)
 function display_config(panel_no) {
-    let data_el = PAGES.config.el.querySelector('.data');
+    let data_el = PAGES.config.el.querySelector('#config-data');
     if (panel_no !== undefined ) {
         data_el.value = JSON.stringify(PANELS[panel_no], null, 2);
         data_el.dataset.panel_id = panel_no;
     }
     else {
-        data_el.value = '';
+        data_el.value = '{ "title": "", "widget": "", "data": {} }';
         data_el.dataset.panel_id = '';
     }
     show_page('config');
