@@ -187,7 +187,7 @@ function populate_panel_list() {
         text.addEventListener('click', function() {
             display_panel(panel_number);
         });
-        text.innerHTML = `<b>[ICON] ${panel_config.title}<br>`;
+        text.innerHTML = `<b>[ICON] ${panel_config.title} ><br>`;
 
         let edit = document.createElement('span');
         edit.classList.add('edit');
@@ -216,18 +216,19 @@ function populate_panel_list() {
 function display_panel(panel_no) {
 
     let panel_config = PANELS[panel_no];
+    let widget_type = panel_config.widget;
 
     let widget_container = PAGES.panel.el.querySelector('#widget-container');
     while (widget_container.firstChild) {
         widget_container.removeChild(widget_container.firstChild);
     }
     let container_el = document.createElement('div');
-    container_el.id = 'widget';
-    container_el.classList.add('widget', panel_config.widget);
+    container_el.id = 'widget-' + widget_type;
+    container_el.classList.add('widget', widget_type);
     widget_container.appendChild(container_el);
 
     let widget = null;
-    switch (panel_config.widget) {
+    switch (widget_type) {
     case 'weather':
         widget = new Weather('0');
         PAGES.panel.el.querySelector('.forward').hidden = true;
@@ -244,7 +245,7 @@ function display_panel(panel_no) {
 
     widget.display(
         {
-            container_id: 'widget',
+            container_id: 'widget-' + widget_type,
             static_url: `/static_web/smartpanel/widgets/${panel_config.widget}/`,
             display_id: '',
             layout_id: '',
