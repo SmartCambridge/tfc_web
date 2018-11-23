@@ -62,6 +62,7 @@ const PAGES = {
             forward.addEventListener('click', function() {
                 show_page('panel_overlay');
             });
+            forward.hidden = true;
         }
     },
 
@@ -229,12 +230,15 @@ function display_panel(panel_no) {
     switch (panel_config.widget) {
     case 'weather':
         widget = new Weather('0');
+        PAGES.panel.el.querySelector('.forward').hidden = true;
         break;
     case 'station_board':
         widget = new StationBoard('0');
+        PAGES.panel.el.querySelector('.forward').hiddden = true;
         break;
     case 'stop_timetable':
         widget = new StopTimetable('0');
+        PAGES.panel.el.querySelector('.forward').hidden = false;
         break;
     }
 
