@@ -22,7 +22,9 @@ DATA_PATH = '/usr/src/app/api/tests/data'
 
 NEW_API_ENDPOINT = 'http://127.0.0.1:8000'
 
-SMARTPANEL_API_ENDPOINT = 'http://127.0.0.1:8000/api/v1/'
+SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
+
+ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk', 'localhost', '127.0.0.1', '[::1]', '.ngrok.io']
 
 LOGGING = {
     'version': 1,

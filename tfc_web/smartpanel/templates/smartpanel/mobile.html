@@ -1,0 +1,109 @@
+{% load static %}
+{% load jsonify %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mobile SmartPanel</title>
+
+        <meta name="viewport" content="width=320, initial-scale=1.0" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' }%"/>
+
+        <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
+
+        <link rel="stylesheet" href="{% static 'smartpanel/mobile.css' %}"/>
+
+        <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+        <!-- <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/> -->
+
+    {% for stylesheet in external_stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %}
+              integrity="{{ stylesheet.integrity }}"
+              crossorigin="anonymous"{% endif %}>
+    {% endfor %}
+    {% for stylesheet in stylesheets %}
+        <link rel="stylesheet" href="{{ stylesheet }}">
+    {% endfor %}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
+                integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w="
+                crossorigin="anonymous"></script>
+        <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+    {% for script in external_scripts %}
+        <script src="{{ script.src }}"{% if script.integrity %}
+                integrity="{{ script.integrity }}"
+                crossorigin="anonymous"{% endif %}></script>
+    {% endfor %}
+    {% for script in scripts %}
+        <script src="{{ script }}"></script>
+    {% endfor %}
+
+    </head>
+
+    <body>
+
+        <div class="page-container">
+
+            <div class="page" id="first">
+                <p>First page</p>
+                <button class="accept">Accept conditions</button>
+            </div>
+
+            <div class="page" id="panels">
+                <h1>My panels</h1>
+                <ul class="panel-list" id="panel-list">
+                </ul>
+                <button class="new">+ New panel</button>
+            </div>
+
+            <div class="page" id="panel">
+                <div class="widget-container" id="widget-container"></div>
+                <div class="nav-bar">
+                    <button class="back">&lt; Back</button>
+                   <button class="forward">Map &gt;</button>
+                </div>
+            </div>
+
+            <div class="page" id="panel-overlay">
+                <p>Map overlay</p>
+                <div class="widget widget-container" id="overlay-container"></div>
+                <div class="nav-bar">
+                    <button class="back">&lt; Back</button>
+                </div>
+            </div>
+
+            <div class="page" id="config">
+                <p>Panel config</p>
+                <p><textarea class="config-data" id="config-data"></textarea></p>
+                <button class="save">Save</button>
+                <button class="cancel">Cancel</button>
+            </div>
+
+        </div>
+
+        <script>
+
+            var RTMONITOR_API = new RTMonitorAPI(
+                {
+                    'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
+                    'rt_client_name': 'smartpanel', // TODO embed server-side smartpanel name
+                    'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
+                    'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
+                    'display_owner': '{{ display.owner.username }}'
+                }
+            );
+
+            // Widget spec requires a DEBUG global
+            var DEBUG = '';
+
+            var WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
+
+        </script>
+
+        <script src="{% static 'smartpanel/mobile.js' %}"></script>
+
+    </body>
+
+</html>
