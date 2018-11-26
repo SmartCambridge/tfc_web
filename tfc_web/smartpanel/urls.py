@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^layout/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<slug>\w+)/$', smartpanel.layout, name='smartpanel-layout'),
     url(r'^mobile/$', smartpanel.mobile, name='smartpanel-mobile'),
+    url(r'^mobile2/$', smartpanel.mobile2, name='smartpanel-mobile2'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     # Widgets specific URLs
     url(r'^weather$', weather.weather, name='smartpanel-weather'),

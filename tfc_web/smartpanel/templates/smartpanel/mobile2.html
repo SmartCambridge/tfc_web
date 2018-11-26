@@ -1,0 +1,150 @@
+{% load static %}
+{% load jsonify %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Mobile SmartPanel</title>
+
+  <meta name="viewport" content="width=320, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' }%"/>
+
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
+
+
+
+{% for stylesheet in external_stylesheets %}
+  <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %}
+        integrity="{{ stylesheet.integrity }}"
+        crossorigin="anonymous"{% endif %}>
+{% endfor %}
+{% for stylesheet in stylesheets %}
+  <link rel="stylesheet" href="{{ stylesheet }}">
+{% endfor %}
+
+  <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+  <link rel="stylesheet" href="{% static 'smartpanel/mobile2.css' %}"/>
+
+  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
+  <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+          integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
+          integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w="
+          crossorigin="anonymous"></script>
+  <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+{% for script in external_scripts %}
+  <script src="{{ script.src }}"{% if script.integrity %}
+          integrity="{{ script.integrity }}"
+          crossorigin="anonymous"{% endif %}></script>
+{% endfor %}
+{% for script in scripts %}
+  <script src="{{ script }}"></script>
+{% endfor %}
+  <script src="{% static 'smartpanel/mobile2.js' %}"></script>
+</head>
+
+<body>
+
+	<ons-navigator swipeable id="myNavigator"></ons-navigator>
+
+  <template id="first.html">
+    <ons-page id="first">
+    	<ons-toolbar>
+        <div class="center">First page</div>
+      </ons-toolbar>
+      <ons-button id="accept" modifier="large">Accept conditions</ons-button>
+    </ons-page>
+  </template>
+
+  <template id="panels.html">
+    <ons-page id="panels">
+    	<ons-toolbar>
+        <div class="left">
+          <ons-toolbar-button id="edit">
+            Edit
+          </ons-toolbar-button>
+        </div>
+        <div class="center">My Smartpanels</div>
+        <div class="right"><ons-toolbar-button id="add">
+          <ons-icon icon="plus, material:add">
+        </ons-icon>
+        </ons-toolbar-button></div>
+      </ons-toolbar>
+      <ons-list class="panel-items"></ons-list>
+    </ons-page>
+  </template>
+
+  <template id="panels-edit.html">
+    <ons-page id="panels-edit">
+      <ons-toolbar>
+        <div class="center">Edit</div>
+        <div class="right">
+          <ons-toolbar-button id="done">
+            Done
+          </ons-toolbar-button>
+        </div>
+      </ons-toolbar>
+      <ons-list class="panel-items"></ons-list>
+    </ons-page>
+  </template>
+
+  <template id="panel.html">
+    <ons-page id="panel">
+    	<ons-toolbar>
+    		<div class="left"><ons-back-button></ons-back-button></div>
+        <div class="right"><ons-toolbar-button id="map">Map</ons-toolbar-button></div>
+      </ons-toolbar>
+      <div id="widget-container" class="widget-container"></div>
+    </ons-page>
+  </template>
+
+  <template id="map-overlay.html">
+    <ons-page id="map-overlay">
+      <ons-toolbar>
+      	<div class="left"><ons-back-button></ons-back-button></div>
+        <div class="center">Map</div>
+      </ons-toolbar>
+      <div id="overlay-container" class="widget-container full-screen" ></div>
+    </ons-page>
+  </template>
+
+  <template id="config.html">
+  	<ons-page id="config">
+      <ons-toolbar>
+        <div class="center">Config</div>
+      </ons-toolbar>
+      <p><textarea class="config-data" id="config-data"></textarea></p>
+      <ons-button id="submit" modifier="">Submit</ons-button>
+      <ons-button id="cancel" modifier="quiet">Cancel</ons-button>
+    </ons-page>
+  </template>
+
+  <script>
+
+    /*
+    var RTMONITOR_API = new RTMonitorAPI(
+        {
+            'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
+            'rt_client_name': 'smartpanel', // TODO embed server-side smartpanel name
+            'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
+            'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
+            'display_owner': '{{ display.owner.username }}'
+        }
+    );
+    */
+
+    // Widget spec requires a DEBUG global
+    var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log';
+
+    var WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
+
+</script>
+
+</body>
+</html>

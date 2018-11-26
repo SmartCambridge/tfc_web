@@ -36,7 +36,7 @@ module.exports = {
         "no-shadow": "warn",
         "max-lines-per-function": [
             "warn",
-            50
+            100
         ],
         "no-bitwise": "warn",
         "no-trailing-spaces": "error",
