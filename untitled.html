@@ -10,7 +10,7 @@
 
 <body>
 
-	<ons-navigator swipeable id="myNavigator" page="first.html"></ons-navigator>
+	<ons-navigator swipeable id="myNavigator"></ons-navigator>
 
   <template id="first.html">
     <ons-page id="first">
@@ -24,8 +24,11 @@
   <template id="panels.html">
     <ons-page id="panels">
     	<ons-toolbar>
-        <div class="center">My panels</div>
-        <div class="right"><ons-toolbar-button id="new">New</ons-toolbar-button></div>
+        <div class="center">My Smartpanels</div>
+        <div class="right"><ons-toolbar-button id="add">
+          <ons-icon icon="plus, material:add">
+        </ons-icon>
+        </ons-toolbar-button></div>
       </ons-toolbar>
       <ons-list id="panel-items">
         <ons-list-item modifier="chevron longdivider" tappable>Weather: Cambridge</ons-list-item>
@@ -40,9 +43,9 @@
     <ons-page id="panel">
     	<ons-toolbar>
     		<div class="left"><ons-back-button></ons-back-button></div>
-        <div class="right"><ons-toolbar-button>Map</ons-toolbar-button></div>
+        <div class="right"><ons-toolbar-button id="map">Map</ons-toolbar-button></div>
       </ons-toolbar>
-      <div class="widget-container" id="widget-container"></div>
+      <div id="widget-container" class="widget-container"></div>
     </ons-page>
   </template>
 
@@ -62,6 +65,8 @@
         <div class="center">Config</div>
       </ons-toolbar>
       <p><textarea class="config-data" id="config-data"></textarea></p>
+      <ons-button id="submit" modifier="">Submit</ons-button>
+      <ons-button id="cancel" modifier="quiet">Cancel</ons-button>
     </ons-page>
   </template>
 

@@ -41,5 +41,6 @@ module.exports = {
         "no-bitwise": "warn",
         "no-trailing-spaces": "error",
         "eol-last": "error",
+	"no-console": "warn",
     }
 };
