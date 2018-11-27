@@ -62,3 +62,28 @@
       "widget": "weather",
       "title": "Cambridge"
 }
+
+"data": {
+    "title": "Title",
+    "map": {
+        "zoom": 15,
+        "lat": 52.20977542625482,
+        "lng": 0.09074969217181207
+    },
+    "breadcrumbs": false,
+    "stops": [
+        {
+            "naptan_code": "CMBDGDMT",
+            "latitude": 52.2112996707,
+            "locality_name": "Cambridge",
+            "common_name": "William Gates Building",
+            "atco_code": "0500CCITY424",
+            "indicator": "opp",
+            "lat": 52.2112996707,
+            "stop_id": "0500CCITY424",
+            "id": "0500CCITY424",
+            "longitude": 0.09107756159,
+            "lng": 0.09107756159
+        }
+    ]
+}
