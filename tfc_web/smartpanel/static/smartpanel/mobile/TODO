@@ -7,7 +7,7 @@ TODO
 * Re-name 'Pocket Smartppanel'
 * Don't start Websocket connection if not needed
     * Means passing RTMONITOR_AIP data in to widget startup code
-* Double-check that viewport scaling is doing the right thing
+* [DONE] Double-check that viewport scaling is doing the right thing
 * Scroll bar suppession on Android
 * Why dows iPhoneX keep reporting 'Connection problems'
 * Add loading indicator
@@ -19,3 +19,4 @@ TODO
 * Tidy widget styling (stop onsen styling leaking in)
 * Sort out getting RT data to the map widget
 * [DONE] Change scaling logic (use 'device-width', transform widget views)
+* 'Map' button appearing on station_board
