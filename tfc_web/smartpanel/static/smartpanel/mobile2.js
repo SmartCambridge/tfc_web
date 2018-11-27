@@ -141,14 +141,13 @@ function display_panel(page) {
     widget_container.appendChild(container_el);
 
     let widget = null;
+    page.querySelector('#map').hidden = true;
     switch (widget_type) {
     case 'weather':
         widget = new Weather('0');
-        page.querySelector('#map').hidden = true;
         break;
     case 'station_board':
         widget = new StationBoard('0');
-        page.querySelector('#map').hiddden = true;
         break;
     case 'stop_timetable':
         widget = new StopTimetable('0');
