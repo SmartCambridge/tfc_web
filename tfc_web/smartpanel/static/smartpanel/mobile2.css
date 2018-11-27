@@ -7,12 +7,17 @@
     width: 100%;
 }
 
+.config-data {
+    border: 1px solid black;
+    height: 200px;
+    width: 100%;
+}
 
-.panels-edit,  .panels-add {
+.panels-edit {
     display: inline;
 }
 
-.edit-mode .panels-edit, .edit-mode .panels-add {
+.edit-mode .panels-edit {
     display: none;
 }
 

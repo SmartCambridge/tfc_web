@@ -46,7 +46,7 @@ document.addEventListener('init', function(event) {
 
     else if (page.id === 'panels') {
         page.querySelector('#add').addEventListener('click', function() {
-            document.querySelector('#myNavigator').pushPage('config.html');
+            document.querySelector('#myNavigator').pushPage('config.html', {data: { panel_number: null }});
         });
         page.querySelector('.panel-items').addEventListener('click', function(evt) {
             let list_item = evt.target.closest('ons-list-item');
@@ -56,9 +56,19 @@ document.addEventListener('init', function(event) {
             let panel_number = getElementIndex(list_item);
             if (evt.target.closest('.item-delete')) {
                 console.log(`Delete ${panel_number}`);
+                let panel_title = PANELS[panel_number].title;
+                ons.notification.confirm({message: `OK to delete smartpanel for '${panel_title}'?`})
+                    .then(function(button) {
+                        if (button === 1) {
+                            PANELS.splice(panel_number, 1);
+                            STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
+                            populate_panel_list(page);
+                        }
+                    });
             }
             else if (page.classList.contains('edit-mode')) {
                 console.log(`Edit ${panel_number}`);
+                document.querySelector('#myNavigator').pushPage('config.html', {data: { panel_number }});
             }
             else {
                 document.querySelector('#myNavigator').pushPage('panel.html', {data: { panel_number }});
@@ -79,26 +89,6 @@ document.addEventListener('init', function(event) {
         populate_panel_list(page);
     }
 
-    else if (page.id === 'panels-edit') {
-        page.querySelector('#done').addEventListener('click', function() {
-            document.querySelector('#myNavigator').popPage();
-        });
-        page.querySelector('.panel-items').addEventListener('click', function(evt) {
-            let list_item = evt.target.closest('ons-list-item');
-            if (!list_item) {
-                return;
-            }
-            let panel_number = getElementIndex(list_item);
-            if (evt.target.classList.contains('item-edit')) {
-                console.log(`Edit ${panel_number}`);
-            }
-            else if (evt.target.classList.contains('item-delete')) {
-                console.log(`Delete ${panel_number}`);
-            }
-        });
-        populate_panel_list(page, true);
-    }
-
     else if (page.id === 'panel') {
         page.querySelector('#map').addEventListener('click', function() {
             console.log(page.data);
@@ -113,7 +103,27 @@ document.addEventListener('init', function(event) {
     }
 
     else if (page.id === 'config') {
+        let config_el = page.querySelector('#config-data');
+        let panel_number = page.data.panel_number;
+        if (panel_number !== null) {
+            config_el.value = JSON.stringify(PANELS[panel_number], null, 2);
+        }
+        else {
+            config_el.value = '';
+        }
         page.querySelector('#submit').addEventListener('click', function() {
+            // New panel (note panel_id can be 0 and hence false...)
+            if (panel_number === null) {
+                PANELS.push(JSON.parse(config_el.value));
+                STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
+            }
+            // Edited existing panel
+            else {
+                PANELS[panel_number] = JSON.parse(config_el.value);
+                STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
+            }
+            // Re-populate the list of available panels
+            populate_panel_list(document.querySelector('#panels'));
             document.querySelector('#myNavigator').popPage();
         });
         page.querySelector('#cancel').addEventListener('click', function() {
