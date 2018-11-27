@@ -19,6 +19,8 @@ function RTMonitorAPI(client_data) {
 
     this.VERSION = '2.1';
 
+    var DEBUG = 'rtmonitor_api_log';
+
     if (client_data)
     {
         self.client_data = client_data;

@@ -230,7 +230,7 @@ function StopTimetable(widget_id) {
                 var journey = journey_table[i];
                 if (journey.rtsub) {
                     self.log('populate_journeys - un-subscribing', journey.rtsub);
-                    RTMONITOR_API.unsubscribe(journey.rtsub);
+                    RTMONITOR_API.unsubscribe(self.widget_id, journey.rtsub);
                 }
             }
 
@@ -517,7 +517,7 @@ function StopTimetable(widget_id) {
 
                     if (journey.rtsub) {
                         self.log('refresh_subscriptions - unsubscribing', journey.rtsub);
-                        RTMONITOR_API.unsubscribe(journey.rtsub);
+                        RTMONITOR_API.unsubscribe(self.widget_id, journey.rtsub);
                         journey.rtsub = undefined;
                     }
 
