@@ -36,11 +36,11 @@ module.exports = {
         "no-shadow": "warn",
         "max-lines-per-function": [
             "warn",
-            100
+            200
         ],
         "no-bitwise": "warn",
         "no-trailing-spaces": "error",
         "eol-last": "error",
-	"no-console": "warn",
+	    "no-console": "warn",
     }
 };
