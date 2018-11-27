@@ -6,3 +6,20 @@
     height: 100%;
     width: 100%;
 }
+
+
+.panels-edit,  .panels-add {
+    display: inline;
+}
+
+.edit-mode .panels-edit, .edit-mode .panels-add {
+    display: none;
+}
+
+.panels-done, .item-delete {
+    display: none;
+}
+
+.edit-mode .panels-done, .edit-mode .item-delete {
+    display: inline;
+}

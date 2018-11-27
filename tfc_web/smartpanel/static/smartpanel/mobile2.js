@@ -9,6 +9,7 @@ const TCS_VERSION = 1;
 const STORAGE = window.localStorage;
 
 let PANELS = [];
+let current_widget;
 
 ons.ready(function () {
 
@@ -32,7 +33,7 @@ ons.ready(function () {
 
 
 document.addEventListener('init', function(event) {
-    var page = event.target;
+    let page = event.target;
 
     console.log(`Running init for ${page.id}`);
 
@@ -44,9 +45,6 @@ document.addEventListener('init', function(event) {
     }
 
     else if (page.id === 'panels') {
-        page.querySelector('#edit').addEventListener('click', function() {
-            document.querySelector('#myNavigator').pushPage('panels-edit.html');
-        });
         page.querySelector('#add').addEventListener('click', function() {
             document.querySelector('#myNavigator').pushPage('config.html');
         });
@@ -56,9 +54,29 @@ document.addEventListener('init', function(event) {
                 return;
             }
             let panel_number = getElementIndex(list_item);
-            document.querySelector('#myNavigator').pushPage('panel.html', {data: { panel_number }});
+            if (evt.target.closest('.item-delete')) {
+                console.log(`Delete ${panel_number}`);
+            }
+            else if (page.classList.contains('edit-mode')) {
+                console.log(`Edit ${panel_number}`);
+            }
+            else {
+                document.querySelector('#myNavigator').pushPage('panel.html', {data: { panel_number }});
+            }
         });
-        populate_panel_list(page, false);
+        page.querySelector('#edit').addEventListener('click', function() {
+            page.classList.add('edit-mode');
+            page.querySelectorAll('.panel-items ons-list-item').forEach(function(item) {
+                item.setAttribute('modifier', 'longdivider');
+            });
+        });
+        page.querySelector('#done').addEventListener('click', function() {
+            page.classList.remove('edit-mode');
+            page.querySelectorAll('.panel-items ons-list-item').forEach(function(item) {
+                item.setAttribute('modifier', 'chevron longdivider');
+            });
+        });
+        populate_panel_list(page);
     }
 
     else if (page.id === 'panels-edit') {
@@ -124,6 +142,12 @@ document.addEventListener('destroy', function(event) {
 
     console.log(`Running destroy for ${page.id}`);
 
+    if (page.id === 'panel') {
+        if (current_widget) {
+            //current_widget.close();
+        }
+    }
+
 });
 
 function display_panel(page) {
@@ -140,23 +164,22 @@ function display_panel(page) {
     container_el.classList.add('widget', widget_type);
     widget_container.appendChild(container_el);
 
-    let widget = null;
     page.querySelector('#map').hidden = true;
     switch (widget_type) {
     case 'weather':
-        widget = new Weather('0');
+        current_widget = new Weather('0');
         break;
     case 'station_board':
-        widget = new StationBoard('0');
+        current_widget = new StationBoard('0');
         break;
     case 'stop_timetable':
-        widget = new StopTimetable('0');
+        current_widget = new StopTimetable('0');
         page.querySelector('#map').hidden = false;
         RTMONITOR_API = new RTMonitorAPI();
         break;
     }
 
-    widget.display(
+    current_widget.display(
         {
             container_id: 'widget-' + widget_type,
             static_url: `/static_web/smartpanel/widgets/${panel_config.widget}/`,
@@ -220,7 +243,7 @@ function display_map(page) {
 }
 
 // Update the list on the 'pannels' page with the current panels
-function populate_panel_list(page, edit) {
+function populate_panel_list(page) {
     let list = page.querySelector('.panel-items');
 
     // Remove existing entries
@@ -230,21 +253,20 @@ function populate_panel_list(page, edit) {
     for (let panel_number = 0; panel_number < PANELS.length; panel_number++) {
         let panel_config = PANELS[panel_number];
         let item = document.createElement('ons-list-item');
-        item.innerHTML = `<div class="center">[ICON] ${panel_config.title}</div>`;
-
-        if (edit) {
+        item.setAttribute('tappable', '');
+        if (page.classList.contains('edit-mode')) {
             item.setAttribute('modifier', 'longdivider');
-            let buttons = document.createElement('div');
-            buttons.classList.add('right');
-            buttons.innerHTML =
-                '<ons-icon class="item-edit" icon="ion-edit"></ons-icon>&nbsp;' +
-                '<ons-icon class="item-delete" icon="ion-ios-trash, material:ion-andriod-trash"></ons-icon>';
-            item.appendChild(buttons);
         }
         else {
             item.setAttribute('modifier', 'chevron longdivider');
-            item.setAttribute('tappable', '');
         }
+        item.innerHTML =
+            `<div class="center">
+               [ICON] ${panel_config.title}
+             </div>
+             <div class="right">
+               <span class="item-delete"><ons-icon icon="ion-ios-trash-outline, material:md-delete"></ons-icon></span>
+             </div>`;
 
         /*
         let edit = document.createElement('span');

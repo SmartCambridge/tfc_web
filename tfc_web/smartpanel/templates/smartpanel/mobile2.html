@@ -63,32 +63,18 @@
   </template>
 
   <template id="panels.html">
-    <ons-page id="panels">
+    <ons-page id="panels" class="panels">
     	<ons-toolbar>
         <div class="left">
-          <ons-toolbar-button id="edit">
-            Edit
+          <ons-toolbar-button>
+            <span id="edit" class="panels-edit">Edit</span>
+            <span id="done" class="panels-done">Done</span>
           </ons-toolbar-button>
         </div>
         <div class="center">My Smartpanels</div>
-        <div class="right"><ons-toolbar-button id="add">
-          <ons-icon icon="plus, material:add">
-        </ons-icon>
+        <div class="right"><ons-toolbar-button id="add" class="panels-add">
+          <ons-icon icon="plus, material:add"></ons-icon>
         </ons-toolbar-button></div>
-      </ons-toolbar>
-      <ons-list class="panel-items"></ons-list>
-    </ons-page>
-  </template>
-
-  <template id="panels-edit.html">
-    <ons-page id="panels-edit">
-      <ons-toolbar>
-        <div class="center">Edit</div>
-        <div class="right">
-          <ons-toolbar-button id="done">
-            Done
-          </ons-toolbar-button>
-        </div>
       </ons-toolbar>
       <ons-list class="panel-items"></ons-list>
     </ons-page>
