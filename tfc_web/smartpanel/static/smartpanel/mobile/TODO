@@ -1,24 +1,21 @@
 TODO
 ====
 
-* Splash screen styling
-* List page styling
-* Add title to list page
-* Uncover nav buttons on panel page
-* Link to map for stop timetable ONLY
-* Add icons to list page items
-* Re-work DOM creation of list items
-* Delegate common handlers upwards
+* Splash screen styling and content
 * Render config pages
 * Prompt to create a panel on empty list page
 * Re-name 'Pocket Smartppanel'
 * Don't start Websocket connection if not needed
     * Means passing RTMONITOR_AIP data in to widget startup code
 * Double-check that viewport scaling is doing the right thing
-* Fade out the bottom of list views
 * Scroll bar suppession on Android
 * Why dows iPhoneX keep reporting 'Connection problems'
 * Add loading indicator
-* List page (perhaps others) needs to scroll if too big
-* Need to clear widget timers on exit
-* Make it harder to hit [delete]by mistake
+* Shut down widgets on page exit
+* Make it harder to hit [delete] by mistake
+* Add icons to list page
+* Refactor init handler (too big!)
+* Refactor item list editing
+* Tidy widget styling (stop onsen styling leaking in)
+* Sort out getting RT data to the map widget
+* [DONE] Change scaling logic (use 'device-width', transform widget views)
