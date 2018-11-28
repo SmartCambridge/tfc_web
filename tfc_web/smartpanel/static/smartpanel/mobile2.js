@@ -144,7 +144,7 @@ document.addEventListener('destroy', function(event) {
 
     if (page.id === 'panel') {
         if (current_widget) {
-            //current_widget.close();
+            current_widget.close();
         }
     }
 

@@ -106,6 +106,8 @@ function StopTimetable(widget_id) {
         display_timer_id,
         // The ID of the timer that will eventually refresh the subscriptions
         subscription_timer_id,
+        // The ID of the timer that refreshes the displayed journey list
+        journey_timer_id,
         // Master table of today's journeys - top-level keys
         //     timetable: Raw TNDS timetable entry from API
         //       first: timetable object of first (origin) stop
@@ -143,9 +145,8 @@ function StopTimetable(widget_id) {
 
         journey_index = {};
 
-        clearInterval(display_timer_id);
-
-        clearInterval(subscription_timer_id);
+        // clear all existing timers
+        stop_timers();
 
         // Register handlers for connect/disconnect
         RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
@@ -162,6 +163,15 @@ function StopTimetable(widget_id) {
         // real-time updates
         populate_journeys();
 
+    };
+
+
+    // Widget 'close()' method
+    // clean up outsanding timers and tell RTMonitor this widget is closed.
+    this.close = function() {
+        self.log('closing StopTimetable widget');
+        stop_timers();
+        RTMONITOR_API.close(self.widget_id);
     };
 
 
@@ -250,10 +260,10 @@ function StopTimetable(widget_id) {
             var minutes = Math.random()*60;
             var tomorrow = moment().add(1, 'd').hour(4).minute(minutes);
             console.log('[' + self.widget_id + ']', 'Scheduling next populate_journeys for', tomorrow.format());
-            var timer = window.setInterval(function () {
+            journey_timer_id = window.setInterval(function () {
                 if (moment().isAfter(tomorrow)) {
                     console.log('[' + self.widget_id + ']', 'Re-running populate_journeys');
-                    clearInterval(timer);
+                    clearInterval(journey_timer_id);
                     populate_journeys();
                 }
             }, 60 * SECONDS);
@@ -1311,6 +1321,22 @@ function StopTimetable(widget_id) {
 
         return result;
 
+    }
+
+    // clear all outstanding timers
+    function stop_timers() {
+        self.log('stop_timers()');
+        // Cancel the update timer if it's running
+        if (display_timer_id) {
+            self.log('clearTimeout(display_timer_id)');
+            window.clearTimeout(display_timer_id);
+        }
+        if (subscription_timer_id) {
+            window.clearTimeout(subscription_timer_id);
+        }
+        if (journey_timer_id) {
+            window.clearInterval(journey_timer_id);
+        }
     }
 
 
