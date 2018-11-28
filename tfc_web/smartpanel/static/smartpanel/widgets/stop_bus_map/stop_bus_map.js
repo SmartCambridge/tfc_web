@@ -25,6 +25,8 @@ function StopBusMap(widget_id) {
 
     self.widget_id = widget_id;
 
+    var rt_mon; // our client connection to RTMonitorAPI
+
     var sensors = {};
 
     var map;
@@ -128,9 +130,11 @@ function StopBusMap(widget_id) {
                 }
             ).addTo(map);
 
-        RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
+        rt_mon = RTMONITOR_API.register(rtmonitor_connected, rtmonitor_disconnected);
 
-        RTMONITOR_API.onconnect(rtmonitor_connected);
+        //RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
+
+        //RTMONITOR_API.onconnect(rtmonitor_connected);
 
         // if we're already connected to rt_monitor perhaps this is a re-init of existing widget
         if (connected) {
@@ -145,6 +149,8 @@ function StopBusMap(widget_id) {
         // create a timer to update the progress indicators every second
         progress_timer = setInterval( timer_update, SECONDS);
 
+        // connect to RTMonitor. Will call rtmonitor_connected() if RTMonitor itself is already connected to server
+        rt_mon.connect();
     };
 
     /*this.reload = function() {
@@ -200,10 +206,9 @@ function subscribe()
                                   ]
                         } ] };
 
-    var request_status = RTMONITOR_API.subscribe(self.widget_id,
-                                                 request_id,
-                                                 request,
-                                                 handle_records);
+    var request_status = rt_mon.subscribe( request_id,
+                                           request,
+                                           handle_records);
 
     self.log(self.widget_id, 'request_status '+request_status.status);
 }

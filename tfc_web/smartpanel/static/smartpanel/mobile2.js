@@ -175,7 +175,16 @@ function display_panel(page) {
     case 'stop_timetable':
         current_widget = new StopTimetable('0');
         page.querySelector('#map').hidden = false;
-        RTMONITOR_API = new RTMonitorAPI();
+// client_data = { rt_client_id: <unique id for this client>
+//                 rt_client_name: <some descriptive name, e.g. display name>
+//                 rt_client_url: <location.href of this connecting web page client>
+//                 rt_token: <token to be passed to rt_monitor in the connection to validate>
+//               }
+        RTMONITOR_API = new RTMonitorAPI( { rt_client_id: 'mobile2',
+                                            rt_client_name: 'dev mobile panel app',
+                                            rt_token: '888'
+
+        });
         break;
     }
 
