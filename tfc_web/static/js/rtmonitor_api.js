@@ -293,8 +293,8 @@ this.sock_send_str = function(msg)
 	return { status: 'rt_ok', reason: 'sent message' };
 };
 
-this.close = function(caller_id) {
-    log('RTMonitorAPI close('+caller_id+')');
+function close(client_id) {
+    log('RTMonitorAPI close('+client_id+')');
 }
 
 function disconnect()
