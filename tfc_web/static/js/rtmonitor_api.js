@@ -184,7 +184,8 @@ this.register = function (connect_callback, disconnect_callback) {
                                 {
                                     this.connect_callback();
                                 }
-                            }
+                            },
+                   close: function () { close(client_id); }
                  };
     clients.push(client);
     return client;

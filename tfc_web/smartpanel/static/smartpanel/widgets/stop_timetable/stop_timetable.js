@@ -175,7 +175,9 @@ function StopTimetable(widget_id) {
     this.close = function() {
         self.log('closing StopTimetable widget');
         stop_timers();
-        RTMONITOR_API.close(self.widget_id);
+        if (rt_mon) {
+            rt_mon.close();
+        }
     };
 
 
