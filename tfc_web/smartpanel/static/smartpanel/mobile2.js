@@ -46,7 +46,7 @@ document.addEventListener('init', function(event) {
 
     else if (page.id === 'panels') {
         page.querySelector('#add').addEventListener('click', function() {
-            document.querySelector('#myNavigator').pushPage('config.html', {data: { panel_number: null }});
+            document.querySelector('#myNavigator').pushPage('choose-panel.html');
         });
         page.querySelector('.panel-items').addEventListener('click', function(evt) {
             let list_item = evt.target.closest('ons-list-item');
