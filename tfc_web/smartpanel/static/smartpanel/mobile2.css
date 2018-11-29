@@ -28,3 +28,7 @@
 .edit-mode .panels-done, .edit-mode .item-delete {
     display: inline;
 }
+
+.list-icon {
+    width: 40px;
+}

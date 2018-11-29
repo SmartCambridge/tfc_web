@@ -261,6 +261,12 @@ function display_map(page) {
     );
 }
 
+const WIDGET_ICON_URL = {
+    'weather': '/static_web/smartpanel/widgets/weather/weather.png',
+    'station_board': '/static_web/smartpanel/widgets/station_board/br-logo.png',
+    'stop_timetable': '/static_web/smartpanel/widgets/stop_timetable/bus.png',
+};
+
 // Update the list on the 'pannels' page with the current panels
 function populate_panel_list(page) {
     let list = page.querySelector('.panel-items');
@@ -280,8 +286,11 @@ function populate_panel_list(page) {
             item.setAttribute('modifier', 'chevron longdivider');
         }
         item.innerHTML =
-            `<div class="center">
-               [ICON] ${panel_config.title}
+            `<div class="left">
+               <img class="list-item__icon list-icon" src="${WIDGET_ICON_URL[panel_config.widget]}"/>
+               </div>
+             <div class="center">
+                ${panel_config.title}
              </div>
              <div class="right">
                <span class="item-delete">
