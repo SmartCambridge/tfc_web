@@ -284,7 +284,9 @@ function populate_panel_list(page) {
                [ICON] ${panel_config.title}
              </div>
              <div class="right">
-               <span class="item-delete"><ons-icon icon="ion-ios-trash-outline, material:md-delete"></ons-icon></span>
+               <span class="item-delete">
+                 <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="24px, material:lg">
+                 </ons-icon></span>
              </div>`;
 
         /*
