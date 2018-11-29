@@ -25,6 +25,7 @@
 {% endfor %}
 
   <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+  <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/>
   <link rel="stylesheet" href="{% static 'smartpanel/mobile2.css' %}"/>
 
   <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
@@ -37,6 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
           integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w="
           crossorigin="anonymous"></script>
+  <script src="{% static 'smartpanel/widget_config.js' %}"></script>
   <script src="{% static 'js/rtmonitor_api.js' %}"></script>
 {% for script in external_scripts %}
   <script src="{{ script.src }}"{% if script.integrity %}
@@ -100,28 +102,16 @@
     </ons-page>
   </template>
 
-  <template id="choose-panel.html">
-    <ons-page id="choose-panel">
-      <ons-toolbar>
-        <div class="center">Choose panel</div>
-      </ons-toolbar>
-      <ons-select>
-        <option disabled selected>Choose...</option>
-        <option value="stop_timetable">Bus timetable</option>
-        <option value="station_board">Train timetable</option>
-        <option value="weather">Weather forecast</option>
-      </ons-select>
-  </ons-page>
-  </template>
-
   <template id="config.html">
-  	<ons-page id="config">
+    <ons-page id="config">
       <ons-toolbar>
-        <div class="center">Config</div>
+        <div class="center">Configure</div>
       </ons-toolbar>
-      <p><textarea class="config-data" id="config-data"></textarea></p>
-      <ons-button id="submit" modifier="">Submit</ons-button>
-      <ons-button id="cancel" modifier="quiet">Cancel</ons-button>
+      <div class="content">
+        <table id="config-area" class="config-area"></table>
+        <ons-button id="submit" modifier="">Submit</ons-button>
+        <ons-button id="cancel" modifier="quiet">Cancel</ons-button>
+      </div>
     </ons-page>
   </template>
 

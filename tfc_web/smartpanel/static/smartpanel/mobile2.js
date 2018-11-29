@@ -1,8 +1,19 @@
-/* globals ons, Weather, StationBoard, StopTimetable, StopBusMap, WIDGET_CONFIG, RTMonitorAPI */
+/* globals ons, Weather, StationBoard, StopTimetable, StopBusMap, WIDGET_CONFIG, RTMonitorAPI, WidgetConfig */
 
 'use strict';
 
 var RTMONITOR_API;
+
+const WEATHER_OPTIONS = [
+    { value: '310042', text: 'Cambridge' },
+    { value: '324249', text: 'Ely' },
+    { value: '351524', text: 'Fulbourn' },
+    { value: '324061', text: 'Huntingdon' },
+    { value: '310105', text: 'Luton' },
+    { value: '310120', text: 'Peterborough' },
+    { value: '353656', text: 'Stansted' },
+    { value: '353330', text: 'St. Neots' }
+];
 
 const TCS_VERSION = 1;
 
@@ -45,9 +56,7 @@ document.addEventListener('init', function(event) {
     }
 
     else if (page.id === 'panels') {
-        page.querySelector('#add').addEventListener('click', function() {
-            document.querySelector('#myNavigator').pushPage('choose-panel.html');
-        });
+        page.querySelector('#add').addEventListener('click', choose_new_panel);
         page.querySelector('.panel-items').addEventListener('click', function(evt) {
             let list_item = evt.target.closest('ons-list-item');
             if (!list_item) {
@@ -103,35 +112,110 @@ document.addEventListener('init', function(event) {
     }
 
     else if (page.id === 'config') {
-        let config_el = page.querySelector('#config-data');
+
+        let current_params;
         let panel_number = page.data.panel_number;
-        if (panel_number !== null) {
-            config_el.value = JSON.stringify(PANELS[panel_number], null, 2);
+        // If we have a panel number than it's an existing widget?
+        if (panel_number !== undefined) {
+            current_params = PANELS[panel_number];
         }
+        // Otherwise it's a new widget
         else {
-            config_el.value = '';
+            current_params = {
+                widget: page.data.new_widget,
+                data: {}
+            };
         }
+
+        let config = {
+            static_url: `/static_web/smartpanel/widgets/${current_params.widget}/`,
+            display_id: '', layout_id: '',
+            rt_token: '778',
+            layout_name: 'Layouts for mobile',
+            display_name: '', layout_owner: '',
+            display_owner: '',
+            settings: WIDGET_CONFIG
+        };
+
+        let config_el = page.querySelector('.config-area');
+        let new_params_callback;
+        switch (current_params.widget) {
+        case 'weather':
+            new_params_callback = weather_config(config_el, config, current_params);
+            break;
+        case 'station_board':
+            new_params_callback = station_board_config(config_el, config, current_params);
+            break;
+        case 'stop_timetable':
+            new_params_callback = stop_timetable_config(config_el, config, current_params);
+            break;
+        }
+
         page.querySelector('#submit').addEventListener('click', function() {
             // New panel (note panel_id can be 0 and hence false...)
-            if (panel_number === null) {
-                PANELS.push(JSON.parse(config_el.value));
+            if (panel_number === undefined) {
+                PANELS.push(new_params_callback());
                 STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
             }
             // Edited existing panel
             else {
-                PANELS[panel_number] = JSON.parse(config_el.value);
+                PANELS[panel_number] = new_params_callback();
                 STORAGE.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
             }
             // Re-populate the list of available panels
             populate_panel_list(document.querySelector('#panels'));
             document.querySelector('#myNavigator').popPage();
         });
+
         page.querySelector('#cancel').addEventListener('click', function() {
             document.querySelector('#myNavigator').popPage();
         });
     }
 
 });
+
+
+function weather_config(config_el, config, current_params) {
+
+    let widget_config = new WidgetConfig(config);
+
+    var location_callbacks = widget_config.input(
+        config_el,
+        'select',
+        {
+            text: 'Location:',
+            title: 'Choose your weather location from the dropdown',
+            options: WEATHER_OPTIONS
+        },
+        current_params.data.location
+    );
+
+    return function () {
+        let location = location_callbacks.value();
+        let title;
+        for (let i=0; i<WEATHER_OPTIONS.length; i++) {
+            if (WEATHER_OPTIONS[i].value === location) {
+                title = WEATHER_OPTIONS[i].text;
+                break;
+            }
+        };
+        return {
+            widget: current_params.widget,
+            title: title,
+            data: {
+                location: location
+            }
+        };
+    };
+}
+
+function station_board_config(config_el, params, current_config) {
+    ;
+}
+
+function stop_timetable_config(config_el, params, current_config) {
+    ;
+}
 
 document.addEventListener('show', function(event) {
     var page = event.target;
@@ -294,7 +378,7 @@ function populate_panel_list(page) {
              </div>
              <div class="right">
                <span class="item-delete">
-                 <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="24px, material:lg">
+                 <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="18px, material:lg">
                  </ons-icon></span>
              </div>`;
 
@@ -317,6 +401,37 @@ function populate_panel_list(page) {
         */
         list.appendChild(item);
     }
+
+}
+
+function choose_new_panel() {
+    ons.openActionSheet({
+        title: 'Choose new panel',
+        cancelable: true,
+        buttons: [
+            'Bus timetable',
+            'Train timetable',
+            'Weather forecast',
+            {
+                label: 'Cancel',
+                icon: 'md-close'
+            }
+        ]
+    }).then(function (index) {
+        let navigator = document.querySelector('#myNavigator');
+        switch (index) {
+        case 0:
+            navigator.pushPage('config.html', { data: { new_widget: 'stop_timetable' } });
+            break;
+        case 1:
+            navigator.pushPage('config.html', { data: { new_widget: 'station_board' } });
+            break;
+        case 2:
+            navigator.pushPage('config.html', { data: { new_widget: 'weather' } });
+            break;
+        }
+
+    });
 
 }
 
