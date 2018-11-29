@@ -1,4 +1,5 @@
-/* globals ons, Weather, StationBoard, StopTimetable, StopBusMap, WIDGET_CONFIG, RTMonitorAPI, WidgetConfig */
+/* globals ons, Weather, StationBoard, StopTimetable, StopBusMap,
+   WIDGET_CONFIG, RTMonitorAPI, WidgetConfig BusStopChooser */
 
 'use strict';
 
@@ -13,6 +14,25 @@ const WEATHER_OPTIONS = [
     { value: '310120', text: 'Peterborough' },
     { value: '353656', text: 'Stansted' },
     { value: '353330', text: 'St. Neots' }
+];
+
+const STATION_OPTIONS = [
+    { value: 'CBG', text: 'Cambridge' },
+    { value: 'CMB', text: 'Cambridge North' },
+    { value: 'ELY', text: 'Ely' },
+    { value: 'FXN', text: 'Foxton' },
+    { value: 'HUN', text: 'Huntingdon' },
+    { value: 'MCH', text: 'March' },
+    { value: 'MEL', text: 'Meldreth' },
+    { value: 'PBO', text: 'Peterborough' },
+    { value: 'RYS', text: 'Royston' },
+    { value: 'SDY', text: 'Sandy' },
+    { value: 'SED', text: 'Shelford' },
+    { value: 'SNO', text: 'St. Neots' },
+    { value: 'STH', text: 'Shepreth' },
+    { value: 'SVG', text: 'Stevenage' },
+    { value: 'WBC', text: 'Waterbeach' },
+    { value: 'WLF', text: 'Whittlesford' }
 ];
 
 const TCS_VERSION = 1;
@@ -179,8 +199,11 @@ function weather_config(config_el, config, current_params) {
 
     let widget_config = new WidgetConfig(config);
 
+    let config_table = document.createElement('table');
+    config_el.appendChild(config_table);
+
     var location_callbacks = widget_config.input(
-        config_el,
+        config_table,
         'select',
         {
             text: 'Location:',
@@ -198,7 +221,7 @@ function weather_config(config_el, config, current_params) {
                 title = WEATHER_OPTIONS[i].text;
                 break;
             }
-        };
+        }
         return {
             widget: current_params.widget,
             title: title,
@@ -209,12 +232,72 @@ function weather_config(config_el, config, current_params) {
     };
 }
 
-function station_board_config(config_el, params, current_config) {
-    ;
+function station_board_config(config_el, config, current_params) {
+
+    let widget_config = new WidgetConfig(config);
+
+    let config_table = document.createElement('table');
+    config_el.appendChild(config_table);
+
+    var station_callbacks = widget_config.input(
+        config_table,
+        'select',
+        {
+            text: 'Station:',
+            title: 'Choose your station from the dropdown',
+            options: STATION_OPTIONS
+        },
+        current_params.data.station
+    );
+
+    return function () {
+        let station = station_callbacks.value();
+        let title;
+        for (let i=0; i<STATION_OPTIONS.length; i++) {
+            if (STATION_OPTIONS[i].value === station) {
+                title = STATION_OPTIONS[i].text;
+                break;
+            }
+        }
+        return {
+            widget: current_params.widget,
+            title: title,
+            data: {
+                station: station
+            }
+        };
+    };
 }
 
-function stop_timetable_config(config_el, params, current_config) {
-    ;
+
+function stop_timetable_config(config_el, config, current_params) {
+
+    let chooser_options = {
+        multi_select: false,
+        api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
+        api_token: config.settings.SMARTPANEL_API_TOKEN
+    };
+    let chooser = BusStopChooser.create(chooser_options);
+    if (current_params.data.stop) {
+        chooser.render(config_el, { stops: [current_params.data.stop] });
+    }
+    else {
+        chooser.render(config_el);
+    }
+
+    return function () {
+        let stop = chooser.getData().stops[0];
+        let title = `${stop.indicator} ${stop.common_name}`;
+        return {
+            widget: current_params.widget,
+            title: title,
+            data: {
+                stop: stop,
+                title: title,
+                layout: 'multiline',
+            }
+        };
+    };
 }
 
 document.addEventListener('show', function(event) {
@@ -311,7 +394,7 @@ function display_map(page) {
     let map_config = {
         'title': panel_config.data.title,
         'map': {
-            'zoom': 13,
+            'zoom': 14,
             'lat': panel_config.data.stop.latitude,
             'lng': panel_config.data.stop.longitude,
         },
@@ -333,7 +416,7 @@ function display_map(page) {
     map_widget.display(
         {
             container_id: 'widget-stop_bus_map',
-            static_url: `/static_web/smartpanel/widgets/stop_bus_map/`,
+            static_url: '/static_web/smartpanel/widgets/stop_bus_map/',
             display_id: '', layout_id: '',
             rt_token: '778',
             layout_name: 'Layouts for mobile',
