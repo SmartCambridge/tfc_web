@@ -1,0 +1,245 @@
+<html>
+    <head>
+        <title>RSS Reader</title>
+<style>
+h1 { font-family: "sans-serif"; }
+</style>
+
+<script src="sanitize-html.js"></script>
+
+    <script>
+
+var RSS_PROXY = '/smartpanel/rss_reader';
+
+function read_file(readFile) {
+
+  var reader = new FileReader();
+
+  // Read file into memory as UTF-16
+  reader.readAsText(readFile);
+
+  // Handle progress, success, and errors
+  reader.onprogress = updateProgress;
+  reader.onload = loaded;
+  reader.onerror = errorHandler;
+}
+
+function updateProgress(evt) {
+  if (evt.lengthComputable) {
+    // evt.loaded and evt.total are ProgressEvent properties
+    var loaded = (evt.loaded / evt.total);
+    if (loaded < 1) {
+        console.log('updateProgress',loaded);
+      // Increase the prog bar length
+      // style.width = (loaded * 200) + "px";
+    }
+  }
+}
+
+function loaded(evt) {
+  // Obtain the read file data
+  var file_string = evt.target.result;
+  // Handle UTF-16 file dump
+    console.log('file loaded');
+
+    handle_rss_string(file_string);
+}
+
+function handle_rss_string(rss_str) {
+
+    // document.getElementById('rss_xml').value = file_string;
+    // xhr.send(fileString)
+    console.log('handle_rss_string',rss_str);
+
+    var xml_dom = (new window.DOMParser() ).parseFromString(rss_str, "text/xml");
+
+    handle_xml(xml_dom);
+}
+
+function handle_xml(xml_dom) {
+
+    console.log('handle_xml',xml_dom);
+
+    // Quietly exit / do nothing if XML unavailable
+    if (!xml_dom) {
+        console.log('handle_xml','null parsed XML');
+        return;
+    }
+
+    var items = xml_dom.getElementsByTagName('item');
+
+    console.log('handle_xml','with',items.length,'items');
+
+    var items_el = document.getElementById('items');
+    var page_items = document.createElement('ul');
+    page_items.class = 'rss_list';
+    items_el.appendChild(page_items);
+
+    print_items(page_items, items);
+}
+
+function errorHandler(evt) {
+  if(evt.target.error.name == "NotReadableError") {
+    console.log('The file could not be read');
+  }
+} 
+ 
+function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+
+    // files is a FileList of File objects. List some properties.
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+      output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+                  f.size, ' bytes, last modified: ',
+                  f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+                  '</li>');
+    }
+    document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+
+    read_file(files[0]);
+  }
+
+function init() {
+    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+}
+
+function get_xml(title, url) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.addEventListener("progress", xml_progress);
+    xhr.addEventListener("load", xml_load);
+    xhr.addEventListener("error", xml_error);
+    xhr.addEventListener("abort", xml_abort);
+
+    xhr.overrideMimeType('text/xml');
+
+    // We will use the smartpanel RSS proxy, and pass the url as a querystring argument.
+    var qs = '?title='+encodeURIComponent(title);
+    qs += '&url='+encodeURIComponent(url);
+
+    console.log('get_xml','getting',RSS_PROXY+qs);
+
+    xhr.open('GET', RSS_PROXY+qs);
+
+    xhr.send();
+
+    // progress on transfers from the server to the client (downloads)
+    function xml_progress (evt) {
+        if (evt.lengthComputable) {
+            var percent = evt.loaded / evt.total * 100;
+            console.log(percent);
+            // ...
+        } else {
+            // Unable to compute progress information since the total size is unknown
+        }
+    }
+
+    function xml_load(evt) {
+        console.log("The xml transfer is complete.");
+        //console.log(xhr.responseText);
+        var elem = document.createElement('textarea');
+        // try and 'safely' decode string
+        elem.innerHTML = xhr.responseText;
+        var decoded_xml = elem.value;
+
+        var xml_dom = (new window.DOMParser() ).parseFromString(decoded_xml, "text/xml");
+        handle_xml(xml_dom);
+    }
+
+    function xml_error(evt) {
+          console.log("An error occurred while transferring the file.");
+    }
+
+    function xml_abort(evt) {
+          console.log("The transfer has been canceled by the user.");
+    }
+}
+
+function print_items(page_items, items) {
+
+    for (i = 0; i < items.length; i++) {
+        var titles = items[i].getElementsByTagName('title');
+        var title = titles[0];
+        console.log( 'loaded', title ) ;
+
+        print_item(page_items, items[i]);
+    }
+}
+
+function print_item(items, item) {
+    var li = document.createElement('li');
+
+    var title_div = document.createElement('div');
+    var titles = item.getElementsByTagName('title');
+    var title = titles[0].textContent;
+    title_div.appendChild(document.createTextNode(title));
+
+    var description_div = document.createElement('div');
+    var descriptions = item.getElementsByTagName('description');
+    if (!descriptions) {
+        console.log('print_item','no descriptions');
+    }
+
+    if (!descriptions[0]) {
+        console.log('print_item','no descriptions[0]');
+    }
+
+    var description = null;
+    try {
+        description = decodeURIComponent(descriptions[0].textContent);
+    } catch (err) {
+        // decodeURI aborts with an exception for any %... value not a proper encode string
+        // But our descriptions might contain a single '%', so fall back to using unescape.
+        console.log('print_item','description error');
+        description = unescape(descriptions[0].textContent);
+    }
+
+    description_div.innerHTML = safe(description);
+
+    var start_date_div = document.createElement('div');
+    var start_dates = item.getElementsByTagName('ev:startdate');
+    var start_date = start_dates[0].textContent;
+    start_date_div.appendChild(document.createTextNode(start_date));
+
+    var location_div = document.createElement('div');
+    var locations = item.getElementsByTagName('ev:location');
+    var location = locations[0].textContent;
+    location_div.appendChild(document.createTextNode(location));
+
+    items.appendChild(li);
+    li.appendChild(start_date_div);
+    li.appendChild(title_div);
+    li.appendChild(location_div);
+    li.appendChild(description_div);
+}
+
+// remove unwanted html tags from a string
+function safe(dirty) {
+    return sanitizeHtml(dirty, {
+        allowedTags: [ 'p', 'a', 'ul', 'ol', 'li', 'b', 'i', 'strong',
+            'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead',
+            'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img'],
+        allowedAttributes: {
+            'a': [ 'href' ],
+            'img': [ 'src' ],
+        }
+    });
+}
+
+</script>
+
+</head>
+<body onload="init()">
+<h1>RSS Reader</h1>
+<input type="file" id="files" name="files[]" multiple />
+
+<button onclick="get_xml('CL Talks', 'https://talks.cam.ac.uk/show/index/6330')">CL Talks</button>
+
+<output id="list"></output>
+
+<output id="rss_xml"></output>
+<div id="items"></div>
+</body>
+</html>
+

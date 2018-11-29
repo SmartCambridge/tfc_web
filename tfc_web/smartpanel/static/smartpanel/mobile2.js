@@ -154,7 +154,7 @@ document.addEventListener('destroy', function(event) {
 
     if (page.id === 'panel') {
         if (current_widget) {
-            //current_widget.close();
+            current_widget.close();
         }
     }
 
@@ -177,15 +177,24 @@ function display_panel(page) {
     page.querySelector('#map').hidden = true;
     switch (widget_type) {
     case 'weather':
-        current_widget = new Weather('0');
+        current_widget = new Weather('1');
         break;
     case 'station_board':
-        current_widget = new StationBoard('0');
+        current_widget = new StationBoard('2');
         break;
     case 'stop_timetable':
-        current_widget = new StopTimetable('0');
+        current_widget = new StopTimetable('3');
         page.querySelector('#map').hidden = false;
-        RTMONITOR_API = new RTMonitorAPI();
+// client_data = { rt_client_id: <unique id for this client>
+//                 rt_client_name: <some descriptive name, e.g. display name>
+//                 rt_client_url: <location.href of this connecting web page client>
+//                 rt_token: <token to be passed to rt_monitor in the connection to validate>
+//               }
+        RTMONITOR_API = new RTMonitorAPI( { rt_client_id: 'mobile2',
+                                            rt_client_name: 'dev mobile panel app',
+                                            rt_token: '888'
+
+        });
         break;
     }
 
@@ -236,7 +245,7 @@ function display_map(page) {
     container_el.classList.add('widget', 'stop_bus_map', 'full-screen');
     overlay_container.appendChild(container_el);
 
-    let map_widget = new StopBusMap(0);
+    let map_widget = new StopBusMap('4');
     map_widget.display(
         {
             container_id: 'widget-stop_bus_map',

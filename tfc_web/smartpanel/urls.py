@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 
 from smartcambridge.decorator import smartcambridge_valid_user
 from smartpanel.views import smartpanel
-from smartpanel.views.widgets import weather, station_board, bikes
+from smartpanel.views.widgets import weather, station_board, bikes, rss_reader
 
 
 urlpatterns = [
@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     # Widgets specific URLs
     url(r'^weather$', weather.weather, name='smartpanel-weather'),
+    url(r'^rss_reader$', rss_reader.rss_reader, name='smartpanel-rss-reader'),
     url(r'^station_board$', station_board.station_board, name='station-board'),
     url(r'^widgets/bikes', bikes.bikes, name='smartpanel-widgets-bikes'),
 ]

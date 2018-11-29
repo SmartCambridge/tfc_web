@@ -78,9 +78,11 @@ function MessageArea(widget_id, params) {
     function safe(dirty) {
         return sanitizeHtml(dirty, {
             allowedTags: [ 'p', 'a', 'ul', 'ol', 'li', 'b', 'i', 'strong',
-            'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead',
+            'em', 'strike', 'code', 'hr', 'br', 'div', 'span', 'table', 'thead',
             'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img'],
             allowedAttributes: {
+                'div': [ 'style' ],
+                'span': [ 'style' ],
                 'a': [ 'href' ],
                 'img': [ 'src' ],
             }

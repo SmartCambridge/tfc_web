@@ -1,0 +1,145 @@
+
+<html>
+<head>
+    <title>RSS Reader</title>
+<style>
+    body { font-family: Arial, Helvetica, sans-serif; }
+    .widget_div { width: 400px;
+                  height: 1000px;
+                  border: 1px solid black;
+                  overflow: hidden;
+                  display: inline-block;
+    }
+    .config { width: 600px;
+              height: 800px;
+              border: 1px solid black;
+              display: none;
+              position: absolute;
+              left: 30px;
+              top: 60px;
+              background: #ccccff;
+    }
+
+    .widget_config { width: 100%;
+                     height: 90%;
+                   }
+
+</style>
+
+<script src="/static_web/smartpanel/widget_config.js"></script>
+<link rel="stylesheet" href="/static_web/smartpanel/widget_config.css">
+    
+<script src="sanitize-html.js"></script>
+
+<script src="rss_reader.js"></script>
+
+<script>
+
+var widgets = []; // widget objects
+var config = [];  // widget configs as provided by layout
+var params = [];  // widget params
+
+function reload_widgets () {
+    for (var i = 0; i < widgets.length; i++)
+        if ('reload' in widgets[i])
+            widgets[i].reload();
+}
+
+function configure(widget_index) {
+    console.log('Panel','configure',widget_index);
+    var widget = widgets[widget_index];
+    var config_div = document.getElementById('config');
+    config_div.style.display = 'block';
+    var config_result = widget.configure( { container_id: 'widget_config' }, params[widget_index] );
+}
+
+config.push( { container_id: 'widget_1' }
+           );
+
+params.push( { title: { text: 'CL Talks',
+                          style: 'font-weight: bold; color: #111111'
+                        },
+               url:   'https://talks.cam.ac.uk/show/rss/6330',
+               items: { tag: 'item',
+                        sort: 'ev:startdate'
+                      },
+               item:  [ 
+                        { tag: 'ev:startdate',
+                          style: 'color: green; font-weight: bold',
+                          format: 'iso8601'
+                        },
+                        { tag: 'title',
+                          style: 'color: #990000; font-weight: normal',
+                          slice: { from: 17, to: 120, append: '...' },
+                          format: 'html_to_text'
+                        },
+                        { tag: 'ev:location' },
+                        { tag: 'description',
+                          style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic',
+                          slice: { from: 0, to: 200, append: '...' },
+                          format: 'html_to_text'
+                        }
+                      ] 
+            });
+
+config.push( { container_id: 'widget_2' }
+           );
+
+params.push({ title: { text: 'CL News',
+                       style: 'font-weight: bold; font-size: 1.5em'
+                     },
+               url:   'https://www.cst.cam.ac.uk/news/feed',
+               items: { tag: 'item',
+                        sort: 'pubDate'
+                      },
+               item:  [ 
+                        { tag: 'title',
+                          style: 'color: blue; font-weight: bold',
+                          format: 'html_to_text'
+                        },
+                        { tag: 'ev:location' },
+                        { tag: 'description',
+                          style: 'margin-left: 20px; font-size: 0.8em; font-style: italic',
+                          slice: { from: 0, to: 200, append: '...' },
+                          format: 'html_to_text'
+                        },
+                        { tag: 'pubDate',
+                          style: 'margin-left: 20px; margin-bottom: 10px; color: #222222; font-weight: normal; font-size: 0.8em; font-style: italic',
+                          format: 'rfc2282'
+                        }
+                      ] 
+            });
+
+function init() {
+    widgets.push(new RssReader(0));
+    widgets.push(new RssReader(1));
+    for (var i=0; i < config.length; i++) {
+        widgets[i].display(config[i], params[i]);
+    }
+
+    setInterval(reload_widgets, 60000);
+}
+
+</script>
+
+</head>
+<body onload="init()">
+    <h1>Widget test page</h1>
+    <button onclick="configure(0)">Configure Talks</button>
+    <button onclick="configure(1)">Configure News</button>
+    <br/>
+<div id="config" class='config'>
+    <div id="widget_config" class="widget_config">
+    </div>
+    <div class="buttons">
+        <button onclick="config_ok()">OK</button>
+        <button onclick="config_cancel()">Cancel</button>
+    </div>
+</div>
+<div id="widget_1" class='widget_div'>
+</div>
+<div id="widget_2" class='widget_div'>
+</div>
+</body>
+</html>
+
