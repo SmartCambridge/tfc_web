@@ -42,5 +42,7 @@ module.exports = {
         "no-trailing-spaces": "error",
         "eol-last": "error",
 	    "no-console": "warn",
+        "comma-spacing": "error",
+        "no-unused-vars": "warn",
     }
 };
