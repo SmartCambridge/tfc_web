@@ -28,3 +28,12 @@
 .edit-mode .panels-done, .edit-mode .item-delete {
     display: inline;
 }
+
+.list-icon {
+    width: 40px;
+}
+
+.config-area {
+    height: 100%;
+    width: 100%;
+}
