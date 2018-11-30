@@ -3,6 +3,9 @@
 
 'use strict';
 
+// Widget spec requires a DEBUG global
+var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
+
 var RTMONITOR_API;
 
 const WEATHER_OPTIONS = [
@@ -41,6 +44,7 @@ const STORAGE = window.localStorage;
 
 let PANELS = [];
 let current_widget;
+let map_widget;
 
 ons.ready(function () {
 
@@ -324,6 +328,11 @@ document.addEventListener('destroy', function(event) {
             current_widget.close();
         }
     }
+    else if (page.id === 'map-overlay') {
+        if (map_widget) {
+            map_widget.close()
+        }
+    }
 
 });
 
@@ -412,7 +421,7 @@ function display_map(page) {
     container_el.classList.add('widget', 'stop_bus_map', 'full-screen');
     overlay_container.appendChild(container_el);
 
-    let map_widget = new StopBusMap('4');
+    map_widget = new StopBusMap('4');
     map_widget.display(
         {
             container_id: 'widget-stop_bus_map',
