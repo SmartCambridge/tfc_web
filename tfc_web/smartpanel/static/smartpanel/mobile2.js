@@ -1,5 +1,8 @@
-/* globals ons, Weather, StationBoard, StopTimetable, StopBusMap,
-   WIDGET_CONFIG, RTMonitorAPI, WidgetConfig BusStopChooser */
+/* globals ons,
+           RTMonitorAPI, WidgetConfig, BusStopChooser,
+           Weather, StationBoard, StopTimetable, StopBusMap,
+           WIDGET_CONFIG, STATIC_URL, RT_TOKEN, DEBUG
+*/
 
 'use strict';
 
@@ -152,11 +155,13 @@ document.addEventListener('init', function(event) {
         }
 
         let config = {
-            static_url: `/static_web/smartpanel/widgets/${current_params.widget}/`,
-            display_id: '', layout_id: '',
-            rt_token: '778',
+            static_url: `${STATIC_URL}${current_params.widget}/`,
+            display_id: '',
+            layout_id: '',
+            rt_token: RT_TOKEN,
             layout_name: 'Layouts for mobile',
-            display_name: '', layout_owner: '',
+            display_name: '',
+            layout_owner: '',
             display_owner: '',
             settings: WIDGET_CONFIG
         };
@@ -368,7 +373,7 @@ function display_panel(page) {
 //               }
         RTMONITOR_API = new RTMonitorAPI( { rt_client_id: 'mobile2',
                                             rt_client_name: 'dev mobile panel app',
-                                            rt_token: '888'
+                                            rt_token: RT_TOKEN
 
         });
         break;
@@ -377,11 +382,13 @@ function display_panel(page) {
     current_widget.display(
         {
             container_id: 'widget-' + widget_type,
-            static_url: `/static_web/smartpanel/widgets/${panel_config.widget}/`,
-            display_id: '', layout_id: '',
-            rt_token: '778',
+            static_url: `${STATIC_URL}${panel_config.widget}/`,
+            display_id: '',
+            layout_id: '',
+            rt_token: RT_TOKEN,
             layout_name: 'Layouts for mobile',
-            display_name: '', layout_owner: '',
+            display_name: '',
+            layout_owner: '',
             display_owner: '',
             settings: WIDGET_CONFIG
         },
@@ -425,11 +432,13 @@ function display_map(page) {
     map_widget.display(
         {
             container_id: 'widget-stop_bus_map',
-            static_url: '/static_web/smartpanel/widgets/stop_bus_map/',
-            display_id: '', layout_id: '',
-            rt_token: '778',
+            static_url: `${STATIC_URL}stop_bus_map/`,
+            display_id: '',
+            layout_id: '',
+            rt_token: RT_TOKEN,
             layout_name: 'Layouts for mobile',
-            display_name: '', layout_owner: '',
+            display_name: '',
+            layout_owner: '',
             display_owner: '',
             settings: WIDGET_CONFIG
         },
@@ -437,10 +446,10 @@ function display_map(page) {
     );
 }
 
-const WIDGET_ICON_URL = {
-    'weather': '/static_web/smartpanel/widgets/weather/weather.png',
-    'station_board': '/static_web/smartpanel/widgets/station_board/br-logo.png',
-    'stop_timetable': '/static_web/smartpanel/widgets/stop_timetable/bus.png',
+const WIDGET_ICON = {
+    'weather': 'weather/weather.png',
+    'station_board': 'station_board/br-logo.png',
+    'stop_timetable': 'stop_timetable/bus.png',
 };
 
 // Update the list on the 'pannels' page with the current panels
@@ -463,7 +472,7 @@ function populate_panel_list(page) {
         }
         item.innerHTML =
             `<div class="left">
-               <img class="list-item__icon list-icon" src="${WIDGET_ICON_URL[panel_config.widget]}"/>
+               <img class="list-item__icon list-icon" src="${STATIC_URL}${WIDGET_ICON[panel_config.widget]}"/>
                </div>
              <div class="center">
                 ${panel_config.title}

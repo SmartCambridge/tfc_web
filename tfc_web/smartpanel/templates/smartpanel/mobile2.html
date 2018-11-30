@@ -9,11 +9,9 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' }%"/>
+  <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}"/>
 
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
-
-
 
 {% for stylesheet in external_stylesheets %}
   <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %}
@@ -55,7 +53,7 @@
 
 <body>
 
-	<ons-navigator swipeable id="myNavigator"></ons-navigator>
+  <ons-navigator swipeable id="myNavigator"></ons-navigator>
 
   <template id="first.html">
     <ons-page id="first">
@@ -127,24 +125,11 @@
 
   <script>
 
-    /*
-    var RTMONITOR_API = new RTMonitorAPI(
-        {
-            'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
-            'rt_client_name': 'smartpanel', // TODO embed server-side smartpanel name
-            'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
-            'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
-            'display_owner': '{{ display.owner.username }}'
-        }
-    );
-    */
+    const WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
+    const STATIC_URL = '{% static 'smartpanel/widgets/' %}';
+    const RT_TOKEN = '{{ rt_token }}';
 
-    // Widget spec requires a DEBUG global
-    var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
-
-    var WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
-
-</script>
+  </script>
 
 </body>
 </html>
