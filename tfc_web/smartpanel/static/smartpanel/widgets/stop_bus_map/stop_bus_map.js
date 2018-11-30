@@ -152,7 +152,7 @@ function StopBusMap(widget_id) {
     // Widget 'close()' method
     // clean up outsanding timers and tell RTMonitor this widget is closed.
     this.close = function() {
-        self.log('closing StopBusMap widget');
+        log('closing StopBusMap widget');
         stop_timers();
         if (rt_mon) {
             rt_mon.close();
