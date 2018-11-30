@@ -77,8 +77,8 @@ function StopBusMap(widget_id) {
 
     this.display = function(config, params) {
 
-        self.log(widget_id,'display()','config:',config);
-        self.log(widget_id,'display()','params:',params);
+        log(widget_id,'display()','config:',config);
+        log(widget_id,'display()','params:',params);
 
         self.config = config;
 
@@ -132,16 +132,12 @@ function StopBusMap(widget_id) {
 
         rt_mon = RTMONITOR_API.register(rtmonitor_connected, rtmonitor_disconnected);
 
-        //RTMONITOR_API.ondisconnect(rtmonitor_disconnected);
-
-        //RTMONITOR_API.onconnect(rtmonitor_connected);
-
         // if we're already connected to rt_monitor perhaps this is a re-init of existing widget
         if (connected) {
-            self.log(self.widget_id, 'display()',' already connected to rt_monitor');
+            log(self.widget_id, 'display()',' already connected to rt_monitor');
             subscribe();
         } else {
-            self.log(self.widget_id, 'display()',' not connected to rt_monitor');
+            log(self.widget_id, 'display()',' not yet connected to rt_monitor');
         }
 
         draw_stops(self.params.stops);
@@ -153,21 +149,31 @@ function StopBusMap(widget_id) {
         rt_mon.connect();
     };
 
+    // Widget 'close()' method
+    // clean up outsanding timers and tell RTMonitor this widget is closed.
+    this.close = function() {
+        self.log('closing StopBusMap widget');
+        stop_timers();
+        if (rt_mon) {
+            rt_mon.close();
+        }
+    };
+
     /*this.reload = function() {
-        self.log("Running StationBoard.reload", config.container);
+        log("Running StationBoard.reload", config.container);
         this.do_load();
     }*/
 
 function rtmonitor_disconnected()
 {
-    self.log(self.widget_id, 'stop_bus_map rtmonitor_disconnected (connected was',connected,')');
+    log(self.widget_id, 'rtmonitor_disconnected(),','connected was',connected);
     connected = false;
     document.getElementById(self.config.container_id+'_connection').style.display = 'inline-block';
 }
 
 function rtmonitor_connected()
 {
-    self.log(self.widget_id, 'stop_bus_map rtmonitor_connected (connected was',connected,')');
+    log(self.widget_id, 'rtmonitor_connected(),','connected was',connected,'client_id is',rt_mon.client_id);
     connected = true;
     document.getElementById(self.config.container_id+'_connection').style.display = 'none';
     subscribe();
@@ -175,7 +181,7 @@ function rtmonitor_connected()
 
 function subscribe()
 {
-    self.log(self.widget_id, 'subscribe() sending request');
+    log(self.widget_id, 'subscribe(), sending lat/lng subscription');
 
     var map_bounds = map.getBounds();
 
@@ -210,14 +216,14 @@ function subscribe()
                                            request,
                                            handle_records);
 
-    self.log(self.widget_id, 'request_status '+request_status.status);
+    log(self.widget_id, 'request_status '+request_status.status);
 }
 
 // We have received data from a previously unseen sensor, so initialize
 function create_sensor(msg, clock_time)
 {
     // new sensor, create marker
-    self.log(self.widget_id, 'stop_bus_map ** New '+msg[RECORD_INDEX]);
+    log(self.widget_id, 'stop_bus_map ** New '+msg[RECORD_INDEX]);
 
     var sensor_id = msg[RECORD_INDEX];
 
@@ -241,7 +247,7 @@ function create_sensor(msg, clock_time)
                           })
         .on('click', function()
                 {
-                  //self.log("marker click handler");
+                  //log("marker click handler");
                 })
         .start();
 
@@ -304,12 +310,12 @@ function timer_update()
     {
         if (sensors.hasOwnProperty(sensor_id) && sensors[sensor_id].state.obsolete)
         {
-            self.log(self.widget_id, 'culling '+sensor_id);
+            log(self.widget_id, 'culling '+sensor_id);
             delete sensors[sensor_id];
 
             if (progress_indicators[sensor_id])
             {
-                //self.log('draw_progress_indicator removing layer '+sensor_id);
+                //log('draw_progress_indicator removing layer '+sensor_id);
                 map.removeLayer(progress_indicators[sensor_id].layer);
                 delete progress_indicators[sensor_id];
             }
@@ -330,12 +336,12 @@ function draw_progress_indicator(sensor)
 {
     var sensor_id = sensor.msg[RECORD_INDEX];
 
-    //self.log('draw_progress_indicator '+sensor_id);
+    //log('draw_progress_indicator '+sensor_id);
 
     // Remove old progress indicator
     if (progress_indicators[sensor_id])
     {
-        //self.log('draw_progress_indicator removing layer '+sensor_id);
+        //log('draw_progress_indicator removing layer '+sensor_id);
         map.removeLayer(progress_indicators[sensor_id].layer);
     }
 
@@ -360,13 +366,13 @@ function draw_progress_indicator(sensor)
             sensor.progress_bearing = 0;
         }
 
-        //self.log(sensor_id+' at '+(new Date())+' vs '+msg.received_timestamp);
+        //log(sensor_id+' at '+(new Date())+' vs '+msg.received_timestamp);
 
         var time_delta = ((new Date()).getTime() - sensor.msg.received_timestamp.getTime()) / 1000;
 
         var progress_distance = Math.max(20, time_delta * BUS_SPEED);
 
-        //self.log('progress_distance '+sensor_id+' '+Math.round(time_delta*10)/10+'s '+Math.round(progress_distance)+'m';
+        //log('progress_distance '+sensor_id+' '+Math.round(time_delta*10)/10+'s '+Math.round(progress_distance)+'m';
 
         progress_indicator.layer = L.semiCircle([pos.lat, pos.lng],
                                                 { radius:  progress_distance,
@@ -444,7 +450,7 @@ function update_old_status(sensor, clock_time)
             return;
         }
         // set the 'old' flag on this record and update icon
-        self.log(self.widget_id, 'update_old_status OLD '+sensor.msg[RECORD_INDEX]);
+        log(self.widget_id, 'update_old_status OLD '+sensor.msg[RECORD_INDEX]);
         sensor.state.old = true;
         sensor.marker.setIcon(oldsensorIcon);
     }
@@ -668,18 +674,22 @@ function more_content(sensor_id)
 function handle_records(incoming_data)
 {
     //var incoming_data = JSON.parse(websock_data);
-    self.log(self.widget_id, 'handle_records()','loading '+incoming_data['request_data'].length+' sensor messages');
+    log(self.widget_id, 'handle_records()','loading '+incoming_data['request_data'].length+' sensor messages');
     for (var i = 0; i < incoming_data[RECORDS_ARRAY].length; i++)
     {
 	    handle_msg(incoming_data[RECORDS_ARRAY][i], new Date());
     }
 } // end function handle_records
 
-this.log = function() {
-    if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('stop_bus_map_log') >= 0) {
-        console.log.apply(console, arguments);
+function log(str)
+{
+    if ((typeof DEBUG !== 'undefined') && DEBUG.indexOf('stop_bus_map_log') >= 0)
+    {
+        var args = [].slice.call(arguments);
+        args.unshift('[StopBusMap]');
+        console.log.apply(console, args);
     }
-};
+}
 
 // process a single data record
 function handle_msg(msg, clock_time)
@@ -726,7 +736,7 @@ function check_old_records(clock_time)
 // Draw the stops given in the widget params on the map
 function draw_stops(stops)
 {
-    self.log('drawing '+stops.length+' stops');
+    log('draw_stops()','drawing '+stops.length+' stops');
     for (var i=0; i < stops.length; i++)
     {
         draw_stop(stops[i]);
@@ -744,6 +754,17 @@ function draw_stop(stop)
 }
 
 
+
+// clear all outstanding timers
+function stop_timers() {
+    log('stop_timers()');
+    // Cancel the update timer if it's running
+    if (progress_timer) {
+        log('clearInterval(progress_timer)');
+        window.clearInterval(progress_timer);
+    }
+}
+
     // ************************************************************************************
     // *****************  Widget Configuration ********************************************
     // ************************************************************************************
@@ -754,11 +775,11 @@ function draw_stop(stop)
 
         var CONFIG_TITLE = 'Configure Real-Time Bus Map';
 
-        self.log(self.widget_id, 'StopBusMap configuring widget with', config.container_id, params);
+        log(self.widget_id, 'StopBusMap configuring widget with', config.container_id, params);
 
         var widget_config = new WidgetConfig(config);
 
-        self.log('StopTimetable configuring widget with', config, params);
+        log('StopTimetable configuring widget with', config, params);
 
         var config_div = document.getElementById(config.container_id);
 
@@ -792,7 +813,7 @@ function draw_stop(stop)
     //   params: the existing parameters of the widget
     function input_stop_bus_map(widget_config, parent_el, params) {
 
-        self.log('input_stop_bus_map with',params);
+        log('input_stop_bus_map with',params);
 
         // Add some guide text
         var config_info1 = document.createElement('p');
@@ -844,7 +865,7 @@ function draw_stop(stop)
 
         // STOPS and MAP
         //
-        self.log('configure() calling widget_config.input', 'stop', 'with',params.stops, params.map);
+        log('configure() calling widget_config.input', 'stop', 'with',params.stops, params.map);
         var stops_map_result = widget_config.input( config_tbody,
                                            'bus_stops',
                                            { text: 'Map and Stops:',
@@ -870,7 +891,7 @@ function draw_stop(stop)
 
             config_params.map = stops_map_value.map;
 
-            self.log(self.widget_id,'input_stop_bus_map returning params:',config_params);
+            log(self.widget_id,'input_stop_bus_map returning params:',config_params);
 
             return config_params;
         }
