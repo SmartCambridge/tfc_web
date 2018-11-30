@@ -157,7 +157,6 @@ document.addEventListener('show', function(event) {
 });
 
 
-
 // Page hide display
 document.addEventListener('hide', function(event) {
     var page = event.target;
