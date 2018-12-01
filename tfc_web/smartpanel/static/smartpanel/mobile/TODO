@@ -2,21 +2,27 @@ TODO
 ====
 
 * Splash screen styling and content
-* Render config pages
+    * Consider hosting TCs page in the app
+       * Encourage bookmarking
+* [DONE] Render config pages
+* Style config pages, or replace with dialogue...
 * Prompt to create a panel on empty list page
-* Re-name 'Pocket Smartppanel'
-* Don't start Websocket connection if not needed
-    * Means passing RTMONITOR_AIP data in to widget startup code
+    * Or jump to panel creation on initial startup
+* Re-name to 'Smartpanel'
+* [DONE] Don't start Websocket connection if not needed
+    * [DONE] Means passing RTMONITOR_API data in to widget startup code
 * [DONE] Double-check that viewport scaling is doing the right thing
 * Scroll bar suppession on Android
-* Why dows iPhoneX keep reporting 'Connection problems'
-* Add loading indicator
-* Shut down widgets on page exit
-* Make it harder to hit [delete] by mistake
-* Add icons to list page
-* Refactor init handler (too big!)
-* Refactor item list editing
+* Why does iPhoneX keep reporting '8Connection problems'
+* Add loading indicator on panel pages
+* [DONE] Shut down widgets on page exit
+* [DONE] Make it harder to hit [delete] by mistake
+* [DONE] Add icons to list page
+* [DONE] Refactor init handler (too big!)
+* [DONE] Refactor item list editing
 * Tidy widget styling (stop onsen styling leaking in)
-* Sort out getting RT data to the map widget
+* [DONE] Sort out getting RT data to the map widget
 * [DONE] Change scaling logic (use 'device-width', transform widget views)
-* 'Map' button appearing on station_board
+* [DONE] 'Map' button appearing on station_board
+* Re-work bus_stop_timetable <-> bus_map interaction
+* Re work, re style Connection Problems banner
