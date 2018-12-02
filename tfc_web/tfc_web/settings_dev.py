@@ -1,9 +1,12 @@
 from tfc_web.settings import *
 
+# Remove the second database and its configuration
+DATABASES.pop('tfcserver')
+DATABASE_ROUTERS = []
+
 # Allow configuration of test-suite database from environment variables. A
 # variable DJANGO_DB_<key> will override the DATABASES['default'][<key>]
 # setting.
-
 _db_envvar_prefix = 'DJANGO_DB_'
 for name, value in os.environ.items():
     # Only look at variables which start with the prefix we expect
@@ -17,7 +20,6 @@ for name, value in os.environ.items():
     DATABASES['default'][name] = value
 
 # Set the API data path to point to the internal test data
-
 DATA_PATH = '/usr/src/app/api/tests/data'
 
 NEW_API_ENDPOINT = 'http://127.0.0.1:8000'
