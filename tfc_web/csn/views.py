@@ -115,31 +115,6 @@ def delete_app(request):
     return redirect('csn_applications')
 
 
-def network_info(request):
-    gateways = None
-    error = False
-    headers = \
-        {
-            'Authorization': settings.LW_API_KEY,
-            'Content-Type': 'application/json'
-        }
-    response = requests.get(settings.EVERYNET_API_ENDPOINT + "gateways", headers=headers)
-    if response.status_code != 200:
-        LOGGER.error(response)
-        error = True
-    else:
-        try:
-            gateways = json.loads(response.content.decode('utf-8'))
-        except Exception as e:
-            LOGGER.error(e)
-            error = True
-
-    return render(request, 'csn/network_info.html', {
-        'gateways': gateways['gateways'] if gateways and 'gateways' in gateways else None,
-        'error': error,
-    })
-
-
 def gateway(request, gw_mac):
     error = False
     total_json = None
