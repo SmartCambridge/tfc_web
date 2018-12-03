@@ -29,3 +29,7 @@ TODO
 * [DONE] Re-work bus_stop_timetable <-> bus_map interaction
 * Re work, re style Connection Problems banner
 * Add .close() method to remaining widgets (at least weather, station_board)
+* Page back button wrong if TCs were displayed
+* What's the blue box on the bus map
+* Tooltips vs popups on the bus map
+* Content of bus map pop up
