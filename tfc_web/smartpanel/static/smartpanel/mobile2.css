@@ -41,15 +41,22 @@
 }
 
 .first-page {
+    background-color: #fff;
+    height: 100%;
     padding: 1em;
 }
 
 .first-page img {
+    display: block;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
     width: 100%;
 }
 
 .first-page ons-button {
     margin-left: 15%;
+    margin-top: 3rem;
     margin-right: 15%;
     width: 70%;
 }
