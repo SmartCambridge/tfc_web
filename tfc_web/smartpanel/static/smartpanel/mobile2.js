@@ -105,6 +105,9 @@ document.addEventListener('init', function(event) {
     // First page ------------------------------------------------------
 
     if (ons_page.id === 'first') {
+        ons_page.querySelector('a').addEventListener('click', function() {
+            navigator.pushPage('tcs.html');
+        });
         ons_page.querySelector('#accept').addEventListener('click', function() {
             localStorage.setItem(VERSION_KEY, TCS_VERSION.toString());
             navigator.pushPage('list.html');

@@ -16,6 +16,7 @@ TODO
 * Scroll bar suppession on Android
 * Why does iPhoneX keep reporting 'Connection problems'
 * Add loading indicator on panel pages
+    * Needs to be done in the widgets themselves
 * [DONE] Shut down widgets on page exit
 * [DONE] Make it harder to hit [delete] by mistake
 * [DONE] Add icons to list page

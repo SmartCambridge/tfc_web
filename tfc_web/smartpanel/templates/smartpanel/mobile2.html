@@ -57,10 +57,78 @@
 
   <template id="first.html">
     <ons-page id="first">
-    	<ons-toolbar>
-        <div class="center">First page</div>
+      <div class="first-page">
+        <img src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
+        <h1>Pocket SmartPanel</h1>
+        <p>
+          Before using the Pocket SmartPanel, please confirm that you
+          understand and accept the <a href="#">terms and conditions</a>
+          under which it is provided.
+        </p>
+        <p>
+          Please also confirm that you agree that the Pocket SmartPanel
+          can use your computer or mobile phone to store the list of the
+          pages that you have chosen to view.
+        </p>
+        <ons-button id="accept" modifier="large">Yes, that's fine</ons-button>
+      </div>
+    </ons-page>
+  </template>
+
+  <template id="tcs.html">
+    <ons-page id="tcs">
+      <ons-toolbar>
+        <div class="left"><ons-back-button></ons-back-button></div>
+        <div class="center">Terms and Disclaimer</div>
       </ons-toolbar>
-      <ons-button id="accept" modifier="large">Accept conditions</ons-button>
+      <div class="tcs">
+        <p style="font-style: italic">Version 1 - July 2018</p>
+
+        <p style="font-weight: bold">
+            The terms of this disclaimer will apply, where applicable, to those
+            persons displaying the information and those members of the public
+            viewing the information displayed.
+        </p>
+
+        <p>
+            The information being hosted by the University of Cambridge for this
+            Initiative is provided by Cambridgeshire County Council (the
+            "AUTHORITY"). The information will be hosted on a restricted access
+            webpage (the "WEBSITE").
+        </p>
+
+        <p>
+            The information is solely for the purposes of displaying up-to-date
+            travel and other associated information for the general public (the
+            "INITIATIVE"). The information may not be copied or reproduced without
+            prior consent from the Authority.
+        </p>
+
+        <p>
+            The Authority accepts no responsibility for any errors or omissions in
+            the information, including and particularly in relation to information
+            provided by a third party. Although the Authority will take steps to
+            ensure that the information provided to the University of Cambridge for
+            this Initiative is correct, the Authority and any other parties
+            associated with the provision of the information shall not be liable or
+            responsible for any loss or damage that may result from the use of, or
+            action taken in reliance on the information.
+        </p>
+
+        <p>
+            The Authority cannot guarantee the availability of the Website, nor that
+            that the Website will be free from viruses. The Authority accepts no
+            liability for damage resulting from virus infection. The Authority may
+            at its sole discretion terminate access to the information at any time.
+        </p>
+
+        <p>
+            The Authority accepts no liability for the loss, theft, damage or
+            destruction of computer or other related equipment used for the purposes
+            of the Initiative.
+        </p>
+
+      </div>
     </ons-page>
   </template>
 

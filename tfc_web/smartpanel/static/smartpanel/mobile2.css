@@ -39,3 +39,23 @@
 .first-time {
     padding: 1rem;
 }
+
+.first-page {
+    padding: 1em;
+}
+
+.first-page img {
+    width: 100%;
+}
+
+.first-page ons-button {
+    margin-left: 15%;
+    margin-right: 15%;
+    width: 70%;
+}
+
+.tcs {
+    font-size: 0.75rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
