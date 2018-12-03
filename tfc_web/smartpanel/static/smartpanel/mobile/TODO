@@ -6,14 +6,15 @@ TODO
        * Encourage bookmarking
 * [DONE] Render config pages
 * Style config pages, or replace with dialogue...
-* Prompt to create a panel on empty list page
-    * Or jump to panel creation on initial startup
-* Re-name to 'Smartpanel'
+* [DONE] Prompt to create a panel on empty list page
+    * [DONE] Or jump to panel creation on initial startup
+* [DONE]Re-name to 'Smartpanel'
+*    [DONE] and 'My Smartpanel'
 * [DONE] Don't start Websocket connection if not needed
     * [DONE] Means passing RTMONITOR_API data in to widget startup code
 * [DONE] Double-check that viewport scaling is doing the right thing
 * Scroll bar suppession on Android
-* Why does iPhoneX keep reporting '8Connection problems'
+* Why does iPhoneX keep reporting 'Connection problems'
 * Add loading indicator on panel pages
 * [DONE] Shut down widgets on page exit
 * [DONE] Make it harder to hit [delete] by mistake
@@ -24,5 +25,6 @@ TODO
 * [DONE] Sort out getting RT data to the map widget
 * [DONE] Change scaling logic (use 'device-width', transform widget views)
 * [DONE] 'Map' button appearing on station_board
-* Re-work bus_stop_timetable <-> bus_map interaction
+* [DONE] Re-work bus_stop_timetable <-> bus_map interaction
 * Re work, re style Connection Problems banner
+* Add .close() method to remaining widgets (at least weather, station_board)

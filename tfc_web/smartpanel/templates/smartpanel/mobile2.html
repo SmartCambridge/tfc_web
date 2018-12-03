@@ -5,7 +5,7 @@
 
 <head>
 
-  <title>Mobile SmartPanel</title>
+  <title>SmartPanel</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -64,26 +64,26 @@
     </ons-page>
   </template>
 
-  <template id="panels.html">
-    <ons-page id="panels" class="panels">
+  <template id="list.html">
+    <ons-page id="list" class="list">
     	<ons-toolbar>
         <div class="left">
           <ons-toolbar-button>
-            <span id="edit" class="panels-edit">Edit</span>
-            <span id="done" class="panels-done">Done</span>
+            <span id="edit" class="edit">Edit</span>
+            <span id="done" class="done default">Done</span>
           </ons-toolbar-button>
         </div>
-        <div class="center">My Smartpanels</div>
-        <div class="right"><ons-toolbar-button id="add" class="panels-add">
+        <div class="center">My SmartPanel</div>
+        <div class="right"><ons-toolbar-button id="add" class="pages-add">
           <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
         </ons-toolbar-button></div>
       </ons-toolbar>
-      <ons-list class="panel-items"></ons-list>
+      <ons-list id="page-list" class="page-list"></ons-list>
     </ons-page>
   </template>
 
-  <template id="panel.html">
-    <ons-page id="panel">
+  <template id="page-display.html">
+    <ons-page id="page-display">
     	<ons-toolbar>
     		<div class="left"><ons-back-button></ons-back-button></div>
         <div class="right"><ons-toolbar-button id="map">Map</ons-toolbar-button></div>
@@ -92,11 +92,11 @@
     </ons-page>
   </template>
 
-  <template id="map-overlay.html">
-    <ons-page id="map-overlay">
+  <template id="map-display.html">
+    <ons-page id="map-display">
       <ons-toolbar>
       	<div class="left"><ons-back-button></ons-back-button></div>
-        <div class="center">Map</div>
+        <div class="right"><ons-toolbar-button id="timetable">List</ons-toolbar-button></div>
       </ons-toolbar>
       <div id="overlay-container" class="widget-container full-screen" ></div>
     </ons-page>
@@ -107,10 +107,10 @@
       <ons-toolbar>
         <div class="left">
           <ons-toolbar-button id="submit">
-            Save
+            <span class="default">Save</span>
           </ons-toolbar-button>
         </div>
-        <div class="center">Configure</div>
+        <div class="center">Page setup</div>
         <div class="right">
           <ons-toolbar-button id="cancel">
             Cancel
@@ -122,6 +122,10 @@
       </div>
     </ons-page>
   </template>
+
+  <ons-popover cancelable direction="down" id="first-time">
+    <div class="first-time">Tap here to add your first page</div>
+  </ons-popover>
 
   <script>
 

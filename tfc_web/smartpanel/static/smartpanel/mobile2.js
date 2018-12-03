@@ -8,7 +8,14 @@
 
 // Widget spec requires a DEBUG global (even if empty)
 // const DEBUG = '';
-const DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
+//const DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
+const DEBUG = 'rtmonitor_api_log';
+
+// Version number of the agreed TCs
+const TCS_VERSION = 1;
+
+const VERSION_KEY = 'MOBILE_SMARTPANEL_TCS_VERSION';
+const PAGES_KEY = 'MOBILE_SMARTPANEL_PAGES';
 
 // Available weather stations and their names
 const WEATHER_OPTIONS = [
@@ -49,14 +56,17 @@ const WIDGET_ICON = {
     'stop_timetable': 'stop_timetable/bus.png',
 };
 
-// Version number of the agreed TCs
-const TCS_VERSION = 1;
+const WIDGET_NAME = {
+    'weather': 'weather forecast',
+    'station_board': 'train timetable',
+    'stop_timetable': 'bus timetable'
+};
 
 // Widget spec requires a RTMONITOR_API global
 var RTMONITOR_API;
 
 // List of configured widget instances
-let PANELS = [];
+let PAGES = [];
 // Currently displayed widget
 let current_widget;
 // stop_map widget object
@@ -69,14 +79,14 @@ ons.ready(function () {
     console.log('Running ready()');
 
     // Retrieve the configuration
-    if (localStorage.getItem('MOBILE_PANELS')) {
-        PANELS = JSON.parse(localStorage.getItem('MOBILE_PANELS'));
+    if (localStorage.getItem(PAGES_KEY)) {
+        PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
     }
 
-    // Opening page depends in localStorage.TCS_VERSION
-    let raw_version = localStorage.getItem('TCS_VERSION');
+    // Opening page depends on value stored under VERSION_KEY in localStorage
+    let raw_version = localStorage.getItem(VERSION_KEY);
     if (raw_version && parseInt(raw_version) >= TCS_VERSION) {
-        document.querySelector('#myNavigator').pushPage('panels.html');
+        document.querySelector('#myNavigator').pushPage('list.html');
     }
     else {
         document.querySelector('#myNavigator').pushPage('first.html');
@@ -87,61 +97,79 @@ ons.ready(function () {
 
 // Page initialisation handlers
 document.addEventListener('init', function(event) {
-    let page = event.target;
+    let ons_page = event.target;
+    let navigator = document.querySelector('#myNavigator');
 
-    console.log(`Running init for ${page.id}`);
+    console.log(`Running init for ${ons_page.id}`);
 
     // First page ------------------------------------------------------
 
-    if (page.id === 'first') {
-        page.querySelector('#accept').addEventListener('click', function() {
-            localStorage.setItem('TCS_VERSION', TCS_VERSION.toString());
-            document.querySelector('#myNavigator').pushPage('panels.html');
+    if (ons_page.id === 'first') {
+        ons_page.querySelector('#accept').addEventListener('click', function() {
+            localStorage.setItem(VERSION_KEY, TCS_VERSION.toString());
+            navigator.pushPage('list.html');
         });
     }
 
-    // Panel list ------------------------------------------------------
+    // Page list -------------------------------------------------------
 
-    else if (page.id === 'panels') {
-        page.querySelector('#add').addEventListener('click', choose_new_panel);
+    else if (ons_page.id === 'list') {
+        ons_page.querySelector('#add').addEventListener('click', choose_new_page);
+        if (PAGES.length === 0) {
+        //    document.querySelector('#first-time').show('#add', {direction: 'up'});
+            choose_new_page();
+        }
 
-        page.querySelector('.panel-items').addEventListener('click', handle_panel_list_click);
+        ons_page.querySelector('.page-list').addEventListener('click', handle_page_list_click);
 
-        page.querySelector('#edit').addEventListener('click', function() {
-            page.classList.add('edit-mode');
-            page.querySelectorAll('.panel-items ons-list-item').forEach(function(item) {
+        ons_page.querySelector('#edit').addEventListener('click', function() {
+            ons_page.classList.add('edit-mode');
+            // Hide the chevron
+            ons_page.querySelectorAll('.page-list ons-list-item').forEach(function(item) {
                 item.setAttribute('modifier', 'longdivider');
             });
         });
-        page.querySelector('#done').addEventListener('click', function() {
-            page.classList.remove('edit-mode');
-            page.querySelectorAll('.panel-items ons-list-item').forEach(function(item) {
+        ons_page.querySelector('#done').addEventListener('click', function() {
+            ons_page.classList.remove('edit-mode');
+            // Restore the chevron
+            ons_page.querySelectorAll('.page-list ons-list-item').forEach(function(item) {
                 item.setAttribute('modifier', 'chevron longdivider');
             });
         });
-        populate_panel_list(page);
+
+        populate_page_list(ons_page);
     }
 
-    // Panel display ---------------------------------------------------
+    // Page display ----------------------------------------------------
 
-    else if (page.id === 'panel') {
-        page.querySelector('#map').addEventListener('click', function() {
-            document.querySelector('#myNavigator').pushPage('map-overlay.html', {data: page.data});
+    else if (ons_page.id === 'page-display') {
+        ons_page.querySelector('ons-back-button').onClick = function() {
+            let times = navigator.pages.length - 1;
+            navigator.popPage({times: times, animation: 'slide-ios, fade-md'});
+        };
+        ons_page.querySelector('#map').addEventListener('click', function() {
+            navigator.bringPageTop('map-display.html', {data: ons_page.data, animation: 'fade'});
         });
-        display_panel(page.data.panel_number, page);
+        display_page(ons_page.data.page_number, ons_page);
     }
 
     // Stop bus map display --------------------------------------------
 
-    else if (page.id === 'map-overlay') {
-        display_map(page);
+    else if (ons_page.id === 'map-display') {
+        ons_page.querySelector('ons-back-button').onClick = function() {
+            let times = navigator.pages.length - 1;
+            navigator.popPage({times: times, animation: 'slide-ios, fade-md'});
+        };
+        ons_page.querySelector('#timetable').addEventListener('click', function() {
+            navigator.bringPageTop('page-display.html', {data: ons_page.data, animation: 'fade'});
+        });
+        display_map(ons_page);
     }
 
     // Config display --------------------------------------------------
 
-    else if (page.id === 'config') {
-
-        setup_config(page);
+    else if (ons_page.id === 'config') {
+        setup_config(ons_page);
 
     }
 
@@ -150,34 +178,34 @@ document.addEventListener('init', function(event) {
 
 // page display handler
 document.addEventListener('show', function(event) {
-    var page = event.target;
+    var ons_page = event.target;
 
-    console.log(`Running show for ${page.id}`);
+    console.log(`Running show for ${ons_page.id}`);
 
 });
 
 
 // Page hide display
 document.addEventListener('hide', function(event) {
-    var page = event.target;
+    var ons_page = event.target;
 
-    console.log(`Running hide for ${page.id}`);
+    console.log(`Running hide for ${ons_page.id}`);
 
 });
 
 
 // Page destroy handler
 document.addEventListener('destroy', function(event) {
-    var page = event.target;
+    var ons_page = event.target;
 
-    console.log(`Running destroy for ${page.id}`);
+    console.log(`Running destroy for ${ons_page.id}`);
 
-    if (page.id === 'panel') {
+    if (ons_page.id === 'page-display') {
         if (current_widget) {
             current_widget.close();
         }
     }
-    else if (page.id === 'map-overlay') {
+    else if (ons_page.id === 'map-display') {
         if (map_widget) {
             map_widget.close();
         }
@@ -186,46 +214,48 @@ document.addEventListener('destroy', function(event) {
 });
 
 
-// Handle a click on a panel in the panel list
-function handle_panel_list_click(evt) {
+// Handle a click on a page entry in the page list
+function handle_page_list_click(evt) {
 
     let list_item = evt.target.closest('ons-list-item');
     if (!list_item) {
         return;
     }
-    let panel_number = getElementIndex(list_item);
-    let page = list_item.closest('ons-page');
+    let page_number = getElementIndex(list_item);
+    let ons_page = list_item.closest('ons-page');
+    let navigator = document.querySelector('#myNavigator');
 
     // A click on a delete icon
-    if (evt.target.closest('.item-delete')) {
-        let panel_title = PANELS[panel_number].title;
-        ons.notification.confirm({message: `OK to delete smartpanel for '${panel_title}'?`})
+    if (evt.target.closest('.delete')) {
+        let page_title = PAGES[page_number].title;
+        let page_widget = PAGES[page_number].widget;
+        ons.notification.confirm({message: `Delete the ${WIDGET_NAME[page_widget]} for '${page_title}'?`})
             .then(function(button) {
                 if (button === 1) {
-                    PANELS.splice(panel_number, 1);
-                    localStorage.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
-                    populate_panel_list(page);
+                    PAGES.splice(page_number, 1);
+                    localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
+                    populate_page_list(ons_page);
                 }
             });
     }
     //Otherwise a click when editing
-    else if (page.classList.contains('edit-mode')) {
-        document.querySelector('#myNavigator').pushPage('config.html', {data: { panel_number }});
+    else if (ons_page.classList.contains('edit-mode')) {
+        navigator.pushPage('config.html', {data: { page_number: page_number }});
     }
     // Otherwise
     else {
-        document.querySelector('#myNavigator').pushPage('panel.html', {data: { panel_number }});
+        navigator.pushPage('page-display.html', {data: { page_number: page_number }});
     }
 
 }
 
-// Display panel panel_number on page
-function display_panel(panel_number, page) {
+// Display page page_number on page
+function display_page(page_number, ons_page) {
 
-    let panel_config = PANELS[panel_number];
-    let widget_type = panel_config.widget;
+    let page_config = PAGES[page_number];
+    let widget_type = page_config.widget;
 
-    let widget_container = page.querySelector('#widget-container');
+    let widget_container = ons_page.querySelector('#widget-container');
     clear_element(widget_container);
 
     let container_el = document.createElement('div');
@@ -233,20 +263,20 @@ function display_panel(panel_number, page) {
     container_el.classList.add('widget', widget_type);
     widget_container.appendChild(container_el);
 
-    page.querySelector('#map').hidden = true;
+    ons_page.querySelector('#map').hidden = true;
     switch (widget_type) {
     case 'weather':
-        current_widget = new Weather('1');
+        current_widget = new Weather('weather');
         break;
     case 'station_board':
-        current_widget = new StationBoard('2');
+        current_widget = new StationBoard('station_board');
         break;
     case 'stop_timetable':
-        current_widget = new StopTimetable('3');
-        page.querySelector('#map').hidden = false;
+        current_widget = new StopTimetable('stop_timetable');
+        ons_page.querySelector('#map').hidden = false;
         RTMONITOR_API = new RTMonitorAPI({
-            rt_client_id: 'mobile2',
-            rt_client_name: 'dev mobile panel app',
+            rt_client_id: 'pocket_smartpanel',
+            rt_client_name: 'Pocket SmartPanel',
             rt_token: RT_TOKEN});
         break;
     }
@@ -254,7 +284,7 @@ function display_panel(panel_number, page) {
     current_widget.display(
         {
             container_id: 'widget-' + widget_type,
-            static_url: `${STATIC_URL}${panel_config.widget}/`,
+            static_url: `${STATIC_URL}${page_config.widget}/`,
             display_id: '',
             layout_id: '',
             rt_token: RT_TOKEN,
@@ -264,7 +294,7 @@ function display_panel(panel_number, page) {
             display_owner: '',
             settings: WIDGET_CONFIG
         },
-        panel_config.data
+        page_config.data
     );
 
     if (widget_type === 'stop_timetable') {
@@ -275,10 +305,10 @@ function display_panel(panel_number, page) {
 
 
 // Display a stop_bus_map widget for the stop_timetable currently being displayed
-function display_map(page) {
+function display_map(ons_page) {
 
     // Get the config for the stop_timetable currently being displayed
-    let timetable_config = PANELS[page.data.panel_number];
+    let timetable_config = PAGES[ons_page.data.page_number];
 
     // Synthesise a stop_bus_map widget config
     let map_config = {
@@ -294,7 +324,7 @@ function display_map(page) {
         ]
     };
 
-    let overlay_container = page.querySelector('#overlay-container');
+    let overlay_container = ons_page.querySelector('#overlay-container');
     clear_element(overlay_container);
 
     let container_el = document.createElement('div');
@@ -302,7 +332,7 @@ function display_map(page) {
     container_el.classList.add('widget', 'stop_bus_map', 'full-screen');
     overlay_container.appendChild(container_el);
 
-    map_widget = new StopBusMap('4');
+    map_widget = new StopBusMap('stop_bus_map');
     map_widget.display(
         {
             container_id: 'widget-stop_bus_map',
@@ -320,21 +350,21 @@ function display_map(page) {
     );
 }
 
-// (Re-)populate the list on the 'pannels' page with the current panels
-function populate_panel_list(page) {
-    let list = page.querySelector('.panel-items');
+// (Re-)populate the list on the 'pages' page with the current pages
+function populate_page_list(ons_page) {
+    let list = ons_page.querySelector('.page-list');
 
     // Remove existing entries
     clear_element(list);
 
     // Populate
-    for (let panel_number = 0; panel_number < PANELS.length; panel_number++) {
-        let panel_config = PANELS[panel_number];
+    for (let page_number = 0; page_number < PAGES.length; page_number++) {
+        let page_config = PAGES[page_number];
         let item = document.createElement('ons-list-item');
         item.setAttribute('tappable', '');
 
         // Don't add the chevron in edit mode
-        if (page.classList.contains('edit-mode')) {
+        if (ons_page.classList.contains('edit-mode')) {
             item.setAttribute('modifier', 'longdivider');
         }
         else {
@@ -343,13 +373,13 @@ function populate_panel_list(page) {
 
         item.innerHTML =
             `<div class="left">
-               <img class="list-item__icon list-icon" src="${STATIC_URL}${WIDGET_ICON[panel_config.widget]}"/>
+               <img class="list-item__icon list-icon" src="${STATIC_URL}${WIDGET_ICON[page_config.widget]}"/>
                </div>
              <div class="center">
-                ${panel_config.title}
+                ${page_config.title}
              </div>
              <div class="right">
-               <span class="item-delete">
+               <span class="delete">
                  <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="18px, material:lg">
                  </ons-icon></span>
              </div>`;
@@ -360,10 +390,10 @@ function populate_panel_list(page) {
 }
 
 
-// Display an ActionSheet to select a panel type
-function choose_new_panel() {
+// Display an ActionSheet to select a page type
+function choose_new_page() {
     ons.openActionSheet({
-        title: 'Choose new panel',
+        title: 'Choose a page type',
         cancelable: true,
         buttons: [
             'Bus timetable',
@@ -393,18 +423,18 @@ function choose_new_panel() {
 
 
 // Set up the config page
-function setup_config(page) {
+function setup_config(ons_page) {
 
     let current_params;
-    let panel_number = page.data.panel_number;
-    // If we have a panel number than it's an existing widget?
-    if (panel_number !== undefined) {
-        current_params = PANELS[panel_number];
+    let page_number = ons_page.data.page_number;
+    // If we have a page number than it's an existing page
+    if (page_number !== undefined) {
+        current_params = PAGES[page_number];
     }
-    // Otherwise it's a new widget
+    // Otherwise it's a new page
     else {
         current_params = {
-            widget: page.data.new_widget,
+            widget: ons_page.data.new_widget,
             data: {}
         };
     }
@@ -421,7 +451,7 @@ function setup_config(page) {
         settings: WIDGET_CONFIG
     };
 
-    let config_el = page.querySelector('.config-area');
+    let config_el = ons_page.querySelector('.config-area');
     let new_params_callback;
     switch (current_params.widget) {
     case 'weather':
@@ -435,30 +465,30 @@ function setup_config(page) {
         break;
     }
 
-    page.querySelector('#submit').addEventListener('click', function() {
-        // New panel (note panel_id can be 0 and hence false...)
-        if (panel_number === undefined) {
-            PANELS.push(new_params_callback());
-            localStorage.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
+    ons_page.querySelector('#submit').addEventListener('click', function() {
+        // New page (notepage_numbr can be 0 and hence false...)
+        if (page_number === undefined) {
+            PAGES.push(new_params_callback());
+            localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
         }
-        // Edited existing panel
+        // Edited existing page
         else {
-            PANELS[panel_number] = new_params_callback();
-            localStorage.setItem('MOBILE_PANELS', JSON.stringify(PANELS));
+            PAGES[page_number] = new_params_callback();
+            localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
         }
-        // Re-populate the list of available panels
-        populate_panel_list(document.querySelector('#panels'));
+        // Re-populate the list of available pages
+        populate_page_list(document.querySelector('#list'));
         document.querySelector('#myNavigator').popPage();
     });
 
-    page.querySelector('#cancel').addEventListener('click', function() {
+    ons_page.querySelector('#cancel').addEventListener('click', function() {
         document.querySelector('#myNavigator').popPage();
     });
 
 }
 
 
-// Configuration helper for weather panel
+// Configuration helper for weather pages
 function weather_config(config_el, config, current_params) {
 
     let widget_config = new WidgetConfig(config);
@@ -496,7 +526,7 @@ function weather_config(config_el, config, current_params) {
     };
 }
 
-/// Configuration helper for train timetable panel
+/// Configuration helper for train timetable pages
 function station_board_config(config_el, config, current_params) {
 
     let widget_config = new WidgetConfig(config);
@@ -535,7 +565,7 @@ function station_board_config(config_el, config, current_params) {
 }
 
 
-// Configuration helper for bus timetable panel
+// Configuration helper for bus timetable pages
 function stop_timetable_config(config_el, config, current_params) {
 
     let chooser_options = {

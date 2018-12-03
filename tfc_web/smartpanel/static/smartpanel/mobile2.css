@@ -7,25 +7,19 @@
     width: 100%;
 }
 
-.config-data {
-    border: 1px solid black;
-    height: 200px;
-    width: 100%;
-}
-
-.panels-edit {
+.edit {
     display: inline;
 }
 
-.edit-mode .panels-edit {
+.edit-mode .edit {
     display: none;
 }
 
-.panels-done, .item-delete {
+.done, .delete {
     display: none;
 }
 
-.edit-mode .panels-done, .edit-mode .item-delete {
+.edit-mode .done, .edit-mode .delete {
     display: inline;
 }
 
@@ -36,4 +30,12 @@
 .config-area {
     height: 100%;
     width: 100%;
+}
+
+.default {
+    font-weight: bold;
+}
+
+.first-time {
+    padding: 1rem;
 }
