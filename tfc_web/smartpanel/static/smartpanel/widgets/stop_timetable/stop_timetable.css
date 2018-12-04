@@ -86,3 +86,9 @@
 .stop_timetable .multiline .together {
     white-space: nowrap;
 }
+
+.stop_timetable .spinner {
+    display: block;
+    height: 25px;
+    margin: 1rem auto 0 auto;
+}

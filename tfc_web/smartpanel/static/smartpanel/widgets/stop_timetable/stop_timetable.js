@@ -232,6 +232,10 @@ function StopTimetable(widget_id) {
         container.appendChild(connection_div);
 
         departure_div = document.createElement('div');
+        var spinner = document.createElement('img');
+        spinner.setAttribute('src', self.config.static_url + 'indicator-lite.gif');
+        spinner.setAttribute('class', 'spinner');
+        departure_div.appendChild(spinner);
         content_area.appendChild(departure_div);
     }
 
