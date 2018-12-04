@@ -38,3 +38,4 @@ TODO
 * [DONE] Rename 'mobile2' --> 'pocket', delete 'mobile'
 * [DONE] Move this TODO, remove smartpanel/static/smartpanel/mobile
 * [DONE] Remove earlier experiments with 1x1 layouts
+* Extra item separators in stop_timetable
