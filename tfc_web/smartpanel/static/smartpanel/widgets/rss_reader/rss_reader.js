@@ -121,6 +121,8 @@ function RssReader(widget_id) {
         //
         if (self.params.title && self.params.title.text) {
             var title = document.createElement('div');
+            title.className = 'rss_title';
+
             title.appendChild(document.createTextNode(self.params.title.text));
             if (self.params.title.style) {
                 title.style = self.params.title.style;
@@ -141,13 +143,13 @@ function RssReader(widget_id) {
         log('update_display','item_tag',item_tag);
 
         // items_xml is the list of xml DOM elements representing the RSS items
-        var items_xml = xml_dom.getElementsByTagName('item');
+        var items_xml = xml_dom.getElementsByTagName(item_tag);
 
         log('update_display',items_xml.length,'items');
 
         // items_el is the widget parent element that will contain the HTML items for display
         var items_el = document.createElement('div');
-        items_el.class = 'rss_list';
+        items_el.className = 'rss_items';
         container.appendChild(items_el);
 
         print_items(items_el, items_xml);
@@ -293,9 +295,6 @@ function RssReader(widget_id) {
 
                 case 'html_to_text':
                     log('item_element','html_to_text',tag,xml_value);
-                    var parser = new DOMParser;
-                    var dom = parser.parseFromString('<!doctype html><body>' + xml_value, 'text/html');
-                    xml_value = dom.body.textContent;
                     // For html_to_text, parse as above but strip ALL html tags (and then can slice)
                     try {
                         html = decodeURIComponent(xml_value);
@@ -304,9 +303,11 @@ function RssReader(widget_id) {
                         // But e.g. our content might contain a single '%', so fall back to using unescape.
                        html = unescape(xml_value);
                     }
+
                     log('item_element','tag_value',xml_value);
 
                     var text = html_to_text(html);
+
                     log('item_element','text',text);
                     var node_text = slice_fn(text);
                     log('item_element','node_text',node_text);
@@ -315,13 +316,24 @@ function RssReader(widget_id) {
 
                 case 'rfc2282':
                     log('item_element','rfc2282',tag,xml_value);
-                    div.appendChild(document.createTextNode(date_rfc2282(xml_value)));
+                    div.appendChild(document.createTextNode(date_rfc2282(xml_value,false)));
                     break;
 
                 case 'iso8601':
                     log('item_element','iso8601',tag,xml_value);
                     var js_date = new Date(xml_value);
-                    div.appendChild(document.createTextNode(date_iso8601(xml_value)));
+                    div.appendChild(document.createTextNode(date_iso8601(xml_value,false)));
+                    break;
+
+                case 'rfc2282_today':
+                    log('item_element','rfc2282',tag,xml_value);
+                    div.appendChild(document.createTextNode(date_rfc2282(xml_value,true)));
+                    break;
+
+                case 'iso8601_today':
+                    log('item_element','iso8601',tag,xml_value);
+                    var js_date = new Date(xml_value);
+                    div.appendChild(document.createTextNode(date_iso8601(xml_value,true)));
                     break;
 
                 default: // default tag_format value is 'text'
@@ -340,7 +352,7 @@ function RssReader(widget_id) {
         return date_iso8601(xml_value);
     }
 
-    function date_iso8601(xml_value) {
+    function date_iso8601(xml_value, today) {
         var d = new Date(xml_value);
         var hours = d.getHours();
         var mins = d.getMinutes()
@@ -367,8 +379,8 @@ function RssReader(widget_id) {
         }
 
         var return_str = null;
-        if (same_day(new Date(),d)) {
-            return_str = time + ' ' + day_of_week+' '+day+' '+mon;
+        if (today && same_day(new Date(),d)) {
+            return_str = time + ' TODAY';
         } else {
             return_str = day_of_week + ' ' + day + ' ' + mon + ' ' + time;
         }
@@ -424,7 +436,11 @@ function RssReader(widget_id) {
     }
 
     function html_to_text(html) {
-        return sanitizeHtml(html, { allowedTags: [] });
+        var html_no_tags = sanitizeHtml(html, { allowedTags: [] });
+
+        var parser = new DOMParser;
+        var dom = parser.parseFromString('<!doctype html><body>' + html_no_tags, 'text/html');
+        return dom.body.textContent;
     }
 
     function log() {
