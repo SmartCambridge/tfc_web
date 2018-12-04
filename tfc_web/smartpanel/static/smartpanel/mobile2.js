@@ -495,29 +495,24 @@ function setup_config(ons_page) {
 
 }
 
-
 // Configuration helper for weather pages
 function weather_config(config_el, config, current_params) {
 
-    let widget_config = new WidgetConfig(config);
-
-    let config_table = document.createElement('table');
-    config_el.appendChild(config_table);
-
-    var location_callbacks = widget_config.input(
-        config_table,
-        'select',
-        {
-            text: 'Location:',
-            title: 'Choose your weather location from the dropdown',
-            options: WEATHER_OPTIONS
-        },
-        current_params.data.location
-    );
+    let select = document.createElement('ons-select');
+    WEATHER_OPTIONS.forEach(function (element) {
+        let option = document.createElement('option');
+        option.setAttribute('value', element.value);
+        option.textContent = element.text;
+        if (current_params.data.location === element.value) {
+            option.setAttribute('selected', 'true');
+        }
+        select.appendChild(option);
+    });
+    config_el.appendChild(select);
 
     return function () {
-        let location = location_callbacks.value();
-        let title;
+        let location = select.value;
+        let title = '';
         for (let i=0; i<WEATHER_OPTIONS.length; i++) {
             if (WEATHER_OPTIONS[i].value === location) {
                 title = WEATHER_OPTIONS[i].text;
@@ -537,25 +532,21 @@ function weather_config(config_el, config, current_params) {
 /// Configuration helper for train timetable pages
 function station_board_config(config_el, config, current_params) {
 
-    let widget_config = new WidgetConfig(config);
-
-    let config_table = document.createElement('table');
-    config_el.appendChild(config_table);
-
-    var station_callbacks = widget_config.input(
-        config_table,
-        'select',
-        {
-            text: 'Station:',
-            title: 'Choose your station from the dropdown',
-            options: STATION_OPTIONS
-        },
-        current_params.data.station
-    );
+    let select = document.createElement('ons-select');
+    STATION_OPTIONS.forEach(function (element) {
+        let option = document.createElement('option');
+        option.setAttribute('value', element.value);
+        option.textContent = element.text;
+        if (current_params.data.location === element.value) {
+            option.setAttribute('selected', 'true');
+        }
+        select.appendChild(option);
+    });
+    config_el.appendChild(select);
 
     return function () {
-        let station = station_callbacks.value();
-        let title;
+        let station = select.value;
+        let title = '';
         for (let i=0; i<STATION_OPTIONS.length; i++) {
             if (STATION_OPTIONS[i].value === station) {
                 title = STATION_OPTIONS[i].text;

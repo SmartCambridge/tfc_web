@@ -36,6 +36,14 @@
     width: 100%;
 }
 
+.config-area ons-select {
+    display: block;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 1rem;
+    width: 70%;
+}
+
 .first-page {
     height: 100%;
     padding: 1em;
