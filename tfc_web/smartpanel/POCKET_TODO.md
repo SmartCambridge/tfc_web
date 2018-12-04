@@ -30,7 +30,7 @@ TODO
 * [DONE] Re work, re style Connection Problems banner
 * [DONE] Add .close() method to remaining widgets (at least weather, station_board)
 * [DONE] Page back button wrong if TCs were displayed
-* What's the blue box on the bus map
+* [DONE] What's the blue box on the bus map
 * [DONE] Tooltips vs popups on the bus map
 * [DONE] Content of bus map pop up
 * Turn off console logging
