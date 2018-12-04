@@ -1,8 +1,8 @@
 TODO
 ====
 
-* Splash screen styling and content
-    * Consider hosting TCs page in the app
+* [DONE] Splash screen styling and content
+    * [DONE] Consider hosting TCs page in the app
        * Encourage bookmarking
 * [DONE] Render config pages
 * Style config pages, or replace with dialogue...
