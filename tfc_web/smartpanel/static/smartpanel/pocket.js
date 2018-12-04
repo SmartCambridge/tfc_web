@@ -14,8 +14,8 @@ const DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log
 // Version number of the agreed TCs
 const TCS_VERSION = 1;
 
-const VERSION_KEY = 'MOBILE_SMARTPANEL_TCS_VERSION';
-const PAGES_KEY = 'MOBILE_SMARTPANEL_PAGES';
+const VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
+const PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
 
 // Available weather stations and their names
 const WEATHER_OPTIONS = [
