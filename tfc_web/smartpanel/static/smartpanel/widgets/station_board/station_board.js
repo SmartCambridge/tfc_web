@@ -43,6 +43,8 @@ function StationBoard(widget_id, params) {
              { value: 'WLF', text: 'Whittlesford' }
     ];
 
+    var refresh_timer;
+
     // backwards compatibility init() function
     this.init = function () {
         this.log(self.widget_id, 'Running StationBoard.init');
@@ -84,10 +86,18 @@ function StationBoard(widget_id, params) {
             else {
                 $('#' + self.config.container_id + ' .widget_error').hide();
             }
-            setTimeout(function () { self.do_load(); }, 60 * SECONDS);
+            refresh_timer = setTimeout(function () { self.do_load(); }, 60 * SECONDS);
         });
 
         this.log(self.widget_id, "do_load done");
+    };
+
+    this.close = function () {
+        self.log('closing StationBoard widget');
+        if (refresh_timer) {
+            self.log('clearTimeout(refresh_timer)');
+            window.clearTimeout(refresh_timer);
+        }
     };
 
     this.log = function() {

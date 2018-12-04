@@ -25,6 +25,8 @@ function Weather(widget_id) {
                             { value: '353330', text: 'St. Neots' }
                           ];
 
+    var refresh_timer;
+
     this.display = function(config, params) {
 
         self.config = config;
@@ -53,9 +55,17 @@ function Weather(widget_id) {
             else {
                 $('#' + self.config.container_id + ' .widget_error').hide();
             }
-            setTimeout(function () { self.do_load(); }, 60000);
+            refresh_timer = setTimeout(function () { self.do_load(); }, 60000);
         });
         self.log(self.widget_id,'do_load done');
+    };
+
+    this.close = function () {
+        self.log('closing Weather widget');
+        if (refresh_timer) {
+            self.log('clearTimeout(refresh_timer)');
+            window.clearTimeout(refresh_timer);
+        }
     };
 
     this.log = function() {
