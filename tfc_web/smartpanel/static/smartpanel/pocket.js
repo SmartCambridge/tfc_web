@@ -319,7 +319,7 @@ function display_map(ons_page) {
     let map_config = {
         'title': timetable_config.data.title,
         'map': {
-            'zoom': 14,
+            'zoom': 15,
             'lat': timetable_config.data.stop.latitude,
             'lng': timetable_config.data.stop.longitude,
         },
