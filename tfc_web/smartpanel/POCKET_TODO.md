@@ -36,5 +36,5 @@ TODO
 * Turn off console logging
 * [DONE] Add crash reporting
 * [DONE] Rename 'mobile2' --> 'pocket', delete 'mobile'
-* Move this TODO, remove smartpanel/static/smartpanel/mobile
+* [DONE] Move this TODO, remove smartpanel/static/smartpanel/mobile
 * [DONE] Remove earlier experiments with 1x1 layouts
