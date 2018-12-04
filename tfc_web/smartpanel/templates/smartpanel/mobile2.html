@@ -22,14 +22,16 @@
   <link rel="stylesheet" href="{{ stylesheet }}">
 {% endfor %}
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsenui.css"
+        integrity="sha256-lx+snb1sEoF4FZ409vDRAdaRPSeaCpitIrlqgjx2lIw="
+        crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsen-css-components.min.css"
+        integrity="sha256-wTuU68T9vFNDRwSFBSwBQ86kY0W3kKMEXV6qQ2SE9ak="
+        crossorigin="anonymous" />
+
   <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
-  <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/>
   <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">
   <link rel="stylesheet" href="{% static 'smartpanel/mobile2.css' %}"/>
-
-  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
-  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
-  <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
 
   <!-- errorception error logging -->
   <script>
@@ -40,6 +42,9 @@
     (window,document,"script","5c068c8f998a523571e3acd8");
   </script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/js/onsenui.min.js"
+          integrity="sha256-qhvVlIL6CcPqvw6Jpkbf/M3MHU427GRnfw8Sy/VltqE="
+          crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
           integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
           crossorigin="anonymous"></script>
@@ -54,7 +59,6 @@
 {% for script in scripts %}
   <script src="{{ script }}"></script>
 {% endfor %}
-  <script src="{% static 'smartpanel/widget_config.js' %}"></script>
   <script src="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.js' %}"></script>
   <script src="{% static 'js/rtmonitor_api.js' %}"></script>
   <script src="{% static 'smartpanel/mobile2.js' %}"></script>
