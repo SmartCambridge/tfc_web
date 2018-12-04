@@ -645,7 +645,6 @@ function tooltip_content(msg)
 
 function popup_content(msg)
 {
-    log(msg);
     var time = get_msg_date(msg);
     var time_str = ("0" + time.getHours()).slice(-2)   + ":" +
                    ("0" + time.getMinutes()).slice(-2) + ":" +
