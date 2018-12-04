@@ -57,6 +57,7 @@
 
   <template id="first.html">
     <ons-page id="first">
+      <div class="background"></div>
       <div class="first-page">
         <img src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
         <h1>Pocket SmartPanel</h1>
@@ -66,8 +67,8 @@
           under which it is provided.
         </p>
         <p>
-          Please also confirm that you agree that the Pocket SmartPanel
-          can use your computer or mobile to store the list of the
+          Please also confirm that the Pocket SmartPanel can use the
+          computer or mobile phone that it runs on to store the list of the
           pages that you have chosen to view.
         </p>
         <ons-button id="accept" modifier="large">Yes, that's fine</ons-button>
@@ -77,6 +78,7 @@
 
   <template id="tcs.html">
     <ons-page id="tcs">
+      <div class="background"></div>
       <ons-toolbar>
         <div class="left"><ons-back-button></ons-back-button></div>
         <div class="center">Terms and Disclaimer</div>
@@ -146,12 +148,14 @@
           <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
         </ons-toolbar-button></div>
       </ons-toolbar>
+      <div class="background"></div>
       <ons-list id="page-list" class="page-list"></ons-list>
     </ons-page>
   </template>
 
   <template id="page-display.html">
     <ons-page id="page-display">
+      <div class="background"></div>
     	<ons-toolbar>
     		<div class="left"><ons-back-button></ons-back-button></div>
         <div class="right"><ons-toolbar-button id="map">Map</ons-toolbar-button></div>
@@ -172,6 +176,7 @@
 
   <template id="config.html">
     <ons-page id="config">
+      <div class="background"></div>
       <ons-toolbar>
         <div class="left">
           <ons-toolbar-button id="submit">
@@ -190,10 +195,6 @@
       </div>
     </ons-page>
   </template>
-
-  <ons-popover cancelable direction="down" id="first-time">
-    <div class="first-time">Tap here to add your first page</div>
-  </ons-popover>
 
   <script>
 
