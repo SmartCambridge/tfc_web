@@ -460,12 +460,15 @@ function setup_config(ons_page) {
     let new_params_callback;
     switch (current_params.widget) {
     case 'weather':
+        ons_page.querySelector('ons-toolbar .center').textContent = 'Choose location';
         new_params_callback = weather_config(config_el, config, current_params);
         break;
     case 'station_board':
+        ons_page.querySelector('ons-toolbar .center').textContent = 'Choose station';
         new_params_callback = station_board_config(config_el, config, current_params);
         break;
     case 'stop_timetable':
+        ons_page.querySelector('ons-toolbar .center').textContent = 'Choose bus stop';
         new_params_callback = stop_timetable_config(config_el, config, current_params);
         break;
     }
