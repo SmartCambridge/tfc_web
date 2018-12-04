@@ -8,8 +8,8 @@
 
 // Widget spec requires a DEBUG global (even if empty)
 // const DEBUG = '';
-//const DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
-const DEBUG = 'rtmonitor_api_log';
+const DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
+//const DEBUG = 'rtmonitor_api_log';
 
 // Version number of the agreed TCs
 const TCS_VERSION = 1;
@@ -204,14 +204,16 @@ document.addEventListener('destroy', function(event) {
     console.log(`Running destroy for ${ons_page.id}`);
 
     if (ons_page.id === 'page-display') {
-        if (current_widget) {
+        if (current_widget && 'close' in current_widget) {
             current_widget.close();
         }
+        current_widget = undefined;
     }
     else if (ons_page.id === 'map-display') {
-        if (map_widget) {
+        if (map_widget && 'close' in map_widget) {
             map_widget.close();
         }
+        map_widget = undefined;
     }
 
 });
