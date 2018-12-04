@@ -18,6 +18,6 @@ of 5000 data requests per day and 100 data requests per minute.  The server-side
 script caches responses so that multiple screens all
 updating every minute will hit the service much less frequently.
 
-The widgit displays a 'Connection issues' banner in response either to
+The widgit displays a 'No connection - retrying' banner in response either to
 communication problems accessing the backend server or to error
 responses returned.

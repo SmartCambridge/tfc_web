@@ -103,7 +103,7 @@ function StopBusMap(widget_id) {
         var connection_div = document.createElement('div');
         connection_div.setAttribute('class','stop_bus_map_connection_div');
         connection_div.setAttribute('id', self.config.container_id+'_connection');
-        connection_div.appendChild(document.createTextNode("Connection issues"));
+        connection_div.appendChild(document.createTextNode("No connection - retrying"));
         container_el.appendChild(connection_div);
 
         var title_h1 = document.createElement('h1');

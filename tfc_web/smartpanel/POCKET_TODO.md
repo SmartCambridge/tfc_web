@@ -27,7 +27,7 @@ TODO
 * [DONE] Change scaling logic (use 'device-width', transform widget views)
 * [DONE] 'Map' button appearing on station_board
 * [DONE] Re-work bus_stop_timetable <-> bus_map interaction
-* Re work, re style Connection Problems banner
+* [DONE] Re work, re style Connection Problems banner
 * [DONE] Add .close() method to remaining widgets (at least weather, station_board)
 * [DONE] Page back button wrong if TCs were displayed
 * What's the blue box on the bus map

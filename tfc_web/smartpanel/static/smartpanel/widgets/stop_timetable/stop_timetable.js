@@ -228,7 +228,7 @@ function StopTimetable(widget_id) {
         var connection_div = document.createElement('div');
         connection_div.setAttribute('class','widget_error');
         connection_div.setAttribute('id', id + '_connection');
-        connection_div.appendChild(document.createTextNode('Connection issues'));
+        connection_div.appendChild(document.createTextNode('No connection - retrying'));
         container.appendChild(connection_div);
 
         departure_div = document.createElement('div');
