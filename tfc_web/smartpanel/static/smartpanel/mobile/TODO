@@ -33,3 +33,5 @@ TODO
 * What's the blue box on the bus map
 * Tooltips vs popups on the bus map
 * Content of bus map pop up
+* Turn off console logging
+* Add crash reporting
