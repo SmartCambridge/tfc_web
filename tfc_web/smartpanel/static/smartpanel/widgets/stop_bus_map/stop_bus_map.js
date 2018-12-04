@@ -240,11 +240,11 @@ function create_sensor(msg, clock_time)
     sensor['marker']
         .addTo(map)
         .bindPopup(popup_content(msg), { className: "sensor-popup"})
-        .bindTooltip(tooltip_content(msg), {
-                            // permanent: true,
-                            className: "sensor-tooltip",
-                            interactive: true
-                          })
+        //.bindTooltip(tooltip_content(msg), {
+        //                    // permanent: true,
+        //                    className: "sensor-tooltip",
+        //                    interactive: true
+        //                  })
         .on('click', function()
                 {
                   //log("marker click handler");
@@ -645,15 +645,21 @@ function tooltip_content(msg)
 
 function popup_content(msg)
 {
+    log(msg);
     var time = get_msg_date(msg);
     var time_str = ("0" + time.getHours()).slice(-2)   + ":" +
                    ("0" + time.getMinutes()).slice(-2) + ":" +
                    ("0" + time.getSeconds()).slice(-2);
     var sensor_id = msg[RECORD_INDEX];
+    var departure = new Date(msg['OriginAimedDepartureTime']);
+    var departure_time = ("0" + departure.getHours()).slice(-2)   + ":" +
+                         ("0" + departure.getMinutes()).slice(-2);
     return time_str +
-        '<br/>' + sensor_id +
-		'<br/>Line "' + msg['PublishedLineName'] +'"'+
-        '<br/>Delay: ' + xml_duration_to_string(msg['Delay']);
+		'<br/>Line: ' + msg['PublishedLineName'] +''+
+        '<br/>From: ' + msg['OriginName'] + ' at ' + departure_time +
+        '<br/>To: ' + msg['DestinationName'] + '' +
+        '<br/>Delay: ' + xml_duration_to_string(msg['Delay']) +
+        '<br/>Vehicle: ' + sensor_id;
 }
 
 // user has clicked on 'more' in the sensor popup

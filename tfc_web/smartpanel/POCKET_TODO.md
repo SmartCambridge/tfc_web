@@ -31,8 +31,8 @@ TODO
 * [DONE] Add .close() method to remaining widgets (at least weather, station_board)
 * [DONE] Page back button wrong if TCs were displayed
 * What's the blue box on the bus map
-* Tooltips vs popups on the bus map
-* Content of bus map pop up
+* [DONE] Tooltips vs popups on the bus map
+* [DONE] Content of bus map pop up
 * Turn off console logging
 * [DONE] Add crash reporting
 * [DONE] Rename 'mobile2' --> 'pocket', delete 'mobile'
