@@ -1,6 +1,6 @@
 # SmartCambridge SmartPanel Framework
 
-_Version 6_
+_Version 7_
 
 This directory contains the widgets for the SmartCambridge SmartPanel
 Framework.
@@ -171,6 +171,14 @@ reference any DOM objects.
     [`config_object`, required].
   * `params_object`: the parameters for this widget instance.
     [`params_object`, required]
+
+  This method has no return value.
+
+* `close()` (optional)
+
+  Shutdown the widget. If present, this method should cancel timers, unsubscribe
+  from real-time event subscriptions and generally release any resources
+  that won't otherwise be reclaimed as and when the widget is garbage-collected.
 
   This method has no return value.
 
