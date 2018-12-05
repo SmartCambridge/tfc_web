@@ -35,11 +35,12 @@
     left: 0;
     width: 100%;
     color: white;
-    font-size: 2em;
+    font-size: 1.3em;
     background-color: red;
     text-align: center;
     display: none;
     z-index: 1010;
+    padding: 0.5rem 0;
 }
 
 .sensor-popup {

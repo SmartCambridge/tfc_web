@@ -22,15 +22,29 @@
   <link rel="stylesheet" href="{{ stylesheet }}">
 {% endfor %}
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsenui.css"
+        integrity="sha256-lx+snb1sEoF4FZ409vDRAdaRPSeaCpitIrlqgjx2lIw="
+        crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsen-css-components.min.css"
+        integrity="sha256-wTuU68T9vFNDRwSFBSwBQ86kY0W3kKMEXV6qQ2SE9ak="
+        crossorigin="anonymous" />
+
   <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
-  <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/>
   <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">
-  <link rel="stylesheet" href="{% static 'smartpanel/mobile2.css' %}"/>
+  <link rel="stylesheet" href="{% static 'smartpanel/pocket.css' %}"/>
 
-  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsenui.css">
-  <link rel="stylesheet" href="https://unpkg.com/onsenui/css/onsen-css-components.min.css">
-  <script src="https://unpkg.com/onsenui/js/onsenui.min.js"></script>
+  <!-- errorception error logging -->
+  <script>
+    (function(_,e,rr,s){_errs=[s];var c=_.onerror;_.onerror=function(){var a=arguments;_errs.push(a);
+    c&&c.apply(this,a)};var b=function(){var c=e.createElement(rr),b=e.getElementsByTagName(rr)[0];
+    c.src="//beacon.errorception.com/"+s+".js";c.async=!0;b.parentNode.insertBefore(c,b)};
+    _.addEventListener?_.addEventListener("load",b,!1):_.attachEvent("onload",b)})
+    (window,document,"script","5c068c8f998a523571e3acd8");
+  </script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/js/onsenui.min.js"
+          integrity="sha256-qhvVlIL6CcPqvw6Jpkbf/M3MHU427GRnfw8Sy/VltqE="
+          crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
           integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
           crossorigin="anonymous"></script>
@@ -45,10 +59,9 @@
 {% for script in scripts %}
   <script src="{{ script }}"></script>
 {% endfor %}
-  <script src="{% static 'smartpanel/widget_config.js' %}"></script>
   <script src="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.js' %}"></script>
   <script src="{% static 'js/rtmonitor_api.js' %}"></script>
-  <script src="{% static 'smartpanel/mobile2.js' %}"></script>
+  <script src="{% static 'smartpanel/pocket.js' %}"></script>
 </head>
 
 <body>
@@ -57,6 +70,7 @@
 
   <template id="first.html">
     <ons-page id="first">
+      <div class="background"></div>
       <div class="first-page">
         <img src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}">
         <h1>Pocket SmartPanel</h1>
@@ -66,8 +80,8 @@
           under which it is provided.
         </p>
         <p>
-          Please also confirm that you agree that the Pocket SmartPanel
-          can use your computer or mobile to store the list of the
+          Please also confirm that the Pocket SmartPanel can use the
+          computer or mobile phone that it runs on to store the list of the
           pages that you have chosen to view.
         </p>
         <ons-button id="accept" modifier="large">Yes, that's fine</ons-button>
@@ -77,6 +91,7 @@
 
   <template id="tcs.html">
     <ons-page id="tcs">
+      <div class="background"></div>
       <ons-toolbar>
         <div class="left"><ons-back-button></ons-back-button></div>
         <div class="center">Terms and Disclaimer</div>
@@ -146,12 +161,14 @@
           <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
         </ons-toolbar-button></div>
       </ons-toolbar>
+      <div class="background"></div>
       <ons-list id="page-list" class="page-list"></ons-list>
     </ons-page>
   </template>
 
   <template id="page-display.html">
     <ons-page id="page-display">
+      <div class="background"></div>
     	<ons-toolbar>
     		<div class="left"><ons-back-button></ons-back-button></div>
         <div class="right"><ons-toolbar-button id="map">Map</ons-toolbar-button></div>
@@ -172,6 +189,7 @@
 
   <template id="config.html">
     <ons-page id="config">
+      <div class="background"></div>
       <ons-toolbar>
         <div class="left">
           <ons-toolbar-button id="submit">
@@ -190,10 +208,6 @@
       </div>
     </ons-page>
   </template>
-
-  <ons-popover cancelable direction="down" id="first-time">
-    <div class="first-time">Tap here to add your first page</div>
-  </ons-popover>
 
   <script>
 

@@ -1,4 +1,4 @@
-.widget {
+.page .background {
     background-color: #fff;
 }
 
@@ -27,30 +27,33 @@
     width: 40px;
 }
 
+.default {
+    font-weight: bold;
+}
+
 .config-area {
     height: 100%;
     width: 100%;
 }
 
-.default {
-    font-weight: bold;
-}
-
-.first-time {
-    padding: 1rem;
+.config-area ons-select {
+    display: block;
+    margin-left: 15%;
+    margin-right: 15%;
+    margin-top: 1rem;
+    width: 70%;
 }
 
 .first-page {
-    background-color: #fff;
     height: 100%;
     padding: 1em;
 }
 
 .first-page img {
     display: block;
-    max-width: 300px;
     margin-left: auto;
     margin-right: auto;
+    max-width: 300px;
     width: 100%;
 }
 

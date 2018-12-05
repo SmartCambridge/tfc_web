@@ -14,8 +14,8 @@ const DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log
 // Version number of the agreed TCs
 const TCS_VERSION = 1;
 
-const VERSION_KEY = 'MOBILE_SMARTPANEL_TCS_VERSION';
-const PAGES_KEY = 'MOBILE_SMARTPANEL_PAGES';
+const VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
+const PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
 
 // Available weather stations and their names
 const WEATHER_OPTIONS = [
@@ -319,7 +319,7 @@ function display_map(ons_page) {
     let map_config = {
         'title': timetable_config.data.title,
         'map': {
-            'zoom': 14,
+            'zoom': 15,
             'lat': timetable_config.data.stop.latitude,
             'lng': timetable_config.data.stop.longitude,
         },
@@ -460,12 +460,15 @@ function setup_config(ons_page) {
     let new_params_callback;
     switch (current_params.widget) {
     case 'weather':
+        ons_page.querySelector('ons-toolbar .center').textContent = 'Choose location';
         new_params_callback = weather_config(config_el, config, current_params);
         break;
     case 'station_board':
+        ons_page.querySelector('ons-toolbar .center').textContent = 'Choose station';
         new_params_callback = station_board_config(config_el, config, current_params);
         break;
     case 'stop_timetable':
+        ons_page.querySelector('ons-toolbar .center').textContent = 'Choose bus stop';
         new_params_callback = stop_timetable_config(config_el, config, current_params);
         break;
     }
@@ -492,29 +495,24 @@ function setup_config(ons_page) {
 
 }
 
-
 // Configuration helper for weather pages
 function weather_config(config_el, config, current_params) {
 
-    let widget_config = new WidgetConfig(config);
-
-    let config_table = document.createElement('table');
-    config_el.appendChild(config_table);
-
-    var location_callbacks = widget_config.input(
-        config_table,
-        'select',
-        {
-            text: 'Location:',
-            title: 'Choose your weather location from the dropdown',
-            options: WEATHER_OPTIONS
-        },
-        current_params.data.location
-    );
+    let select = document.createElement('ons-select');
+    WEATHER_OPTIONS.forEach(function (element) {
+        let option = document.createElement('option');
+        option.setAttribute('value', element.value);
+        option.textContent = element.text;
+        if (current_params.data.location === element.value) {
+            option.setAttribute('selected', 'true');
+        }
+        select.appendChild(option);
+    });
+    config_el.appendChild(select);
 
     return function () {
-        let location = location_callbacks.value();
-        let title;
+        let location = select.value;
+        let title = '';
         for (let i=0; i<WEATHER_OPTIONS.length; i++) {
             if (WEATHER_OPTIONS[i].value === location) {
                 title = WEATHER_OPTIONS[i].text;
@@ -534,25 +532,21 @@ function weather_config(config_el, config, current_params) {
 /// Configuration helper for train timetable pages
 function station_board_config(config_el, config, current_params) {
 
-    let widget_config = new WidgetConfig(config);
-
-    let config_table = document.createElement('table');
-    config_el.appendChild(config_table);
-
-    var station_callbacks = widget_config.input(
-        config_table,
-        'select',
-        {
-            text: 'Station:',
-            title: 'Choose your station from the dropdown',
-            options: STATION_OPTIONS
-        },
-        current_params.data.station
-    );
+    let select = document.createElement('ons-select');
+    STATION_OPTIONS.forEach(function (element) {
+        let option = document.createElement('option');
+        option.setAttribute('value', element.value);
+        option.textContent = element.text;
+        if (current_params.data.location === element.value) {
+            option.setAttribute('selected', 'true');
+        }
+        select.appendChild(option);
+    });
+    config_el.appendChild(select);
 
     return function () {
-        let station = station_callbacks.value();
-        let title;
+        let station = select.value;
+        let title = '';
         for (let i=0; i<STATION_OPTIONS.length; i++) {
             if (STATION_OPTIONS[i].value === station) {
                 title = STATION_OPTIONS[i].text;

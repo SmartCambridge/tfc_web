@@ -130,9 +130,10 @@
     background: red;
     color: white;
     display: none;
-    font-size: 2em;
+    font-size: 1.3em;
     left: 0;
     position: absolute;
+    padding: 0.5rem 0;
     text-align: center;
     top: 0;
     width: 100%;

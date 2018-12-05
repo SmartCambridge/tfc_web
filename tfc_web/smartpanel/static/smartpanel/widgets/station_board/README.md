@@ -14,6 +14,6 @@ script caches responses for 30 seconds so that multiple screens all
 updating every 30 seconds will only hit the service once for each update
 cycle. Access to the Darwin service is authorised by an API key.
 
-The widgit displays a 'Connection issues' banner in response either to
+The widgit displays a 'No connection - retrying' banner in response either to
 communication problems accessing the backend server or to error
 responses returned.
