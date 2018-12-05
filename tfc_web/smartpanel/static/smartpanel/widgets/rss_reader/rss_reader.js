@@ -326,12 +326,12 @@ function RssReader(widget_id) {
                     break;
 
                 case 'rfc2282_today':
-                    log('item_element','rfc2282',tag,xml_value);
+                    log('item_element','rfc2282_today',tag,xml_value);
                     div.appendChild(document.createTextNode(date_rfc2282(xml_value,true)));
                     break;
 
                 case 'iso8601_today':
-                    log('item_element','iso8601',tag,xml_value);
+                    log('item_element','iso8601_today',tag,xml_value);
                     var js_date = new Date(xml_value);
                     div.appendChild(document.createTextNode(date_iso8601(xml_value,true)));
                     break;
@@ -348,8 +348,12 @@ function RssReader(widget_id) {
         return null;
     }
 
-    function date_rfc2282(xml_value) {
-        return date_iso8601(xml_value);
+    // Format a rfc2282 date for display
+    // The 'today' value is a boolean => display "TODAY" rather than today's date.
+    // Note because Javascript new Date() function accepts both rfc2282 and iso8601 formats (they're similar),
+    // we can implement the rfc2282 function as a  shim for the iso8601 function.
+    function date_rfc2282(xml_value,today) {
+        return date_iso8601(xml_value,today);
     }
 
     function date_iso8601(xml_value, today) {
@@ -492,24 +496,24 @@ function RssReader(widget_id) {
                                        },
                                 item:  [
                                          { tag: 'title',
-                                           style: 'color: blue; font-weight: bold',
+                                           style: 'color: blue; font-weight: normal;',
                                            format: 'html_to_text'
                                          },
                                          { tag: 'ev:location' },
                                          { tag: 'description',
-                                           style: 'margin-left: 20px; font-size: 0.8em; font-style: italic',
+                                           style: 'margin-left: 20px; font-size: 0.8em; font-style: italic;',
                                            slice: { from: 0, to: 200, append: '...' },
                                            format: 'html_to_text'
                                          },
                                          { tag: 'pubDate',
-                                           style: 'margin-left: 20px; margin-bottom: 10px; color: #222222; font-weight: normal; font-size: 0.8em; font-style: italic',
+                                           style: 'margin-left: 20px; margin-bottom: 10px; color: green; font-weight: normal; font-size: 0.8em; font-style: italic;',
                                            format: 'rfc2282'
                                          }
                                        ]
     };
 
     DEFAULT_PARAMS['events'] = {   title: { text: 'CL Talks',
-                                            style: 'font-weight: bold; font-size: 1.5em'
+                                            style: 'font-weight: bold; font-size: 1.5em;'
                                           },
                                    url:   'https://talks.cam.ac.uk/show/rss/6330',
                                    feed_type: 'events',
@@ -519,17 +523,17 @@ function RssReader(widget_id) {
                                           },
                                    item:  [
                                             { tag: 'ev:startdate',
-                                              style: 'color: green; font-weight: bold',
-                                              format: 'iso8601'
+                                              style: 'color: green; font-weight: normal;',
+                                              format: 'iso8601_today'
                                             },
                                             { tag: 'title',
-                                              style: 'color: #990000; font-weight: normal',
+                                              style: 'color: #990000; font-weight: normal;',
                                               // For talks.cam to remove date from title... slice: { from: 17 },
                                               format: 'html_to_text'
                                             },
                                             { tag: 'ev:location' },
                                             { tag: 'description',
-                                              style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic',
+                                              style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic;',
                                               slice: { from: 0, to: 200, append: '...' },
                                               format: 'html_to_text'
                                             }
@@ -586,6 +590,8 @@ function RssReader(widget_id) {
         var config_info1 = document.createElement('p');
         var config_info_text = "This widget displays an RSS feed.";
         config_info_text += " 'Main Title' is any text to appear in bold at the top of the feed list.";
+        config_info_text += " Example feeds include (news) http://feeds.bbci.co.uk/news/rss.xml, or ";
+        config_info_text += "(events) https://talks.cam.ac.uk/show/rss/6330.";
         config_info1.appendChild(document.createTextNode(config_info_text));
         parent_el.appendChild(config_info1);
 
