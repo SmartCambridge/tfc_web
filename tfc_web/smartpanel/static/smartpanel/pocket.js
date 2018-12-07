@@ -127,16 +127,19 @@ document.addEventListener('init', function(event) {
 
         ons_page.querySelector('#edit').addEventListener('click', function() {
             ons_page.classList.add('edit-mode');
-            // Hide the chevron
-            ons_page.querySelectorAll('.page-list ons-list-item').forEach(function(item) {
-                item.setAttribute('modifier', 'longdivider');
+            // Hide the chevron - using Array.prototype.forEach.call to
+            // work around lack of nodeList.forEach()
+            var nodes = ons_page.querySelectorAll('.page-list ons-list-item');
+            Array.prototype.forEach.call(nodes, function(item) {
+                ons.modifier.remove(item, 'chevron');
             });
         });
         ons_page.querySelector('#done').addEventListener('click', function() {
             ons_page.classList.remove('edit-mode');
-            // Restore the chevron
-            ons_page.querySelectorAll('.page-list ons-list-item').forEach(function(item) {
-                item.setAttribute('modifier', 'chevron longdivider');
+            // Restore the chevron - see above
+            var nodes = ons_page.querySelectorAll('.page-list ons-list-item');
+            Array.prototype.forEach.call(nodes, function(item) {
+                ons.modifier.add(item, 'chevron');
             });
         });
 
@@ -367,13 +370,10 @@ function populate_page_list(ons_page) {
         var page_config = PAGES[page_number];
         var item = document.createElement('ons-list-item');
         item.setAttribute('tappable', '');
-
-        // Don't add the chevron in edit mode
-        if (ons_page.classList.contains('edit-mode')) {
-            item.setAttribute('modifier', 'longdivider');
-        }
-        else {
-            item.setAttribute('modifier', 'chevron longdivider');
+        ons.modifier.add(item, 'longdivider');
+        // Add the chevron if not in edit mode
+        if (!ons_page.classList.contains('edit-mode')) {
+            ons.modifier.add(item, 'chevron');
         }
 
         item.innerHTML =
