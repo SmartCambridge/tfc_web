@@ -271,7 +271,7 @@ function display_page(page_number, ons_page) {
     container_el.classList.add('widget', widget_type);
     widget_container.appendChild(container_el);
 
-    ons_page.querySelector('#map').hidden = true;
+    ons_page.querySelector('#map').classList.add('hidden');
     switch (widget_type) {
     case 'weather':
         current_widget = new Weather('weather');
@@ -281,7 +281,7 @@ function display_page(page_number, ons_page) {
         break;
     case 'stop_timetable':
         current_widget = new StopTimetable('stop_timetable');
-        ons_page.querySelector('#map').hidden = false;
+        ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
             rt_client_id: 'pocket_smartpanel',
             rt_client_name: 'Pocket SmartPanel',
