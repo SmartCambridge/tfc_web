@@ -540,6 +540,34 @@ function RssReader(widget_id) {
                                           ]
     };
 
+    DEFAULT_PARAMS['talks.cam'] = {   title: { text: 'CL Talks',
+                                            style: 'font-weight: bold; font-size: 1.5em;'
+                                          },
+                                   url:   'https://talks.cam.ac.uk/show/rss/6330',
+                                   feed_type: 'events',
+                                   items: { tag: 'item',
+                                            sort: 'ev:startdate',
+                                            sort_order: 'ascending'
+                                          },
+                                   item:  [
+                                            { tag: 'ev:startdate',
+                                              style: 'color: green; font-weight: normal;',
+                                              format: 'iso8601_today'
+                                            },
+                                            { tag: 'title',
+                                              style: 'color: #990000; font-weight: normal;',
+                                              slice: { from: 17 },
+                                              format: 'html_to_text'
+                                            },
+                                            { tag: 'ev:location' },
+                                            { tag: 'description',
+                                              style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic;',
+                                              slice: { from: 0, to: 200, append: '...' },
+                                              format: 'html_to_text'
+                                            }
+                                          ]
+    };
+
     // params.feed_type is 'news'|'events'|'custom'
     // and params.feed_type = 'custom' will reveal the custom format paramters on the config div
     var feed_type = 'news';
@@ -646,6 +674,12 @@ function RssReader(widget_id) {
                     custom_result = input_rss_custom(custom_div, DEFAULT_PARAMS['events']);
                     break;
 
+                case 'talks.cam':
+                    log('Talks.cam');
+                    feed_type = 'talks.cam';
+                    custom_result = input_rss_custom(custom_div, DEFAULT_PARAMS['talks.cam']);
+                    break;
+
                 default:
                     break;
             }
@@ -736,6 +770,7 @@ function RssReader(widget_id) {
         tr.appendChild(td);
         add_radio_button(td, 'rss_type', 'news',   'News',   feed_type, click_fn);
         add_radio_button(td, 'rss_type', 'events', 'Events', feed_type, click_fn);
+        add_radio_button(td, 'rss_type', 'talks.cam', 'Talks.cam', feed_type, click_fn);
         add_radio_button(td, 'rss_type', 'custom', 'Custom', feed_type, click_fn);
     }
 

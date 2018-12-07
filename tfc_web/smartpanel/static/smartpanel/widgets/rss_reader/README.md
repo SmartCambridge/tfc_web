@@ -53,12 +53,13 @@ RSS items ordered by publication date, with each item displayed as:
 
 ### 'News' vs 'Events'
 
+#### News
+
 Note that the RSS format (in XML) is essentially designed to display news items as 'latest first', using
 an `<rss>` XML envelope containing multiple `<item>` sections, each of which contains a news item. 
 Each `<item>` is structured to provide sub-elements, particularly
 `<title>`, `<description>` and `<pubDate>`. 
 
-I.e. at its simplest, an RSS feed can be thought of as:
 ```
 <rss>
   <item>
@@ -75,6 +76,9 @@ I.e. at its simplest, an RSS feed can be thought of as:
 To view the content of a real news feed, visit [CL News](https://www.cst.cam.ac.uk/news/feed).
 
 #### Events
+
+Summary: a standard rss `<item>` with a `<pubDate>` is ok for news, but doesn't have anywhere to put additional key fields
+such as a date/time an event is scheduled for (so we support `<ev:startdate>`) or a location (so 'ev:location').
 
 Unfortunately, the general RSS feed format isn't sufficient if what you want to publish is a feed containing
 'events' (such as meetings or talks) which require explicit support for the date and location of each event. The 
@@ -107,19 +111,21 @@ default parameters are provided at the end of this README.
 We'll review the configuration parameters in two parts: firstly for the feed in general, and then specifically how each
 item should be rendered.
 
-### RSS feed configuration parameters
-
 The general feed configuration parameters are:
 
-* `title`
+* `title` (the title to appear at the top of the feed display)
 
-* `url`
+* `url` (the web address to get the feed from)
 
-* `feed_type`
+* `feed_type` (whether this uses the default `news` or `events` format, or is fully `custom`)
 
-* `items`
+* `items` (which rss element contains each news or event item, defaults to `item`)
 
-#### `title`
+In addition, for the format of each news or event item, we have:
+
+* `item` (see section below)
+
+### `title`
 
 Object controlling display of the main title of the widget, containing:
 
@@ -127,20 +133,20 @@ Object controlling display of the main title of the widget, containing:
 
 * `style` - CSS attributes for this main title, e.g. "font-weight: bold; color: green"
 
-#### `url`
+### `url`
 
 String containing the URL of the required RSS feed, e.g. "https://www.cst.cam.ac.uk/news/feed"
 
 The widget will periodically retrieve data from this URL (via the RSS proxy, see above).
 
-#### `feed_type`
+### `feed_type`
 
 String containing `news` or `events` or `custom`.
 
 This doesn't directly affect the widget display, but is used during configuration to load
 different configuration 'presets'.
 
-#### `items`
+### `items`
 
 `items` is an object containing:
 
@@ -151,7 +157,7 @@ different configuration 'presets'.
 
 * `sort_order` - String, `ascending` or `descending`
 
-### RSS `item` configuration parameters
+### `item`
 
 The `item` configuration parameter is the most complex, and determines which properties (such as
 `title`) are picked out of each RSS item element, and how they're displayed.
@@ -176,69 +182,91 @@ string. The `slice` object contains the following properties:
 
 * `format` - a string containing one of
     * `html_to_text` - strips all html tags out of the sub-element, resulting in a plain text string.
-    * `iso8601` - assumes the field is an ISO 8601 date time field
-    * `rfc2282` - assumes the field is an RFC 2282 date time field (like `pubDate`)
-    * `html` - accepts a safe subset of the html markup in the sub-element value
+    * `iso8601` - (e.g. event feed ev.startdate) assumes the field is an ISO 8601 date time field.
+    * `rfc2282` - (e.g. news feed pubDate) assumes the field is an RFC 2282 date time field.
+    * `iso8601_today` - as `iso8601` except today's date will be replaced with the word 'TODAY' (useful for events)
+    * `rfc2282_today` - as above but for rfc2282.
+    * `html` - accepts a safe subset of the html markup in the element value
     * `text` - accepts the source value unchanged
 
 For examples of the use of these configuration parameters see the news or events defaults below.
 
+## Talks.cam
+
+As this widget has been developed at Cambridge University, it includes direct support for the RSS feeds provided by
+our awesome 'talks' communication platform, [talks.cam](https://talks.cam.ac.uk).
+
+E.g. the Computer Science talks are collected on [this web page](https://talks.cam.ac.uk/show/index/6330) and can be
+retrieved as a [RSS feed here](https://talks.cam.ac.uk/show/rss/6330).
+
+Note the *only* difference from the default 'events' configuration and the specific configuration required for talks.cam
+is an `item.slice` property to chop off the first 17 characters of the event item `title`. The talks.cam RSS feed has
+the event start time embedded in the title (e.g. `<title>Tue 22 Jan 14:00: Evil on the Internet </title>`). I.e. 
+as below for `DEFAULT_PARAMS['events']` plus
+```
+...
+item: {
+    ...
+    slice: { from: 17 },
+}
+```
 ## Default configuration parameters
 
 ```
-    DEFAULT_PARAMS['news'] = { title: { text: 'CL News',
-                                 style: 'font-weight: bold; font-size: 1.5em'
-                                  },
-                        url:   'https://www.cst.cam.ac.uk/news/feed',
-                        feed_type: 'news',
-                        items: { tag: 'item',
-                                 sort: 'pubDate',
-                                 sort_order: 'descending'
-                               },
-                        item:  [
-                                 { tag: 'title',
-                                   style: 'color: blue; font-weight: bold',
-                                   format: 'html_to_text'
-                                 },
-                                 { tag: 'ev:location' },
-                                 { tag: 'description',
-                                   style: 'margin-left: 20px; font-size: 0.8em; font-style: italic',
-                                   slice: { from: 0, to: 200, append: '...' },
-                                   format: 'html_to_text'
-                                 },
-                                 { tag: 'pubDate',
-                                   style: 'margin-left: 20px; margin-bottom: 10px; color: #222222; font-weight: normal; font-size: 0.8em; font-style: italic',
-                                   format: 'rfc2282'
-                                 }
-                               ]
+
+    DEFAULT_PARAMS['news'] = {  title: { text: 'CL News',
+                                         style: 'font-weight: bold; font-size: 1.5em'
+                                       },
+                                url: 'https://www.cst.cam.ac.uk/news/feed',
+                                feed_type: 'news',
+                                items: { tag: 'item',
+                                         sort: 'pubDate',
+                                         sort_order: 'descending'
+                                       },
+                                item:  [
+                                         { tag: 'title',
+                                           style: 'color: blue; font-weight: normal;',
+                                           format: 'html_to_text'
+                                         },
+                                         { tag: 'ev:location' },
+                                         { tag: 'description',
+                                           style: 'margin-left: 20px; font-size: 0.8em; font-style: italic;',
+                                           slice: { from: 0, to: 200, append: '...' },
+                                           format: 'html_to_text'
+                                         },
+                                         { tag: 'pubDate',
+                                           style: 'margin-left: 20px; margin-bottom: 10px; color: green; font-weight: normal; font-size: 0.8em; font-style: italic;',
+                                           format: 'rfc2282'
+                                         }
+                                       ]
     };
 
-    DEFAULT_PARAMS['events'] = { title: { text: 'CL Talks',
-                          style: 'font-weight: bold; font-size: 1.5em'
-                        },
-               url:   'https://talks.cam.ac.uk/show/rss/6330',
-               feed_type: 'events',
-               items: { tag: 'item',
-                        sort: 'ev:startdate',
-                        sort_order: ascending
-                      },
-               item:  [
-                        { tag: 'ev:startdate',
-                          style: 'color: green; font-weight: bold',
-                          format: 'iso8601'
-                        },
-                        { tag: 'title',
-                          style: 'color: #990000; font-weight: normal',
-                          // For talks.cam to remove date from title... slice: { from: 17 },
-                          format: 'html_to_text'
-                        },
-                        { tag: 'ev:location' },
-                        { tag: 'description',
-                          style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic',
-                          slice: { from: 0, to: 200, append: '...' },
-                          format: 'html_to_text'
-                        }
-                      ]
+    DEFAULT_PARAMS['events'] = {   title: { text: 'CL Talks',
+                                            style: 'font-weight: bold; font-size: 1.5em;'
+                                          },
+                                   url:   'https://talks.cam.ac.uk/show/rss/6330',
+                                   feed_type: 'events',
+                                   items: { tag: 'item',
+                                            sort: 'ev:startdate',
+                                            sort_order: 'ascending'
+                                          },
+                                   item:  [
+                                            { tag: 'ev:startdate',
+                                              style: 'color: green; font-weight: normal;',
+                                              format: 'iso8601_today'
+                                            },
+                                            { tag: 'title',
+                                              style: 'color: #990000; font-weight: normal;',
+                                              // For talks.cam to remove date from title... slice: { from: 17 },
+                                              format: 'html_to_text'
+                                            },
+                                            { tag: 'ev:location' },
+                                            { tag: 'description',
+                                              style: 'margin-left: 20px; margin-bottom: 10px; font-size: 0.8em; font-style: italic;',
+                                              slice: { from: 0, to: 200, append: '...' },
+                                              format: 'html_to_text'
+                                            }
+                                          ]
     };
 ```
 
