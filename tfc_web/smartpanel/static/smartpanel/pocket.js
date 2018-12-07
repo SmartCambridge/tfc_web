@@ -570,36 +570,32 @@ function list_chooser(el, current, VALUES) {
 
     var list = document.createElement('ons-list');
     list.setAttribute('modifier', 'inset');
-    list.classList.add('select-list');
     for (var row = 0; row < VALUES.length; ++row) {
         var element = VALUES[row];
         var list_item = document.createElement('ons-list-item');
+        list_item.setAttribute('tappable', 'true');
         list_item.innerHTML =
-            '<div class="center">' + element.text + '</div>' +
-            '<div class="right"><ons-icon class="checkmark" icon="ion-checkmark-round"></ons-icon></div>';
+            '<label class="left">' +
+            '  <ons-radio name="choice" input-id="' + element.value + '""></ons-radio>' +
+            '</label>' +
+            '<label for="' + element.value +'" class="center">' +
+                element.text +
+            '</label>';
         if (current === element.value) {
             choosen_row = row;
-            list_item.classList.add('selected');
+            list_item.querySelector('ons-radio').setAttribute('checked', 'true');
         }
         list.appendChild(list_item);
     }
 
     if (choosen_row === undefined) {
         choosen_row = 0;
-        list.childNodes[0].classList.add('selected');
+        list.childNodes[0].querySelector('ons-radio').setAttribute('checked', 'true');
     }
 
     list.addEventListener('click', function(evt) {
         var this_item = evt.target.closest('ons-list-item');
         choosen_row = getElementIndex(this_item);
-        list.querySelectorAll('ons-list-item').forEach(function (item) {
-            if (item === this_item) {
-                item.classList.add('selected');
-            }
-            else {
-                item.classList.remove('selected');
-            }
-        });
     });
     el.appendChild(list);
 
