@@ -906,8 +906,8 @@ function StopTimetable(widget_id) {
             // Delay
             row.delay = {};
             if (fresh_timestamp(journey)) {
-                var minutes = Math.trunc(journey.delay.asMinutes());
-                var hours = Math.trunc(journey.delay.asHours());
+                var minutes = journey.delay.minutes();
+                var hours = journey.delay.hours();
                 var eta = journey.eta.format('HH:mm');
                 row.delay.mark = false;
                 if (minutes < 1) {
