@@ -926,6 +926,11 @@ function StopTimetable(widget_id) {
                     row.rows += 1;
                 }
             }
+            else if (journey.first.due.isBefore()) {
+                row.delay.text = 'Realtime data missing';
+                row.delay.mark = true;
+                row.rows += 1;
+            }
 
             rows.push(row);
 
