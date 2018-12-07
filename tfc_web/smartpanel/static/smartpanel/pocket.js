@@ -384,7 +384,7 @@ function populate_page_list(ons_page) {
             '  ' + page_config.title +
             '</div>' +
             '<div class="right">' +
-            '  <span class="show-edit">' +
+            '  <span class="show-edit delete">' +
             '    <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="18px, material:lg">' +
             '    </ons-icon>' +
             '  </span>' +
