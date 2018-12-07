@@ -338,6 +338,25 @@ function close(client_id)
     {
         console.log('RTMonitorAPI','close','client_id',client_id,'not found');
     }
+    // iterate through *all* clients and if none are connected to rt_monitor_api then
+    // drop the server socket connection
+    for (var client_id in clients)
+    {
+        var all_clients_disconnected = true; // will set to false if we find *any* client connected
+        if (clients.hasOwnProperty(client_id))
+        {
+            if ( clients[client_id].connected )
+            {
+                all_clients_disconnected = false;
+                break;
+            }
+        }
+    }
+    if (all_clients_disconnected)
+    {
+        log('close()','All clients disconnected, so closing server socket');
+        self.disconnect();
+    }
 }
 
 function unsubscribe_client(client_id)
