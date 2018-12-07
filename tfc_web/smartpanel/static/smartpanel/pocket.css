@@ -7,20 +7,12 @@
     width: 100%;
 }
 
-.edit {
+.show-normal, .edit-mode .show-edit {
     display: inline;
 }
 
-.edit-mode .edit {
+.show-edit, .edit-mode .show-normal {
     display: none;
-}
-
-.done, .delete {
-    display: none;
-}
-
-.edit-mode .done, .edit-mode .delete {
-    display: inline;
 }
 
 .list-icon {
