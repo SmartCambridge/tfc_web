@@ -68,3 +68,15 @@
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+.select-list .checkmark {
+    display: none;
+}
+
+.select-list .selected .checkmark  {
+    display: inline;
+}
+
+.select-list ons-list-item.selected {
+    background-color: #eee;
+}

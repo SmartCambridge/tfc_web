@@ -496,35 +496,18 @@ function setup_config(ons_page) {
 
 }
 
+
 // Configuration helper for weather pages
 function weather_config(config_el, config, current_params) {
 
-    var select = document.createElement('ons-select');
-    WEATHER_OPTIONS.forEach(function (element) {
-        var option = document.createElement('option');
-        option.setAttribute('value', element.value);
-        option.textContent = element.text;
-        if (current_params.data.location === element.value) {
-            option.setAttribute('selected', 'true');
-        }
-        select.appendChild(option);
-    });
-    config_el.appendChild(select);
+    var result = list_chooser(config_el, current_params.data.location, WEATHER_OPTIONS);
 
     return function () {
-        var location = select.value;
-        var title = '';
-        for (var i=0; i<WEATHER_OPTIONS.length; i++) {
-            if (WEATHER_OPTIONS[i].value === location) {
-                title = WEATHER_OPTIONS[i].text;
-                break;
-            }
-        }
         return {
             widget: current_params.widget,
-            title: title,
+            title: result().text,
             data: {
-                location: location
+                location: result().value
             }
         };
     };
@@ -533,37 +516,18 @@ function weather_config(config_el, config, current_params) {
 /// Configuration helper for train timetable pages
 function station_board_config(config_el, config, current_params) {
 
-    var select = document.createElement('ons-select');
-    STATION_OPTIONS.forEach(function (element) {
-        var option = document.createElement('option');
-        option.setAttribute('value', element.value);
-        option.textContent = element.text;
-        if (current_params.data.location === element.value) {
-            option.setAttribute('selected', 'true');
-        }
-        select.appendChild(option);
-    });
-    config_el.appendChild(select);
+    var result = list_chooser(config_el, current_params.data.station, STATION_OPTIONS);
 
     return function () {
-        var station = select.value;
-        var title = '';
-        for (var i=0; i<STATION_OPTIONS.length; i++) {
-            if (STATION_OPTIONS[i].value === station) {
-                title = STATION_OPTIONS[i].text;
-                break;
-            }
-        }
         return {
             widget: current_params.widget,
-            title: title,
+            title: result().text,
             data: {
-                station: station
+                station: result().value
             }
         };
     };
 }
-
 
 // Configuration helper for bus timetable pages
 function stop_timetable_config(config_el, config, current_params) {
@@ -594,6 +558,58 @@ function stop_timetable_config(config_el, config, current_params) {
             }
         };
     };
+}
+
+// Display a list chooser in `el` populated with items taken from `VALUES`.
+// Select the row identified by `current` if defined, else the first row.
+// Return a function that returns an object containing the selected value and
+// text.
+function list_chooser(el, current, VALUES) {
+
+    var choosen_row;
+
+    var list = document.createElement('ons-list');
+    list.setAttribute('modifier', 'inset');
+    list.classList.add('select-list');
+    for (var row = 0; row < VALUES.length; ++row) {
+        var element = VALUES[row];
+        var list_item = document.createElement('ons-list-item');
+        list_item.innerHTML =
+            '<div class="center">' + element.text + '</div>' +
+            '<div class="right"><ons-icon class="checkmark" icon="ion-checkmark-round"></ons-icon></div>';
+        if (current === element.value) {
+            choosen_row = row;
+            list_item.classList.add('selected');
+        }
+        list.appendChild(list_item);
+    }
+
+    if (choosen_row === undefined) {
+        choosen_row = 0;
+        list.childNodes[0].classList.add('selected');
+    }
+
+    list.addEventListener('click', function(evt) {
+        var this_item = evt.target.closest('ons-list-item');
+        choosen_row = getElementIndex(this_item);
+        list.querySelectorAll('ons-list-item').forEach(function (item) {
+            if (item === this_item) {
+                item.classList.add('selected');
+            }
+            else {
+                item.classList.remove('selected');
+            }
+        });
+    });
+    el.appendChild(list);
+
+    return function() {
+        return {
+            value: VALUES[choosen_row].value,
+            text: VALUES[choosen_row].text
+        };
+    };
+
 }
 
 /* UTILITIES */
