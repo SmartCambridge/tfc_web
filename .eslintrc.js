@@ -1,12 +1,8 @@
 module.exports = {
     "env": {
         "browser": true,
-        "es6": true
     },
     "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaVersion": 2016
-    },
     "rules": {
         "indent": [
             "error",
@@ -34,10 +30,6 @@ module.exports = {
         ],
         "guard-for-in": "warn",
         "no-shadow": "warn",
-        "max-lines-per-function": [
-            "warn",
-            200
-        ],
         "no-bitwise": "warn",
         "no-trailing-spaces": "error",
         "eol-last": "error",
