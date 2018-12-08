@@ -181,6 +181,10 @@ function rtmonitor_connected()
 
 function subscribe()
 {
+    var SUBSCRIBE_SCALE = 3.0; // x & y scale of subscription vs. map
+
+    var boundary_offset = (SUBSCRIBE_SCALE - 1) / 2; // given the SUBSCRIBE_SCALE, this is how far to expand the 'box'
+
     log(self.widget_id, 'subscribe(), sending lat/lng subscription');
 
     var map_bounds = map.getBounds();
@@ -189,8 +193,8 @@ function subscribe()
     var map_ne = map_bounds.getNorthEast();
 
     // We will subscribe to real-time data in a box larger than the map bounds
-    var boundary_ns = (map_ne.lat - map_sw.lat) * 0.5;
-    var boundary_ew = (map_ne.lng - map_sw.lng) * 0.5;
+    var boundary_ns = (map_ne.lat - map_sw.lat) * boundary_offset;
+    var boundary_ew = (map_ne.lng - map_sw.lng) * boundary_offset;
     var north = map_ne.lat + boundary_ns;
     var south = map_sw.lat - boundary_ns;
     var east = map_ne.lng + boundary_ew;

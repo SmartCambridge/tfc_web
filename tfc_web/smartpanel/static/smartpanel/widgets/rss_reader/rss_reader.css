@@ -1,2 +1,11 @@
-/* Styles for the rss_reader widget */
+/* Styles for the rss_reader widget
+ *
+ */
+
+.rss_items { padding: 4px;
+}
+
+.rss_title { padding: 2px;
+             text-align: center;
+}
 
