@@ -62,7 +62,7 @@ function Weather(widget_id) {
         xhr.onreadystatechange = function() {
             if(xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status !== 200) {
-                    self.log(self.widget_id, 'Error loading station board', xhr.status, xhr.statusText);
+                    self.log(self.widget_id, 'Error loading weather', xhr.status, xhr.statusText);
                     self.widget_error.style.display = 'block';
                 }
                 else {
