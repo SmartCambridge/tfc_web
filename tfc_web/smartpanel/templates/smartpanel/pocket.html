@@ -213,9 +213,14 @@
 
   <script>
 
-    const WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
-    const STATIC_URL = '{% static 'smartpanel/widgets/' %}';
-    const RT_TOKEN = '{{ rt_token }}';
+    // Pre-load the spinner so it can be displayed on the stop_timetabl;e page
+    // even if there's no network connection
+    var img = new Image();
+    img.src ="{% static 'smartpanel/widgets/stop_timetable/indicator-lite.gif' %}";
+
+    var WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
+    var STATIC_URL = "{% static 'smartpanel/widgets/' %}";
+    var RT_TOKEN = '{{ rt_token }}';
 
   </script>
 
