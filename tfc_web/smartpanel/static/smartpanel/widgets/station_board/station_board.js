@@ -1,7 +1,5 @@
 /* Station Board Widget for ACP Lobby Screen */
 
-/*global $ */
-
 function StationBoard(widget_id, params) {
 
     'use strict';
