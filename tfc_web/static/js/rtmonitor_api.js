@@ -1,6 +1,7 @@
 "use strict"
 /* JS Socket code to access RTMonitor real-time sirivm data */
 //
+// 3.2  only connect to server when first client connects, disconnect from server after last client calls close()
 // 3.1  restructure of rtmonitor API, .register(..) returns api object (.connect, .subscribe, .unsubscribe)
 // 3.0  move most this.X -> var X
 // 2.0  restructure to Object + methods
@@ -22,7 +23,7 @@ var RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm';
 
 var self = this;
 
-var VERSION = '3.1';
+var VERSION = '3.2';
 
 //var DEBUG = 'rtmonitor_api_log';
 
@@ -45,7 +46,7 @@ var sock = {}; // the page's WebSocket
 
 var sock_timer = {}; // intervalTimer we use for retries iif socket has failed
 
-var dnr = false; // "Do Not Resuscitate" flag, 'true' disables 'reconnect' in sock.onclose callback
+var revive = true; // "Resuscitate" flag, 'false' disables 'reconnect' in sock.onclose callback
 
 //var connect_callbacks = [];
 
@@ -100,7 +101,7 @@ this.connect = function()
 {
     log('RTMonitorAPI connect()');
 
-    dnr = false; // Do Not Resuscitate to 'off', i.e. an unexpected close will reconnect
+    revive = true; // an unexpected close will try and reconnect
 
     sock = new SockJS(RTMONITOR_URI);
 
@@ -173,8 +174,10 @@ this.connect = function()
 
                 requests = {};
 
-                // check to see if we have any connected clients, and warn if "Do Not Resuscitate"
-                var client_was_connected = false;
+                // check to see if we have any connected clients,
+                // if so, call their disconnect_callback().
+                // and Warn if "Do Not Resuscitate" is set
+                var client_connected = false;
 
                 for (var client_id in clients)
                 {
@@ -182,33 +185,34 @@ this.connect = function()
                     {
                         if ( clients[client_id].connected )
                         {
-                            client_was_connected = true;
+                            client_connected = true;
 
                             clients[client_id].disconnect_callback();
                         }
                     }
                 }
 
-                // if "Do Not Resuscitate" is true, and we have connected clients, then warn,
-                // or if !dnr then periodically try and reconnect
-                if (dnr)
+                // if "revive" is true, and we have connected clients, then start reconnect timer
+                if (revive && client_connected)
                 {
-                    if (client_was_connected)
-                    {
-                        console.log('RTMonitorAPI','sock.close','WARN - RTMonitorAPI.disconnect() called with connected clients');
-                    }
-                } else {
                     console.log('RTMonitorAPI','sock.onclose','starting interval timer trying to reconnect');
                     clearInterval(sock_timer);
                     sock_timer = setInterval(reconnect, 10000);
+                } else {
+                    if (client_connected)
+                    {
+                        console.log('RTMonitorAPI','sock.close','WARN - RTMonitorAPI.disconnect() called with connected clients');
+                    }
                 }
-    };
-};
+    }; // end sock.onclose()
+
+}; // end this.connect()
 
 // Disconnect has been explicitly called, so do not resuscitate in 'sock.onclose' callback
 this.disconnect = function ()
 {
-    dnr = true; // do not resuscitate
+    revive = false; // do not resuscitate
+    clearInterval(sock_timer); // stop a prior auto-reconnect timer if it is running
     sock.close();
 }
 
@@ -340,19 +344,19 @@ function close(client_id)
     }
     // iterate through *all* clients and if none are connected to rt_monitor_api then
     // drop the server socket connection
+    var client_connected = false; // will set to true if we find *any* client connected
     for (var client_id in clients)
     {
-        var all_clients_disconnected = true; // will set to false if we find *any* client connected
         if (clients.hasOwnProperty(client_id))
         {
             if ( clients[client_id].connected )
             {
-                all_clients_disconnected = false;
+                client_connected = true;
                 break;
             }
         }
     }
-    if (all_clients_disconnected)
+    if (!client_connected)
     {
         log('close()','All clients disconnected, so closing server socket');
         self.disconnect();
@@ -400,9 +404,6 @@ function log(str)
         console.log.apply(console, args);
     }
 }
-
-// FINALLY, we connect to the server
-//this.connect();
 
 // END of 'class' RTMonitorAPI
 }
