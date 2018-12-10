@@ -19,6 +19,7 @@
     background-origin: content-box;
     background-repeat: no-repeat;
     border-radius: 4px;
+    box-sizing: content-box;
     height: 32px;
     padding: 5px;
     position: absolute;
