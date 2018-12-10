@@ -534,6 +534,7 @@ function stop_timetable_config(config_el, config, current_params) {
 
     var chooser_options = {
         multi_select: false,
+        popups: true,
         api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
         api_token: config.settings.SMARTPANEL_API_TOKEN
     };
@@ -547,7 +548,7 @@ function stop_timetable_config(config_el, config, current_params) {
 
     return function () {
         var stop = chooser.getData().stops[0];
-        var title = stop.indicator + ' ' + stop.common_name;
+        var title = formatted_stop_name(stop.indicator, stop.common_name);
         return {
             widget: current_params.widget,
             title: title,
@@ -606,6 +607,43 @@ function list_chooser(el, current, VALUES) {
         };
     };
 
+}
+
+function formatted_stop_name(indicator, common_name) {
+
+    // Fix up abbreviations
+    switch (indicator) {
+    case 'opp':
+        indicator = 'opposite';
+        break;
+    case 'o/s':
+    case 'os':
+        indicator = 'outside';
+        break;
+    case 'adj':
+    case 'adjacent':
+        indicator = 'adjacent to';
+        break;
+    case 'nr':
+        indicator = 'near';
+        break;
+    case 'cnr':
+        indicator = 'corner';
+        break;
+    }
+
+    if (indicator === undefined) {
+        indicator = '';
+    }
+
+    if ( [
+        'opposite', 'outside', 'adjacent to', 'near', 'behind', 'inside', 'by', 'in',
+        'at', 'on', 'before', 'just before', 'after', 'just after', 'corner of'].includes(indicator)) {
+        return indicator.charAt(0).toUpperCase() + indicator.slice(1) + ' ' + common_name;
+    }
+    else {
+        return common_name + ' (' + indicator + ')';
+    }
 }
 
 /* UTILITIES */
