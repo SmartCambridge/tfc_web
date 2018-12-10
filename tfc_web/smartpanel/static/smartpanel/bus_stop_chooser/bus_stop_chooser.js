@@ -86,9 +86,12 @@ var BusStopChooser = (function() {
             indicator = '';
         }
 
-        if ( [
+        // indicators that come before the common name
+        var prefixes = [
             'opposite', 'outside', 'adjacent to', 'near', 'behind', 'inside', 'by', 'in',
-            'at', 'on', 'before', 'just before', 'after', 'just after', 'corner of'].includes(indicator)) {
+            'at', 'on', 'before', 'just before', 'after', 'just after', 'corner of'
+        ];
+        if ( prefixes.indexOf(indicator) >= 0) {
             return indicator.charAt(0).toUpperCase() + indicator.slice(1) + ' ' + common_name;
         }
         else {
