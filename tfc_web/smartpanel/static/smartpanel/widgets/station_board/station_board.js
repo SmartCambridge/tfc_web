@@ -59,6 +59,17 @@ function StationBoard(widget_id, params) {
 
         self.params = params;
 
+        var container = document.getElementById(self.config.container_id);
+
+        this.widget_error = document.createElement('h1');
+        this.widget_error.classList.add('widget_error');
+        this.widget_error.textContent = 'No connection - retrying';
+        container.appendChild(self.widget_error);
+
+        this.content_area = document.createElement('div');
+        this.content_area.classList.add('content_area');
+        container.appendChild(self.content_area);
+
         this.do_load();
     };
 
@@ -74,20 +85,25 @@ function StationBoard(widget_id, params) {
         if (self.params.offset) {
             url += "&offset=" + self.params.offset;
         }
-        url += " .content_area";
 
         this.log(self.widget_id, "do_load URI", url);
-        this.log(self.widget_id, "Container", '#' + self.config.container_id);
-        $('#' + self.config.container_id).load(url, function (response, status, xhr) {
-            if (status === 'error') {
-                self.log(self.widget_id, "Error loading station board", xhr.status, xhr.statusText);
-                $('#' + self.config.container_id + ' .widget_error').show();
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status !== 200) {
+                    self.log(self.widget_id, 'Error loading station_board', xhr.status, xhr.statusText);
+                    self.widget_error.style.display = 'block';
+                }
+                else {
+                    self.content_area.innerHTML = xhr.responseText;
+                    self.widget_error.style.display = 'none';
+                }
+                refresh_timer = setTimeout(function () { self.do_load(); }, 60 * SECONDS);
             }
-            else {
-                $('#' + self.config.container_id + ' .widget_error').hide();
-            }
-            refresh_timer = setTimeout(function () { self.do_load(); }, 60 * SECONDS);
-        });
+        };
+        xhr.send();
 
         this.log(self.widget_id, "do_load done");
     };

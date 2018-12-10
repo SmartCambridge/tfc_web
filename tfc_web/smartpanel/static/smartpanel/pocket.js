@@ -127,16 +127,19 @@ document.addEventListener('init', function(event) {
 
         ons_page.querySelector('#edit').addEventListener('click', function() {
             ons_page.classList.add('edit-mode');
-            // Hide the chevron
-            ons_page.querySelectorAll('.page-list ons-list-item').forEach(function(item) {
-                item.setAttribute('modifier', 'longdivider');
+            // Hide the chevron - using Array.prototype.forEach.call to
+            // work around lack of nodeList.forEach()
+            var nodes = ons_page.querySelectorAll('.page-list ons-list-item');
+            Array.prototype.forEach.call(nodes, function(item) {
+                ons.modifier.remove(item, 'chevron');
             });
         });
         ons_page.querySelector('#done').addEventListener('click', function() {
             ons_page.classList.remove('edit-mode');
-            // Restore the chevron
-            ons_page.querySelectorAll('.page-list ons-list-item').forEach(function(item) {
-                item.setAttribute('modifier', 'chevron longdivider');
+            // Restore the chevron - see above
+            var nodes = ons_page.querySelectorAll('.page-list ons-list-item');
+            Array.prototype.forEach.call(nodes, function(item) {
+                ons.modifier.add(item, 'chevron');
             });
         });
 
@@ -268,7 +271,7 @@ function display_page(page_number, ons_page) {
     container_el.classList.add('widget', widget_type);
     widget_container.appendChild(container_el);
 
-    ons_page.querySelector('#map').hidden = true;
+    ons_page.querySelector('#map').classList.add('hidden');
     switch (widget_type) {
     case 'weather':
         current_widget = new Weather('weather');
@@ -278,7 +281,7 @@ function display_page(page_number, ons_page) {
         break;
     case 'stop_timetable':
         current_widget = new StopTimetable('stop_timetable');
-        ons_page.querySelector('#map').hidden = false;
+        ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
             rt_client_id: 'pocket_smartpanel',
             rt_client_name: 'Pocket SmartPanel',
@@ -367,13 +370,10 @@ function populate_page_list(ons_page) {
         var page_config = PAGES[page_number];
         var item = document.createElement('ons-list-item');
         item.setAttribute('tappable', '');
-
-        // Don't add the chevron in edit mode
-        if (ons_page.classList.contains('edit-mode')) {
-            item.setAttribute('modifier', 'longdivider');
-        }
-        else {
-            item.setAttribute('modifier', 'chevron longdivider');
+        ons.modifier.add(item, 'longdivider');
+        // Add the chevron if not in edit mode
+        if (!ons_page.classList.contains('edit-mode')) {
+            ons.modifier.add(item, 'chevron');
         }
 
         item.innerHTML =
@@ -384,7 +384,7 @@ function populate_page_list(ons_page) {
             '  ' + page_config.title +
             '</div>' +
             '<div class="right">' +
-            '  <span class="delete">' +
+            '  <span class="show-edit delete">' +
             '    <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="18px, material:lg">' +
             '    </ons-icon>' +
             '  </span>' +
@@ -496,35 +496,18 @@ function setup_config(ons_page) {
 
 }
 
+
 // Configuration helper for weather pages
 function weather_config(config_el, config, current_params) {
 
-    var select = document.createElement('ons-select');
-    WEATHER_OPTIONS.forEach(function (element) {
-        var option = document.createElement('option');
-        option.setAttribute('value', element.value);
-        option.textContent = element.text;
-        if (current_params.data.location === element.value) {
-            option.setAttribute('selected', 'true');
-        }
-        select.appendChild(option);
-    });
-    config_el.appendChild(select);
+    var result = list_chooser(config_el, current_params.data.location, WEATHER_OPTIONS);
 
     return function () {
-        var location = select.value;
-        var title = '';
-        for (var i=0; i<WEATHER_OPTIONS.length; i++) {
-            if (WEATHER_OPTIONS[i].value === location) {
-                title = WEATHER_OPTIONS[i].text;
-                break;
-            }
-        }
         return {
             widget: current_params.widget,
-            title: title,
+            title: result().text,
             data: {
-                location: location
+                location: result().value
             }
         };
     };
@@ -533,37 +516,18 @@ function weather_config(config_el, config, current_params) {
 /// Configuration helper for train timetable pages
 function station_board_config(config_el, config, current_params) {
 
-    var select = document.createElement('ons-select');
-    STATION_OPTIONS.forEach(function (element) {
-        var option = document.createElement('option');
-        option.setAttribute('value', element.value);
-        option.textContent = element.text;
-        if (current_params.data.location === element.value) {
-            option.setAttribute('selected', 'true');
-        }
-        select.appendChild(option);
-    });
-    config_el.appendChild(select);
+    var result = list_chooser(config_el, current_params.data.station, STATION_OPTIONS);
 
     return function () {
-        var station = select.value;
-        var title = '';
-        for (var i=0; i<STATION_OPTIONS.length; i++) {
-            if (STATION_OPTIONS[i].value === station) {
-                title = STATION_OPTIONS[i].text;
-                break;
-            }
-        }
         return {
             widget: current_params.widget,
-            title: title,
+            title: result().text,
             data: {
-                station: station
+                station: result().value
             }
         };
     };
 }
-
 
 // Configuration helper for bus timetable pages
 function stop_timetable_config(config_el, config, current_params) {
@@ -594,6 +558,54 @@ function stop_timetable_config(config_el, config, current_params) {
             }
         };
     };
+}
+
+// Display a list chooser in `el` populated with items taken from `VALUES`.
+// Select the row identified by `current` if defined, else the first row.
+// Return a function that returns an object containing the selected value and
+// text.
+function list_chooser(el, current, VALUES) {
+
+    var choosen_row;
+
+    var list = document.createElement('ons-list');
+    list.setAttribute('modifier', 'inset');
+    for (var row = 0; row < VALUES.length; ++row) {
+        var element = VALUES[row];
+        var list_item = document.createElement('ons-list-item');
+        list_item.setAttribute('tappable', 'true');
+        list_item.innerHTML =
+            '<label class="left">' +
+            '  <ons-radio name="choice" input-id="' + element.value + '""></ons-radio>' +
+            '</label>' +
+            '<label for="' + element.value +'" class="center">' +
+                element.text +
+            '</label>';
+        if (current === element.value) {
+            choosen_row = row;
+            list_item.querySelector('ons-radio').setAttribute('checked', 'true');
+        }
+        list.appendChild(list_item);
+    }
+
+    if (choosen_row === undefined) {
+        choosen_row = 0;
+        list.childNodes[0].querySelector('ons-radio').setAttribute('checked', 'true');
+    }
+
+    list.addEventListener('click', function(evt) {
+        var this_item = evt.target.closest('ons-list-item');
+        choosen_row = getElementIndex(this_item);
+    });
+    el.appendChild(list);
+
+    return function() {
+        return {
+            value: VALUES[choosen_row].value,
+            text: VALUES[choosen_row].text
+        };
+    };
+
 }
 
 /* UTILITIES */

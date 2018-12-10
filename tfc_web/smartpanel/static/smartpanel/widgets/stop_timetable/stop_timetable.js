@@ -108,8 +108,10 @@ function StopTimetable(widget_id) {
         subscription_timer_id,
         // The ID of the timer that refreshes the displayed journey list
         journey_timer_id,
-        // Flag, set whan the widget is stopping
+        // Flag, set when the widget is stopping
         closing = false,
+        // When the widget was last started
+        started,
         // Master table of today's journeys - top-level keys
         //     timetable: Raw TNDS timetable entry from API
         //       first: timetable object of first (origin) stop
@@ -149,6 +151,8 @@ function StopTimetable(widget_id) {
         journey_table = [];
 
         journey_index = {};
+
+        started = moment();
 
         // clear all existing timers
         stop_timers();
@@ -906,8 +910,8 @@ function StopTimetable(widget_id) {
             // Delay
             row.delay = {};
             if (fresh_timestamp(journey)) {
-                var minutes = Math.trunc(journey.delay.asMinutes());
-                var hours = Math.trunc(journey.delay.asHours());
+                var minutes = journey.delay.minutes();
+                var hours = journey.delay.hours();
                 var eta = journey.eta.format('HH:mm');
                 row.delay.mark = false;
                 if (minutes < 1) {
@@ -925,6 +929,11 @@ function StopTimetable(widget_id) {
                     row.delay.mark = true;
                     row.rows += 1;
                 }
+            }
+            else if (moment().diff(started, 'seconds') > 45 && journey.first.due.isBefore()) {
+                row.delay.text = 'Realtime data missing';
+                row.delay.mark = true;
+                row.rows += 1;
             }
 
             rows.push(row);

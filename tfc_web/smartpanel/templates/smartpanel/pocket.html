@@ -45,9 +45,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/js/onsenui.min.js"
           integrity="sha256-qhvVlIL6CcPqvw6Jpkbf/M3MHU427GRnfw8Sy/VltqE="
           crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-          integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-          crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
           integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w="
           crossorigin="anonymous"></script>
@@ -152,14 +149,19 @@
     	<ons-toolbar>
         <div class="left">
           <ons-toolbar-button>
-            <span id="edit" class="edit">Edit</span>
-            <span id="done" class="done default">Done</span>
+            <span id="edit" class="show-normal">Edit</span>
+            <span id="done" class="show-edit default">Done</span>
           </ons-toolbar-button>
         </div>
-        <div class="center">Pocket SmartPanel</div>
-        <div class="right"><ons-toolbar-button id="add" class="pages-add">
-          <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
-        </ons-toolbar-button></div>
+        <div class="center">
+            <span class="show-normal">Pocket SmartPanel</span>
+            <span class="show-edit">Edit pages</span>
+        </div>
+        <div class="right">
+          <ons-toolbar-button id="add" class="show-normal">
+            <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
+          </ons-toolbar-button>
+        </div>
       </ons-toolbar>
       <div class="background"></div>
       <ons-list id="page-list" class="page-list"></ons-list>
@@ -211,9 +213,14 @@
 
   <script>
 
-    const WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
-    const STATIC_URL = '{% static 'smartpanel/widgets/' %}';
-    const RT_TOKEN = '{{ rt_token }}';
+    // Pre-load the spinner so it can be displayed on the stop_timetabl;e page
+    // even if there's no network connection
+    var img = new Image();
+    img.src ="{% static 'smartpanel/widgets/stop_timetable/indicator-lite.gif' %}";
+
+    var WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
+    var STATIC_URL = "{% static 'smartpanel/widgets/' %}";
+    var RT_TOKEN = '{{ rt_token }}';
 
   </script>
 
