@@ -78,6 +78,26 @@ ons.ready(function () {
 
     console.log('Running ready()');
 
+    // Setup back button
+    if (window.history && window.history.pushState) {
+        document.querySelector('#myNavigator').addEventListener('postpush', function() {
+            history.pushState({}, '');
+        });
+
+        window.onpopstate = function() {
+            var navigator = document.querySelector('#myNavigator');
+            // If there's more than one page on the stack then pop all but the first
+            if (navigator.pages.length > 1) {
+                var times = navigator.pages.length - 1;
+                navigator.popPage({times: times, animation: 'slide-ios, fade-md'});
+            }
+            // Otherwise just go back
+            else {
+                window.history.back();
+            }
+        };
+    }
+
     // Retrieve the configuration
     if (localStorage.getItem(PAGES_KEY)) {
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
