@@ -169,6 +169,7 @@ document.addEventListener('init', function(event) {
     // Page display ----------------------------------------------------
 
     else if (ons_page.id === 'page-display') {
+        // Has to be '.onclick' to replace default action
         ons_page.querySelector('ons-back-button').onClick = function() {
             var times = navigator.pages.length - 1;
             navigator.popPage({times: times, animation: 'slide-ios, fade-md'});
