@@ -1,14 +1,16 @@
 "use strict"
 /* JS Socket code to access RTMonitor real-time sirivm data */
 //
+function RTMonitorAPI(client_data) {
+
+var VERSION = '3.3';
+// 3.3  added raw() and request() methods to rtmonitor api client (for rtroute.js)
 // 3.2  only connect to server when first client connects, disconnect from server after last client calls close()
 // 3.1  restructure of rtmonitor API, .register(..) returns api object (.connect, .subscribe, .unsubscribe)
 // 3.0  move most this.X -> var X
 // 2.0  restructure to Object + methods
 // 1.0  initial working version RTMonitor JS Proxy
 //
-function RTMonitorAPI(client_data) {
-
 // client_data will passed to rt_monitor at connect time
 // to help identify/validate the client.
 // client_data = { rt_client_id: <unique id for this client>
@@ -22,8 +24,6 @@ var RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm';
 //this.RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm';
 
 var self = this;
-
-var VERSION = '3.2';
 
 //var DEBUG = 'rtmonitor_api_log';
 
@@ -63,31 +63,25 @@ var clients = {}; // connected client dictionary
 var next_client_index = 0; // We will give each client a unique id
 
 // for debug, test socket disconnect with '#' key
-document.onkeydown = function(evt) {
-    evt = evt || window.event;
-    log('keydown '+evt.keyCode);
-    if (evt.keyCode == 222) // '#' keycode
-    {
-        test_disconnect();
-        //clearInterval(self.progress_timer);
-        return;
-    }
-    if (evt.keyCode == 187) // '=' keycode
-    {
-        self.disconnect(); // disconnect but do not reconnect
-        return;
-    }
-}; // end onkeydown
+//document.onkeydown = function(evt) {
+//    evt = evt || window.event;
+//    log('keydown '+evt.keyCode);
+//    if (evt.keyCode == 222) // '#' keycode
+//    {
+//        test_disconnect();
+//        //clearInterval(self.progress_timer);
+//        return;
+//    }
+//    if (evt.keyCode == 187) // '=' keycode
+//    {
+//        self.disconnect(); // disconnect but do not reconnect
+//        return;
+//    }
+//}; // end onkeydown
 
-/*
-this.init = function()
-{
-    log('RTMonitorAPI init()');
-
-    self.connect();
+this.init = function () {
+    console.log('RTMonitorAPI', 'WARN - init() called (now redundant)');
 };
-*/
-this.init = function () {};
 
 
 // ***************************************************************************
@@ -148,7 +142,15 @@ this.connect = function()
                     log('RTMonitorAPI websocket message received for '+msg.request_id);
                     //self.log(e.data);
 
-                    var client_id = requests[msg.request_id].client_id;
+                    if (!requests[msg.request_id])
+                    {
+                        log('sock.onmessage','ignoring msg',msg.request_id,'not in requests table');
+                        return;
+                    }
+
+                    var rq_info = requests[msg.request_id];
+
+                    var client_id = rq_info.client_id;
 
                     if (!clients[client_id] || !clients[client_id].connected)
                     {
@@ -156,9 +158,8 @@ this.connect = function()
                         return;
                     }
 
-                    var rq_info = requests[msg.request_id];
-
                     rq_info.callback(msg);
+                    return;
                 }
                 else
                 {
@@ -228,6 +229,8 @@ this.register = function (connect_callback, disconnect_callback) {
                    // client methods
                    subscribe: subscribe(client_id),
                    unsubscribe: unsubscribe(client_id),
+                   request: request(client_id),
+                   raw: raw(client_id),
                    connect: function () {
                                 this.connected = true;
                                 if (rt_connection_status == 'connected')
@@ -248,18 +251,47 @@ this.register = function (connect_callback, disconnect_callback) {
     return client;
 }
 
-//DEBUG - this.request() not yet implemented (or used)
 // Caller has issued a request for one-time return of sensor data
-//function request(request_id, msg_obj, request_callback)
-//{
-//    log('RTMonitorAPI request request_id '+request_id);
-//
-//    requests[request_id] = { callback: request_callback } ;
-//
-//    var msg = JSON.stringify(msg_obj);
-//
-//    return this.sock_send_str(msg);
-//};
+function request(client_id)
+{
+    return function(request_id, msg_obj, callback)
+        {
+            var request_id = client_id+'_'+request_id;
+            msg_obj.msg_type = 'rt_request';
+            msg_obj.request_id = request_id;
+
+            log('request()', request_id);
+
+            var msg = JSON.stringify(msg_obj);
+
+            requests[request_id] = { client_id: client_id,
+                                     callback: callback
+                                   } ;
+
+            return self.sock_send_str(msg);
+               //return subscribe(client_id+'_'+request_id, msg_obj, callback);
+    };
+}
+
+// Return a function that sends a message to the server 'raw', i.e. no mangling the request_id
+function raw(client_id)
+{
+    return function(msg_obj, callback) {
+        var request_id = msg_obj.request_id;
+        log('raw() ', client_id, request_id);
+
+        if (request_id)
+        {
+            requests[request_id] = { client_id: client_id,
+                                     callback: callback
+                                   } ;
+        }
+
+        var msg = JSON.stringify(msg_obj);
+
+        return self.sock_send_str(msg);
+    };
+}
 
 // rt_subscribe is a wrapper that returns a 'subscribe(...)' function with the client_id embedded
 function subscribe(client_id)
