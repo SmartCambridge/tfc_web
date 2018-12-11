@@ -63,31 +63,25 @@ var clients = {}; // connected client dictionary
 var next_client_index = 0; // We will give each client a unique id
 
 // for debug, test socket disconnect with '#' key
-document.onkeydown = function(evt) {
-    evt = evt || window.event;
-    log('keydown '+evt.keyCode);
-    if (evt.keyCode == 222) // '#' keycode
-    {
-        test_disconnect();
-        //clearInterval(self.progress_timer);
-        return;
-    }
-    if (evt.keyCode == 187) // '=' keycode
-    {
-        self.disconnect(); // disconnect but do not reconnect
-        return;
-    }
-}; // end onkeydown
+//document.onkeydown = function(evt) {
+//    evt = evt || window.event;
+//    log('keydown '+evt.keyCode);
+//    if (evt.keyCode == 222) // '#' keycode
+//    {
+//        test_disconnect();
+//        //clearInterval(self.progress_timer);
+//        return;
+//    }
+//    if (evt.keyCode == 187) // '=' keycode
+//    {
+//        self.disconnect(); // disconnect but do not reconnect
+//        return;
+//    }
+//}; // end onkeydown
 
-/*
-this.init = function()
-{
-    log('RTMonitorAPI init()');
-
-    self.connect();
+this.init = function () {
+    console.log('RTMonitorAPI', 'WARN - init() called (now redundant)');
 };
-*/
-this.init = function () {};
 
 
 // ***************************************************************************
