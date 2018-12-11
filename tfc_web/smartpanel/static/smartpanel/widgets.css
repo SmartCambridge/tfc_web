@@ -83,7 +83,7 @@
 /* The relative offset is a hack to get the content to */
 /* appear to align correctly with it's smaller-sized   */
 /* neighbours. Set by eye */
-.widget th.key, .widget td.key {
+.widget th .key, .widget td .key {
     font-size: 1.4rem;
     font-weight: normal;
     position: relative;
