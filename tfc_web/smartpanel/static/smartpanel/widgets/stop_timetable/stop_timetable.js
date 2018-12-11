@@ -759,8 +759,10 @@ function StopTimetable(widget_id) {
 
             cell = document.createElement('td');
             cell.classList.add('time');
-            cell.classList.add('key');
-            cell.appendChild(document.createTextNode(journey.due.format('HH:mm')));
+            var span = document.createElement('span');
+            span.classList.add('key');
+            cell.appendChild(span);
+            span.appendChild(document.createTextNode(journey.due.format('HH:mm')));
             row.appendChild(cell);
 
             // ETA, providing most recent RT record in the last minute
@@ -977,9 +979,11 @@ function StopTimetable(widget_id) {
             td = document.createElement('td');
             tr.appendChild(td);
             td.classList.add('expected');
-            td.classList.add('key');
             td.setAttribute('rowspan', row.rows);
-            td.textContent = row.due;
+            var span = document.createElement('span');
+            span.classList.add('key');
+            td.appendChild(span);
+            span.textContent = row.due;
 
             td = document.createElement('td');
             tr.appendChild(td);
@@ -1287,8 +1291,10 @@ function StopTimetable(widget_id) {
                     // Due time
                     cell = document.createElement('td');
                     cell.classList.add('time');
-                    cell.classList.add('key');
-                    cell.appendChild(document.createTextNode(journey.due.format('HH:mm')));
+                    var span = document.createElement('span');
+                    span.classList.add('key');
+                    cell.appendChild(span);
+                    span.appendChild(document.createTextNode(journey.due.format('HH:mm')));
                     row.appendChild(cell);
 
                     // ETA

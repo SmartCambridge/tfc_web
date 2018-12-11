@@ -4,11 +4,13 @@
            WIDGET_CONFIG, STATIC_URL, RT_TOKEN
 */
 
+/* exported DEBUG */
+
 'use strict';
 
 // Widget spec requires a DEBUG global (even if empty)
-// var DEBUG = '';
-var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
+var DEBUG = '';
+// var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'rtmonitor_api_log';
 
 // Version number of the agreed TCs
@@ -76,7 +78,25 @@ var map_widget;
 // App startup
 ons.ready(function () {
 
-    console.log('Running ready()');
+    // Setup back button
+    if (window.history && window.history.pushState) {
+        document.querySelector('#myNavigator').addEventListener('postpush', function() {
+            history.pushState({}, '');
+        });
+
+        window.onpopstate = function() {
+            var navigator = document.querySelector('#myNavigator');
+            // If there's more than one page on the stack then pop all but the first
+            if (navigator.pages.length > 1) {
+                var times = navigator.pages.length - 1;
+                navigator.popPage({times: times, animation: 'slide-ios, fade-md'});
+            }
+            // Otherwise just go back
+            else {
+                window.history.back();
+            }
+        };
+    }
 
     // Retrieve the configuration
     if (localStorage.getItem(PAGES_KEY)) {
@@ -99,8 +119,6 @@ ons.ready(function () {
 document.addEventListener('init', function(event) {
     var ons_page = event.target;
     var navigator = document.querySelector('#myNavigator');
-
-    console.log('Running init for ' + ons_page.id);
 
     // First page ------------------------------------------------------
 
@@ -149,6 +167,7 @@ document.addEventListener('init', function(event) {
     // Page display ----------------------------------------------------
 
     else if (ons_page.id === 'page-display') {
+        // Has to be '.onclick' to replace default action
         ons_page.querySelector('ons-back-button').onClick = function() {
             var times = navigator.pages.length - 1;
             navigator.popPage({times: times, animation: 'slide-ios, fade-md'});
@@ -182,29 +201,9 @@ document.addEventListener('init', function(event) {
 });
 
 
-// page display handler
-document.addEventListener('show', function(event) {
-    var ons_page = event.target;
-
-    console.log('Running show for ' + ons_page.id);
-
-});
-
-
-// Page hide display
-document.addEventListener('hide', function(event) {
-    var ons_page = event.target;
-
-    console.log('Running hide for ' + ons_page.id);
-
-});
-
-
 // Page destroy handler
 document.addEventListener('destroy', function(event) {
     var ons_page = event.target;
-
-    console.log('Running destroy for ' + ons_page.id);
 
     if (ons_page.id === 'page-display') {
         if (current_widget && 'close' in current_widget) {

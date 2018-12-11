@@ -13,6 +13,8 @@
 
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
 
+  <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+
 {% for stylesheet in external_stylesheets %}
   <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %}
         integrity="{{ stylesheet.integrity }}"
@@ -29,7 +31,6 @@
         integrity="sha256-wTuU68T9vFNDRwSFBSwBQ86kY0W3kKMEXV6qQ2SE9ak="
         crossorigin="anonymous" />
 
-  <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
   <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">
   <link rel="stylesheet" href="{% static 'smartpanel/pocket.css' %}"/>
 
