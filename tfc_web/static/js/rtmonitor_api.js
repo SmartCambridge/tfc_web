@@ -142,7 +142,15 @@ this.connect = function()
                     log('RTMonitorAPI websocket message received for '+msg.request_id);
                     //self.log(e.data);
 
-                    var client_id = requests[msg.request_id].client_id;
+                    if (!requests[msg.request_id])
+                    {
+                        log('sock.onmessage','ignoring msg',msg.request_id,'not in requests table');
+                        return;
+                    }
+
+                    var rq_info = requests[msg.request_id];
+
+                    var client_id = rq_info.client_id;
 
                     if (!clients[client_id] || !clients[client_id].connected)
                     {
@@ -150,9 +158,8 @@ this.connect = function()
                         return;
                     }
 
-                    var rq_info = requests[msg.request_id];
-
                     rq_info.callback(msg);
+                    return;
                 }
                 else
                 {
@@ -273,9 +280,12 @@ function raw(client_id)
         var request_id = msg_obj.request_id;
         log('raw() ', client_id, request_id);
 
-        requests[request_id] = { client_id: client_id,
-                                 callback: callback
-                               } ;
+        if (request_id)
+        {
+            requests[request_id] = { client_id: client_id,
+                                     callback: callback
+                                   } ;
+        }
 
         var msg = JSON.stringify(msg_obj);
 
