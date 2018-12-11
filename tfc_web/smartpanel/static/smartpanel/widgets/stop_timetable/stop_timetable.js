@@ -70,8 +70,10 @@ function StopTimetable(widget_id) {
 
         // Maximum refresh interval for the display
         DISPLAY_REFRESH_INTERVAL      = 30 * SECONDS,
-        // MAximum refresh interval for real-time subscriptions
+        // Maximum refresh interval for real-time subscriptions
         SUBSCRIPTION_REFRESH_INTERVAL = 60 * SECONDS,
+        // Retry interval following failed API call
+        API_RETRY_INTERVAL = 10 * SECONDS,
         // Maximum number of departures to add to the table
         MAX_LINES                     = 50,
         // Number of timetable journeys to retrieve in one batch
@@ -108,10 +110,12 @@ function StopTimetable(widget_id) {
         subscription_timer_id,
         // The ID of the timer that refreshes the displayed journey list
         journey_timer_id,
+        // API retry timer
+        api_retry_timer_id,
         // Flag, set when the widget is stopping
         closing = false,
-        // When the widget was last started
-        started,
+        // When the real time data feed was last started
+        rt_started,
         // Master table of today's journeys - top-level keys
         //     timetable: Raw TNDS timetable entry from API
         //       first: timetable object of first (origin) stop
@@ -151,8 +155,6 @@ function StopTimetable(widget_id) {
         journey_table = [];
 
         journey_index = {};
-
-        started = moment();
 
         // clear all existing timers
         stop_timers();
@@ -328,12 +330,18 @@ function StopTimetable(widget_id) {
         xhr.send();
         xhr.onreadystatechange = function() {
             if(!closing && (xhr.readyState === XMLHttpRequest.DONE)) {
-                var api_result = JSON.parse(xhr.responseText);
                 if (xhr.status !== 200) {
-                    self.log('get_journey_batch - API error, status', xhr.status, api_result.details);
+                    self.log('get_journey_batch - API error, status', xhr.status, xhr.responseText);
+                    if (!closing) {
+                        self.log('get_journey_batch - scheduling retry');
+                        api_retry_timer_id = window.setTimeout(function () {
+                            get_journey_batch(iteration);
+                        }, API_RETRY_INTERVAL);
+                    }
                 }
                 else {
                     self.log('get_journey_batch','API return status 200');
+                    var api_result = JSON.parse(xhr.responseText);
                     var added = add_journeys(iteration,api_result);
                     // Run refresh_display() unconditionally so it
                     // can set up an empty display if there aren't any
@@ -507,6 +515,7 @@ function StopTimetable(widget_id) {
         document.getElementById(self.config.container_id+'_connection').style.display = 'none';
         // Re-establish all the subscriptions that we need
         refresh_subscriptions();
+        rt_started = moment();
     }
 
 
@@ -930,7 +939,9 @@ function StopTimetable(widget_id) {
                     row.rows += 1;
                 }
             }
-            else if (moment().diff(started, 'seconds') > 45 && journey.first.due.isBefore()) {
+            // This journey has no fresh real time data AND we've had RT data for at least 45 seconds AND
+            // the journey should have started
+            else if (rt_started && moment().diff(rt_started, 'seconds') > 45 && journey.first.due.isBefore()) {
                 row.delay.text = 'Realtime data missing';
                 row.delay.mark = true;
                 row.rows += 1;
@@ -1367,6 +1378,9 @@ function StopTimetable(widget_id) {
         }
         if (journey_timer_id) {
             window.clearInterval(journey_timer_id);
+        }
+        if (api_retry_timer_id) {
+            window.clearInterval(api_retry_timer_id);
         }
     }
 
