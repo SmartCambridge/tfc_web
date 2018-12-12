@@ -9,9 +9,9 @@
 'use strict';
 
 // Widget spec requires a DEBUG global (even if empty)
-var DEBUG = '';
+// var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
-// var DEBUG = 'rtmonitor_api_log';
+var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
 // Version number of the agreed TCs
 var TCS_VERSION = 1;
