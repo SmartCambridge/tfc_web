@@ -118,6 +118,7 @@ var BusStopChooser = (function() {
             var zoom = params.zoom || 15;
             var multi_select = params.multi_select || false;
             var popups = params.popups || false;
+            var location = params.location || false;
             var zoom_threshold = params.zoom_threshold || 15;
             var api_endpoint = params.api_endpoint || DEFAULT_ENDPOINT;
             var api_token = params.api_token;
@@ -137,6 +138,20 @@ var BusStopChooser = (function() {
             var spinner_img = document.createElement('div');
             spinner_img.className = 'bus_stop_chooser_spinner';
             spinner_img.style.display = 'none';
+
+            var locateControl = L.Control.extend({
+                onAdd: function () {
+                    var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom bus_stop_chooser_locate');
+                    var a = L.DomUtil.create('a', '', container);
+                    a.href = '#';
+                    a.title = 'Zoom to curent position';
+                    container.onclick = function(){
+                        map.locate({setView: true, maxZoom: zoom_threshold});
+                        return false;
+                    };
+                    return container;
+                }
+            });
 
 
             function render(raw_parent_el, current) {
@@ -169,6 +184,10 @@ var BusStopChooser = (function() {
                 map = new L.Map(parent_el).addLayer(osm);
                 selected_stops.addTo(map);
                 other_stops.addTo(map);
+
+                if (location && 'geolocation' in navigator) {
+                    map.addControl(new locateControl({position: 'topleft'}));
+                }
 
                 // Add any current stops
                 if (current_stops.length > 0) {

@@ -29,6 +29,22 @@
     z-index: 1001;
 }
 
+.bus_stop_chooser_locate {
+    background-color: white;
+    height: 30px;
+    width: 30px;
+}
+
+.bus_stop_chooser_locate a {
+    background-color: white;
+    background-image: url("_ionicons_svg_md-locate.png");
+    background-origin: content-box;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 30px;
+    width: 30px;
+}
+
 .bus_stop_chooser_stop {
     background-image: url("bus_stop_S.png");
     background-repeat: no-repeat;

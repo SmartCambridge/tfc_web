@@ -630,6 +630,7 @@ function stop_timetable_config(config_el, config, current_params) {
     var chooser_options = {
         multi_select: false,
         popups: true,
+        location: true,
         api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
         api_token: config.settings.SMARTPANEL_API_TOKEN
     };
