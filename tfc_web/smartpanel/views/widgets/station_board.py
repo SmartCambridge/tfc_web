@@ -34,12 +34,18 @@ def station_board(request):
         logger.info('Cache miss for %s', cache_key)
         data = {'messages': [], 'services': []}
 
-        client = zeep.Client(wsdl=WSDL)
-        raw_data = client.service.GetDepartureBoard(
-            numRows=50, crs=station,
-            _soapheaders={"AccessToken": settings.NRE_API_KEY},
-            timeOffset=offset
-        )
+        try:
+            client = zeep.Client(wsdl=WSDL)
+            raw_data = client.service.GetDepartureBoard(
+                numRows=50, crs=station,
+                _soapheaders={"AccessToken": settings.NRE_API_KEY},
+                timeOffset=offset
+            )
+        except zeep.exceptions.XMLSyntaxError as e:
+            logger.error("Error retrieving station board for '{0}'".format(station))
+            logger.error("XMLSyntaxError: {0}".format(e))
+            logger.error("content={0}".format(e.content))
+            assert False, "Failed to retrieve station board"
 
         data['locationName'] = raw_data['locationName']
         data['generatedAt'] = raw_data['generatedAt'].strftime("%H:%M")
