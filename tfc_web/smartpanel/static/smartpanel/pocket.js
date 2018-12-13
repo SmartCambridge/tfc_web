@@ -64,6 +64,102 @@ var WIDGET_NAME = {
     'stop_timetable': 'bus timetable'
 };
 
+// Pre-defined destinations for the bus timetable
+var DESTINATIONS = [
+    {
+        area: [
+            {
+                lat: 52.17570364175672,
+                lng: 0.14228330925107005
+            },
+            {
+                lat: 52.175488800588674,
+                lng: 0.1444551441818476
+            },
+            {
+                lat: 52.176017346023265,
+                lng: 0.14606296084821227
+            },
+            {
+                lat: 52.17649558019505,
+                lng: 0.14505780301988128
+            },
+            {
+                lat: 52.17622663512504,
+                lng: 0.14254231005907061
+            }
+        ],
+        description: 'Hospital'
+    },
+    {
+        area: [
+            {
+                lat: 52.205272570950065,
+                lng: 0.12231070082634689
+            },
+            {
+                lat: 52.20584108642862,
+                lng: 0.12381173204630615
+            },
+            {
+                lat: 52.20498217848623,
+                lng: 0.12558894697576764
+            },
+            {
+                lat: 52.20354579109039,
+                lng: 0.12294583953917028
+            },
+            {
+                lat: 52.204710238021654,
+                lng: 0.12170623987913133
+            }
+        ],
+        description: 'City Centre'
+    },
+    {
+        area: [
+            {
+                lat: 52.32328491326036,
+                lng: -0.07158505730330945
+            },
+            {
+                lat: 52.3232474380255,
+                lng: -0.07017082069069148
+            },
+            {
+                lat: 52.322305705435205,
+                lng: -0.07021650206297637
+            },
+            {
+                lat: 52.32234784355564,
+                lng: -0.07179640699177982
+            }
+        ],
+        description: 'St Ives Bus Station'
+    },
+    {
+        area: [
+            {
+                lat: 52.19371446386684,
+                lng: 0.1361500192433596
+            },
+            {
+                lat: 52.19349174821103,
+                lng: 0.1370208151638508
+            },
+            {
+                lat: 52.1922004274234,
+                lng: 0.13610429596155885
+            },
+            {
+                lat: 52.19241752500701,
+                lng: 0.1352344220504165
+            }
+        ],
+        description: 'Station'
+    }
+];
+
 // Widget spec requires a RTMONITOR_API global
 var RTMONITOR_API;
 
@@ -555,6 +651,7 @@ function stop_timetable_config(config_el, config, current_params) {
                 stop: stop,
                 title: title,
                 layout: 'multiline',
+                destinations: DESTINATIONS,
             }
         };
     };
