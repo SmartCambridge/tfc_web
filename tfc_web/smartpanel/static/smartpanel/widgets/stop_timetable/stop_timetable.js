@@ -114,8 +114,6 @@ function StopTimetable(widget_id) {
         api_retry_timer_id,
         // Flag, set when the widget is stopping
         closing = false,
-        // When the real time data feed was last started
-        rt_started,
         // Master table of today's journeys - top-level keys
         //     timetable: Raw TNDS timetable entry from API
         //       first: timetable object of first (origin) stop
@@ -515,7 +513,6 @@ function StopTimetable(widget_id) {
         document.getElementById(self.config.container_id+'_connection').style.display = 'none';
         // Re-establish all the subscriptions that we need
         refresh_subscriptions();
-        rt_started = moment();
     }
 
 
@@ -950,9 +947,8 @@ function StopTimetable(widget_id) {
                     row.rows += 1;
                 }
             }
-            // This journey has no fresh real time data AND we've had RT data for at least 45 seconds AND
-            // the journey should have started
-            else if (rt_started && moment().diff(rt_started, 'seconds') > 45 && journey.first.due.isBefore()) {
+            // This journey has no fresh real time data and the journey should have started
+            else if (journey.first.due.isBefore()) {
                 row.delay.text = 'Realtime data missing';
                 row.delay.mark = true;
                 row.rows += 1;
