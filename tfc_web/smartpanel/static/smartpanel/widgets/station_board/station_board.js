@@ -61,7 +61,7 @@ function StationBoard(widget_id, params) {
 
         this.widget_error = document.createElement('h1');
         this.widget_error.classList.add('widget_error');
-        this.widget_error.textContent = 'No connection - retrying';
+        this.widget_error.textContent = 'Station Board - data not available - trying...';
         container.appendChild(self.widget_error);
 
         this.content_area = document.createElement('div');
