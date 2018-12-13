@@ -583,6 +583,9 @@ function StopTimetable(widget_id) {
         self.log('subscribe','subscribing to', request_id);
 
         var request_obj = {
+                options: [
+                    'latest_records'
+                    ],
                 filters:
                     [
                         {
@@ -598,11 +601,17 @@ function StopTimetable(widget_id) {
                     ]
             };
 
-        //var request_status = RTMONITOR_API.subscribe(self.widget_id, request_id, request_obj, handle_message);
-        var request_status = rt_mon.subscribe(request_id, request_obj, handle_message);
-
+        // Get most recent record for quick startup
+        var request_status = rt_mon.request(request_id + '_latest', request_obj, handle_message);
         if (request_status.status !== 'rt_ok') {
-            self.log('subscribe failed ', JSON.stringify(request_status));
+            self.log('request failed ', JSON.stringify(request_status));
+        }
+
+        //var request_status = RTMONITOR_API.subscribe(self.widget_id, request_id, request_obj, handle_message);
+        var subscribe_status = rt_mon.subscribe(request_id, request_obj, handle_message);
+
+        if (subscribe_status.status !== 'rt_ok') {
+            self.log('subscribe failed ', JSON.stringify(subscribe_status));
             return undefined;
         }
 

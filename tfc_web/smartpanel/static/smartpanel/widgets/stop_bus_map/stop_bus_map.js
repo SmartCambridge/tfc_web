@@ -206,6 +206,9 @@ function subscribe()
     // Subscribe to the real-time data INSIDE a clockwise rectangle derived from map bounds
     // Note RTMonitorAPI will at the "msg_type": "rt_subscribe" and the "request_id"
     var request = {
+            options: [
+                    'latest_records'
+                    ],
              filters: [ { test: 'inside',
                           lat_key: 'Latitude',
                           lng_key: 'Longitude',
@@ -216,11 +219,17 @@ function subscribe()
                                   ]
                         } ] };
 
-    var request_status = rt_mon.subscribe( request_id,
+    var request_status = rt_mon.request( request_id + '_latest',
                                            request,
                                            handle_records);
 
     log(self.widget_id, 'request_status '+request_status.status);
+
+    var subscribe_status = rt_mon.subscribe( request_id,
+                                           request,
+                                           handle_records);
+
+    log(self.widget_id, 'subscribe_status '+subscribe_status.status);
 }
 
 // We have received data from a previously unseen sensor, so initialize
