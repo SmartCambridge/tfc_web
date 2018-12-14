@@ -18,6 +18,7 @@ var TCS_VERSION = 1;
 
 var VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
 var PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
+var INSTANCE_KEY = 'POCKET_SMARTPANEL_INSTANCE';
 
 // Available weather stations and their names
 var WEATHER_OPTIONS = [
@@ -224,6 +225,7 @@ document.addEventListener('init', function(event) {
         });
         ons_page.querySelector('#accept').addEventListener('click', function() {
             localStorage.setItem(VERSION_KEY, TCS_VERSION.toString());
+            localStorage.setItem(INSTANCE_KEY, )
             navigator.replacePage('list.html');
         });
     }
@@ -231,6 +233,11 @@ document.addEventListener('init', function(event) {
     // Page list -------------------------------------------------------
 
     else if (ons_page.id === 'list') {
+
+        if (!localStorage.getItem(INSTANCE_KEY)) {
+            localStorage.setItem(INSTANCE_KEY, Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+        }
+
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
         //    document.querySelector('#first-time').show('#add', {direction: 'up'});
