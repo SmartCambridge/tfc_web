@@ -79,7 +79,7 @@ function StationBoard(widget_id, params) {
     this.do_load = function () {
         this.log(self.widget_id, "Running StationBoard.do_load");
         //var self = this;
-        var url = "/smartpanel/station_board?station=" + self.params.station;
+        var url = "/smartpanel/station_board/2?station=" + self.params.station;
         if (self.params.offset) {
             url += "&offset=" + self.params.offset;
         }

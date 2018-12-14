@@ -1,24 +1,4 @@
 {% load static from staticfiles %}
-<!doctype html>
-<title>Station Board</title>
-<link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}">
-<link rel="stylesheet" href="{% static 'smartpanel/widgets/station_board/station_board.css' %}">
-<body>
-
-<div style="height: calc(1080px - 60px); width: 1920px; overflow: hidden;">
-
-<div style="height: calc(2*100%/4);
-            width: calc(1*100%/6);
-            top: calc(0*100%/4);
-            left: calc(0*100%/6);
-            overflow: hidden;">
-
-<div id="widget-1" class="station_board" style="height: 100%; width: 100%; background-color: white; overflow: hidden">
-
-<!-- Included content from here... -->
-
-<div class="content_area">
-
 <h1 class="widget_error">No connection - retrying</h1>
 
 <h1><img src="{% static 'smartpanel/widgets/station_board/br-logo.png' %}"> {{ data.locationName }}</h1>
@@ -40,7 +20,7 @@
   {% else %}
   <tr>
   {% endif %}
-    <td class="time key">{{ service.std }}</td>
+    <td class="time"><span class="key">{{ service.std }}</span></td>
     <td class="time">{{ service.etd }}</td>
     <td>{{ service.destination }}</td>
   </tr>
@@ -53,12 +33,3 @@
 </div>
 
 </div>
-
-<!-- ... to here -->
-
-</div>
-
-</div>
-
-</body>
-

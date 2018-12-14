@@ -54,7 +54,7 @@ function Weather(widget_id) {
 
     this.do_load = function () {
         self.log(self.widget_id, 'Running Weather.do_load');
-        var url = '/smartpanel/weather?location=' + this.params.location;
+        var url = '/smartpanel/weather/2?location=' + this.params.location;
         self.log(self.widget_id, 'do_load URI', url);
 
         var xhr = new XMLHttpRequest();

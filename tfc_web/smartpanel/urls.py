@@ -30,8 +30,10 @@ urlpatterns = [
     url(r'^pocket/$', smartpanel.pocket, name='smartpanel-pocket'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     # Widgets specific URLs
-    url(r'^weather$', weather.weather, name='smartpanel-weather'),
+    url(r'^weather$', weather.weather),
+    url(r'^weather/2$', weather.weather, {'ver': 2}, name='smartpanel-weather'),
     url(r'^rss_reader$', rss_reader.rss_reader, name='smartpanel-rss-reader'),
-    url(r'^station_board$', station_board.station_board, name='station-board'),
+    url(r'^station_board$', station_board.station_board),
+    url(r'^station_board/2$', station_board.station_board, {'ver': 2}, name='station-board'),
     url(r'^widgets/bikes', bikes.bikes, name='smartpanel-widgets-bikes'),
 ]

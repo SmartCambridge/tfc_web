@@ -260,7 +260,7 @@ def parse_data(forecasts, data):
     return (results, location_name, issued)
 
 
-def weather(request):
+def weather(request, ver=''):
     '''
     Extract forecast information from the Met Office Data feed
     and render it for inclusion in a widgit
@@ -323,7 +323,8 @@ def weather(request):
             location_name = 'Unknown'
             issued = ''
 
-    return render(request, 'smartpanel/weather.html', {
+    template = 'smartpanel/weather{0}.html'.format(ver)
+    return render(request, template, {
         "results": results,
         "location": location_name.title(),
         "issued": issued

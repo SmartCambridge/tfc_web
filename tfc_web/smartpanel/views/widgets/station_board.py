@@ -16,7 +16,7 @@ STATION_ABBREV = {
 }
 
 
-def station_board(request):
+def station_board(request, ver=''):
     '''
     Retrieve a 'DepartureBoard' from National Rail Enquiries
     and render it as a web page
@@ -70,4 +70,5 @@ def station_board(request):
 
         cache.set(cache_key, data, timeout=30)
 
-    return render(request, 'smartpanel/station_board.html', {'data': data})
+    template = 'smartpanel/station_board{0}.html'.format(ver)
+    return render(request, template, {'data': data})
