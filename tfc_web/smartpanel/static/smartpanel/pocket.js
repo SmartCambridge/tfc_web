@@ -553,6 +553,8 @@ function setup_config(ons_page) {
     };
 
     var config_el = ons_page.querySelector('.config-area');
+    var submit_button = ons_page.querySelector('#submit');
+
     var new_params_callback;
     switch (current_params.widget) {
     case 'weather':
@@ -565,11 +567,13 @@ function setup_config(ons_page) {
         break;
     case 'stop_timetable':
         ons_page.querySelector('ons-toolbar .center').textContent = 'Choose bus stop';
-        new_params_callback = stop_timetable_config(config_el, config, current_params);
+        new_params_callback = stop_timetable_config(config_el, config, current_params, function (n) {
+            submit_button.disabled = (n === 0);
+        });
         break;
     }
 
-    ons_page.querySelector('#submit').addEventListener('click', function() {
+    submit_button.addEventListener('click', function() {
         // New page (notepage_numbr can be 0 and hence false...)
         if (page_number === undefined) {
             PAGES.push(new_params_callback());
@@ -625,12 +629,13 @@ function station_board_config(config_el, config, current_params) {
 }
 
 // Configuration helper for bus timetable pages
-function stop_timetable_config(config_el, config, current_params) {
+function stop_timetable_config(config_el, config, current_params, stops_callback) {
 
     var chooser_options = {
         multi_select: false,
         popups: true,
         location: true,
+        stops_callback: stops_callback,
         api_endpoint: config.settings.SMARTPANEL_API_ENDPOINT,
         api_token: config.settings.SMARTPANEL_API_TOKEN
     };

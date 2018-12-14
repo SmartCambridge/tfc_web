@@ -120,6 +120,7 @@ var BusStopChooser = (function() {
             var popups = params.popups || false;
             var location = params.location || false;
             var zoom_threshold = params.zoom_threshold || 15;
+            var stops_callback = params.stops_callback || undefined;
             var api_endpoint = params.api_endpoint || DEFAULT_ENDPOINT;
             var api_token = params.api_token;
 
@@ -215,6 +216,8 @@ var BusStopChooser = (function() {
                 // Load initial stops and subsequent pan and zoom
                 process_pan_and_zoom();
                 map.on('moveend', process_pan_and_zoom);
+
+                do_stops_callback();
 
             }
 
@@ -413,6 +416,8 @@ var BusStopChooser = (function() {
                     select_stop(clicked_marker);
                 }
 
+                do_stops_callback();
+
                 debug_log('Currently selected_stops', list_selected_stops());
 
             }
@@ -452,6 +457,12 @@ var BusStopChooser = (function() {
                     codes.push(marker.properties.stop.stop_id);
                 });
                 return codes;
+            }
+
+            function do_stops_callback() {
+                if (stops_callback) {
+                    stops_callback(selected_stops.getLayers().length);
+                }
             }
 
 
