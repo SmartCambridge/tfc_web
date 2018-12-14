@@ -2,12 +2,14 @@ import logging
 from django.core.cache import cache
 from django.shortcuts import render
 from django.conf import settings
+from django.templatetags.static import static
 import zeep
 import re
 
 logger = logging.getLogger(__name__)
 
-WSDL = 'https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01'
+# WSDL = 'https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01'
+WSDL = static('smartpanel/widgets/station_board/OpenLDBWS_wsdl_2017-10-01.xml')
 
 STATION_ABBREV = {
   'London Kings Cross': 'London Kings X',
@@ -34,8 +36,16 @@ def station_board(request, ver=''):
         logger.info('Cache miss for %s', cache_key)
         data = {'messages': [], 'services': []}
 
+        protocol = 'http://'
+        if request.is_secure():
+            protocol = 'https://'
+
+        hostname = request.get_host()
+
+        absolute_wsdl = protocol + hostname + WSDL
+
         try:
-            client = zeep.Client(wsdl=WSDL)
+            client = zeep.Client(wsdl=absolute_wsdl)
             raw_data = client.service.GetDepartureBoard(
                 numRows=50, crs=station,
                 _soapheaders={"AccessToken": settings.NRE_API_KEY},
