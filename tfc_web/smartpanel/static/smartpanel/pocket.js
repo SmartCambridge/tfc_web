@@ -225,7 +225,6 @@ document.addEventListener('init', function(event) {
         });
         ons_page.querySelector('#accept').addEventListener('click', function() {
             localStorage.setItem(VERSION_KEY, TCS_VERSION.toString());
-            localStorage.setItem(INSTANCE_KEY, )
             navigator.replacePage('list.html');
         });
     }
