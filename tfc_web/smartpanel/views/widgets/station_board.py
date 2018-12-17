@@ -4,12 +4,14 @@ from django.shortcuts import render
 from django.conf import settings
 from django.templatetags.static import static
 import zeep
+import zeep.transports
+import zeep.cache
 import re
 
 logger = logging.getLogger(__name__)
 
 # WSDL = 'https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01'
-WSDL = static('smartpanel/widgets/station_board/OpenLDBWS_wsdl_2017-10-01.xml')
+WSDL = '/wsdl/OpenLDBWS_wsdl_2017-10-01.xml'
 
 STATION_ABBREV = {
   'London Kings Cross': 'London Kings X',
@@ -45,7 +47,8 @@ def station_board(request, ver=''):
         absolute_wsdl = protocol + hostname + WSDL
 
         try:
-            client = zeep.Client(wsdl=absolute_wsdl)
+            transport = zeep.transports.Transport(cache=zeep.cache.SqliteCache())
+            client = zeep.Client(wsdl=absolute_wsdl, transport=transport)
             raw_data = client.service.GetDepartureBoard(
                 numRows=50, crs=station,
                 _soapheaders={"AccessToken": settings.NRE_API_KEY},
