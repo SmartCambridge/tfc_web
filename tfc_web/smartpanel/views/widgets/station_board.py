@@ -4,6 +4,8 @@ from django.shortcuts import render
 from django.conf import settings
 from django.templatetags.static import static
 import zeep
+import zeep.transports
+import zeep.cache
 import re
 
 logger = logging.getLogger(__name__)
@@ -45,7 +47,8 @@ def station_board(request, ver=''):
         absolute_wsdl = protocol + hostname + WSDL
 
         try:
-            client = zeep.Client(wsdl=absolute_wsdl)
+            transport = zeep.transports.Transport(cache=zeep.cache.SqliteCache())
+            client = zeep.Client(wsdl=absolute_wsdl, transport=transport)
             raw_data = client.service.GetDepartureBoard(
                 numRows=50, crs=station,
                 _soapheaders={"AccessToken": settings.NRE_API_KEY},
