@@ -9,7 +9,7 @@ import re
 logger = logging.getLogger(__name__)
 
 # WSDL = 'https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01'
-WSDL = static('smartpanel/widgets/station_board/OpenLDBWS_wsdl_2017-10-01.xml')
+WSDL = '/wsdl/OpenLDBWS_wsdl_2017-10-01.xml'
 
 STATION_ABBREV = {
   'London Kings Cross': 'London Kings X',
