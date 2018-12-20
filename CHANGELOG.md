@@ -1,3 +1,45 @@
+## Release 8 (2018-12-15)
+
+This is a rollup 'release', documenting various things that have been pushed to production up to and including the release date.
+
+* Added 'Pocket SmartPanels'
+
+* Added experimental 'RSS Reader' SmartPanel widget
+
+* Added loading spinner to the Bus Stop Timetable widget
+
+* Added 'Real-time data missing' warning to journeys that should have started but for which we have no real-time data
+
+* Download a snapshot of current real-time data before displaying Stop Timetable and Bus Stop Map so that they start up immediately, rather than having to wait until each bus reports in
+
+* Add retrying of timetable loading if it fails at startup
+
+* Tidied 'Connection error' error banner for widgets that aren't loading properly; fixed non-display of the banner on the Station Board and Wether widgets on first load
+
+* Improved resilience of Station Board by using a local copy of WSDL files
+
+* Make widgets work on a wider range of browsers (especially common mobile ones)
+
+* Add explicit MIT licence to the tfc_web code
+
+* Added stations and wether regions
+
+* Improved formatting of bus stop names
+
+* Removed jQuery dependency from Weather and Station Board widgets
+
+* Add 'close' action for widgets to let them cleanup timers and data subscriptions
+
+* Re-work RTMonitor_api to support closing subscriptions and connections
+
+* Setup ESLint rules for JS development
+
+* Update version of Requests library to address reported vulnerability
+
+* Further improve resilience of bus timetable import code by not assuming uniqueness of identifiers between regions
+
+* Added logging of faulty responses from the upstream API
+
 ## Release 7 bugfix / minor updates (2018-10-29)
 
 * removed fixed-width limitations on some plot and map templates
