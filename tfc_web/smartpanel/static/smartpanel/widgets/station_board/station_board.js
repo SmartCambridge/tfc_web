@@ -83,6 +83,9 @@ function StationBoard(widget_id, params) {
         if (self.params.offset) {
             url += "&offset=" + self.params.offset;
         }
+        if (self.params.platforms) {
+            url += "&platforms=y";
+        }
 
         this.log(self.widget_id, "do_load URI", url);
 
@@ -159,7 +162,9 @@ function StationBoard(widget_id, params) {
         info_text = "Choose the station from the drop-down below. The 'offset' is optional, and it causes the widget to";
         info_text += " display departure times AFTER that offset from the current time.  The offset purpose is if the station";
         info_text += " is 20 minutes away from where you are viewing this panel, you could scroll the departure board";
-        info_text += " forwards by 20 minutes as earlier trains are not catchable.";
+        info_text += " forwards by 20 minutes as earlier trains are not catchable. You can choose whether or not you";
+        info_text += " want to display platform numbers against each entry. Platform numbers are not available for";
+        info_text += " all stations";
         info_para.appendChild(document.createTextNode(info_text));
         config_div.appendChild(info_para);
 
@@ -201,6 +206,16 @@ function StationBoard(widget_id, params) {
                                           },
                                           params.offset);
 
+        var platforms_result = widget_config.input( parent_el,
+                                          'select',
+                                          { text: 'Show platform numbers:',
+                                            title: 'Whether or not to show platform numbers (where available)',
+                                            options: [ { value: '', text: 'No' },
+                                                       { value: 'y', text: "Yes" }
+                                                     ]
+                                          },
+                                          params.platforms); // note we're using a 'select' input so mangle the bool to the select keys.
+
         config_table.appendChild(config_tbody);
 
         // append this input table to the DOM object originally given in parent_el
@@ -217,6 +232,8 @@ function StationBoard(widget_id, params) {
             if (!isNaN(parseInt(offset)) && offset >= 0) {
                 config_params.offset = parseInt(offset);
             }
+
+            config_params.platforms = platforms_result.value();
 
             self.log(self.widget_id,'returning params:',config_params);
 

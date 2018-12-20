@@ -628,7 +628,8 @@ function station_board_config(config_el, config, current_params) {
             widget: current_params.widget,
             title: result().text,
             data: {
-                station: result().value
+                station: result().value,
+                platforms: 'y'
             }
         };
     };

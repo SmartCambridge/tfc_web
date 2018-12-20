@@ -16,6 +16,7 @@ STATION_ABBREV = {
   'London Kings Cross': 'London Kings X',
   'London Liverpool Street': 'London Liv. St',
   'Birmingham New Street': "Birm'ham New St",
+  'Cambridge North': "Cambridge Nth",
 }
 
 
@@ -65,6 +66,10 @@ def station_board(request, ver=''):
                 this_service = {}
                 this_service['std'] = service['std']
                 this_service['etd'] = service['etd']
+                if service['platform']:
+                    this_service['platform'] = service['platform']
+                else:
+                    this_service['platform'] = ''
                 dest = service['destination']['location'][0]['locationName']
                 if dest in STATION_ABBREV:
                     dest = STATION_ABBREV[dest]
