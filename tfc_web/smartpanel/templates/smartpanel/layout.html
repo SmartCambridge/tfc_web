@@ -127,8 +127,6 @@
                 {% endif %}
             {% endfor %}
 
-            // Now we know widgets have run 'init', we can tell RTMonitorAPI to connect and tell those widgets
-            RTMONITOR_API.init();
             setInterval(reload_widgets, 60000);
             {% if display %}
             setInterval(refresh_display, 60000);
