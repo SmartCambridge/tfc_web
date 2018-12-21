@@ -244,6 +244,7 @@ document.addEventListener('init', function(event) {
             localStorage.setItem(INSTANCE_KEY, instance_key);
         }
         send_beacon(instance_key);
+        ons_page.querySelector('#id').innerHTML = instance_key;
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {

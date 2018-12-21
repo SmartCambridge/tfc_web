@@ -67,6 +67,10 @@ html, body {
     padding-right: 1rem;
 }
 
+.id {
+    font-size: 0.6rem;
+}
+
 .hidden {
     display: none;
 }
