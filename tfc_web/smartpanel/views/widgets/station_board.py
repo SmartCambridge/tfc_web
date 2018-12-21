@@ -66,10 +66,7 @@ def station_board(request, ver=''):
                 this_service = {}
                 this_service['std'] = service['std']
                 this_service['etd'] = service['etd']
-                if service['platform']:
-                    this_service['platform'] = service['platform']
-                else:
-                    this_service['platform'] = ''
+                this_service['platform'] = service['platform'] or ''
                 dest = service['destination']['location'][0]['locationName']
                 if dest in STATION_ABBREV:
                     dest = STATION_ABBREV[dest]
