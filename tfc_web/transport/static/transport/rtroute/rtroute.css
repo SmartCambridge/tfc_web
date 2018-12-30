@@ -1,0 +1,153 @@
+
+/* rtroute.css style for rtroute utility */
+
+html {
+    height: 100%;
+    margin-right: 15px;
+}
+
+body {
+    font-family: sans-serif;
+    height: 100%;
+    width: 100%;
+}
+
+#rt_scratchpad {
+    font-size: x-small;
+    width: 95%;
+    height: 30%;
+}
+
+.map_container {
+    width: auto;
+    height: 80%;
+    overflow: hidden;
+    vertical-align: top;
+}
+
+#map {
+	/*display: inline-block; */
+	width: 100%;
+    height: 100%;
+    /* overflow: hidden;*/
+}
+
+#log_div {
+    margin-top: 10px;
+}
+
+.top-aligned {
+    vertical-align: top;
+}
+
+.control_box {
+    padding: 2px;
+}
+
+.control_heading {
+    font-weight: bold;
+}
+
+.scratchpad_box {
+    width: 100%;
+    height: 70%;
+}
+
+.control_div {
+    /* display: inline-block;*/
+    width: 30%;
+    min-width: 250px;
+    max-width: 400px;
+    height: 80%;
+    float: left;
+    overflow-y: scroll;
+}
+
+.progress_div {
+    display: inline-block;
+    background-color: lightblue;
+    height: 80%;
+    width: 100px;
+    vertical-align: top;
+    float: left;
+}
+
+.progress_canvas {
+    height: 100%;
+    width: 100%;
+}
+
+.sensor-popup {
+    font-size: small;
+}
+
+.marker_sensor_M {
+    background-image: url("/static/images/bus_logo_M.png");
+    /* background-color: green; */
+}
+
+.marker_sensor_L {
+    background-image: url("/static/images/bus_logo_L.png");
+    /* background-color: green; */
+}
+
+.marker_label_M {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 7px;
+    font-size: 7px;
+    text-align: center;
+}
+
+.marker_label_L {
+    /* background-color: white; */
+    /* margin-left: 8px; */
+    margin-top: 8px;
+    font-size: 11px;
+    text-align: center;
+}
+
+.log_record {
+}
+
+.log_msg {
+    display: inline-block;
+    margin-left: 1em;
+}
+
+.log_ts {
+    display: inline-block;
+}
+
+.log_record_odd {
+    background-color: lightblue;
+}
+
+.log_record_even {
+    background-color: lightgray;
+}
+
+.log_error {
+    color: red;
+}
+
+.test_button {
+    background-color: lightpink;
+}
+
+.toggle_option {
+    display: inline-block;
+    border: 2px solid #cccccc;
+    background-color: #e8e8e8;
+    border-style: outset;
+    border-radius: 3px;
+}
+
+#rtmonitor_uri {
+    width: 100%;
+    border: none;
+    margin: 0 0 5px 0;
+}
+
+</style>
+

@@ -142,3 +142,8 @@ class ServiceDetailView(DetailView):
         #             for row in grouping.rows:
         #                 row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
         return context
+
+## Bus Analysis page
+def rtroute(request):
+    return render(request, 'transport/rtroute.html', {})
+
