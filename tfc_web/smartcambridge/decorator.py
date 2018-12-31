@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import user_passes_test
+import logging
 
+logger = logging.getLogger(__name__)
 
 def smartcambridge_valid_user(function):
     """
@@ -15,3 +17,17 @@ def smartcambridge_valid_user(function):
         login_url='smartcambridge-tcs'
     )
     return logged_in(accepted_tcs(function))
+
+def smartcambridge_admin( user_function ):
+    """
+    Decorator for views that checks that the user is logged in and is a staff
+    member, redirecting to the login page if necessary.
+    """
+    logged_in = user_passes_test(
+        lambda u: u.is_authenticated
+    )
+    is_admin = user_passes_test( lambda u: u.is_active and u.is_staff,
+                                 login_url='admin:login'
+                               )
+    return logged_in(is_admin(user_function))
+

@@ -12,6 +12,7 @@ from django.views.generic import DetailView
 from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
+from smartcambridge.decorator import smartcambridge_admin
 
 
 def areas(request):
@@ -144,6 +145,7 @@ class ServiceDetailView(DetailView):
         return context
 
 ## Bus Analysis page
+@smartcambridge_admin
 def rtroute(request):
     return render(request, 'transport/rtroute.html', {})
 
