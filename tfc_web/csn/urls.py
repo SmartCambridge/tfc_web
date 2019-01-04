@@ -29,8 +29,6 @@ urlpatterns = [
     url(r'^app/new$', views.new_app, name='csn_new_app'),
     url(r'^app/delete', views.delete_app, name='csn_delete_app'),
     url(r'^app/(?P<app_id>[\w\-]+)/', views.application, name='csn_app'),
-    url(r'^network', views.network_info, name='csn_network_info'),
-    url(r'^gateway/(?P<gw_mac>\w+)/', views.gateway, name='csn_gateway'),
 
     # Forum
     url(r'^forum/', include(board.urls)),

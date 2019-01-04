@@ -196,7 +196,7 @@ MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
 ]
 
 ###### everynet API #########
-EVERYNET_API_ENDPOINT = "https://api.everynet.com/1.0.2/"
+EVERYNET_API_ENDPOINT = "https://ns.eu.everynet.io/api/v1.0/"
 
 # TFC Server CSN API
 TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
