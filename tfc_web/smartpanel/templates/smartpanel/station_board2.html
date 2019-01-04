@@ -13,6 +13,9 @@
     <th class="time">Due</th>
     <th class="time">Expected</th>
     <th>Destination</th>
+    {% if request.GET.platforms == 'y' %}
+    <th class="time">Plat</th>
+    {% endif %} 
   </tr>
 {% for service in data.services %}
   {% if service.etd != 'On time' %}
@@ -23,6 +26,9 @@
     <td class="time"><span class="key">{{ service.std }}</span></td>
     <td class="time">{{ service.etd }}</td>
     <td>{{ service.destination }}</td>
+    {% if request.GET.platforms == 'y' %}
+    <td class="time">{{ service.platform }}</td>
+    {% endif %}
   </tr>
 {% endfor %}
 </table>

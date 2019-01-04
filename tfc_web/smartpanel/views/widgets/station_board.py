@@ -2,21 +2,21 @@ import logging
 from django.core.cache import cache
 from django.shortcuts import render
 from django.conf import settings
-from django.templatetags.static import static
 import zeep
 import zeep.transports
 import zeep.cache
 import re
+import os
 
 logger = logging.getLogger(__name__)
 
-# WSDL = 'https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01'
-WSDL = '/wsdl/OpenLDBWS_wsdl_2017-10-01.xml'
+WSDL = os.path.join(settings.BASE_DIR, 'smartpanel', 'wsdl', 'OpenLDBWS_wsdl_2017-10-01.xml')
 
 STATION_ABBREV = {
   'London Kings Cross': 'London Kings X',
   'London Liverpool Street': 'London Liv. St',
   'Birmingham New Street': "Birm'ham New St",
+  'Cambridge North': "Cambridge Nth",
 }
 
 
@@ -38,17 +38,8 @@ def station_board(request, ver=''):
         logger.info('Cache miss for %s', cache_key)
         data = {'messages': [], 'services': []}
 
-        protocol = 'http://'
-        if request.is_secure():
-            protocol = 'https://'
-
-        hostname = request.get_host()
-
-        absolute_wsdl = protocol + hostname + WSDL
-
         try:
-            transport = zeep.transports.Transport(cache=zeep.cache.SqliteCache())
-            client = zeep.Client(wsdl=absolute_wsdl, transport=transport)
+            client = zeep.Client(wsdl=WSDL)
             raw_data = client.service.GetDepartureBoard(
                 numRows=50, crs=station,
                 _soapheaders={"AccessToken": settings.NRE_API_KEY},
@@ -75,6 +66,7 @@ def station_board(request, ver=''):
                 this_service = {}
                 this_service['std'] = service['std']
                 this_service['etd'] = service['etd']
+                this_service['platform'] = service['platform'] or ''
                 dest = service['destination']['location'][0]['locationName']
                 if dest in STATION_ABBREV:
                     dest = STATION_ABBREV[dest]
