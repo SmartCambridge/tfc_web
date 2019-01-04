@@ -4,35 +4,6 @@
 // ***************************************************************************
 // Constants
 
-var VERSION = '5.07';
-            // 5.07 token support WIP, migrated from tfc_prod/www to tfc_web
-            // 5.06 token support WIP, set_uri added to RTMONITOR_API
-            // 5.05 bugfix for TIMETABLE_URI
-            // 5.04 updated to use rtmonitor_api 3.0 (register & connect methods)
-            // 5.03 added transport/stops API to retrieve stops within bounding box
-            // 5.02 remove local rt socket code and use RTMonitorAPI from tfc_web
-            // 5.01 move bus tracking code into ../rt_tracking, generalize API for tracking
-            // 4.10 add rtmonitor-config.js and API key support
-            // 4.09 rtmonitor websocket uri now https, added blur callback for change on page
-            // 4.08 improving polygon draw support
-            // 4.07 forward/back scroll through sock send messages, subscribe link on bus popup
-            // 4.06 display/update RTMONITOR_URI on page
-            // 4.05 will now get_route() and draw_route_profile() on bus popup -> journey
-            // 4.04 geo.js get_box() and is_inside() testing
-            // 4.03 using stop -> journeys API
-            // 4.02 restructure to use sensor.state.route_profile and not .route
-            // 4.01 adding timetable API call to lookup sirivm->route
-            // 3.12 added 'pattern_starting' sensor state variable 0..1
-            // 3.11 improve timetable vector from prior start stub
-            // 3.10 segment_progress (not path_progress)
-            // 3.09 progess (still as 'path progress')
-            // 3.08 added stop delay to (path) progress
-            // 3.06 more work on (path) progress vector
-            // 3.04 'before' function added to segment distance
-            // 3.03 'beyond' function added to segment distance
-            // 3.01 added basic timetable vector (binary started /not started)
-            // 2.00 initial development of 'progress vector'
-            // 1.00 initial development of 'segment distance vector'
 
 // All supplied from rtroute_config.js
 // var RTMONITOR_URI = '';
@@ -59,12 +30,6 @@ var DRAW_PROGRESS_LEFT_MARGIN = 5;
 var DRAW_PROGRESS_RIGHT_MARGIN = 5;
 var DRAW_PROGRESS_TOP_MARGIN = 20;
 var DRAW_PROGRESS_BOTTOM_MARGIN = 10;
-
-// RTMonitor rt_connect client_data
-var CLIENT_DATA = { rt_client_name: 'RTRoute V'+VERSION,
-                    rt_client_id: 'rtroute',
-                    rt_token: '888'
-                  };
 
 // *************************************************************
 // *************************************************************
@@ -254,7 +219,6 @@ var poly_mid_markers = []; // markers marking edge midpoints to select zone fini
 var poly_mid_marker_close; // edge midpoint for closing line to select zone finish
 
 // *********************************************************************************
-var RTMONITOR_API = null;
 
 var rt_mon; // rtmonitor_api client object
 
@@ -263,7 +227,7 @@ var rt_mon; // rtmonitor_api client object
 // ********************  INIT RUN ON PAGE LOAD  ************************************
 // *********************************************************************************
 // *********************************************************************************
-function init()
+function rtroute_init()
 {
     document.title = 'RTRoute ' + VERSION;
 
@@ -388,13 +352,11 @@ function init()
 
     load_tests();
 
-    RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
-
     rt_mon = RTMONITOR_API.register(rtmonitor_connected,rtmonitor_disconnected);
 
     rt_mon.connect();
 
-} // end init()
+} // end rtroute_init()
 
 // *********************************************************************************
 // ************* RTRoute code      ***************************************************

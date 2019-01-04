@@ -1,7 +1,7 @@
 import codecs
 import requests
 import json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta, timezone
 from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.gis.db.models import Q
@@ -9,11 +9,12 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
+from django.urls import reverse
 from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
-
+from smartcambridge import rt_crypto
 
 def areas(request):
     return render(request, 'areas.html', {'areas': Area.objects.all()})
@@ -147,5 +148,8 @@ class ServiceDetailView(DetailView):
 ## Bus Analysis page
 @smartcambridge_admin
 def rtroute(request):
-    return render(request, 'transport/rtroute.html', {})
+    # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
+    rt_token = rt_crypto.rt_token( reverse("rtroute"), { "uses": "5", "duration": timedelta(minutes=10) } )
+
+    return render(request, "transport/rtroute.html", { "rt_token": rt_token })
 
