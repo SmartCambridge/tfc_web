@@ -115,6 +115,8 @@ var test_sirivm_journey = {};
 
 var RTMONITOR_API = null;
 
+var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+
 // RTMonitor rt_connect client_data
 var CLIENT_DATA = { rt_client_name: 'RTRoute V'+VERSION,
                     rt_client_id: 'rtroute',
@@ -125,7 +127,7 @@ function init()
 {
     RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
 
-    rtroute_init();
+    rtroute_init(); // init function in rtroute.js
 }
 
 </script>

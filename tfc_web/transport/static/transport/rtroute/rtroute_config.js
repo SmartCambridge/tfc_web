@@ -1,5 +1,3 @@
-// Where to access the RTmonitor real-time feed
-var RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm';
 
 // Where to access the timetable API
 var TIMETABLE_URI = 'https://smartcambridge.org/api/v1/transport/';

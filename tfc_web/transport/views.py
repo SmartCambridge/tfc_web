@@ -25,7 +25,17 @@ def area_home(request, area_id):
 
 
 def map_real_time(request):
-    return render(request, 'transport/map_real_time.html', {})
+    # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
+    rt_token = rt_crypto.rt_token( reverse("bus-map"),
+                                   { "uses": "5",
+                                     "duration": timedelta(minutes=60)
+                                   } )
+
+    return render(request,
+                  "transport/map_real_time.html",
+                  { "rt_token": rt_token,
+                    "RTMONITOR_URI": settings.RTMONITOR_URI
+    })
 
 def bus_lines_list(request, area_id=None):
     if area_id:
@@ -151,5 +161,9 @@ def rtroute(request):
     # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
     rt_token = rt_crypto.rt_token( reverse("rtroute"), { "uses": "5", "duration": timedelta(minutes=10) } )
 
-    return render(request, "transport/rtroute.html", { "rt_token": rt_token })
+    return render(request,
+                  "transport/rtroute.html",
+                  { "rt_token": rt_token,
+                    "RTMONITOR_URI": settings.RTMONITOR_URI
+    })
 

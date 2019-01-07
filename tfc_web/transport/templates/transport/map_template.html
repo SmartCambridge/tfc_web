@@ -57,11 +57,20 @@
     {% block content_script %}
 <script>
 
-var VERSION = '3.01';
+var VERSION = '3.10';
+// 3.10 uses rt_token to protect rtmonitor_api connection
 // 3.01 improved content of bus tooltip and popup
 // 3.00 removed local websocket code and used rtmonitor_api.js
 // 2.00 initial version accessing real-time data from RTMonitor
 // 1.00 polling version reading latest vehicle positon reports
+
+var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+
+// RTMonitor rt_connect client_data
+var CLIENT_DATA = { rt_client_name: 'map_real_time V'+VERSION,
+                    rt_client_id: 'map_real_time',
+                    rt_token: '{{ rt_token }}'
+                  };
 
 var OLD_DATA_RECORD = 60; // time (s) threshold where a data record is considered 'old'
 
@@ -104,14 +113,7 @@ var bus_stop_icon = L.icon({
     iconAnchor: [3,40]
 });
 
-var RTMONITOR_API = new RTMonitorAPI(
-    {
-        //'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
-        'rt_client_name': 'map_real_time V'+VERSION,
-        'rt_client_id': 'XX{{ rt_client_id }}',
-        'rt_token': 'ZZ{{ rt_token }}' 
-    }
-);
+var RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
 
 var rt_client; // client object we will use to communicate with the real-time server
 

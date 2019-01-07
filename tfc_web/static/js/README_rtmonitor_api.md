@@ -24,9 +24,12 @@ connection count limits when SockJS falls back to its alternative transports.
 <script>
 var CLIENT_DATA = { rt_client_name: 'RTRoute V7.77',
                     rt_client_id:   'rtroute',
-                    rt_token:       '888'
+                    rt_token:       '888'  // this will be provided at page load time by tfc_web
                   };
-RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA);
+
+var RTMONITOR_URI = 'https://smartcambridge.org/monitor_instance/' // Give URI defined in real-time handler
+
+RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
 </script>
 ```
 Note from here onwards we'll refer to the instance of RTMonitorAPI as `RTMONITOR_API`.
@@ -125,7 +128,7 @@ becomes:
 
 ## List of RTMonitorAPI/`rt_client` methods
 
-`var RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA);`
+`var RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);`
 Instantiates a new RTMonitorAPI object, see example above.
 
 `var rt_client = RTMONITOR_API.register(connect_callback, disconnect_callback);`

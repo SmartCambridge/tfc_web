@@ -211,6 +211,12 @@ ons.ready(function () {
 
 });
 
+// add listener for user backgrounding this 'app'
+document.addEventListener("visibilitychange", function(event) {
+    var ons_page = event.target;
+    ons.notification.alert('visibilitychange '+document.visibilityState);
+    console.log('pocket visibilitychange',document.visibilityState);
+}); // end "visibilitychange" event listener
 
 // Page initialisation handlers
 document.addEventListener('init', function(event) {
@@ -384,9 +390,11 @@ function display_page(page_number, ons_page) {
         current_widget = new StopTimetable('stop_timetable');
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
-            rt_client_id: 'pocket_smartpanel',
-            rt_client_name: 'Pocket SmartPanel',
-            rt_token: RT_TOKEN});
+                                            rt_client_id: 'pocket_smartpanel',
+                                            rt_client_name: 'Pocket SmartPanel',
+                                            rt_token: RT_TOKEN // from tfc_web..pocket.html
+                                         },
+                                         RTMONITOR_URI); // from tfc_web..pocket.html
         break;
     }
 
@@ -406,9 +414,9 @@ function display_page(page_number, ons_page) {
         page_config.data
     );
 
-    if (widget_type === 'stop_timetable') {
-        RTMONITOR_API.init();
-    }
+//    if (widget_type === 'stop_timetable') {
+//        RTMONITOR_API.init();
+//    } // not needed with current rtmonitor_api version
 
 }
 

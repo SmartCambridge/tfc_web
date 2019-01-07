@@ -246,7 +246,7 @@ function rtroute_init()
     // display RTMONITOR_URI on control div
     var rtmonitor_uri_input = document.getElementById('rtmonitor_uri');
 
-    rtmonitor_uri_input.value = RTMONITOR_URI;
+    rtmonitor_uri_input.value = RTMONITOR_URI; // set in rtroute.html, from django settings.py
 
     rtmonitor_uri_input.addEventListener('focus', function (e) {
         rtmonitor_uri_input.style['background-color'] = '#ddffdd'; //lightgreen

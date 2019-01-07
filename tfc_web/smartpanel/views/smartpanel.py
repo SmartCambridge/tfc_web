@@ -2,6 +2,8 @@ import logging
 import json
 import os
 import copy
+from datetime import datetime, date, timedelta, timezone
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -16,6 +18,8 @@ from django.utils.timezone import now
 from smartcambridge.decorator import smartcambridge_valid_user
 from smartpanel.forms import DisplayForm
 from smartpanel.models import Layout, Display
+
+from smartcambridge import rt_crypto
 
 
 logger = logging.getLogger(__name__)
@@ -132,7 +136,7 @@ def layout_config(request, slug, reload=False):
         messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'error': error,
-                   'debug': request.GET.get('debug', False), 
+                   'debug': request.GET.get('debug', False),
                    'widgets_list': generate_widget_list(request.user),
                    'settings': smartpanel_settings()})
 
@@ -206,18 +210,24 @@ def layout(request, slug, display=None):
 
 
 def pocket(request):
-
     # The mobile display only does these widgets
     widgets = ['weather', 'station_board', 'stop_timetable', 'stop_bus_map']
 
     dependencies_files_list = generate_dependencies_files_list(widgets)
+
+    rt_token = rt_crypto.rt_token( reverse("smartpanel-pocket"),
+                                   { "uses": "5",
+                                     "duration": timedelta(minutes=5)
+                                   } )
+
     return render(request, 'smartpanel/pocket.html',
                   {'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1],
                    'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3],
                    'display': 'mobile',
-                   'rt_token': '778',
+                   'rt_token': rt_token,
+                   'RTMONITOR_URI': settings.RTMONITOR_URI,
                    'settings': smartpanel_settings()})
 
 
