@@ -13,6 +13,13 @@
 
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsenui.css"
+        integrity="sha256-lx+snb1sEoF4FZ409vDRAdaRPSeaCpitIrlqgjx2lIw="
+        crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsen-css-components.min.css"
+        integrity="sha256-wTuU68T9vFNDRwSFBSwBQ86kY0W3kKMEXV6qQ2SE9ak="
+        crossorigin="anonymous" />
+
   <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
 
 {% for stylesheet in external_stylesheets %}
@@ -23,13 +30,6 @@
 {% for stylesheet in stylesheets %}
   <link rel="stylesheet" href="{{ stylesheet }}">
 {% endfor %}
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsenui.css"
-        integrity="sha256-lx+snb1sEoF4FZ409vDRAdaRPSeaCpitIrlqgjx2lIw="
-        crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/onsen/2.10.6/css/onsen-css-components.min.css"
-        integrity="sha256-wTuU68T9vFNDRwSFBSwBQ86kY0W3kKMEXV6qQ2SE9ak="
-        crossorigin="anonymous" />
 
   <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">
   <link rel="stylesheet" href="{% static 'smartpanel/pocket.css' %}"/>
@@ -163,6 +163,7 @@
           <ons-toolbar-button id="add" class="show-normal">
             <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
           </ons-toolbar-button>
+          <p id="id" class="show-edit id"></p>
         </div>
       </ons-toolbar>
       <div class="background"></div>

@@ -1,3 +1,27 @@
+## Release 9 (2019-01-06)
+
+User facing changes
+---------------------
+
+* Added the option to include platform numbers on the train timetable widget and made this the default in the Pocket SmartPanel (though existing panels need to be recreated to pick this up).
+
+* Fixed vertical layout fault on Pocket SmartPanels.
+
+* Migration of the Cambridge Sensor Network section to use the new Everynet platform and new Everynet APIs
+
+* Add experimental support for tracking Ofo and Mobike bikes, and a map and Smartpanel widget showing their locations
+
+Others
+-------
+
+* Switch to loading local cached copy of TNDS WSDL files directly from the filesystem.
+
+* Rework instance_id to be in the form 'AAAA-0000' and replace any existing all-numeric ids.
+
+* Log instance_id to a dedicated logging endpoint each time the app starts up.
+
+* New configuration for Gunicorn (logging and performance)
+
 ## Release 8 (2018-12-15)
 
 This is a rollup 'release', documenting various things that have been pushed to production up to and including the release date.

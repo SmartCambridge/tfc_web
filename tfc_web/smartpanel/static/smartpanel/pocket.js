@@ -52,6 +52,9 @@ var STATION_OPTIONS = [
     { value: 'WLF', text: 'Whittlesford' }
 ];
 
+var UCALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+var DIGITS = '0123456789';
+
 // Icon url (relative to STATIC_URL) for each widget
 var WIDGET_ICON = {
     'weather': 'weather/weather.png',
@@ -170,6 +173,8 @@ var PAGES = [];
 var current_widget;
 // stop_map widget object
 var map_widget;
+// Current instance_key
+var instance_key;
 
 
 // App startup
@@ -244,9 +249,13 @@ document.addEventListener('init', function(event) {
 
     else if (ons_page.id === 'list') {
 
-        if (!localStorage.getItem(INSTANCE_KEY)) {
-            localStorage.setItem(INSTANCE_KEY, Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+        instance_key = localStorage.getItem(INSTANCE_KEY);
+        if (!instance_key || /^\d+$/.test(instance_key)) {
+            instance_key = generate_instance_key();
+            localStorage.setItem(INSTANCE_KEY, instance_key);
         }
+        send_beacon(instance_key);
+        ons_page.querySelector('#id').innerHTML = instance_key;
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
@@ -395,8 +404,8 @@ function display_page(page_number, ons_page) {
         current_widget = new StopTimetable('stop_timetable');
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
-                                            rt_client_id: 'pocket_smartpanel',
-                                            rt_client_name: 'Pocket SmartPanel',
+                                            rt_client_id: instance_key,
+                                            rt_client_name: 'pocket_smartPanel',
                                             rt_token: RT_TOKEN // from tfc_web..pocket.html
                                          },
                                          RTMONITOR_URI); // from tfc_web..pocket.html
@@ -407,11 +416,11 @@ function display_page(page_number, ons_page) {
         {
             container_id: 'widget-' + widget_type,
             static_url: STATIC_URL + page_config.widget + '/',
-            display_id: '',
+            display_id: instance_key,
             layout_id: '',
             rt_token: RT_TOKEN,
-            layout_name: 'Layouts for mobile',
-            display_name: '',
+            layout_name: '',
+            display_name: 'Pocket SmartPanel',
             layout_owner: '',
             display_owner: '',
             settings: WIDGET_CONFIG
@@ -459,11 +468,11 @@ function display_map(ons_page) {
         {
             container_id: 'widget-stop_bus_map',
             static_url: STATIC_URL + 'stop_bus_map/',
-            display_id: '',
+            display_id: instance_key,
             layout_id: '',
             rt_token: RT_TOKEN,
-            layout_name: 'Layouts for mobile',
-            display_name: '',
+            layout_name: '',
+            display_name: 'Pocket SmartPanel',
             layout_owner: '',
             display_owner: '',
             settings: WIDGET_CONFIG
@@ -561,11 +570,11 @@ function setup_config(ons_page) {
 
     var config = {
         static_url: STATIC_URL + current_params.widget + '/',
-        display_id: '',
+        display_id: instance_key,
         layout_id: '',
         rt_token: RT_TOKEN,
-        layout_name: 'Layouts for mobile',
-        display_name: '',
+        layout_name: '',
+        display_name: 'Pocket SmartPanel',
         layout_owner: '',
         display_owner: '',
         settings: WIDGET_CONFIG
@@ -641,7 +650,8 @@ function station_board_config(config_el, config, current_params) {
             widget: current_params.widget,
             title: result().text,
             data: {
-                station: result().value
+                station: result().value,
+                platforms: 'y'
             }
         };
     };
@@ -767,6 +777,22 @@ function formatted_stop_name(indicator, common_name) {
     }
 }
 
+
+function generate_instance_key() {
+    return random_chars(UCALPHA, 4) +
+           '-' +
+           random_chars(DIGITS, 4);
+}
+
+// Make an async request to a logging endpoint
+function send_beacon(id) {
+    var uri = 'logger/?instance_id=' + id;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', uri, true);
+    xhr.send();
+}
+
+
 /* UTILITIES */
 
 // Find the position of an element within its containing element
@@ -784,6 +810,18 @@ function clear_element(el) {
         el.removeChild(el.firstChild);
     }
 }
+
+
+// Choose `count` characters at random from `chars`
+function random_chars(chars, count) {
+    var result = '';
+    for (var i = 0; i < count; ++i) {
+        var rnum = Math.floor(Math.random() * chars.length);
+        result += chars.substring(rnum, rnum+1);
+    }
+    return result;
+}
+
 
 // Polyfill for element.closest
 // https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
