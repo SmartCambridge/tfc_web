@@ -213,9 +213,14 @@ ons.ready(function () {
 
 // add listener for user backgrounding this 'app'
 document.addEventListener("visibilitychange", function(event) {
+
+    var visibility_state = document.visibilityState;
+
     var ons_page = event.target;
+
     ons.notification.alert('visibilitychange '+document.visibilityState);
     console.log('pocket visibilitychange',document.visibilityState);
+
 }); // end "visibilitychange" event listener
 
 // Page initialisation handlers
