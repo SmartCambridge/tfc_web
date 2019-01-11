@@ -159,7 +159,7 @@ class ServiceDetailView(DetailView):
 @smartcambridge_admin
 def rtroute(request):
     # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
-    rt_token = rt_crypto.rt_token( reverse("rtroute"), { "uses": "5", "duration": timedelta(minutes=10) } )
+    rt_token = rt_crypto.rt_token( reverse("rtroute"), { "uses": "5", "duration": timedelta(minutes=60) } )
 
     return render(request,
                   "transport/rtroute.html",

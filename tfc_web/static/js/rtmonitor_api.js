@@ -24,9 +24,14 @@ var RTMONITOR_URI = optional_uri ? optional_uri : 'https://smartcambridge.org/rt
 //this.RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
 //this.RTMONITOR_URI = 'http://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm';
 
+if (!optional_uri)
+{
+    console.log('RTMonitorAPI', 'WARN - instantiated without a RTMonitor URI, using smartcambridge');
+}
+
 var self = this;
 
-var DEBUG = 'rtmonitor_api_log';
+//var DEBUG = 'rtmonitor_api_log';
 
 if (client_data)
 {

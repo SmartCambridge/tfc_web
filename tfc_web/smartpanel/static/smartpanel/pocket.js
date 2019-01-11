@@ -18,7 +18,7 @@ var TCS_VERSION = 1;
 
 var VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
 var PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
-var INSTANCE_KEY = 'POCKET_SMARTPANEL_INSTANCE';
+var INSTANCE_KEY_NAME = 'POCKET_SMARTPANEL_INSTANCE';
 
 // Available weather stations and their names
 var WEATHER_OPTIONS = [
@@ -176,6 +176,8 @@ var map_widget;
 // Current instance_key
 var instance_key;
 
+//var page_refresh_time = (new Date()).setHours(28,30,0,0); // refresh page after 4:30am local time tomorrow
+var page_refresh_time = (new Date()).setHours(28,30,0,0); // refresh page after 4:30am local time tomorrow
 
 // App startup
 ons.ready(function () {
@@ -221,10 +223,30 @@ document.addEventListener("visibilitychange", function(event) {
 
     var visibility_state = document.visibilityState;
 
-    var ons_page = event.target;
+    if (visibility_state == 'visible') {
+        console.log('visibilitystate visible');
+        var visible_time = new Date();
+        if (visible_time > page_refresh_time) {
+            console.log('visibilitychange reloading page');
+            document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
+            location.reload(true);
+        } else {
+            console.log('visibilitychange no reload');
+            if (RTMONITOR_API) {
+                console.log('visibilitystate reconnecting rtmonitor_api');
+                RTMONITOR_API.connect();
+            }
+        }
+    }
 
-    ons.notification.alert('visibilitychange '+document.visibilityState);
-    console.log('pocket visibilitychange',document.visibilityState);
+    if (visibility_state == 'hidden') {
+        console.log('visibilitystate hidden');
+        if (RTMONITOR_API) {
+            console.log('visibilitystate disconnecting rtmonitor_api');
+            RTMONITOR_API.disconnect();
+        }
+    }
+    //var ons_page = event.target;
 
 }); // end "visibilitychange" event listener
 
@@ -249,12 +271,12 @@ document.addEventListener('init', function(event) {
 
     else if (ons_page.id === 'list') {
 
-        instance_key = localStorage.getItem(INSTANCE_KEY);
+        instance_key = localStorage.getItem(INSTANCE_KEY_NAME);
         if (!instance_key || /^\d+$/.test(instance_key)) {
             instance_key = generate_instance_key();
-            localStorage.setItem(INSTANCE_KEY, instance_key);
+            localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
-        send_beacon(instance_key);
+        send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
         ons_page.querySelector('#id').innerHTML = instance_key;
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
@@ -395,12 +417,18 @@ function display_page(page_number, ons_page) {
     ons_page.querySelector('#map').classList.add('hidden');
     switch (widget_type) {
     case 'weather':
+        // send log query to /smartcambridge/logger
+        send_beacon('weather', { component_ref: page_config.data.location });
         current_widget = new Weather('weather');
         break;
     case 'station_board':
+        // send log query to /smartcambridge/logger
+        send_beacon('station_board', { component_ref: page_config.data.station });
         current_widget = new StationBoard('station_board');
         break;
     case 'stop_timetable':
+        // send log query to /smartcambridge/logger
+        send_beacon('stop_timetable', { component_ref: page_config.data.stop.id });
         current_widget = new StopTimetable('stop_timetable');
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
@@ -784,9 +812,37 @@ function generate_instance_key() {
            random_chars(DIGITS, 4);
 }
 
-// Make an async request to a logging endpoint
-function send_beacon(id) {
-    var uri = 'logger/?instance_id=' + id;
+// Make an async request to a logging endpoint which must receive:
+// module_id: required string, in this case 'pocket'
+// instance_id: required string, a unique reference for this pocket instance
+// component_id: required string, 'page' | 'stop_timetable', 'stop_bus_map', ...
+// params: optional dictionary, should include 'component_ref' as definitive id e.g. '0500CCITY423' for stop_timetable
+//
+// module_id is hard_coded into this routine as 'pocket', so it it not needed in the call.
+// instance_key is a global variable so is not needed in the call.
+// e.g.
+// send_beacon('stop_timetable',
+//             { component_ref: '0500CCITY423' }
+//            );
+function send_beacon(component_id, params) {
+    var uri = '/smartcambridge/logger/';
+    uri += encodeURIComponent('pocket')+'/';     // module_id
+    uri += encodeURIComponent(instance_key)+'/'; // global var
+
+    uri += encodeURIComponent(component_id)+'/';
+
+    // add (optional) params to querystring
+    var params_count = 0
+    if (params) {
+        for (var key in params) {
+            if (params.hasOwnProperty(key)) {
+                params_count++;
+                var qs_join = params_count == 1 ? '?' : '&';
+                uri += qs_join + key + '=' + encodeURIComponent(params[key]);
+            }
+        }
+    }
+
     var xhr = new XMLHttpRequest();
     xhr.open('GET', uri, true);
     xhr.send();

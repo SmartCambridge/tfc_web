@@ -217,7 +217,7 @@ def pocket(request):
 
     rt_token = rt_crypto.rt_token( reverse("smartpanel-pocket"),
                                    { "uses": "5",
-                                     "duration": timedelta(minutes=5)
+                                     "duration": timedelta(hours=25)
                                    } )
 
     return render(request, 'smartpanel/pocket.html',
@@ -229,11 +229,6 @@ def pocket(request):
                    'rt_token': rt_token,
                    'RTMONITOR_URI': settings.RTMONITOR_URI,
                    'settings': smartpanel_settings()})
-
-
-def pocket_logger(request):
-    logger.info('POCKET: |%s|', request.GET.get('instance_id', ''))
-    return HttpResponse(status=204)
 
 
 @smartcambridge_valid_user
