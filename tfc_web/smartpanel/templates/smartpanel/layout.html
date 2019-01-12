@@ -56,16 +56,19 @@
 
     <script>
 
+        var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+
+        // RTMonitor rt_connect client_data
+        var CLIENT_DATA = { rt_client_id:  '{{ display.slug }}--{{ layout.slug }}',
+                            rt_client_name: 'SmartPanel', // TODO embed server-side smartpanel name
+                            rt_token:      '{{ rt_token }}',
+                            layout_name:   '{{ layout.name }}',
+                            display_name:  '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
+                            display_owner: '{{ display.owner.username }}'
+                          };
+
         // Note we must instatiate RTMonitorAPI before widgets
-        var RTMONITOR_API = new RTMonitorAPI(
-                            {
-                                'rt_client_id': '{{ display.slug }}--{{ layout.slug }}',
-                                'rt_client_name': 'smartpanel', // TODO embed server-side smartpanel name
-                                'rt_token': '{{ rt_token }}', 'layout_name': '{{ layout.name }}',
-                                'display_name': '{{ display.name }}', 'layout_owner': '{{ layout.owner.username }}',
-                                'display_owner': '{{ display.owner.username }}'
-                            }
-                );
+        var RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
 
         // Widget spec requires a DEBUG global
         var DEBUG = '';

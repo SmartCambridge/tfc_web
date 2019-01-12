@@ -198,6 +198,26 @@ def layout(request, slug, display=None):
             uwl.append(value['widget'])
 
     dependencies_files_list = generate_dependencies_files_list(uwl)
+
+    if display is None:
+
+        # layout gets a 10-minute rt_token
+        token_uri = reverse('smartpanel-layout',kwargs={ 'slug': slug})
+
+        rt_token = rt_crypto.rt_token( token_uri,
+                                       { "uses": "5",
+                                         "duration": timedelta(minutes=10)
+                                       } )
+    else:
+
+        # display gets a 25-hour rt_token
+        token_uri = reverse('smartpanel-display', kwargs={ 'slug': display.slug })
+
+        rt_token = rt_crypto.rt_token( token_uri,
+                                       { "uses": "5",
+                                         "duration": timedelta(hours=25)
+                                       } )
+
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout,
                    'stylesheets': dependencies_files_list[0],
@@ -205,7 +225,8 @@ def layout(request, slug, display=None):
                    'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3],
                    'display': display,
-                   'rt_token': '778',
+                   'rt_token': rt_token,
+                   'RTMONITOR_URI': settings.RTMONITOR_URI,
                    'settings': smartpanel_settings()})
 
 

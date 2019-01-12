@@ -255,6 +255,12 @@ document.addEventListener('init', function(event) {
     var ons_page = event.target;
     var navigator = document.querySelector('#myNavigator');
 
+    var m = new Date(); // for debug, record the datetime this page was loaded
+    var load_time = m.getFullYear() + "/" +
+                     ("0" + (m.getMonth()+1)).slice(-2) + "/" +
+                     ("0" + m.getDate()).slice(-2) + " " +
+                     ("0" + m.getHours()).slice(-2) + ":" +
+                     ("0" + m.getMinutes()).slice(-2);
     // First page ------------------------------------------------------
 
     if (ons_page.id === 'first') {
@@ -277,7 +283,7 @@ document.addEventListener('init', function(event) {
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
         send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
-        ons_page.querySelector('#id').innerHTML = instance_key;
+        ons_page.querySelector('#id').innerHTML = instance_key+'@'+load_time;
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
@@ -378,26 +384,32 @@ function handle_page_list_click(evt) {
 
     // A click on a delete icon
     if (evt.target.closest('.delete')) {
-        var page_title = PAGES[page_number].title;
-        var page_widget = PAGES[page_number].widget;
-        ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?'})
-            .then(function(button) {
-                if (button === 1) {
-                    PAGES.splice(page_number, 1);
-                    localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
-                    populate_page_list(ons_page);
-                }
-            });
+        delete_page(page_number, ons_page);
     }
     //Otherwise a click when editing
     else if (ons_page.classList.contains('edit-mode')) {
-        navigator.pushPage('config.html', {data: { page_number: page_number }});
+        // this commented line is alternative "edit the config for the page"
+        //navigator.pushPage('config.html', {data: { page_number: page_number }});
+        delete_page(page_number, ons_page);
     }
     // Otherwise
     else {
         navigator.pushPage('page-display.html', {data: { page_number: page_number }});
     }
 
+}
+
+function delete_page(page_number, ons_page) {
+    var page_title = PAGES[page_number].title;
+    var page_widget = PAGES[page_number].widget;
+    ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?'})
+        .then(function(button) {
+            if (button === 1) {
+                PAGES.splice(page_number, 1);
+                localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
+                populate_page_list(ons_page);
+            }
+        });
 }
 
 // Display page page_number on page
