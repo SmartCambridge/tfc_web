@@ -14,8 +14,6 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.views.generic import TemplateView, RedirectView
-from rest_framework.documentation import include_docs_urls
-from transport.api import views as api_views
 from transport import views
 
 

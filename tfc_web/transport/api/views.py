@@ -1,7 +1,7 @@
 import json
 import coreapi
 import coreschema
-from datetime import date, timedelta
+from datetime import timedelta
 from dateutil.parser import parse
 from os import listdir
 from pathlib import Path
@@ -23,7 +23,7 @@ from transport.models import Stop, Timetable, VehicleJourney
 from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
-    default_throttle, AuthenticateddAPIView
+    default_throttle
 from api.api_docs import transport_pagination_fields
 
 
