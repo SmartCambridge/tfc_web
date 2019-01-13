@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+    {% include 'leaflet_snippet.html' %}
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+    <script>
+        var map = L.map('map').setMinZoom(15);
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            map.fitBounds([
+                {% for a in area %}
+                    [{{ a.1 }}, {{ a.0 }}],
+                {% endfor %}
+            ]);
+            map.setMaxBounds([
+                {% for a in area %}
+                    [{{ a.1 }}, {{ a.0 }}],
+                {% endfor %}
+            ]);
+
+            {% for stop in bus_stops %}
+            L.marker([{{ stop.latitude }}, {{ stop.longitude }}], {uri: '{% url 'bus-stop' stop.atco_code %}'})
+                .addTo(map)
+                .bindTooltip('{{ stop }}', { sticky: true })
+                .on('click', function(e) {
+                    window.location = this.options.uri;
+                });
+            {% endfor %}
+        });
+
+    </script>
+{% endblock %}
+ 

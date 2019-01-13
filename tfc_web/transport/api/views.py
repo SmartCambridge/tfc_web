@@ -528,7 +528,7 @@ class StopList(generics.ListAPIView):
             # Returns a polygon object from the given bounding-box, a 4-tuple comprising (xmin, ymin, xmax, ymax).
             bounding_box = Polygon.from_bbox((self.bounding_box['west'], self.bounding_box['north'],
                                               self.bounding_box['east'], self.bounding_box['south']))
-            return Stop.objects.filter(gis_location__within=bounding_box)
+            return Stop.objects.filter(gis_location__contained=bounding_box)
         except AttributeError:
             return Stop.objects.all()
 

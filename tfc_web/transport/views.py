@@ -5,6 +5,7 @@ from datetime import datetime, date
 from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.gis.db.models import Q
+from django.contrib.gis.geos import Polygon
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
@@ -50,11 +51,12 @@ def route_timetable_map(request, journey_id):
 
 def bus_stops_list(request, area_id=None):
     if area_id:
-        area = get_object_or_404(Area, id=area_id)
-        bus_stops = Stop.objects.filter(gis_location__contained=area.poly)
+        area = get_object_or_404(Area, id=area_id).poly
     else:
-        bus_stops = Stop.objects.all()
-    return render(request, 'bus_stops_list.html', {'bus_stops': bus_stops})
+        # Use Cambridge as default bounding box
+        area = Polygon.from_bbox((-0.11230006814002992,52.29464119811643,0.24690136313438418,52.10594080364339))
+    bus_stops = Stop.objects.filter(gis_location__contained=area)
+    return render(request, 'transport/bus_stops_map.html', {'bus_stops': bus_stops, 'area': area[0]})
 
 
 def bus_stop(request, bus_stop_id):
