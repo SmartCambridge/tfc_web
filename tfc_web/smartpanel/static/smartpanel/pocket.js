@@ -13,6 +13,10 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
+var VERSION = '2.01';
+// 2.01 moved debug id and timestamp to bottom of page
+// 2.00 Working Pocket Smartpanel
+
 // Version number of the agreed TCs
 var TCS_VERSION = 1;
 
@@ -176,9 +180,6 @@ var map_widget;
 // Current instance_key
 var instance_key;
 
-//var page_refresh_time = (new Date()).setHours(28,30,0,0); // refresh page after 4:30am local time tomorrow
-var page_refresh_time = (new Date()).setHours(28,30,0,0); // refresh page after 4:30am local time tomorrow
-
 // App startup
 ons.ready(function () {
 
@@ -218,7 +219,9 @@ ons.ready(function () {
 
 });
 
-// add listener for user backgrounding this 'app'
+// Add listener for user backgrounding this 'app'
+// If page becomes 'visible' *after* RELOAD_TIME then page will be reloaded (and get new rt_token)
+// If page becomes 'hidden' then it will force RTMONITOR_API to disconnect
 document.addEventListener("visibilitychange", function(event) {
 
     var visibility_state = document.visibilityState;
@@ -226,7 +229,7 @@ document.addEventListener("visibilitychange", function(event) {
     if (visibility_state == 'visible') {
         console.log('visibilitystate visible');
         var visible_time = new Date();
-        if (visible_time > page_refresh_time) {
+        if (visible_time > RELOAD_TIME) { // RELOAD_TIME set in pocket.html to 4:30am tomorrow morning
             console.log('visibilitychange reloading page');
             document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
             location.reload(true);
@@ -255,12 +258,6 @@ document.addEventListener('init', function(event) {
     var ons_page = event.target;
     var navigator = document.querySelector('#myNavigator');
 
-    var m = new Date(); // for debug, record the datetime this page was loaded
-    var load_time = m.getFullYear() + "/" +
-                     ("0" + (m.getMonth()+1)).slice(-2) + "/" +
-                     ("0" + m.getDate()).slice(-2) + " " +
-                     ("0" + m.getHours()).slice(-2) + ":" +
-                     ("0" + m.getMinutes()).slice(-2);
     // First page ------------------------------------------------------
 
     if (ons_page.id === 'first') {
@@ -283,7 +280,7 @@ document.addEventListener('init', function(event) {
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
         send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
-        ons_page.querySelector('#id').innerHTML = instance_key+'@'+load_time;
+        ons_page.querySelector('#id').innerHTML = instance_key+' @'+LOAD_TIME;
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
@@ -370,6 +367,11 @@ document.addEventListener('destroy', function(event) {
 
 });
 
+// Force fresh (non-cached) http GET of pocket.html
+function reload_page() {
+    document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
+    location.reload(true);
+}
 
 // Handle a click on a page entry in the page list
 function handle_page_list_click(evt) {
@@ -445,7 +447,7 @@ function display_page(page_number, ons_page) {
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
                                             rt_client_id: instance_key,
-                                            rt_client_name: 'pocket_smartPanel',
+                                            rt_client_name: 'Pocket SmartPanel V'+VERSION,
                                             rt_token: RT_TOKEN // from tfc_web..pocket.html
                                          },
                                          RTMONITOR_URI); // from tfc_web..pocket.html
