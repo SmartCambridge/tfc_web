@@ -1,8 +1,8 @@
 # Gunicorn config
 
 worker_class = "gthread"
-workers = 17
-threads = 24
+workers = 10
+threads = 15
 
 reload = True
 
