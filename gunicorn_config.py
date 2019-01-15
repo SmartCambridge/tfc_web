@@ -1,5 +1,7 @@
 # Gunicorn config
 
+pidfile = "/var/log/tfc_prod/gunicorn.pid"
+
 worker_class = "gthread"
 workers = 10
 threads = 15
