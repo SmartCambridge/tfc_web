@@ -10,4 +10,4 @@ cd /home/tfc_prod/tfc_web/tfc_web
 
 echo $(date) "gunicorn started " >> /var/log/tfc_prod/gunicorn.log
 
-nohup gunicorn --workers 17 --threads 24 --worker-class gthread --reload tfc_web.wsgi --capture-output --access-logfile /var/log/tfc_prod/gunicorn.log --error-logfile /var/log/tfc_prod/gunicorn.err & disown
+nohup gunicorn --config /home/tfc_prod/tfc_web/gunicorn_config.py tfc_web.wsgi & disown
