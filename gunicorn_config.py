@@ -11,3 +11,4 @@ reload = True
 capture_output = "True"
 errorlog = "/var/log/tfc_prod/gunicorn.err"
 accesslog = "/var/log/tfc_prod/gunicorn.log"
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
