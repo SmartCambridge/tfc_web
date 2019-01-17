@@ -138,6 +138,7 @@
         if (location.href.indexOf('/layout/') > 0)
         {
             document.body.classList.add('layout');
+            setTimeout(function () { location.href = "{% url 'smartpanel-layout-expired' %}"; }, 600000);
         }
     </script>
 </body>

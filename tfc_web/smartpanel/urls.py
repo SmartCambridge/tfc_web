@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^displays/map/', smartpanel.displays_map, name='smartpanel-map-my-displays'),
     url(r'^displays/list/', smartpanel.displays_list, name='smartpanel-list-my-displays'),
     url(r'^design/', smartpanel.design, name='smartpanel-design'),
+
     url(r'^layouts/list/$', smartpanel.layouts_list, name='smartpanel-list-my-layouts'),
 # TODO Re-enamble once opt-in option done
 #    url(r'^layout/list/$', smartpanel.all, name='smartpanel-layout-all'),
@@ -27,6 +28,8 @@ urlpatterns = [
     url(r'^layout/import/$', smartpanel.layout_import, name='smartpanel-layout-import'),
     url(r'^layout/delete/$', smartpanel.layout_delete, name='smartpanel-layout-delete'),
     url(r'^layout/(?P<slug>\w+)/$', smartpanel.layout, name='smartpanel-layout'),
+    url(r'^layout_expired/$', smartpanel.layout_expired, name='smartpanel-layout-expired'),
+
     url(r'^pocket/$', smartpanel.pocket, name='smartpanel-pocket'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     # Widgets specific URLs

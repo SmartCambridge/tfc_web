@@ -229,6 +229,8 @@ def layout(request, slug, display=None):
                    'RTMONITOR_URI': settings.RTMONITOR_URI,
                    'settings': smartpanel_settings()})
 
+def layout_expired(request):
+    return render(request, 'smartpanel/layout_expired.html', {})
 
 def pocket(request):
     # The mobile display only does these widgets
