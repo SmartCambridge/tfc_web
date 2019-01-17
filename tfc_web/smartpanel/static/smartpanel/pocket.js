@@ -13,7 +13,8 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
-var VERSION = '2.01';
+var VERSION = '2.02';
+// 2.02 modified Edit..Delete confirm notificatio, added version, click-to-reload to page debug string
 // 2.01 moved debug id and timestamp to bottom of page
 // 2.00 Working Pocket Smartpanel
 
@@ -280,7 +281,8 @@ document.addEventListener('init', function(event) {
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
         send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
-        ons_page.querySelector('#id').innerHTML = instance_key+' @'+LOAD_TIME;
+        ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+LOAD_TIME;
+        ons_page.querySelector('#debug_string').addEventListener('click',reload_page);
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
@@ -404,7 +406,10 @@ function handle_page_list_click(evt) {
 function delete_page(page_number, ons_page) {
     var page_title = PAGES[page_number].title;
     var page_widget = PAGES[page_number].widget;
-    ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?'})
+    ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?',
+                              title: 'Edit',
+                              buttonLabels: ['Cancel','DELETE']
+                             })
         .then(function(button) {
             if (button === 1) {
                 PAGES.splice(page_number, 1);
@@ -550,7 +555,7 @@ function populate_page_list(ons_page) {
             '</div>' +
             '<div class="right">' +
             '  <span class="show-edit delete">' +
-            '    <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="18px, material:lg">' +
+            '    <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="28px, material:lg">' +
             '    </ons-icon>' +
             '  </span>' +
             '</div>';
