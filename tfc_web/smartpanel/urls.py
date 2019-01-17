@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^layout_expired/$', smartpanel.layout_expired, name='smartpanel-layout-expired'),
 
     url(r'^pocket/$', smartpanel.pocket, name='smartpanel-pocket'),
+    url(r'^pocket/(?P<name>\w+)/$', smartpanel.pocket, name='smartpanel-pocket-pages'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
     # Widgets specific URLs
     url(r'^weather$', weather.weather),

@@ -17,7 +17,7 @@ from django.utils.timezone import now
 
 from smartcambridge.decorator import smartcambridge_valid_user
 from smartpanel.forms import DisplayForm
-from smartpanel.models import Layout, Display
+from smartpanel.models import Layout, Display, Pocket
 
 from smartcambridge import rt_crypto
 
@@ -232,7 +232,7 @@ def layout(request, slug, display=None):
 def layout_expired(request):
     return render(request, 'smartpanel/layout_expired.html', {})
 
-def pocket(request):
+def pocket(request, name=None):
     # The mobile display only does these widgets
     widgets = ['weather', 'station_board', 'stop_timetable', 'stop_bus_map']
 
@@ -243,6 +243,17 @@ def pocket(request):
                                      "duration": timedelta(hours=25)
                                    } )
 
+    # Retrieve the name of a set of preload page params from the URL
+    # lookup in Pocket table and set preload_pages to JsonArray
+    # or None if not found (or no URL value given)
+    if name is not None:
+        try:
+            preload_pages = Pocket.objects.get(name=name).params
+        except Pocket.DoesNotExist:
+            preload_pages = None
+    else:
+        preload_pages = None
+
     return render(request, 'smartpanel/pocket.html',
                   {'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1],
@@ -251,7 +262,9 @@ def pocket(request):
                    'display': 'mobile',
                    'rt_token': rt_token,
                    'RTMONITOR_URI': settings.RTMONITOR_URI,
-                   'settings': smartpanel_settings()})
+                   'settings': smartpanel_settings(),
+                   'preload_pages': preload_pages
+                  })
 
 
 @smartcambridge_valid_user
