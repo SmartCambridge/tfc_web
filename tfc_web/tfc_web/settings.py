@@ -258,7 +258,7 @@ SMARTPANEL_API_TOKEN = JS_API_KEY
 # ======================================================================
 # RTMONITOR_URI WEBSOCKET ENDPOINT =====================================
 
-RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm/'
+RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm/'
 
 # ======================================================================
 
