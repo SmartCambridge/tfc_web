@@ -223,7 +223,8 @@
     var img = new Image();
     img.src ="{% static 'smartpanel/widgets/stop_timetable/indicator-lite.gif' %}";
 
-    var PRELOAD_PAGES = JSON.parse('{{ preload_pages|jsonify|escapejs }}');
+    var POCKET_URL = "{% url 'smartpanel-pocket' %}";
+    var PRELOAD_PAGES = '{{ preload_pages|default_if_none:""|jsonify|escapejs }}';
     var WIDGET_CONFIG = JSON.parse('{{ settings|jsonify|escapejs }}');
     var STATIC_URL = "{% static 'smartpanel/widgets/' %}";
     var RT_TOKEN = '{{ rt_token }}';

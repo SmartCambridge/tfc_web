@@ -208,7 +208,15 @@ ons.ready(function () {
     if (localStorage.getItem(PAGES_KEY)) {
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
     }
+    else {
+        PAGES = [];
+    }
 
+    // If PRELOAD_PAGES are available, merge those.
+    if (PRELOAD_PAGES) {
+        merge_preload(PAGES, JSON.parse(PRELOAD_PAGES));
+        history.pushState(null,null,POCKET_URL); // provided by template
+    }
     // Opening page depends on value stored under VERSION_KEY in localStorage
     var raw_version = localStorage.getItem(VERSION_KEY);
     if (raw_version && parseInt(raw_version) >= TCS_VERSION) {
@@ -219,6 +227,35 @@ ons.ready(function () {
     }
 
 });
+
+// Merge the 'preload' pages provided by the template into the current pages
+function merge_preload(current_pages, preload_pages) {
+
+    // append each preload page if it is not already in current pages
+    for (var i=0; i<preload_pages.length; i++) {
+        append_page(current_pages, preload_pages[i]);
+    }
+
+    // cache combined result back in localStorage
+    localStorage.setItem(PAGES_KEY, JSON.stringify(current_pages));
+}
+
+// append page to current_pages if it is not already in list
+function append_page(current_pages, page) {
+    for (var i=0; i<current_pages.length; i++) {
+        if (page_match(current_pages[i],page)) {
+            // page is already in list of current pages, so do nothing and return
+            return;
+        }
+    }
+    current_pages.push(page);
+}
+
+// return true if two pages are the same, e.g
+// weather/Cambridge == weather/Cambridge
+function page_match(page1, page2) {
+   return (page1.widget == page2.widget && page1.title == page2.title)
+}
 
 // Add listener for user backgrounding this 'app'
 // If page becomes 'visible' *after* RELOAD_TIME then page will be reloaded (and get new rt_token)
