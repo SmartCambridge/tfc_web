@@ -4,7 +4,7 @@ FROM python:3.6-slim-stretch
 # application.
 WORKDIR /usr/src/app
 
-RUN apt-get -y update && apt-get install -y binutils libproj-dev gdal-bin git
+RUN apt-get -y update && apt-get install -y binutils libproj-dev gdal-bin git gcc
 
 # Install any explicit requirements
 ADD requirements.txt ./
