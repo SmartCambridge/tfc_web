@@ -4,6 +4,7 @@ import json
 from datetime import datetime, date, timedelta, timezone
 from urllib.request import urlopen
 from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.gis.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -156,7 +157,8 @@ class ServiceDetailView(DetailView):
         return context
 
 ## Bus Analysis page
-@smartcambridge_admin
+# Checks if the user is a superuser (admin)
+@user_passes_test(lambda u: u.is_superuser)
 def rtroute(request):
     # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
     rt_token = rt_crypto.rt_token( reverse("rtroute"), { "uses": "5", "duration": timedelta(minutes=60) } )
@@ -166,4 +168,3 @@ def rtroute(request):
                   { "rt_token": rt_token,
                     "RTMONITOR_URI": settings.RTMONITOR_URI
     })
-
