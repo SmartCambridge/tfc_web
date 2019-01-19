@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from dateutil.parser import parse
 from os import listdir
 from pathlib import Path
+from django.contrib.gis.geos import Polygon
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils.timezone import now
@@ -530,11 +531,10 @@ class StopList(generics.ListAPIView):
 
     def get_queryset(self):
         try:
-            return Stop.objects.filter(
-                latitude__range=(self.bounding_box['south'],
-                                 self.bounding_box['north']),
-                longitude__range=(self.bounding_box['west'],
-                                  self.bounding_box['east']))
+            # Returns a polygon object from the given bounding-box, a 4-tuple comprising (xmin, ymin, xmax, ymax).
+            bounding_box = Polygon.from_bbox((self.bounding_box['west'], self.bounding_box['north'],
+                                              self.bounding_box['east'], self.bounding_box['south']))
+            return Stop.objects.filter(gis_location__contained=bounding_box)
         except AttributeError:
             return Stop.objects.all()
 
