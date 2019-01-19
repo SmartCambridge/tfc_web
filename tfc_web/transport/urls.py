@@ -51,5 +51,9 @@ urlpatterns = [
 
     # API - legacy support
     url(r'^api/docs/', RedirectView.as_view(pattern_name='api-docs:docs-index', permanent=True)),
-    url(r'^api/', include('transport.api.urls'),)
+    url(r'^api/', include('transport.api.urls'),),
+
+    # Bus Analysis
+    url(r'^rtroute/$', views.rtroute, name='rtroute')
+
 ]

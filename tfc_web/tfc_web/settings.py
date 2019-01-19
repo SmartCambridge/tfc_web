@@ -248,11 +248,17 @@ except NameError:
     LOCAL_API_KEY = ''
     JS_API_KEY = ''
 
+# ======================================================================
 # SMARTPANEL CONFIGURATION =============================================
 # Everything prefixed by SMARTPANEL_ is passed to widget instances
 
 SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
 SMARTPANEL_API_TOKEN = JS_API_KEY
+
+# ======================================================================
+# RTMONITOR_URI WEBSOCKET ENDPOINT =====================================
+
+RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm/'
 
 # ======================================================================
 

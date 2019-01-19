@@ -13,12 +13,17 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
+var VERSION = '2.02';
+// 2.02 modified Edit..Delete confirm notificatio, added version, click-to-reload to page debug string
+// 2.01 moved debug id and timestamp to bottom of page
+// 2.00 Working Pocket Smartpanel
+
 // Version number of the agreed TCs
 var TCS_VERSION = 1;
 
 var VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
 var PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
-var INSTANCE_KEY = 'POCKET_SMARTPANEL_INSTANCE';
+var INSTANCE_KEY_NAME = 'POCKET_SMARTPANEL_INSTANCE';
 
 // Available weather stations and their names
 var WEATHER_OPTIONS = [
@@ -176,7 +181,6 @@ var map_widget;
 // Current instance_key
 var instance_key;
 
-
 // App startup
 ons.ready(function () {
 
@@ -204,7 +208,15 @@ ons.ready(function () {
     if (localStorage.getItem(PAGES_KEY)) {
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
     }
+    else {
+        PAGES = [];
+    }
 
+    // If PRELOAD_PAGES are available, merge those.
+    if (PRELOAD_PAGES) {
+        merge_preload(PAGES, JSON.parse(PRELOAD_PAGES));
+        history.pushState(null,null,POCKET_URL); // provided by template
+    }
     // Opening page depends on value stored under VERSION_KEY in localStorage
     var raw_version = localStorage.getItem(VERSION_KEY);
     if (raw_version && parseInt(raw_version) >= TCS_VERSION) {
@@ -216,6 +228,68 @@ ons.ready(function () {
 
 });
 
+// Merge the 'preload' pages provided by the template into the current pages
+function merge_preload(current_pages, preload_pages) {
+
+    // append each preload page if it is not already in current pages
+    for (var i=0; i<preload_pages.length; i++) {
+        append_page(current_pages, preload_pages[i]);
+    }
+
+    // cache combined result back in localStorage
+    localStorage.setItem(PAGES_KEY, JSON.stringify(current_pages));
+}
+
+// append page to current_pages if it is not already in list
+function append_page(current_pages, page) {
+    for (var i=0; i<current_pages.length; i++) {
+        if (page_match(current_pages[i],page)) {
+            // page is already in list of current pages, so do nothing and return
+            return;
+        }
+    }
+    current_pages.push(page);
+}
+
+// return true if two pages are the same, e.g
+// weather/Cambridge == weather/Cambridge
+function page_match(page1, page2) {
+   return (page1.widget == page2.widget && page1.title == page2.title)
+}
+
+// Add listener for user backgrounding this 'app'
+// If page becomes 'visible' *after* RELOAD_TIME then page will be reloaded (and get new rt_token)
+// If page becomes 'hidden' then it will force RTMONITOR_API to disconnect
+document.addEventListener("visibilitychange", function(event) {
+
+    var visibility_state = document.visibilityState;
+
+    if (visibility_state == 'visible') {
+        console.log('visibilitystate visible');
+        var visible_time = new Date();
+        if (visible_time > RELOAD_TIME) { // RELOAD_TIME set in pocket.html to 4:30am tomorrow morning
+            console.log('visibilitychange reloading page');
+            document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
+            location.reload(true);
+        } else {
+            console.log('visibilitychange no reload');
+            if (RTMONITOR_API) {
+                console.log('visibilitystate reconnecting rtmonitor_api');
+                RTMONITOR_API.connect();
+            }
+        }
+    }
+
+    if (visibility_state == 'hidden') {
+        console.log('visibilitystate hidden');
+        if (RTMONITOR_API) {
+            console.log('visibilitystate disconnecting rtmonitor_api');
+            RTMONITOR_API.disconnect();
+        }
+    }
+    //var ons_page = event.target;
+
+}); // end "visibilitychange" event listener
 
 // Page initialisation handlers
 document.addEventListener('init', function(event) {
@@ -238,13 +312,14 @@ document.addEventListener('init', function(event) {
 
     else if (ons_page.id === 'list') {
 
-        instance_key = localStorage.getItem(INSTANCE_KEY);
+        instance_key = localStorage.getItem(INSTANCE_KEY_NAME);
         if (!instance_key || /^\d+$/.test(instance_key)) {
             instance_key = generate_instance_key();
-            localStorage.setItem(INSTANCE_KEY, instance_key);
+            localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
-        send_beacon(instance_key);
-        ons_page.querySelector('#id').innerHTML = instance_key;
+        send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
+        ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+LOAD_TIME;
+        ons_page.querySelector('#debug_string').addEventListener('click',reload_page);
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
@@ -331,6 +406,11 @@ document.addEventListener('destroy', function(event) {
 
 });
 
+// Force fresh (non-cached) http GET of pocket.html
+function reload_page() {
+    document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
+    location.reload(true);
+}
 
 // Handle a click on a page entry in the page list
 function handle_page_list_click(evt) {
@@ -345,26 +425,35 @@ function handle_page_list_click(evt) {
 
     // A click on a delete icon
     if (evt.target.closest('.delete')) {
-        var page_title = PAGES[page_number].title;
-        var page_widget = PAGES[page_number].widget;
-        ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?'})
-            .then(function(button) {
-                if (button === 1) {
-                    PAGES.splice(page_number, 1);
-                    localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
-                    populate_page_list(ons_page);
-                }
-            });
+        delete_page(page_number, ons_page);
     }
     //Otherwise a click when editing
     else if (ons_page.classList.contains('edit-mode')) {
-        navigator.pushPage('config.html', {data: { page_number: page_number }});
+        // this commented line is alternative "edit the config for the page"
+        //navigator.pushPage('config.html', {data: { page_number: page_number }});
+        delete_page(page_number, ons_page);
     }
     // Otherwise
     else {
         navigator.pushPage('page-display.html', {data: { page_number: page_number }});
     }
 
+}
+
+function delete_page(page_number, ons_page) {
+    var page_title = PAGES[page_number].title;
+    var page_widget = PAGES[page_number].widget;
+    ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?',
+                              title: 'Edit',
+                              buttonLabels: ['Cancel','DELETE']
+                             })
+        .then(function(button) {
+            if (button === 1) {
+                PAGES.splice(page_number, 1);
+                localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
+                populate_page_list(ons_page);
+            }
+        });
 }
 
 // Display page page_number on page
@@ -384,18 +473,26 @@ function display_page(page_number, ons_page) {
     ons_page.querySelector('#map').classList.add('hidden');
     switch (widget_type) {
     case 'weather':
+        // send log query to /smartcambridge/logger
+        send_beacon('weather', { component_ref: page_config.data.location });
         current_widget = new Weather('weather');
         break;
     case 'station_board':
+        // send log query to /smartcambridge/logger
+        send_beacon('station_board', { component_ref: page_config.data.station });
         current_widget = new StationBoard('station_board');
         break;
     case 'stop_timetable':
+        // send log query to /smartcambridge/logger
+        send_beacon('stop_timetable', { component_ref: page_config.data.stop.id });
         current_widget = new StopTimetable('stop_timetable');
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
-            rt_client_id: instance_key,
-            rt_client_name: 'pocket_smartPanel',
-            rt_token: RT_TOKEN});
+                                            rt_client_id: instance_key,
+                                            rt_client_name: 'Pocket SmartPanel V'+VERSION,
+                                            rt_token: RT_TOKEN // from tfc_web..pocket.html
+                                         },
+                                         RTMONITOR_URI); // from tfc_web..pocket.html
         break;
     }
 
@@ -415,9 +512,9 @@ function display_page(page_number, ons_page) {
         page_config.data
     );
 
-    if (widget_type === 'stop_timetable') {
-        RTMONITOR_API.init();
-    }
+//    if (widget_type === 'stop_timetable') {
+//        RTMONITOR_API.init();
+//    } // not needed with current rtmonitor_api version
 
 }
 
@@ -495,7 +592,7 @@ function populate_page_list(ons_page) {
             '</div>' +
             '<div class="right">' +
             '  <span class="show-edit delete">' +
-            '    <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="18px, material:lg">' +
+            '    <ons-icon icon="ion-ios-trash, material:ion-android-delete" size="28px, material:lg">' +
             '    </ons-icon>' +
             '  </span>' +
             '</div>';
@@ -771,9 +868,37 @@ function generate_instance_key() {
            random_chars(DIGITS, 4);
 }
 
-// Make an async request to a logging endpoint
-function send_beacon(id) {
-    var uri = 'logger/?instance_id=' + id;
+// Make an async request to a logging endpoint which must receive:
+// module_id: required string, in this case 'pocket'
+// instance_id: required string, a unique reference for this pocket instance
+// component_id: required string, 'page' | 'stop_timetable', 'stop_bus_map', ...
+// params: optional dictionary, should include 'component_ref' as definitive id e.g. '0500CCITY423' for stop_timetable
+//
+// module_id is hard_coded into this routine as 'pocket', so it it not needed in the call.
+// instance_key is a global variable so is not needed in the call.
+// e.g.
+// send_beacon('stop_timetable',
+//             { component_ref: '0500CCITY423' }
+//            );
+function send_beacon(component_id, params) {
+    var uri = '/smartcambridge/logger/';
+    uri += encodeURIComponent('pocket')+'/';     // module_id
+    uri += encodeURIComponent(instance_key)+'/'; // global var
+
+    uri += encodeURIComponent(component_id)+'/';
+
+    // add (optional) params to querystring
+    var params_count = 0
+    if (params) {
+        for (var key in params) {
+            if (params.hasOwnProperty(key)) {
+                params_count++;
+                var qs_join = params_count == 1 ? '?' : '&';
+                uri += qs_join + key + '=' + encodeURIComponent(params[key]);
+            }
+        }
+    }
+
     var xhr = new XMLHttpRequest();
     xhr.open('GET', uri, true);
     xhr.send();

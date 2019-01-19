@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'map.css' %}" />
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script type="text/javascript" src="{% static 'js/MovingMarker.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/rtmonitor_api.js' %}"></script>
     <script>
         var route = "";
         function route_change(bus_route) {
@@ -55,13 +56,26 @@
     {% endblock %}
     {% block content_script %}
 <script>
-var RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/rtmonitor/sirivm';
+
+var VERSION = '3.10';
+// 3.10 uses rt_token to protect rtmonitor_api connection
+// 3.01 improved content of bus tooltip and popup
+// 3.00 removed local websocket code and used rtmonitor_api.js
+// 2.00 initial version accessing real-time data from RTMonitor
+// 1.00 polling version reading latest vehicle positon reports
+
+var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+
+// RTMonitor rt_connect client_data
+var CLIENT_DATA = { rt_client_name: 'map_real_time V'+VERSION,
+                    rt_client_id: 'map_real_time',
+                    rt_token: '{{ rt_token }}'
+                  };
 
 var OLD_DATA_RECORD = 60; // time (s) threshold where a data record is considered 'old'
 
 var map;       // Leaflet map
 var map_tiles; // map tiles layer
-var mapbounds;
 var info_map;
 
 // Sensor data - dictionary of sensors by sensor_id
@@ -99,15 +113,22 @@ var bus_stop_icon = L.icon({
     iconAnchor: [3,40]
 });
 
+var RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
+
+var rt_client; // client object we will use to communicate with the real-time server
+
 function init()
 {
+
+    console.log('map_real_time', 'V'+VERSION);
+
+    rt_client = RTMONITOR_API.register(rt_connected, rt_disconnected);
+
     map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
 
-    map_tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    map_tiles = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-
-    mapbounds = map.getBounds();
 
     info_map = L.control();
     info_map.onAdd = function (map) {
@@ -122,14 +143,25 @@ function init()
     };
 
     info_map.addTo(map);
-    mapbounds = map.getBounds();
     map.on('moveend', function() {
-            mapbounds = map.getBounds();
+            log('map bounds changed');
+            subscribe();
     });
 
-    // OK let's set up a subscription for the real-time data
-    sock_connect();
+    // OK let's connect and set up a subscription for the real-time data
+    rt_client.connect();
 } // end init()
+
+function rt_connected()
+{
+    console.log('map_real_time','rt_connected');
+    subscribe();
+}
+
+function rt_disconnected()
+{
+    console.log('map_real_time','rt_disconnected');
+}
 
 // We have received data from a previously unseen sensor, so initialize
 function create_sensor(msg, clock_time)
@@ -380,10 +412,10 @@ function tooltip_content(msg)
     var time_str = ("0" + time.getHours()).slice(-2)   + ":" +
                    ("0" + time.getMinutes()).slice(-2) + ":" +
                    ("0" + time.getSeconds()).slice(-2);
-    return time_str +
-            '<br/>' + msg[RECORD_INDEX] +
-			'<br/>Line "' + msg['PublishedLineName'] +'"'+
-            '<br/>Delay: ' + xml_duration_to_string(msg['Delay']);
+    return '@'+time_str +
+		'<br/>Line "' + msg['PublishedLineName'] +'"'+
+        '<br/>'+msg['DirectionRef']+
+        '<br/>Delay: ' + xml_duration_to_string(msg['Delay']);
 }
 
 function popup_content(msg)
@@ -393,10 +425,15 @@ function popup_content(msg)
                    ("0" + time.getMinutes()).slice(-2) + ":" +
                    ("0" + time.getSeconds()).slice(-2);
     var sensor_id = msg[RECORD_INDEX];
-    return time_str +
-        '<br/>' + sensor_id +
+    return '<div style="font-size: 0.8em;float:right">'+
+                '@'+ time_str +
+                '<br/>' + sensor_id +
+        '</div>'+
 		'<br/>Line "' + msg['PublishedLineName'] +'"'+
-        '<br/>Delay: ' + xml_duration_to_string(msg['Delay']);
+        '<br/>Delay: ' + xml_duration_to_string(msg['Delay'])+
+        '<br/>From '+msg['OriginName']+
+        '<br/>'+msg['DirectionRef']+
+        '<br/>To '+msg['DestinationName'];
 }
 
 // user has clicked on 'more' in the sensor popup
@@ -409,15 +446,66 @@ function more_content(sensor_id)
     return content;
 }
 
+function subscribe()
+{
+    var SUBSCRIBE_SCALE = 1.2; // x & y scale of subscription vs. map
+
+    var boundary_offset = (SUBSCRIBE_SCALE - 1) / 2; // given the SUBSCRIBE_SCALE, this is how far to expand the 'box'
+
+    console.log('map_real_time', 'subscribe(), sending lat/lng subscription');
+
+    var map_bounds = map.getBounds();
+
+    var map_sw = map_bounds.getSouthWest();
+    var map_ne = map_bounds.getNorthEast();
+
+    // We will subscribe to real-time data in a box larger than the map bounds
+    var boundary_ns = (map_ne.lat - map_sw.lat) * boundary_offset;
+    var boundary_ew = (map_ne.lng - map_sw.lng) * boundary_offset;
+    var north = map_ne.lat + boundary_ns;
+    var south = map_sw.lat - boundary_ns;
+    var east = map_ne.lng + boundary_ew;
+    var west = map_sw.lng - boundary_ew;
+    //L.rectangle([[south,west],[north,east]], { fillOpacity: 0 }).addTo(map);
+
+    var request_id = 'A';
+
+    // Subscribe to the real-time data INSIDE a clockwise rectangle derived from map bounds
+    // Note RTMonitorAPI will at the "msg_type": "rt_subscribe" and the "request_id"
+    var request = {
+            options: [
+                    'latest_records'
+                    ],
+             filters: [ { test: 'inside',
+                          lat_key: 'Latitude',
+                          lng_key: 'Longitude',
+                          points: [ {  lat: north, lng: west },
+                                    {  lat: north, lng: east },
+                                    {  lat: south, lng: east },
+                                    {  lat: south, lng: west }
+                                  ]
+                        } ] };
+
+    var request_status = rt_client.request( request_id + '_latest',
+                                           request,
+                                           handle_records);
+
+    console.log('map_real_time', 'request_status '+request_status.status);
+
+    var subscribe_status = rt_client.subscribe( request_id,
+                                           request,
+                                           handle_records);
+
+    console.log('map_real_time', 'subscribe_status '+subscribe_status.status);
+}
+
 // ********************************************************************************
 // ***********  Process the data records arrived from WebSocket or Replay *********
 // ********************************************************************************
 
 // Process websocket data
-function handle_records(websock_data)
+function handle_records(incoming_data)
 {
-    var incoming_data = JSON.parse(websock_data);
-    //console.log('handle_records'+json['request_data'].length);
     for (var i = 0; i < incoming_data[RECORDS_ARRAY].length; i++)
     {
 	    handle_msg(incoming_data[RECORDS_ARRAY][i], new Date());
@@ -426,7 +514,7 @@ function handle_records(websock_data)
 
 function log(str)
 {
-    console.log(str);
+    console.log('map_real_time',str);
 }
 
 // process a single data record
@@ -466,88 +554,6 @@ function check_old_records(clock_time)
     {
         update_old_status(sensors[sensor_id], clock_time);
     }
-}
-
-// ***************************************************************************
-// *******************  WebSocket code    ************************************
-// ***************************************************************************
-
-var sock; // the page's WebSocket
-
-// sock_connect() will be called on startup (i.e. in init())
-// It will connect socket, when successful will
-// send { 'msg_type': 'rt_connect'} message, and should receive { 'msg_type': 'rt_connect_ok' }, then
-// send { 'msg_type': 'rt_subscribe', 'request_id' : 'A' } which subsribes to ALL records.
-function sock_connect()
-{
-    sock = new SockJS(RTMONITOR_URI);
-
-    sock.onopen = function() {
-                log('** socket open');
-                sock_send_str('{ "msg_type": "rt_connect" }');
-                };
-
-    sock.onmessage = function(e) {
-                var json_msg = JSON.parse(e.data);
-                if (json_msg.msg_type != null && json_msg.msg_type == "rt_nok")
-                {
-                    log('<span class="log_error">** '+e.data+'</span>');
-                    return;
-                }
-                if (json_msg.msg_type != null && json_msg.msg_type == "rt_connect_ok")
-                {
-                    log('Connected OK');
-                    sock_send_str('{ "msg_type": "rt_subscribe", "request_id": "A" }');
-
-                    return;
-                }
-                handle_records(e.data);
-                };
-
-    sock.onclose = function() {
-                    log('** socket closed');
-                };
-}
-
-function sock_close()
-{
-    log('** closing socket...');
-    sock.close();
-}
-
-function sock_send(input_name)
-{
-    var msg = document.getElementById(input_name).value;
-
-    sock_send_str(msg);
-}
-
-function sock_send_str(msg)
-{
-    if (sock == null)
-    {
-	    log('<span style="color: red;">Socket not yet connected</span>');
-	    return;
-    }
-    if (sock.readyState == SockJS.CONNECTING)
-    {
-	    log('<span style="color: red;">Socket connecting...</span>');
-  	    return;
-    }
-    if (sock.readyState == SockJS.CLOSING)
-    {
-	    log('<span style="color: red;">Socket closing...</span>');
-	    return;
-    }
-    if (sock.readyState == SockJS.CLOSED)
-    {
-	    log('<span style="color: red;">Socket closed</span>');
-	    return;
-    }
-
-    log('sending: '+msg);
-
-    sock.send(msg);
 }
 
 $(document).ready(init);

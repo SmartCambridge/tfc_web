@@ -1,7 +1,7 @@
 import codecs
 import requests
 import json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta, timezone
 from urllib.request import urlopen
 from django.conf import settings
 from django.contrib.gis.db.models import Q
@@ -10,10 +10,12 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
+from django.urls import reverse
 from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
-
+from smartcambridge.decorator import smartcambridge_admin
+from smartcambridge import rt_crypto
 
 def areas(request):
     return render(request, 'areas.html', {'areas': Area.objects.all()})
@@ -24,7 +26,17 @@ def area_home(request, area_id):
 
 
 def map_real_time(request):
-    return render(request, 'transport/map_real_time.html', {})
+    # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
+    rt_token = rt_crypto.rt_token( reverse("bus-map"),
+                                   { "uses": "5",
+                                     "duration": timedelta(minutes=60)
+                                   } )
+
+    return render(request,
+                  "transport/map_real_time.html",
+                  { "rt_token": rt_token,
+                    "RTMONITOR_URI": settings.RTMONITOR_URI
+    })
 
 def bus_lines_list(request, area_id=None):
     if area_id:
@@ -144,3 +156,16 @@ class ServiceDetailView(DetailView):
         #             for row in grouping.rows:
         #                 row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
         return context
+
+## Bus Analysis page
+@smartcambridge_admin
+def rtroute(request):
+    # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
+    rt_token = rt_crypto.rt_token( reverse("rtroute"), { "uses": "5", "duration": timedelta(minutes=60) } )
+
+    return render(request,
+                  "transport/rtroute.html",
+                  { "rt_token": rt_token,
+                    "RTMONITOR_URI": settings.RTMONITOR_URI
+    })
+

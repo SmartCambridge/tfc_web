@@ -2,6 +2,8 @@ import logging
 import json
 import os
 import copy
+from datetime import datetime, date, timedelta, timezone
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
@@ -15,7 +17,9 @@ from django.utils.timezone import now
 
 from smartcambridge.decorator import smartcambridge_valid_user
 from smartpanel.forms import DisplayForm
-from smartpanel.models import Layout, Display
+from smartpanel.models import Layout, Display, Pocket
+
+from smartcambridge import rt_crypto
 
 
 logger = logging.getLogger(__name__)
@@ -132,7 +136,7 @@ def layout_config(request, slug, reload=False):
         messages.error(request, "An error ocurred")
     return render(request, 'smartpanel/layout_config.html',
                   {'layout': layout, 'error': error,
-                   'debug': request.GET.get('debug', False), 
+                   'debug': request.GET.get('debug', False),
                    'widgets_list': generate_widget_list(request.user),
                    'settings': smartpanel_settings()})
 
@@ -194,6 +198,26 @@ def layout(request, slug, display=None):
             uwl.append(value['widget'])
 
     dependencies_files_list = generate_dependencies_files_list(uwl)
+
+    if display is None:
+
+        # layout gets a 10-minute rt_token
+        token_uri = reverse('smartpanel-layout',kwargs={ 'slug': slug})
+
+        rt_token = rt_crypto.rt_token( token_uri,
+                                       { "uses": "5",
+                                         "duration": timedelta(minutes=10)
+                                       } )
+    else:
+
+        # display gets a 25-hour rt_token
+        token_uri = reverse('smartpanel-display', kwargs={ 'slug': display.slug })
+
+        rt_token = rt_crypto.rt_token( token_uri,
+                                       { "uses": "5",
+                                         "duration": timedelta(hours=25)
+                                       } )
+
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout,
                    'stylesheets': dependencies_files_list[0],
@@ -201,29 +225,46 @@ def layout(request, slug, display=None):
                    'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3],
                    'display': display,
-                   'rt_token': '778',
+                   'rt_token': rt_token,
+                   'RTMONITOR_URI': settings.RTMONITOR_URI,
                    'settings': smartpanel_settings()})
 
+def layout_expired(request):
+    return render(request, 'smartpanel/layout_expired.html', {})
 
-def pocket(request):
-
+def pocket(request, name=None):
     # The mobile display only does these widgets
     widgets = ['weather', 'station_board', 'stop_timetable', 'stop_bus_map']
 
     dependencies_files_list = generate_dependencies_files_list(widgets)
+
+    rt_token = rt_crypto.rt_token( reverse("smartpanel-pocket"),
+                                   { "uses": "5",
+                                     "duration": timedelta(hours=25)
+                                   } )
+
+    # Retrieve the name of a set of preload page params from the URL
+    # lookup in Pocket table and set preload_pages to JsonArray
+    # or None if not found (or no URL value given)
+    if name is not None:
+        try:
+            preload_pages = Pocket.objects.get(name=name).params
+        except Pocket.DoesNotExist:
+            preload_pages = None
+    else:
+        preload_pages = None
+
     return render(request, 'smartpanel/pocket.html',
                   {'stylesheets': dependencies_files_list[0],
                    'scripts': dependencies_files_list[1],
                    'external_scripts': dependencies_files_list[2],
                    'external_stylesheets': dependencies_files_list[3],
                    'display': 'mobile',
-                   'rt_token': '778',
-                   'settings': smartpanel_settings()})
-
-
-def pocket_logger(request):
-    logger.info('POCKET: |%s|', request.GET.get('instance_id', ''))
-    return HttpResponse(status=204)
+                   'rt_token': rt_token,
+                   'RTMONITOR_URI': settings.RTMONITOR_URI,
+                   'settings': smartpanel_settings(),
+                   'preload_pages': preload_pages
+                  })
 
 
 @smartcambridge_valid_user

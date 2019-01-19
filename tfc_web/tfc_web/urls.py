@@ -43,6 +43,7 @@ urlpatterns = [
     # SmartPanel
     url(r'^smartpanel/', include('smartpanel.urls')),
     url(r'^p$', RedirectView.as_view(pattern_name='smartpanel-pocket', permanent=True)),
+    url(r'^p/(?P<name>\w+)$', RedirectView.as_view(pattern_name='smartpanel-pocket-pages', permanent=True)),
 
     # API
     url(r'^api/', include('api.urls')),

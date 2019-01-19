@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <title>SmartCambridge SmartPanel</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/>
+<style>
+#message_div { font-family: sans-serif;
+               margin: 50px;
+}
+
+p { margin-left: 60px;
+    margin-right: 60px;
+    margin-top: 30px;
+}
+</style>
+
+</head>
+<body style="height: 100%">
+    <div class="logos" style="height: 60px; line-height: 70px; width: 100%;">
+        <div id="screen_clock"></div>
+        <a href="http://www.connectingcambridgeshire.co.uk/smart-cambridge/"><img alt="Connecting Cambridgshire" src="{% static 'images/logo_sc_112.png' %}"></a>
+        <a href="http://www.cam.ac.uk"><img alt="The University of Cambridge" src="{% static 'images/logo_uc_112.png' %}"></a>
+        <a href="https://www.greatercambridge.org.uk/"><img alt="Greater Cambridge Partnership" src="{% static 'images/logo_gcp_112.png' %}"></a>
+        <span>SmartPanel</span>
+    </div>
+    <div id="message_div">
+    <h1>Create a DISPLAY if you want to keep the SmartPanel open</h1>
+
+    <p>The 'layout' runtime limit is capped (currently at 10 minutes).</p>
+    <p>Please note these quick 'layout' views are intended for checking your work-in-progress as you design a great SmartPanel. Layouts left open in
+    a browser unnecessarily consume resources, some of which have directly associated costs for us.
+    </p>
+    <p>If you want to view a SmartPanel for more than a few minutes, please go back into the SmartPanel design menu and create a new DISPLAY,
+    and choose your existing layout for that display. The display will be given a unique identifier, such as 'ABCD-1234', and then you can access that
+    SmartPanel permanently at /smartpanel/display/&lt;your unique identifier&gt;.
+    </p>
+    <p>To create and configure a new display, go to <a href="{% url 'smartpanel-list-my-displays' %}">your displays list page</a>.
+    </p>
+    </div>
+
+
+</body>
+</html>
