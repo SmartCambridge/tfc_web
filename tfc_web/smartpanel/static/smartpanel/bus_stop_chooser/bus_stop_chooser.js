@@ -285,7 +285,7 @@ var BusStopChooser = (function() {
                     // Build an initial URL (for the first page)
                     var bounds = map.getBounds().pad(0.7).toBBoxString();
                     var qs = '?bounding_box=' + encodeURIComponent(bounds);
-                    qs += '&page_size='+encodeURIComponent(50);
+                    qs += '&page_size='+encodeURIComponent(200);
                     uri = api_endpoint + 'transport/stops/' + qs;
                 }
                 if (!new_stops) {

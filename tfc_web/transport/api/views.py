@@ -42,6 +42,12 @@ class Pagination(PageNumberPagination):
     page_size_query_param = 'page_size'
 
 
+class LongPagination(PageNumberPagination):
+    page_size = 50
+    max_page_size = 200
+    page_size_query_param = 'page_size'
+
+
 def string_to_datetime(str_time):
     try:
         time = parse(str_time)
@@ -489,7 +495,7 @@ class StopList(generics.ListAPIView):
     Return a list of bus stops.
     """
     serializer_class = StopSerializer
-    pagination_class = Pagination
+    pagination_class = LongPagination
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     ordering_fields = ('atco_code', 'common_name', 'locality_name')
     ordering = ('atco_code', )
