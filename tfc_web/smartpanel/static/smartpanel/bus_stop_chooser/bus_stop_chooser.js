@@ -388,7 +388,7 @@ var BusStopChooser = (function() {
                 other_stops.eachLayer(function(this_marker) {
                     if (seen_stop_ids.indexOf(this_marker.properties.stop.stop_id) === -1) {
                         debug_log('Removing', this_marker.properties.stop.stop_id);
-                        other_stops.removeLayer(marker);
+                        other_stops.removeLayer(this_marker);
                     }
                 });
 

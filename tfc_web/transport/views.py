@@ -68,7 +68,9 @@ def bus_stops_list(request, area_id=None):
         # Use Cambridge as default bounding box
         area = Polygon.from_bbox((-0.11230006814002992,52.29464119811643,0.24690136313438418,52.10594080364339))
     bus_stops = Stop.objects.filter(gis_location__contained=area)
-    return render(request, 'transport/bus_stops_map.html', {'bus_stops': bus_stops, 'area': area[0]})
+    return render(request, 'transport/bus_stops_map.html', {'bus_stops': bus_stops, 'area': area[0],
+                                                            'SMARTPANEL_API_ENDPOINT': settings.SMARTPANEL_API_ENDPOINT,
+                                                            'SMARTPANEL_API_TOKEN': settings.SMARTPANEL_API_TOKEN})
 
 
 def bus_stop(request, bus_stop_id):
