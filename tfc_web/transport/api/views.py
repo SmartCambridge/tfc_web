@@ -25,7 +25,7 @@ from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
     default_throttle, AuthenticateddAPIView
-from api.api_docs import transport_pagination_fields
+from api.api_docs import transport_pagination_fields, transport_stops_pagination_fields
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -443,7 +443,7 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
 
 
 StopList_schema = AutoSchema(
-    manual_fields=transport_pagination_fields + [
+    manual_fields=transport_stops_pagination_fields + [
         coreapi.Field(
             "bounding_box",
             required=False,
