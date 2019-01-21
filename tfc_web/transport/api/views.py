@@ -505,8 +505,7 @@ class StopList(generics.ListAPIView):
         # Retrieve the bounding box from the list of GET parameters
         bounding_box = self.request.query_params.get('bounding_box', None)
         if bounding_box is not None:
-            match = match = re.match(r'^([^,]+),([^,]+),([^,]+),([^,]+)$',
-                                     bounding_box)
+            match = re.match(r'^([^,]+),([^,]+),([^,]+),([^,]+)$', bounding_box)
             if match:
                 try:
                     self.bounding_box = {
