@@ -16,7 +16,7 @@ var BusStopChooser = (function() {
     var OSM_ATTRIBUTION = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> ' +
     'contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a></a>';
 
-    var DEBUG = true;
+    var DEBUG = false;
 
     var stop_icon = L.divIcon({
         className: 'bus_stop_chooser_stop',
@@ -119,6 +119,9 @@ var BusStopChooser = (function() {
             var multi_select = params.multi_select || false;
             var popups = params.popups || false;
             var location = params.location || false;
+            // If onclick_redirect is set to true, uses an alternative on_click event
+            // that will redirect the user to the bus stop web app endpoint.
+            var onclick_redirect = params.onclick_redirect || false;
             var zoom_threshold = params.zoom_threshold || 15;
             var stops_callback = params.stops_callback || undefined;
             var api_endpoint = params.api_endpoint || DEFAULT_ENDPOINT;
@@ -130,7 +133,7 @@ var BusStopChooser = (function() {
                 maxZoom: OSM_MAX_ZOOM
             });
             var selected_stops = L.featureGroup();
-            var other_stops = L.featureGroup();
+            var other_stops = L.markerClusterGroup();
 
             var warning_div = document.createElement('div');
             warning_div.className = 'bus_stop_chooser_warning';
@@ -285,7 +288,7 @@ var BusStopChooser = (function() {
                     // Build an initial URL (for the first page)
                     var bounds = map.getBounds().pad(0.7).toBBoxString();
                     var qs = '?bounding_box=' + encodeURIComponent(bounds);
-                    qs += '&page_size='+encodeURIComponent(50);
+                    qs += '&page_size='+encodeURIComponent(200);
                     uri = api_endpoint + 'transport/stops/' + qs;
                 }
                 if (!new_stops) {
@@ -365,18 +368,16 @@ var BusStopChooser = (function() {
 
                     debug_log('Adding', stop.stop_id);
                     var marker = L.marker([stop.lat, stop.lng])
-                        .on('click', process_stop_click);
+                        .on('click', onclick_redirect ? process_stop_click_redirect : process_stop_click);
                     if (popups) {
                         marker.bindPopup(formatted_stop_name(stop.indicator, stop.common_name));
-                    }
-                    else {
+                    } else {
                         marker.bindTooltip(formatted_stop_name(stop.indicator, stop.common_name));
                     }
                     marker.properties = { 'stop': stop };
                     if (add_selected) {
                         marker.setIcon(stop_icon_selected).addTo(selected_stops);
-                    }
-                    else {
+                    } else {
                         marker.setIcon(stop_icon).addTo(other_stops);
                     }
 
@@ -420,6 +421,11 @@ var BusStopChooser = (function() {
 
                 debug_log('Currently selected_stops', list_selected_stops());
 
+            }
+
+
+            function process_stop_click_redirect(e) {
+                window.location.href = '/transport/stop/' + e.target.properties.stop.stop_id;
             }
 
 
