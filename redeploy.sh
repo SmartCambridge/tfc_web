@@ -31,3 +31,11 @@ pip3 install -r requirements.txt
 touch tfc_web/settings*.py
 
 echo "Deployed commit $(git rev-parse --short HEAD) on branch $(git rev-parse --abbrev-ref HEAD)" >&2
+
+# Tell prometheus
+prom_dir=/var/lib/node_exporter/textfile_collector
+if [ -d "${prom_dir}" ]; then
+    prom_file="${prom_dir}/tfc_web_redeploy.prom"
+    echo "tfc_event{event=\"tfc_web_redeploy\"} $(date +%s)" > ${prom_file}.$$
+    mv ${prom_file}.$$ ${prom_file}
+fi
