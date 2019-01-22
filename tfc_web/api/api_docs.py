@@ -131,3 +131,28 @@ transport_pagination_fields = [
         example="10",
         )
     ]
+
+transport_stops_pagination_fields = [
+    coreapi.Field(
+        "page",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="A page number within the paginated result set "
+                        "(e.g. 2). Default 1"),
+        description="A page number within the paginated result set. "
+                    "(e.g. 2)",
+        example="2",
+    ),
+    coreapi.Field(
+        "page_size",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="Number of results to return per page. "
+                        "(e.g. 10). Default 50, maximum 200."),
+        description="Number of results to return per page. "
+                    "(e.g. 10). Default 50, maximum 200.",
+        example="10",
+        )
+    ]

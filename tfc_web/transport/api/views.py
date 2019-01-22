@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from dateutil.parser import parse
 from os import listdir
 from pathlib import Path
+from django.contrib.gis.geos import Polygon
 from django.core.cache import cache
 from django.urls import reverse
 from django.utils.timezone import now
@@ -24,7 +25,7 @@ from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
     default_throttle, AuthenticateddAPIView
-from api.api_docs import transport_pagination_fields
+from api.api_docs import transport_pagination_fields, transport_stops_pagination_fields
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -39,6 +40,12 @@ DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
 class Pagination(PageNumberPagination):
     page_size = 25
     max_page_size = 50
+    page_size_query_param = 'page_size'
+
+
+class LongPagination(PageNumberPagination):
+    page_size = 50
+    max_page_size = 200
     page_size_query_param = 'page_size'
 
 
@@ -436,7 +443,7 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
 
 
 StopList_schema = AutoSchema(
-    manual_fields=transport_pagination_fields + [
+    manual_fields=transport_stops_pagination_fields + [
         coreapi.Field(
             "bounding_box",
             required=False,
@@ -489,7 +496,7 @@ class StopList(generics.ListAPIView):
     Return a list of bus stops.
     """
     serializer_class = StopSerializer
-    pagination_class = Pagination
+    pagination_class = LongPagination
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     ordering_fields = ('atco_code', 'common_name', 'locality_name')
     ordering = ('atco_code', )
@@ -524,11 +531,10 @@ class StopList(generics.ListAPIView):
 
     def get_queryset(self):
         try:
-            return Stop.objects.filter(
-                latitude__range=(self.bounding_box['south'],
-                                 self.bounding_box['north']),
-                longitude__range=(self.bounding_box['west'],
-                                  self.bounding_box['east']))
+            # Returns a polygon object from the given bounding-box, a 4-tuple comprising (xmin, ymin, xmax, ymax).
+            bounding_box = Polygon.from_bbox((self.bounding_box['west'], self.bounding_box['north'],
+                                              self.bounding_box['east'], self.bounding_box['south']))
+            return Stop.objects.filter(gis_location__contained=bounding_box)
         except AttributeError:
             return Stop.objects.all()
 
