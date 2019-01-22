@@ -1,52 +1,35 @@
-import codecs
-import requests
-import json
 from datetime import datetime, date, timedelta, timezone
-from urllib.request import urlopen
 from django.conf import settings
-from django.contrib.gis.db.models import Q
-from django.http import JsonResponse
+from django.contrib.gis.geos import Polygon
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
-from tfc_gis.models import Area
 from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
 from smartcambridge import rt_crypto
 
-def areas(request):
-    return render(request, 'areas.html', {'areas': Area.objects.all()})
-
-
-def area_home(request, area_id):
-    return render(request, 'area-home.html', {'area': Area.objects.get(id=area_id)})
-
 
 def map_real_time(request):
     # make an rt_token (defaults issued: now, duration: 1 hour, origin: smartcambridge servers, uses: 10000)
-    rt_token = rt_crypto.rt_token( reverse("bus-map"),
-                                   { "uses": "5",
-                                     "duration": timedelta(minutes=60)
-                                   } )
-
-    return render(request,
-                  "transport/map_real_time.html",
-                  { "rt_token": rt_token,
-                    "RTMONITOR_URI": settings.RTMONITOR_URI
+    rt_token = rt_crypto.rt_token(
+        reverse("bus-map"),
+        {
+            "uses": "5",
+            "duration": timedelta(minutes=60)
+        }
+    )
+    return render(request, "transport/map_real_time.html", {
+        "rt_token": rt_token,
+        "RTMONITOR_URI": settings.RTMONITOR_URI
     })
 
-def bus_lines_list(request, area_id=None):
-    if area_id:
-        area = get_object_or_404(Area, id=area_id)
-        bus_lines = Line.objects.filter(
-            Q(routes__journey_patterns__section__timing_links__stop_from__gis_location__contained=area.poly) |
-            Q(routes__journey_patterns__section__timing_links__stop_to__gis_location__contained=area.poly))\
-            .order_by('line_name').distinct()
-    else:
-        bus_lines = Line.objects.all().order_by('line_name')
+
+def bus_lines_list(request):
+    bus_lines = Line.objects.all().order_by('line_name')
     return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
+
 
 def bus_route_map(request, bus_route_id):
     return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
@@ -60,12 +43,9 @@ def route_timetable_map(request, journey_id):
     return render(request, 'route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
 
-def bus_stops_list(request, area_id=None):
-    if area_id:
-        area = get_object_or_404(Area, id=area_id)
-        bus_stops = Stop.objects.filter(gis_location__contained=area.poly)
-    else:
-        bus_stops = Stop.objects.all()
+def bus_stops_list(request):
+    area = Polygon.from_bbox((-0.11230006814002992, 52.29464119811643, 0.24690136313438418, 52.10594080364339))
+    bus_stops = Stop.objects.filter(gis_location__contained=area)
     return render(request, 'bus_stops_list.html', {'bus_stops': bus_stops})
 
 
@@ -166,4 +146,3 @@ def rtroute(request):
                   { "rt_token": rt_token,
                     "RTMONITOR_URI": settings.RTMONITOR_URI
     })
-
