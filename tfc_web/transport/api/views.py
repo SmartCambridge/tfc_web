@@ -25,7 +25,7 @@ from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
     default_throttle
-from api.api_docs import transport_pagination_fields
+from api.api_docs import transport_pagination_fields, transport_stops_pagination_fields
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -40,6 +40,12 @@ DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
 class Pagination(PageNumberPagination):
     page_size = 25
     max_page_size = 50
+    page_size_query_param = 'page_size'
+
+
+class LongPagination(PageNumberPagination):
+    page_size = 50
+    max_page_size = 200
     page_size_query_param = 'page_size'
 
 
@@ -437,7 +443,7 @@ class VehicleJourneyRetrieve(generics.RetrieveAPIView):
 
 
 StopList_schema = AutoSchema(
-    manual_fields=transport_pagination_fields + [
+    manual_fields=transport_stops_pagination_fields + [
         coreapi.Field(
             "bounding_box",
             required=False,
@@ -490,7 +496,7 @@ class StopList(generics.ListAPIView):
     Return a list of bus stops.
     """
     serializer_class = StopSerializer
-    pagination_class = Pagination
+    pagination_class = LongPagination
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     ordering_fields = ('atco_code', 'common_name', 'locality_name')
     ordering = ('atco_code', )
