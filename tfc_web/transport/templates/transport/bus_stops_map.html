@@ -16,7 +16,8 @@
         $(document).ready(function() {
             var input_div = document.getElementById('map');
             var chooser_options = {
-                onclick_redirect: true,
+                on_click_stop_callback: function (marker, selected)
+                { window.location.href = '/transport/stop/' + marker.properties.stop.stop_id; },
                 popups: false,
                 location: true,
                 api_endpoint: "{{ SMARTPANEL_API_ENDPOINT }}",
