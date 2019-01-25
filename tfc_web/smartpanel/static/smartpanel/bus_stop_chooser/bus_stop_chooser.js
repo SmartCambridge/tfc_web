@@ -401,18 +401,24 @@ var BusStopChooser = (function() {
 
                 var clicked_marker = e.target;
 
-                var selected = false;
+                // Work out if this stop was already selected
+                var already_selected = false;
                 selected_stops.eachLayer(function(marker) {
                     if (clicked_marker === marker) {
-                        selected = true;
+                        already_selected = true;
                     }
                 });
 
                 if (on_click_stop_callback) {
-                    on_click_stop_callback(clicked_marker, selected);
+                    on_click_stop_callback(clicked_marker, !already_selected);
                 }
 
-                select_or_deselect_stop(clicked_marker, selected);
+                if (already_selected) {
+                    deselect_stop(clicked_marker);
+                }
+                else {
+                    select_stop(clicked_marker);
+                }
 
                 do_stops_callback();
 
@@ -420,25 +426,35 @@ var BusStopChooser = (function() {
 
             }
 
-            function select_or_deselect_stop(marker, selected) {
-                if (selected) {
-                    // First remove anything currently selected if not multi_select
-                    // [*should* only ever be one, but who knows?]
-                    if (!multi_select) {
-                        selected_stops.eachLayer(function(m) {
-                            deselect_stop(m);
-                        });
-                    }
-                    other_stops.removeLayer(marker);
-                    marker.addTo(selected_stops);
-                    marker.setIcon(stop_icon_selected);
-                } else {
-                    selected_stops.removeLayer(marker);
-                    marker.addTo(other_stops);
-                    marker.setIcon(stop_icon);
+
+            function select_stop(marker) {
+                // First remove anything currently selected if not multi_select
+                // [*should* only ever be one, but who knows?]
+                if (!multi_select) {
+                    selected_stops.eachLayer(function(m) {
+                        deselect_stop(m);
+                    });
                 }
-                debug_log(selected ? 'Selected' : 'Deselected', marker);
+                other_stops.removeLayer(marker);
+                marker.addTo(selected_stops);
+                marker.setIcon(stop_icon_selected);
+                if (popups) {
+                    //marker.openPopup();
+                }
+                debug_log('Selected', marker);
             }
+
+
+            function deselect_stop(marker) {
+                selected_stops.removeLayer(marker);
+                marker.addTo(other_stops);
+                marker.setIcon(stop_icon);
+                if (popups) {
+                    //marker.openPopup();
+                }
+                debug_log('Deselected', marker);
+            }
+
 
             function list_selected_stops() {
                 // Return the stop_ids of currently selected stops
