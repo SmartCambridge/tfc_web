@@ -44,8 +44,8 @@ def design(request):
                   {'widgets_list': generate_widget_list(request.user),
                    'settings': smartpanel_settings()})
 
-
-def generate_dependencies_files_list(uwl):
+# Previous version
+def OLD__generate_dependencies_files_list(uwl):
     css_files_list = []
     js_files_list = []
     external_js_files_list = []
@@ -75,6 +75,54 @@ def generate_dependencies_files_list(uwl):
             pass
     return (css_files_list, js_files_list, external_js_files_list, external_css_files_list)
 
+# For the templates 'layout.html' and 'pocket.html' we read widget requirements.json files
+# and build the 'scripts' and 'stylesheet' data lists for links to be embedded in the rendered template
+def generate_dependencies_list(uwl):
+    css_links = []
+    js_links = []
+
+    # Load the requirements dictionary from static/js/requirements.json
+    requirements_dict_file = open(os.path.join(settings.BASE_DIR, 'requirements.json'))
+
+    requirements_dict = json.load(requirements_dict_file)['keys']
+
+    matched_keys = [] # keep track of requirement keys matched so far, avoid duplicates
+
+    # Each dictionary entry is key -> { scripts: [...], stylesheets: [...] }
+    #     where "scripts" is a list of { "src":.., ... } objects, and
+    #     "stylesheets" is a list of { "href": =.., ...} objects
+
+    # Iterate the widgets to get cumulative requirements
+    for widget in uwl:
+        # Add links to any local widget .js or .css files
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
+            js_links.append({ 'src': static('smartpanel/widgets/%s/%s.js' % (widget, widget))})
+        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
+            css_links.append({ 'href': static('smartpanel/widgets/%s/%s.css' % (widget, widget))})
+
+        # Add links for script or stylesheets specified by keys in the widgete 'requirements.json' file
+        try:
+            # Each widget has a 'requirements.json' file containing a JSON list of requirements keys e.g. [ "leaflet", "moment" ]
+            requirements_file = open(os.path.join(settings.BASE_DIR,
+                                     'smartpanel/static/smartpanel/widgets/%s/requirements.json' % widget))
+            keys = json.load(requirements_file)['keys'] # e.g. [ "leaflet", "moment" ]
+
+            for key in keys:
+                if not key in matched_keys: # skip this requirement key if dealt with in earlier widget
+                    matched_keys.append(key)
+                    requirement = requirements_dict[key]
+                    if 'scripts' in requirement:
+                        for script in requirement['scripts']:
+                            if script.__class__ is dict:
+                                js_links.append(script)
+                            else:
+                                js_links.append({ 'src': static(script) })
+                    if 'stylesheets' in requirement:
+                        for stylesheet in requirement['stylesheets']:
+                            css_links.append(stylesheet)
+        except FileNotFoundError:
+            pass
+    return { 'css': css_links, 'js': js_links }
 
 def generate_widget_list(user):
     widget_directory = os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets')
@@ -197,7 +245,7 @@ def layout(request, slug, display=None):
         if 'widget' in value and value['widget'] not in uwl:
             uwl.append(value['widget'])
 
-    dependencies_files_list = generate_dependencies_files_list(uwl)
+    dependencies_list = generate_dependencies_list(uwl)
 
     if display is None:
 
@@ -220,10 +268,8 @@ def layout(request, slug, display=None):
 
     return render(request, 'smartpanel/layout.html',
                   {'layout': layout,
-                   'stylesheets': dependencies_files_list[0],
-                   'scripts': dependencies_files_list[1],
-                   'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3],
+                   'stylesheets': dependencies_list['css'],
+                   'scripts': dependencies_list['js'],
                    'display': display,
                    'rt_token': rt_token,
                    'RTMONITOR_URI': settings.RTMONITOR_URI,
@@ -236,7 +282,7 @@ def pocket(request, name=None):
     # The mobile display only does these widgets
     widgets = ['weather', 'station_board', 'stop_timetable', 'stop_bus_map']
 
-    dependencies_files_list = generate_dependencies_files_list(widgets)
+    dependencies_list = generate_dependencies_list(widgets)
 
     rt_token = rt_crypto.rt_token( reverse("smartpanel-pocket"),
                                    { "uses": "5",
@@ -255,10 +301,8 @@ def pocket(request, name=None):
         preload_pages = None
 
     return render(request, 'smartpanel/pocket.html',
-                  {'stylesheets': dependencies_files_list[0],
-                   'scripts': dependencies_files_list[1],
-                   'external_scripts': dependencies_files_list[2],
-                   'external_stylesheets': dependencies_files_list[3],
+                  {'stylesheets': dependencies_list['css'],
+                   'scripts': dependencies_list['js'],
                    'display': 'mobile',
                    'rt_token': rt_token,
                    'RTMONITOR_URI': settings.RTMONITOR_URI,

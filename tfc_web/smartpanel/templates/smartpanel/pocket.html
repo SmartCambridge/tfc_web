@@ -22,15 +22,13 @@
 
   <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
 
-{% for stylesheet in external_stylesheets %}
+<!-- stylesheets from requirements.json -->
+{% for stylesheet in stylesheets %}
   <link rel="stylesheet" href="{{ stylesheet.href }}"{% if stylesheet.integrity %}
         integrity="{{ stylesheet.integrity }}"
         crossorigin="anonymous"{% endif %}>
 {% endfor %}
-{% for stylesheet in stylesheets %}
-  <link rel="stylesheet" href="{{ stylesheet }}">
-{% endfor %}
-
+<!-- -->
   <link rel="stylesheet" href="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.css' %}">
   <link rel="stylesheet" href="{% static 'smartpanel/pocket.css' %}"/>
 
@@ -50,14 +48,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"
           integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w="
           crossorigin="anonymous"></script>
-{% for script in external_scripts %}
+<!-- scripts from requirements.json -->
+{% for script in scripts %}
   <script src="{{ script.src }}"{% if script.integrity %}
           integrity="{{ script.integrity }}"
           crossorigin="anonymous"{% endif %}></script>
 {% endfor %}
-{% for script in scripts %}
-  <script src="{{ script }}"></script>
-{% endfor %}
+<!-- -->
+  {% include 'leaflet_markercluster_snippet.html' %}
   <script src="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.js' %}"></script>
   <script src="{% static 'js/rtmonitor_api.js' %}"></script>
   <script src="{% static 'smartpanel/pocket.js' %}"></script>

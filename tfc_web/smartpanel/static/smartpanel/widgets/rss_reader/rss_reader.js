@@ -35,7 +35,7 @@ function RssReader(widget_id) {
 
     'use strict';
 
-    var DEBUG = ' rss_reader_log';
+    //var DEBUG = ' rss_reader_log';
 
     var self = this;
 

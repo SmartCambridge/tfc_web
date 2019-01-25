@@ -1,0 +1,44 @@
+{ "keys":
+    {
+        "leaflet": {
+            "scripts": [
+                { "src": "https://unpkg.com/leaflet@1.3.3/dist/leaflet.js",
+                  "integrity": "sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+                }
+            ],
+            "stylesheets": [
+                { "href": "https://unpkg.com/leaflet@1.3.3/dist/leaflet.css",
+                  "integrity": "sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+                }
+            ]
+        },
+
+        "sanitize-html": { "scripts": [ "js/sanitize-html.js" ] },
+
+        "MovingMarker": { "scripts": [ "js/MovingMarker.js" ] },
+
+        "Semicircle": { "scripts": [ "js/Semicircle.js" ] },
+
+        "geo": { "scripts": [ "js/geo.js" ] },
+
+        "moment" : {
+            "scripts": [
+                { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
+                  "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
+                },
+                { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.14/moment-timezone-with-data.min.js",
+                  "integrity": "sha256-FJZOELgwnfQRdG8KZUSWCYgucECDf4w5kfQdQSGbVpI="
+                }
+            ]
+        },
+
+        "google-maps-api": {
+            "scripts": [
+                {
+                    "src": "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g"
+                }
+            ]
+        }
+    }
+}
+

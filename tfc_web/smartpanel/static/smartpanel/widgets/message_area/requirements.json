@@ -1,5 +1,4 @@
 {
-    "scripts": [
-       "sanitize-html.js"
-    ]
+    "keys":[ "sanitize-html" ]
 }
+

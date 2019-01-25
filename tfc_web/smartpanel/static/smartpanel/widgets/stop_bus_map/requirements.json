@@ -1,15 +1,8 @@
 {
-    "scripts": [
-        {  "src": "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.1/leaflet.js",
-            "integrity": "sha256-CX9/BWJ5F1oC8mbqO5CMChjvkuoBQF8FTujU6xO5eB0="
-        },
-        "js/MovingMarker.js",
-        "js/Semicircle.js",
-        "js/geo.js"
-    ],
-    "stylesheets": [
-        { "href": "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.1/leaflet.css",
-          "integrity": "sha256-B5Af7a59HZfTwOlorb6pQSEj6l8I3jj785fgpPiLnx4="
-        }
-    ]
+    "keys": [ "leaflet",
+              "MovingMarker",
+              "Semicircle",
+              "geo"
+            ]
 }
+
