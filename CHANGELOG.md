@@ -1,3 +1,35 @@
+## Release 10 (2019-01-18)
+
+User facing changes
+-------------------
+
+* Further Pocket SmartPanel changes:
+    * Shutdown realtime data feed when pages loose focus (doesn't happen by default on Android)
+    * Add debug display of last load time
+    * Remove page edit functionality
+    * Add optional config preload functionality via URL parameter
+
+* Limit running SmartPanel layouts (as opposed to displays) to 10 min (to avoid developers ending up with multiple running tabs)
+
+* Add token protection of RTMonitor end point
+
+Others
+------
+
+* Move logger endpoint; expand logger use in Pocket SmartPanel
+
+* Switch APIs to use PostGIS queries for bounding box filtering
+
+* Further Gunicorn reconfiguration changes:
+    * Move config to a file
+    * Reduce workers and threads-per-worker
+    * Enable max_requests
+    * Add request time to access log
+    * Add metrics via statsD
+    * Create a PID file
+
+* Switch to using RTmonitor endpoint on smartcambridge.org (from test endpoint on tfc-app2)
+
 ## Release 9 (2019-01-06)
 
 User facing changes
