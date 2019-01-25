@@ -18,7 +18,7 @@ from transport import views
 
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name="home.html"), name='bus-home'),
+    url(r'^$', TemplateView.as_view(template_name="transport/home.html"), name='bus-home'),
 
     # Bus movements
     url(r'^map/$', views.map_real_time, name='bus-map'),
@@ -49,5 +49,4 @@ urlpatterns = [
 
     # Bus Analysis
     url(r'^rtroute/$', views.rtroute, name='rtroute')
-
 ]
