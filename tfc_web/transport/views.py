@@ -67,7 +67,7 @@ def bus_stop(request, bus_stop_id):
     timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
                     .order_by('time')[:10]
 
-    return render(request, 'bus_stop.html', {
+    return render(request, 'transport/bus_stop.html', {
         'bus_stop': bus_stop,
         'timetable': timetable,
         'tooltips_permanent': True,
