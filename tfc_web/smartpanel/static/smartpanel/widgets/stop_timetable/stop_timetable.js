@@ -1435,13 +1435,7 @@ function StopTimetable(widget_id) {
             result = stop.locality_name;
         }
         else {
-            //if (stop.indicator.toLowerCase() in RELATION_INDICATORS) {
-            //    result = stop.indicator + ' ';
-            //}
             result = result + stop.common_name;
-            //if (!(stop.indicator.toLowerCase() in RELATION_INDICATORS)) {
-            //    result = result + ' ' + stop.indicator;
-            //}
         }
         return result;
     }

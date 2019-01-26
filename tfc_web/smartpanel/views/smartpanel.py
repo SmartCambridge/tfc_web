@@ -2,14 +2,13 @@ import logging
 import json
 import os
 import copy
-from datetime import datetime, date, timedelta, timezone
-
+from datetime import timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import IntegrityError
-from django.http.response import JsonResponse, HttpResponse
+from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
