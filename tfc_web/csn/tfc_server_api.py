@@ -1,7 +1,7 @@
 import logging
 import json
 import requests
-from tfc_web import settings
+from django.conf import settings
 
 
 LOGGER = logging.getLogger('CSN')
