@@ -465,22 +465,22 @@ footer .mdl-mega-footer--right-section a .material-icons {
 }
 
 /***** TIMETABLE *****/
-main.timetable {
+main.bus-timetable {
     margin: 0 auto;
     padding: 0 1em;
     display: block;
 }
 
-main.timetable h1 {
+main.bus-timetable h1 {
     font-size: 2em;
 }
 
-main.timetable h2 {
+main.bus-timetable h2 {
     font-size: 1.25em;
     margin-top: 1em;
 }
 
-main.timetable h1, main.timetable h2 {
+main.bus-timetable h1, main.bus-timetable h2 {
     font-weight: 600;
     line-height: 1.2em;
     margin: .5em 0;
@@ -503,41 +503,41 @@ main.timetable h1, main.timetable h2 {
     margin-left: 250px;
 }
 
-.timetable {
+.bus-timetable {
     border-collapse: separate;
     border-spacing: 0;
     padding-right: 1.1em;
     table-layout: fixed;
 }
 
-.timetable td {
+.bus-timetable td {
     border-left: 0;
     border-top: 1px solid #1cb2b5;
 }
 
-.timetable td, .timetable th {
+.bus-timetable td, .bus-timetable th {
     height: 1.5em;
     padding: .25em .5em;
     text-align: left;
 }
 
-.timetable tbody tr:first-child td, .timetable tbody tr:first-child th {
+.bus-timetable tbody tr:first-child td, .bus-timetable tbody tr:first-child th {
     border-top: 0;
 }
 
-.timetable .referrer td, .timetable .referrer th {
+.bus-timetable .referrer td, .bus-timetable .referrer th {
     background: #1cb2b5;
 }
 
-.timetable .referrer td[colspan] {
+.bus-timetable .referrer td[colspan] {
     background: none;
 }
 
-.timetable .referrer a {
+.bus-timetable .referrer a {
     color: #000;
 }
 
-.timetable th { /* th in the timetable is the Stop Name */
+.bus-timetable th { /* th in the timetable is the Stop Name */
     /* Fix the 'stop name' column when we x-scroll */
     position: absolute;
     left: 0;
@@ -549,7 +549,7 @@ main.timetable h1, main.timetable h2 {
     white-space: nowrap;
 }
 
-.timetable th a {
+.bus-timetable th a {
     display: block;
     margin: -.25em -.5em;
     margin-left: 0;
@@ -560,17 +560,17 @@ main.timetable h1, main.timetable h2 {
     text-overflow: ellipsis;
 }
 
-.timetable tfoot td {
+.bus-timetable tfoot td {
         border-left: 1px solid #1cb2b5;
         border-top: 1px solid #1cb2b5;
         vertical-align: top;
     }
 
-.timetable tfoot td:first-child {
+.bus-timetable tfoot td:first-child {
     border: 0;
 }
 
-.timetable .OTH th a {
+.bus-timetable .OTH th a {
     padding-left: 1em;
 }
 

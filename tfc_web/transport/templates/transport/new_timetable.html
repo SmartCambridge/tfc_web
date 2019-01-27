@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<main class="timetable">
+<main class="bus-timetable">
     <h1>{{ object }}</h1>
 
     <p>
@@ -34,7 +34,7 @@
             <label for="show-all-stops-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">Show all stops</label>
         {% endif %}
         <div class="timetable-wrapper">
-        <table class="timetable">
+        <table class="bus-timetable">
         <tbody>
             <tr><td></td>{% for journey in grouping.journeys %}
                 <td><a href="{% url 'vehicle-journey-real-time' journey.code %}">map</a><br/>{{ journey.departure_time }}</td>{% endfor %}</tr>
