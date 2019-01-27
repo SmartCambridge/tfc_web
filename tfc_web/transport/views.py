@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
+from smartpanel.views.smartpanel import smartpanel_settings
 from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
@@ -53,26 +54,21 @@ def bus_stops_list(request):
 
 def bus_stop(request, bus_stop_id):
     bus_stop = get_object_or_404(Stop, atco_code=bus_stop_id)
-    # timetable = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now(),
-    #                                      vehicle_journey__days_of_week__contains=date.today().strftime("%A")) \
-    #     .exclude(vehicle_journey__special_days_operation__days__contains=date.today(),
-    #              vehicle_journey__special_days_operation__operates=False) \
-    #     .select_related('vehicle_journey__journey_pattern__route__line').order_by('time')[:10]
-    # This query uses too much load from Postgres, do this instead meanwhile
-    query1 = Timetable.objects.filter(stop=bus_stop, time__gte=datetime.now(),
-                                      vehicle_journey__days_of_week__contains=date.today().strftime("%A"))
-    query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
-                                      vehicle_journey__special_days_operation__days__contains=date.today(),
-                                      vehicle_journey__special_days_operation__operates=False)
-    timetable = query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')\
-                    .order_by('time')[:10]
 
-    return render(request, 'transport/bus_stop.html', {
+    # make an rt_token (defaults issued: now, duration: 0.5 hours, origin: smartcambridge servers, uses: 10000)
+    rt_token = rt_crypto.rt_token(
+        request.get_full_path(),
+        {
+            "uses": "5",
+            "duration": timedelta(minutes=30)
+        }
+    )
+
+    return render(request, 'transport/bus_stop_widget.html', {
         'bus_stop': bus_stop,
-        'timetable': timetable,
-        'tooltips_permanent': True,
-        'mapcenter': "[%s, %s], 16" % (bus_stop.latitude, bus_stop.longitude)
-    })
+        'rt_token': rt_token,
+        'RTMONITOR_URI': settings.RTMONITOR_URI,
+        'settings': smartpanel_settings()})
 
 
 def bus_route_timetable(request, bus_route_id):

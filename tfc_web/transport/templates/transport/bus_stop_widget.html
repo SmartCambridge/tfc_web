@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+{% load jsonify %}
+{% block head %}
+    <title>SmartCambridge Bus Stop {{ bus_stop }}</title>
+
+    {% include 'leaflet_snippet.html' %}
+
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/smartpanel.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widget_config.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets/stop_timetable/stop_timetable.css' %}"/>
+    <link rel="stylesheet" href="{% static 'smartpanel/widgets/stop_bus_map/stop_bus_map.css' %}"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js" integrity="sha256-KWJavOowudybFMUCd547Wvd/u8vUg/2g0uSWYU5Ae+w=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/rtmonitor_api.js' %}"></script>
+    <script src="{% static 'js/geo.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js" integrity="sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.14/moment-timezone-with-data.min.js" integrity="sha256-FJZOELgwnfQRdG8KZUSWCYgucECDf4w5kfQdQSGbVpI=" crossorigin="anonymous"></script>
+    <script src="{% static 'smartpanel/widgets/stop_timetable/stop_timetable.js' %}"></script>
+    
+    <script src="{% static 'js/Semicircle.js' %}"></script>
+    <script src="{% static 'js/MovingMarker.js' %}"></script>
+    <script src="{% static 'smartpanel/widgets/stop_bus_map/stop_bus_map.js' %}"></script>
+    
+    <style>
+        .stop_bus_map_title_h1 {
+            left: 50%;
+        }
+        .widget h1 {
+            font-size: 28px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh; width: 100%;">
+        <div id="timetable" class="widget" style="height: 100%; width: 50%; overflow-x: scroll; float: left;"></div>
+        <div id="map" class="widget" style="height: 100%; width: 50%; margin-left: 50%;"></div>
+    </div>
+    <script>
+
+        var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+
+        // RTMonitor rt_connect client_data
+        var CLIENT_DATA = { rt_client_id:  'transport__bus_stop_timetable',
+                            rt_client_name: 'SmartPanel', // TODO embed server-side smartpanel name
+                            rt_token:      '{{ rt_token }}',
+                            layout_name:   'transport__bus_stop_timetable',
+                          };
+
+        // Note we must instatiate RTMonitorAPI before widgets
+        var RTMONITOR_API = new RTMonitorAPI(CLIENT_DATA, RTMONITOR_URI);
+
+        // Widget spec requires a DEBUG global
+        var DEBUG = '';
+
+        $().ready(function () {
+            widget = new StopTimetable('timetable');
+            widget.display(
+                {
+                    container_id: 'timetable',
+                    static_url: '{% static 'smartpanel/widgets/stop_timetable/' %}',
+                    rt_token: '{{ rt_token }}',
+                    settings: JSON.parse('{{ settings|jsonify|escapejs }}'),
+                },
+                {
+                    "title": "{{ bus_stop|safe }}",
+                    "stop":
+                        {
+                            "stop_id": "{{ bus_stop.atco_code }}",
+                            "atco_code": "{{ bus_stop.atco_code }}",
+                            "latitude": {{ bus_stop.latitude }},
+                            "longitude": {{ bus_stop.longitude }},
+                            "locality_name": "{{ bus_stop.locality_name|safe }}",
+                            "common_name": "{{ bus_stop.common_name|safe }}",
+                        },
+                    "offset": 0,
+                    "layout": 'multiline'
+                });
+            widget = new StopBusMap('map');
+            widget.display(
+                {
+                    container_id: 'map',
+                    static_url: '{% static 'smartpanel/widgets/stop_bus_map/' %}',
+                    rt_token: '{{ rt_token }}',
+                    settings: JSON.parse('{{ settings|jsonify|escapejs }}'),
+                },
+                {
+                    "title": "{{ bus_stop|safe }}",
+                    "stop_id": "{{ bus_stop.atco_code }}",
+                    "map": {"zoom": 16, "lat": {{ bus_stop.latitude }}, "lng": {{ bus_stop.longitude }}},
+                    "breadcrumbs": true,
+                    "stops":
+                       [{
+                            "lat": {{ bus_stop.latitude }},
+                            "lng": {{ bus_stop.longitude }},
+                            "common_name": "{{ bus_stop.common_name|safe }}",
+                        }]
+                });
+        });
+    </script>
+{% endblock %}
