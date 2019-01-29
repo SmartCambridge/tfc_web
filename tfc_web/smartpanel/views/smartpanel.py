@@ -44,37 +44,6 @@ def design(request):
                   {'widgets_list': generate_widget_list(request.user),
                    'settings': smartpanel_settings()})
 
-# Previous version
-def OLD__generate_dependencies_files_list(uwl):
-    css_files_list = []
-    js_files_list = []
-    external_js_files_list = []
-    external_css_files_list = []
-    for widget in uwl:
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.js' % (widget, widget))):
-            js_files_list.append(static('smartpanel/widgets/%s/%s.js' % (widget, widget)))
-        if os.path.exists(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/%s.css' % (widget, widget))):
-            css_files_list.append(static('smartpanel/widgets/%s/%s.css' % (widget, widget)))
-        try:
-            requirements_file = open(os.path.join(settings.BASE_DIR, 'smartpanel/static/smartpanel/widgets/%s/requirements.json'
-                                                  % widget))
-            requirements = json.load(requirements_file)
-            if 'scripts' in requirements:
-                for script in requirements['scripts']:
-                    if script.__class__ is dict:
-                        external_js_files_list.append(script)
-                    else:
-                        js_files_list.append(static('smartpanel/widgets/%s/%s' % (widget, script)))
-            if 'stylesheets':
-                for stylesheet in requirements['stylesheets']:
-                    if stylesheet.__class__ is dict:
-                        external_css_files_list.append(stylesheet)
-                    else:
-                        css_files_list.append(static('smartpanel/widgets/%s/%s' % (widget, stylesheet)))
-        except:
-            pass
-    return (css_files_list, js_files_list, external_js_files_list, external_css_files_list)
-
 # For the templates 'layout.html' and 'pocket.html' we read widget requirements.json files
 # and build the 'scripts' and 'stylesheet' data lists for links to be embedded in the rendered template
 def generate_dependencies_list(uwl):

@@ -1,6 +1,6 @@
 # SmartCambridge SmartPanel Framework
 
-_Version 7_
+_Version 8_
 
 This directory contains the widgets for the SmartCambridge SmartPanel
 Framework.
@@ -67,37 +67,122 @@ _`<name>`_.
 
         _`<name>_schema.json`_ files are no longer used.
 
-    5. _`requirements.json`_
-
-        A file listing additional JavaScript files and
-        stylesheets that need to be loaded to make the widget work. If
-        present, this file must contain an object with keys "scripts"
-        and/or "stylesheets". Each of these must contain an array whose
-        elements are either:
-
-        * Objects containing keys "src" and (optionally) "integrity"
-          (for scripts) or "href" and (optionally) "integrity" (for
-          stylesheets) with appropriate values, for non local
-          dependencies; or
-        * Strings containing local file names, resolved relative to
-          the widget directory
-
-        An example of such a file appears below. Non-local dependencies
-        must be included using the object syntax even if they don't
-        have an "integrety" hash. Non-local resources are
-        loaded before the corresponding local ones.
-
-        A copy of jQuery will automatically be available and a request
-        for this shouldn't appear in requirements.
-
-    6. _`README.md`_
+    5. _`README.md`_
 
         An optional documentation file for the widget.
+
+    6. _`requirements.json`_ (see below)
 
 The widget directory may contain other files. These will be
 web-accessible and can be referenced by other components by relative URLs
 (from HTML and CSS files) or via the `static_url`
 widget configuration parameter (for JavaScript files).
+
+## `widgets\<widget_name>\requirements.json`, requirements keys for this widget
+
+This file in the widget source directory contains references (by means of a _keys_)
+to entries in the global requirements dictionary (see next section) which in turn provide
+the local or web URL's to the required JS or CSS resources.
+
+Note that these resources will be loaded in addition to the `<widget_name>.js` and 
+`<widget_name>.css` files in the widget source directory, and all other JS and CSS files
+for that widget must be accessed via this dictionary lookup (this is a change from prior
+versions where additional files local to the widget could be referenced).
+
+### Example widget `requirements.json` file
+
+```json
+{
+    "keys": [ "leaflet",
+              "MovingMarker",
+              "Semicircle",
+              "geo"
+            ]
+}
+```
+
+## `tfc_web/requirements.json`, the global requirements dictionary
+
+This file contains the global source references for required JS and CSS files. The method of
+using a global dictionary with individual widgets using only keys supports better management of
+loaded resources where the widgets coexist on a single web page such as the SmartPanel.
+
+The basic structure of each 'requirement' is a dictionary entry (e.g. for `"leaflet"`) which
+contains a Json object with optional `"scripts"` and `"stylesheets"` parts. This structure is
+similar to the method previously used independently for each widget.
+
+### Requirements `"scripts"` property
+
+`"scripts"` contains a Json array, with an entry for each JS resource required. 
+
+Each script requirement entry can be in one of two forms:
+
+1. A simple string.  This is assumed to refer to a local static JS file, and will be passed to the 
+Django `static(..)` function to produce the `src` value in a `<script src=..></script>` to be added
+to the template.
+
+2. A Json object containing a required `"src"` part and and optional `"integrity"` part.  In this case
+the `"src"` part will be used unchanged in a `<script>` tag and the `"integrity"` property added to the
+tag if given.
+
+### Requirements `"stylesheets"` property
+
+`"stylesheets"` contains a Json array, with an entry for each CSS resource required.
+
+Each stylesheet requirement entry has the same format, i.e. a Json object with a required
+`"href"` part and an optional `"integrity"` part.  A corresponding `<link rel="stylesheet".. />`
+entry with the given properties will be added to the template.
+
+It is assumed widget _local_ stylesheet requirements will be met by the global styles provided by the
+containing template plus the source `<widget_name>.css` file which will be automatically loaded.
+
+### Example global requirements dictionary file
+
+```json
+{ "keys":
+    {
+        "leaflet": {
+            "scripts": [
+                { "src": "https://unpkg.com/leaflet@1.3.3/dist/leaflet.js",
+                  "integrity": "sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+                }
+            ],
+            "stylesheets": [
+                { "href": "https://unpkg.com/leaflet@1.3.3/dist/leaflet.css",
+                  "integrity": "sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+                }
+            ]
+        },
+
+        "sanitize-html": { "scripts": [ "js/sanitize-html.js" ] },
+
+        "MovingMarker": { "scripts": [ "js/MovingMarker.js" ] },
+
+        "Semicircle": { "scripts": [ "js/Semicircle.js" ] },
+
+        "geo": { "scripts": [ "js/geo.js" ] },
+
+        "moment" : {
+            "scripts": [
+                { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
+                  "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
+                },
+                { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.14/moment-timezone-with-data.min.js",
+                  "integrity": "sha256-FJZOELgwnfQRdG8KZUSWCYgucECDf4w5kfQdQSGbVpI="
+                }
+            ]
+        },
+
+        "google-maps-api": {
+            "scripts": [
+                {
+                    "src": "https://maps.googleapis.com/maps/api/js?key=<api key here>"
+                }
+            ]
+        }
+    }
+}
+```
 
 ## Widget JavaScript objects
 
@@ -240,27 +325,6 @@ an instance of the RT Monitor API.
 
 Widgets may assume the existence of a global `DEBUG` which will contain
 '_`<name>_log`_' to request verbose logging by the widget.
-
-## Example `requirements.json` file
-
-```json
-{
-    "scripts": [
-      { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
-        "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
-      },
-      { "src": "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js" },
-      "js/geo.js"
-    ],
-    "stylesheets": [
-      { "href": "https://unpkg.com/leaflet@1.0.1/dist/leaflet.css",
-        "integrity": "sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
-      },
-      { "href": "https://example.com/magic-stylesheet.css" },
-      "css/special.css"
-    ]
-}
-```
 
 ## Programming the configuration for a widget
 
