@@ -20,14 +20,13 @@ def everynet_add_device(lwdevice):
             "mode": "on"
         },
         "band": "EU863-870",
+        "encryption": "NS"
     }
     if lwdev.activation_type == "otaa":
         data["activation"] = "OTAA"
-        data["encryption"] = "APP"
         data["app_key"] = lwdev.app_key
     elif lwdev.activation_type == "abp":
         data["activation"] = "ABP"
-        data["encryption"] =  "NS"
         data["dev_addr"] = lwdev.dev_addr
         data["nwkskey"] = lwdev.nwkskey
         data["appskey"] = lwdev.appskey
