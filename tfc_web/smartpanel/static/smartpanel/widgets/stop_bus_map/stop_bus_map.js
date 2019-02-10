@@ -10,9 +10,7 @@
 //                       title: 'Live Buses: U and Citi4',
 //                       stop_id: 'XXYYZZ',
 //                       breadcrumbs: true,
-//                       lat: 52.215,
-//                       lng: 0.09,
-//                       zoom: 15,
+//                       map: {"zoom": 15, "lat": 52.215, "lng": 0.09}
 //                       stops: [  { lat:, lng:, common_name: } ... ]
 //
 function StopBusMap(widget_id) {
