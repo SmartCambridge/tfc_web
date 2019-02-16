@@ -113,9 +113,10 @@ var test_sirivm_journey = {};
 
 <script>
 
-var RTMONITOR_API = null;
+var RTMONITOR_API = null; // object to provide JS API to RTMonitor
 
-var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+//var RTMONITOR_URI = '{{ RTMONITOR_URI }}';
+var RTMONITOR_URI = 'https://tfc-app2.cl.cam.ac.uk/test/rtmonitor/sirivm/'; //'{{ RTMONITOR_URI }}';
 
 // RTMonitor rt_connect client_data
 var CLIENT_DATA = { rt_client_name: 'RTRoute V'+VERSION,
