@@ -249,7 +249,7 @@ Widgets may assume the existence of a global `DEBUG` which will contain
       { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
         "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
       },
-      { "src": "https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js" },
+      { "src": "https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.3.0/sockjs.min.js" },
       "js/geo.js"
     ],
     "stylesheets": [
