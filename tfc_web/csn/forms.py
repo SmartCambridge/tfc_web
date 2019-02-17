@@ -60,6 +60,7 @@ class LWDeviceForm(forms.Form):
         lw_application = cleaned_data.get("lw_application")
         if 'user_id' not in lw_application.info or self.user.id != lw_application.info['user_id']:
             raise ValidationError("You are not authorise to add this device to the application selected")
+        cleaned_data['dev_eui'] = cleaned_data['dev_eui'].lower()
         cleaned_data['sensor_id'] = cleaned_data['dev_eui']
         cleaned_data['sensor_type'] = 'lorawan'
         cleaned_data['user_id'] = self.user.id
@@ -130,7 +131,19 @@ class LWDeviceFormExtended(LWDeviceForm):
                               help_text="The application key is used to derive the two session keys during the "
                                         "activation procedure. The key is 128 bits in length represented by a "
                                         "32-character hexadecimal string.")
-
+    
+    def clean(self):
+        cleaned_data = super(LWDeviceFormExtended, self).clean()
+        if 'dev_addr' in cleaned_data:
+            cleaned_data['dev_addr'] = cleaned_data['dev_addr'].lower()
+        if 'nwkskey' in cleaned_data:
+            cleaned_data['nwkskey'] = cleaned_data['nwkskey'].lower()
+        if 'appskey' in cleaned_data:
+            cleaned_data['appskey'] = cleaned_data['appskey'].lower()
+        if 'app_key' in cleaned_data:
+            cleaned_data['app_key'] = cleaned_data['app_key'].lower()
+        return cleaned_data
+    
     def _post_clean(self):
         if 'activation_type' in self.cleaned_data and self.cleaned_data['activation_type'] == "otaa":
             self.cleaned_data.pop('dev_addr', None)
