@@ -143,7 +143,7 @@ class LWDeviceFormExtended(LWDeviceForm):
 
 
 class LWApplicationForm(forms.Form):
-    """Form used to process LoRaWAN applications. These are a type of "Destination" object in the tfcserver database."""
+    """Form used to process LoRaWAN applications. These are a type of "Destination" object."""
     name = forms.CharField(max_length=150, widget=mdl_textfield_widget)
     description = forms.CharField(max_length=255, widget=mdl_textfield_widget)
     url = forms.URLField(widget=mdl_textfield_widget, help_text="URL where to send the data")

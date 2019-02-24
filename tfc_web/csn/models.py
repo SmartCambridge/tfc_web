@@ -14,7 +14,7 @@ LOGGER = logging.getLogger('CSN')
 
 
 class Sensor(models.Model):
-    """This is the model in the tfcserver database that is used to store a json version of any type of
+    """This is the model is used to store a json version of any type of
     sensor object."""
     id = models.AutoField(primary_key=True)
     info = JSONField()

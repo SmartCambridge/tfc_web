@@ -1,9 +1,5 @@
 from tfc_web.settings import *
 
-# Remove the second database and its configuration
-DATABASES.pop('tfcserver')
-DATABASE_ROUTERS = []
-
 # Allow configuration of test-suite database from environment variables. A
 # variable DJANGO_DB_<key> will override the DATABASES['default'][<key>]
 # setting.

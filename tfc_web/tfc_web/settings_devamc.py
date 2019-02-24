@@ -8,13 +8,6 @@ DATABASES = {
         'HOST': 'localhost',
         'USER': 'postgres',
         'PORT': 32768
-    },
-    'tfcserver': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'tfcserver',
-        'HOST': 'localhost',
-        'USER': 'postgres',
-        'PORT': 32768
     }
 }
 

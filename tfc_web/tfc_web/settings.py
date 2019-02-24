@@ -109,14 +109,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'tfcweb',
-    },
-    'tfcserver': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'tfcserver',
     }
 }
-
-DATABASE_ROUTERS = ['tfc_web.dbrouter.CSNRouter']
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
