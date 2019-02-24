@@ -45,3 +45,6 @@ LOGGING = {
         'level': 'DEBUG',
     }
 }
+
+EMAIL_HOST = os.environ.get('DJANGO_EMAIL_HOST', 'localhost')
+EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT', '25'))

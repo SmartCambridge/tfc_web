@@ -23,6 +23,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk', 'localhost', '127.0.0.1', '[::1]']
 
+ADMINS = [('SmartCambridge Admins', 'admin@smartcambridge.org')]
+SERVER_EMAIL = 'root@smartcambridge.org'
+
 # Application apps
 PROJECT_APPS = [
     'tfc_gis',
@@ -273,10 +276,15 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'detail',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': False,
         }
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console', 'mail_admins'],
         'level': 'INFO',
     }
 }
