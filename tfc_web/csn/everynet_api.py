@@ -3,7 +3,7 @@ import json
 import requests
 from collections import namedtuple
 from django.conf import settings
-
+from django.core.mail import mail_admins
 
 LOGGER = logging.getLogger('CSN')
 
