@@ -3,7 +3,8 @@ import json
 import requests
 from collections import namedtuple
 from django.conf import settings
-from django.core.mail import mail_admins
+from django.contrib.auth.models import User
+from django.core.mail import mail_admins, send_mail
 from django.urls import reverse
 
 
@@ -80,7 +81,7 @@ def send_email_everynet_add_connection(connection):
 
 
 def send_email_everynet_remove_connection(connection):
-    subject = "Cambridge Sensor Network: Delete existing Connection to Everynet"
+    subject = "SmartCambridge Sensor Network: Delete existing Connection to Everynet"
     if settings.CSN_PREFIX == 'dev':
         subject = "[IGNORE - MESSAGE FROM DEV INSTANCE] " + subject
     message = "The Everynet HTTP Connection with id %s has been deleted from Cambridge Sensor Network, please" \
@@ -141,3 +142,13 @@ def everynet_remove_device(lwdev):
         lwdev.error_message = response.json()['message']
         return False
     return True
+
+
+def send_email_user_confirm_connection(connection):
+    subject = "SmartCambridge Sensor Network: Your http connection request has been accepted"
+    if settings.CSN_PREFIX == 'dev':
+        subject = "[IGNORE - MESSAGE FROM DEV INSTANCE] " + subject
+    message = "The HTTP Connection request with name '%s' has been approved. You can now use it." \
+              % connection.info['name']
+    if connection.user and connection.user.email:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [connection.user.email])

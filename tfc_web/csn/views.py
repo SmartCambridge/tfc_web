@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, get_object_or_404
-from csn.everynet_api import everynet_add_device, everynet_remove_device
+from csn.everynet_api import everynet_add_device, everynet_remove_device, send_email_user_confirm_connection
 from csn.forms import LWDeviceForm, LWDeviceFormExtended, LWHTTPConnection, \
     LWHTTPConnectionConfirmation, LWHTTPConnectionDevicesForm
 from csn.models import Sensor, Connection
@@ -119,7 +119,7 @@ def confirm_connection_id(request, connection_id):
         if httpconnconfirmation_form.is_valid():
             connection.info['connection_id'] = httpconnconfirmation_form.cleaned_data['connection_id']
             connection.save()
-            # TODO send email to user to inform them that this has been done
+            send_email_user_confirm_connection(connection)
             return render(request, 'csn/connection_confirmation.html')
     return render(request, 'csn/connection_confirmation.html', {
         'form': httpconnconfirmation_form,
@@ -142,7 +142,6 @@ def devices_per_connection(request, connection_id):
             connection.info['devices'] = list(set(httpconndevices_form.cleaned_data['devices']
                                                   .values_list('id', flat=True)))
             connection.save()
-            # TODO send it via API
             return redirect('csn_connection', connection.id)
     return render(request, 'csn/devices_per_connection.html', {
         'connection': connection,
