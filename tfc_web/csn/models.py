@@ -7,6 +7,9 @@ from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
+from csn.everynet_api import everynet_add_filter, everynet_remove_filter, send_email_everynet_add_connection, \
+    send_email_everynet_remove_connection, everynet_modify_filter
+
 
 LOGGER = logging.getLogger('CSN')
 
@@ -72,3 +75,19 @@ class Connection(models.Model):
     info = JSONField()
 
 
+@receiver(post_save, sender=Connection)
+def add_filter_api(sender, instance, created, **kwargs):
+    if created:
+        everynet_add_filter(instance)
+        if 'filter_id' in instance.info:
+            send_email_everynet_add_connection(instance)
+    else:
+        everynet_modify_filter(instance)
+
+
+@receiver(post_delete, sender=Connection)
+def remove_filter_api(sender, instance, **kwargs):
+    if 'filter_id' in instance.info:
+        everynet_remove_filter(instance)
+    if 'connection_id' in instance.info:
+        send_email_everynet_remove_connection(instance)
