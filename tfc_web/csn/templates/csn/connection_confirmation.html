@@ -1,0 +1,13 @@
+{% extends "csn/base.html" %}
+{% block content %}
+    <h1 class="mdl-typography--display-1-color-contrast">Confirm Connection ID</h1>
+    {% if form %}
+    <form action="{% url 'csn_connection_confirmation' connection.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Confirm">
+    </form>
+    {% else %}
+    <p>Thanks for confirming the Connection ID</p>
+    {% endif %}
+{% endblock %}

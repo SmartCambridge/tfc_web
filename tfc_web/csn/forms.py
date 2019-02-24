@@ -1,9 +1,7 @@
-import uuid
 from django.core.exceptions import ValidationError
 from django import forms
 from django.core.validators import RegexValidator, MinLengthValidator
-from csn.models import Destination
-
+from csn.models import Sensor
 
 mdl_textfield_widget = forms.TextInput(attrs={'class': 'mdl-textfield__input'})
 mdl_select_widget = forms.Select(attrs={'class': 'mdl-textfield__input'})
@@ -129,21 +127,44 @@ class LWDeviceFormExtended(LWDeviceForm):
             self.add_error(None, ValidationError("Activation type not supported"))
 
 
-class LWApplicationForm(forms.Form):
-    """Form used to process LoRaWAN applications. These are a type of "Destination" object."""
+class LWHTTPConnection(forms.Form):
+    """Form used to process Everynet LoRaWAN HTTP Connections"""
     name = forms.CharField(max_length=150, widget=mdl_textfield_widget)
-    description = forms.CharField(max_length=255, widget=mdl_textfield_widget)
+    description = forms.CharField(max_length=255, widget=mdl_textfield_widget, required=False)
     url = forms.URLField(widget=mdl_textfield_widget, help_text="URL where to send the data")
-    http_token = forms.CharField(max_length=255, required=False, widget=mdl_textfield_widget, label="Token",
-                                 help_text="Secret token to use when sending the data your LoRaWAN Application endpoint")
+    auth_heather = forms.CharField(max_length=255, required=False, widget=mdl_textfield_widget,
+                                   label="Authorisation Header", help_text="Authorisation header that will be used"
+                                                                           "when sending requests to the URL.")
+
+
+class LWHTTPConnectionConfirmation(forms.Form):
+    """Form used to process Everynet LoRaWAN HTTP Connections confirmations after they have been entered in the
+    Everynet panel"""
+    connection_id = forms.CharField(max_length=24, min_length=24, label="Connection ID",
+                                    validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal")],
+                                    widget=forms.TextInput(
+                                       attrs={'class': 'mdl-textfield__input', 'pattern': '[0-9A-Fa-f]{24}',
+                                              'placeholder': '24 hex characters', 'title': '24 hex characters'}),
+                                    help_text="Enter the Connection ID from the new Connection you have created in the "
+                                              "Everynet panel. This is represented by a 24-character hexadecimal "
+                                              "string.")
+
+
+class DeviceMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def __init__(self, user, **kwargs):
+        super().__init__(queryset=Sensor.get_all_lorawan(user_id=user.id),
+                         label="Devices you own", widget=forms.SelectMultiple(attrs={'class': 'mdl-textfield__input'}),
+                         **kwargs)
+
+    def label_from_instance(self, obj):
+        return "%s" % obj.info['name'] if 'name' in obj.info else 'LoRaWAN Device #%d' % obj.id
+
+
+class LWHTTPConnectionDevicesForm(forms.Form):
+    """Form used to associate which Sensor data (from the list of sensors selected) should be send via the Connection.
+    This is done via an Everynet filter."""
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
-        super(LWApplicationForm, self).__init__(*args, **kwargs)
-
-    def clean(self):
-        cleaned_data = super(LWApplicationForm, self).clean()
-        cleaned_data['destination_id'] = str(uuid.uuid4())
-        cleaned_data['destination_type'] = 'everynet_jsonrpc'
-        cleaned_data['user_id'] = self.user.id
-        return cleaned_data
+        super(LWHTTPConnectionDevicesForm, self).__init__(*args, **kwargs)
+        self.fields['devices'] = DeviceMultipleChoiceField(user=self.user, required=False)

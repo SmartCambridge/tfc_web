@@ -196,8 +196,10 @@ MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
 ###### everynet API #########
 EVERYNET_API_ENDPOINT = "https://ns.eu.everynet.io/api/v1.0/"
 
-# TFC Server CSN API
-TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
+# CSN PREFIX. This is used to avoid conflicts between different application environments.
+# We tag devices and filters in everynet using the user_id of the owner. To avoid conflicts
+# between production and development environments we use this prefix to differentiate them.
+CSN_PREFIX = 'dev'
 
 # Possible values as TNDS Zones
 # East Anglia - EA

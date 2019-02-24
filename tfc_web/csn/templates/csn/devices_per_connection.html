@@ -1,0 +1,9 @@
+{% extends "csn/base.html" %}
+{% block content %}
+    <h1 class="mdl-typography--display-1-color-contrast">Devices that should send the data via the Connection {{ connection.info.name }}</h1>
+    <form action="{% url 'csn_devices_per_connection' connection.id %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input class="mdl-button mdl-js-button mdl-button--raised" type="submit" value="Send">
+    </form>
+{% endblock %}
