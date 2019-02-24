@@ -113,6 +113,7 @@
         });
         $("#generate_values").click(function() {
             $("#id_dev_eui").val(generate_random_hex(8));
+            $("#id_app_eui").val(generate_random_hex(8));
             $("#nwkskey").val(generate_random_hex(16));
             $("#appskey").val(generate_random_hex(16));
             $("#dev_addr").val(generate_random_hex(4));

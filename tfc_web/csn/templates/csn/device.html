@@ -6,6 +6,7 @@
         Class: {{ device.info.dev_class }}<br>
         Counters Size: {{ device.info.counters_size }}<br>
         Device EUI: {{ device.info.dev_eui }}<br>
+        Application EUI: {{ device.info.app_eui }}<br>
         Activation type: {{ device.info.get_activation_type_display }}<br>
         {% if device.info.activation_type == "abp" %}
         Device Address: {{ device.info.dev_addr }}<br>

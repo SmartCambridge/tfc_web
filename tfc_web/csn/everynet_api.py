@@ -12,22 +12,25 @@ def everynet_add_device(lwdevice):
     lwdev = namedtuple("LWDevice", lwdevice.keys())(*lwdevice.values())
     data = {
         "dev_eui": lwdev.dev_eui,
-        "app_eui": settings.LW_APP_EUI,
-        "tags": ["smartcambridge.org"],
+        "app_eui": lwdev.app_eui,
+        "tags": ["csn:"+settings.CSN_PREFIX+":user_id:"+str(user_id)],
         "dev_class": lwdev.dev_class,
         "counters_size": lwdev.counters_size,
         "adr": {
             "mode": "on"
         },
+        "encryption": "NS",
         "band": "EU863-870",
     }
+    if settings.CSN_PREFIX == "prod":
+        data['tags'] += ["smartcambridge.org"]
     if lwdev.activation_type == "otaa":
         data["activation"] = "OTAA"
-        data["encryption"] = "APP"
+        data["encryption"] = "NS"
         data["app_key"] = lwdev.app_key
     elif lwdev.activation_type == "abp":
         data["activation"] = "ABP"
-        data["encryption"] =  "NS"
+        data["encryption"] = "NS"
         data["dev_addr"] = lwdev.dev_addr
         data["nwkskey"] = lwdev.nwkskey
         data["appskey"] = lwdev.appskey

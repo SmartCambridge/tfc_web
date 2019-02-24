@@ -12,17 +12,6 @@
                     </a>
                 </span>
                 <span class="mdl-list__item-secondary-content" style="align-items: center; flex-flow: row; min-width: 218px;">
-                    <span class="mdl-list__item-secondary-content" style="align-items: center; flex-flow: row">
-                        <p class="mdl-list__item-text-body" style="margin-bottom: 0;">
-                            Application:<br>
-                            <select class="mdl-list__item-secondary-action-appchoice mdl-textfield__input" data-sensor-id="{{ device.info.sensor_id }}" style="margin-top: 5px;">
-                                <option disabled {% if not app.info.destination_id %}selected{% endif %}> ------ </option>
-                            {% for app in app_choices %}
-                                <option value="{{ app.info.destination_id }}" {% if app.info.destination_id == device.lwapp.info.destination_id %}selected{% endif %}>{{ app.info.name }}</option>
-                            {% endfor %}
-                            </select>
-                        </p>
-                    </span>
                     <a class="mdl-list__item-secondary-action-delete" href="#" style="margin-left: 20px;"><i class="material-icons" data-sensor-id="{{ device.info.sensor_id }}">delete</i></a>
                 </span>
             </li>
@@ -36,22 +25,6 @@
     </a>
 {% endblock %}
 {% block dialogs %}
-    <dialog id="dialog-appchoice" class="mdl-dialog">
-        <div class="mdl-dialog__content">
-            <p>
-                Are you sure you want to change the Application of this Device?
-            </p>
-        </div>
-        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
-            <form action="{% url 'csn_change_device_app' %}" method="post">
-                {% csrf_token %}
-                <input id="form_app_id" type="hidden" name="app_id">
-                <input id="form_sensor_id" type="hidden" name="sensor_id">
-                <input type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect" value="Yes">
-                <button type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect close">No</button>
-            </form>
-        </div>
-    </dialog>
     <dialog id="dialog-delete" class="mdl-dialog">
         <div class="mdl-dialog__content">
             <p>
@@ -83,22 +56,6 @@
         }
         dialog_delete.querySelector('.close').addEventListener('click', function() {
             dialog_delete.close();
-        });
-
-        var dialog_appchoice = document.querySelector('#dialog-appchoice');
-        var appchoiceModalButtons = document.querySelectorAll('.mdl-list__item-secondary-action-appchoice');
-        if (! dialog_appchoice.showModal) {
-            dialogPolyfill.registerDialog(dialog_appchoice);
-        }
-        for (var i = 0; i < appchoiceModalButtons.length; i++) {
-            appchoiceModalButtons[i].addEventListener('change', function(event) {
-                dialog_appchoice.showModal();
-                document.querySelector('#form_sensor_id').value = event.target.dataset.sensorId;
-                document.querySelector('#form_app_id').value = event.target.value;
-            });
-        }
-        dialog_appchoice.querySelector('.close').addEventListener('click', function() {
-            document.location.reload(true);
         });
     </script>
 {% endblock %}

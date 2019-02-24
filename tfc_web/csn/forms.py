@@ -9,15 +9,6 @@ mdl_textfield_widget = forms.TextInput(attrs={'class': 'mdl-textfield__input'})
 mdl_select_widget = forms.Select(attrs={'class': 'mdl-textfield__input'})
 
 
-class DestinationChoiceField(forms.ModelChoiceField):
-    def __init__(self, user, **kwargs):
-        super().__init__(queryset=Destination.get_all_everynet_jsonrpc(user_id=user.id),
-                         label="Destination", widget=forms.Select(attrs={'class': 'mdl-textfield__input'}), **kwargs)
-
-    def label_from_instance(self, obj):
-        return "%s" % obj.info['name'] if 'name' in obj.info else 'LoRaWAN Application #%d' % obj.id
-
-
 class LWDeviceForm(forms.Form):
     """Form to process LoRaWAN devices that will be stored in the Sensor table"""
     DEVICE_CLASS = (
@@ -47,26 +38,22 @@ class LWDeviceForm(forms.Form):
                                   attrs={'class': 'mdl-textfield__input', 'pattern': '[0-9A-Fa-f]{16}',
                                          'placeholder': '16 hex characters', 'title': '16 hex characters'}))
 
-    # TODO this field must be unique
+    # Application EUI - 64 bit end-device identifier, EUI-64 (unique)
+    app_eui = forms.CharField(max_length=16, validators=[RegexValidator(r"^[0-9a-fA-F]+$", "Needs to be hexadecimal"),
+                                                         MinLengthValidator(16)], label="Application EUI",
+                              widget=forms.TextInput(
+                                  attrs={'class': 'mdl-textfield__input', 'pattern': '[0-9A-Fa-f]{16}',
+                                         'placeholder': '16 hex characters', 'title': '16 hex characters'}))
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         super(LWDeviceForm, self).__init__(*args, **kwargs)
-        # Application/Destination the sensor is linked to
-        self.fields['lw_application'] = DestinationChoiceField(user=self.user)
 
     def clean(self):
         cleaned_data = super(LWDeviceForm, self).clean()
-        lw_application = cleaned_data.get("lw_application")
-        if 'user_id' not in lw_application.info or self.user.id != lw_application.info['user_id']:
-            raise ValidationError("You are not authorise to add this device to the application selected")
         cleaned_data['sensor_id'] = cleaned_data['dev_eui']
         cleaned_data['sensor_type'] = 'lorawan'
         cleaned_data['user_id'] = self.user.id
-        if 'lw_application' in cleaned_data:
-            lwapp = cleaned_data.pop('lw_application')
-            cleaned_data['destination_id'] = lwapp.info['destination_id']
-            cleaned_data['destination_type'] = lwapp.info['destination_type']
         return cleaned_data
 
 
