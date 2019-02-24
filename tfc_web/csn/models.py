@@ -6,8 +6,6 @@ from django.db import models
 from django.contrib.gis.db import models as models_gis
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from csn.tfc_server_api import tfc_server_add_sensor, tfc_server_add_destination, tfc_server_remove_destination, \
-    tfc_server_remove_sensor
 
 
 LOGGER = logging.getLogger('CSN')
@@ -68,17 +66,6 @@ class Sensor(models.Model):
 
     class Meta:
         managed = False
-
-
-@receiver(post_save, sender=Sensor)
-def add_sensor_api(sender, instance, created, **kwargs):
-    if created:
-        tfc_server_add_sensor(instance)
-
-
-@receiver(post_delete, sender=Sensor)
-def remove_sensor_api(sender, instance, **kwargs):
-    tfc_server_remove_sensor(instance)
 
 
 class Destination(models.Model):
