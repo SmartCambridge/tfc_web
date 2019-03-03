@@ -69,14 +69,29 @@ def everynet_remove_filter(connection):
 
 def send_email_everynet_add_connection(connection):
     subject = "Cambridge Sensor Network: Add a new Connection to Everynet"
+    info_dict = {
+        'id': str(connection.id),
+        'type': connection.info.get('connection_type', ''),
+        'filter': connection.info.get('filter_id', ''),
+        'application_url': connection.info.get('url', ''),
+        'name_and_description':
+            {
+                'name': connection.info.get('name', ''),
+                'description': connection.info.get('description', '')
+            },
+        'auth_header': connection.info.get('auth_header', '')
+    }
+    if info_dict['type'] == 'everynet_lw_http':
+        info_dict['type'] = 'HTTPv2'
+    confirmation_url = reverse('csn_connection_confirmation', kwargs={'connection_id': connection.id})
     if settings.CSN_PREFIX == 'dev':
         subject = "[IGNORE - MESSAGE FROM DEV INSTANCE] " + subject
+    else:
+        confirmation_url = "https://smartcambridge.org" + confirmation_url
     message = "A new Connection has been created in Cambridge Sensor Network, please add a new connection in " \
               "the Everynet panel.\nThis is the parameter for the new Connection:\n%s\n\nOnce you have created " \
               "the new Connection it is necessary that you confirm this visiting %s and entering the Connection " \
-              "ID of the Connection that you just created." % (json.dumps(connection.info, indent=4),
-                                                               reverse('csn_connection_confirmation',
-                                                                       kwargs={'connection_id': connection.id}))
+              "ID of the Connection that you just created." % (json.dumps(info_dict, indent=4), confirmation_url)
     mail_admins(subject=subject, message=message)
 
 

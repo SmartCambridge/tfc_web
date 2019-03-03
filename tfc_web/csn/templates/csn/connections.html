@@ -9,7 +9,7 @@
                     <i class="material-icons mdl-list__item-avatar">apps</i>
                     <span>{{ connection.info.name }}</span>
                     <span class="mdl-list__item-text-body">
-                        <span style="color: darkred">
+                        <span style="color: darkred; word-break: normal;">
                             {% if not connection.info.connection_id %}
                                 This connection has not yet been approved. You won't be able to receive messages until it has been.<br>
                             {% endif %}

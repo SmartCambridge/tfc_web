@@ -146,7 +146,7 @@ class LWHTTPConnection(forms.Form):
     description = forms.CharField(max_length=255, widget=mdl_textfield_widget, required=False)
     url = forms.URLField(widget=mdl_textfield_widget, help_text="URL where to send the data")
     auth_header = forms.CharField(max_length=255, required=False, widget=mdl_textfield_widget,
-                                  label="Authorisation Header", help_text="Authorisation header that will be used"
+                                  label="Authorisation Header", help_text="Authorisation header that will be used "
                                                                           "when sending requests to the URL.")
 
 
