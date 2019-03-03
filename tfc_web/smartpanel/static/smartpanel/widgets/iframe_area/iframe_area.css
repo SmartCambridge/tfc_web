@@ -1,6 +1,13 @@
 /* Styles for the iframe_area widget */
 
+
 .iframe_area {
+    border: none;
+    height: 100%;
+    width: 100%;
+}
+
+.iframe_area iframe {
     border: none;
     height: 100%;
     width: 100%;
