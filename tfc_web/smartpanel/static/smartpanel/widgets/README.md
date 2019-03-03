@@ -326,6 +326,27 @@ an instance of the RT Monitor API.
 Widgets may assume the existence of a global `DEBUG` which will contain
 '_`<name>_log`_' to request verbose logging by the widget.
 
+## Example `requirements.json` file
+
+```json
+{
+    "scripts": [
+      { "src": "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js",
+        "integrity": "sha256-ABVkpwb9K9PxubvRrHMkk6wmWcIHUE9eBxNZLXYQ84k="
+      },
+      { "src": "https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.3.0/sockjs.min.js" },
+      "js/geo.js"
+    ],
+    "stylesheets": [
+      { "href": "https://unpkg.com/leaflet@1.0.1/dist/leaflet.css",
+        "integrity": "sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+      },
+      { "href": "https://example.com/magic-stylesheet.css" },
+      "css/special.css"
+    ]
+}
+```
+
 ## Programming the configuration for a widget
 
 The _layout_, i.e. the HTML page containing the widget, will provide a DOM object into which the
