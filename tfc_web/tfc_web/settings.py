@@ -286,7 +286,7 @@ LOGGING = {
         }
     },
     'root': {
-        'handlers': ['console']#, 'mail_admins'],
+        'handlers': ['console'],
         'level': 'INFO',
     }
 }
