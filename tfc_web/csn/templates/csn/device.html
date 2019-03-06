@@ -6,7 +6,8 @@
         Class: {{ device.info.dev_class }}<br>
         Counters Size: {{ device.info.counters_size }}<br>
         Device EUI: {{ device.info.dev_eui }}<br>
-        Activation type: {{ device.info.get_activation_type_display }}<br>
+        Application EUI: {{ device.info.app_eui }}<br>
+        Activation type: {{ device.info.activation_type }}<br>
         {% if device.info.activation_type == "abp" %}
         Device Address: {{ device.info.dev_addr }}<br>
         Network Session Key: {{ device.info.nwkskey }}<br>
@@ -14,21 +15,5 @@
         {% elif device.info.activation_type == "otaa" %}
         Application Key: {{ device.info.app_key }}<br>
         {% endif %}
-        {% if device.lwapp %}
-        Application:
     </p>
-    <ul class="mdl-list" style="margin-top: 0; padding-top: 0;">
-        <li class="mdl-list__item mdl-list__item--three-line">
-            <span class="mdl-list__item-primary-content">
-                <a href="{% url 'csn_app' app_id=device.lwapp.info.destination_id %}" style="text-decoration: none;">
-                    <i class="material-icons mdl-list__item-avatar">apps</i>
-                    <span>{{ device.lwapp.info.name }}</span>
-                    <span class="mdl-list__item-text-body">{{ device.lwapp.info.description }}<br>{{ device.lwapp.info.url }}</span>
-                </a>
-            </span>
-        </li>
-    </ul>
-        {% else %}
-    </p>
-        {% endif %}
 {% endblock %}

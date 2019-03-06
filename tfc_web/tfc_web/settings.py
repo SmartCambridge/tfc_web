@@ -23,6 +23,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk', 'localhost', '127.0.0.1', '[::1]']
 
+ADMINS = [('SmartCambridge Admins', 'admin@smartcambridge.org')]
+SERVER_EMAIL = 'root@smartcambridge.org'
+
 # Application apps
 PROJECT_APPS = [
     'tfc_gis',
@@ -109,14 +112,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'tfcweb',
-    },
-    'tfcserver': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'tfcserver',
     }
 }
-
-DATABASE_ROUTERS = ['tfc_web.dbrouter.CSNRouter']
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -199,8 +196,10 @@ MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
 ###### everynet API #########
 EVERYNET_API_ENDPOINT = "https://ns.eu.everynet.io/api/v1.0/"
 
-# TFC Server CSN API
-TFC_SERVER_CSN_API = "http://localhost:8098/httpmsg/test/tfc.manager/msgrouter/test"
+# CSN PREFIX. This is used to avoid conflicts between different application environments.
+# We tag devices and filters in everynet using the user_id of the owner. To avoid conflicts
+# between production and development environments we use this prefix to differentiate them.
+CSN_PREFIX = 'dev'
 
 # Possible values as TNDS Zones
 # East Anglia - EA
@@ -279,10 +278,15 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'detail',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': False,
         }
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['console', 'mail_admins'],
         'level': 'INFO',
     }
 }

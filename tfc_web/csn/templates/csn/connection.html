@@ -1,13 +1,13 @@
 {% extends "csn/base.html" %}
 {% block content %}
-    <div class="cards-section-title mdl-typography--display-1-color-contrast">Application: {{ application.info.name }}</div>
+    <div class="cards-section-title mdl-typography--display-1-color-contrast">Connection: {{ connection.info.name }}</div>
     <p class="mdl-typography--body-1" style="margin-bottom: 0">
-        Description: {{ application.info.description }}<br>
-        URL: {{ application.info.url }}<br>
-        Devices:
+        Description: {{ connection.info.description }}<br>
+        URL: {{ connection.info.url }}<br>
+        Devices connected to this connection:
     </p>
     <ul class="mdl-list" style="margin-top: 0; padding-top: 0;">
-    {% for device in application.sensors.all %}
+    {% for device in devices %}
         <li class="mdl-list__item mdl-list__item--three-line">
             <span class="mdl-list__item-primary-content">
                 <a href="{% url 'csn_device' device_id=device.info.sensor_id %}" style="text-decoration: none;">
@@ -19,5 +19,7 @@
         </li>
     {% endfor %}
     </ul>
+    <a class="mdl-button mdl-js-button mdl-button--raised" href="{% url 'csn_devices_per_connection' connection.id %}">
+        Add or remove devices</a>
     <p><br></p>
 {% endblock %}
