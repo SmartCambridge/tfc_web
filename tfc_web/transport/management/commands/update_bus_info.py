@@ -79,7 +79,7 @@ class Command(BaseCommand):
                                 line_name=service['Lines']['Line']['LineName'],
                                 area=tnds_zone,
                                 filename=content['TransXChange']['@FileName'],
-                                description=service['Description'],
+                                description=service.get('Description', ''),
                                 operator=bus_operator,
                                 standard_origin=service['StandardService']['Origin'],
                                 standard_destination=service['StandardService']['Destination'],
