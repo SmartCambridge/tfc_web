@@ -1,7 +1,8 @@
 import json
+from django.shortcuts import render
+from django.http import Http404
 from datetime import date, timedelta, datetime
 from urllib.error import HTTPError
-from django.shortcuts import render
 import logging
 
 from api.util import do_api_call
@@ -73,7 +74,13 @@ def aq_plot(request, station_id):
             if e.code != 404:
                 raise e
 
-    station_config = get_aq_metadata(station_id)
+    try:
+        station_config = get_aq_metadata(station_id)
+    except HTTPError as e:
+        if e.code == 404:
+            raise Http404("AQ Plot invalid station id {0}".format(station_id))
+        else:
+            raise e
 
     user_date = q_date.strftime('%Y-%m-%d')
     YYYY = user_date[0:4]

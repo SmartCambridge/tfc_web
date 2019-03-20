@@ -6,7 +6,9 @@ from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
 from smartpanel.views.smartpanel import smartpanel_settings
-from transport.models import Stop, Line, Route, VehicleJourney, Timetable
+# ijl20 django exceptions bugfix (Route only used by obsolete bus_route_map)
+#from transport.models import Stop, Line, Route, VehicleJourney, Timetable
+from transport.models import Stop, Line, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
 from smartcambridge import rt_crypto
@@ -29,22 +31,26 @@ def map_real_time(request):
 
 def bus_lines_list(request):
     bus_lines = Line.objects.all().order_by('line_name')
-    return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
+    # ijl20 django robot exceptions bugfix
+    #return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
+    return render(request, 'transport/bus_lines_list.html', {'bus_lines': bus_lines})
+
+# ijl20 - django robot exceptions bugfix. Obsolete? 2019-03-20
+# def bus_route_map(request, bus_route_id):
+#    return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
+
+# ijl20 - django robot exceptions bugfix. Obsolete? 2019-03-20
+#def bus_route_timetable_map(request, journey_id):
+#    return render(request, 'transport/bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
 
-def bus_route_map(request, bus_route_id):
-    return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
+# ijl20 - django robot exceptions bugfix. Obsolete? 2019-03-20
+#def route_timetable_map(request, journey_id):
+#    return render(request, 'route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
 
-
-def bus_route_timetable_map(request, journey_id):
-    return render(request, 'transport/bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
-
-
-def route_timetable_map(request, journey_id):
-    return render(request, 'route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
-
-
-def bus_stops_list(request):
+# ijl20 - django robots exceptions bugfix. Changed name to bus_stops_map
+#def bus_stops_list(request):
+def bus_stops_map(request):
     area = Polygon.from_bbox((-0.11230006814002992, 52.29464119811643, 0.24690136313438418, 52.10594080364339))
     bus_stops = Stop.objects.filter(gis_location__contained=area)
     return render(request, 'transport/bus_stops_map.html', {'bus_stops': bus_stops, 'area': area[0],

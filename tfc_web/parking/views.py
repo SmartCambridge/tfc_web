@@ -2,6 +2,7 @@ import json
 from datetime import date, timedelta, datetime
 from urllib.error import HTTPError
 from django.shortcuts import render
+from django.http import Http404
 import logging
 
 from api.util import do_api_call
@@ -28,10 +29,15 @@ def get_parking_metadata(parking_id):
 
 
 def get_parking_history(parking_id, date):
-
+    try:
         return do_api_call(
             '/api/v1/parking/history/' + parking_id +
             '?start_date=' + date)
+    except HTTPError as e:
+        if e.code != 404:
+            raise e
+        else:
+            raise Http404
 
 
 def get_parking_occupancy(parking_list):

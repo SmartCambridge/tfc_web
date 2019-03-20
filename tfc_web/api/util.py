@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from django.conf import settings
+from django.http import Http404
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
 import codecs
@@ -142,4 +144,5 @@ def do_api_call(query):
     reader = codecs.getreader("utf-8")
     query = Request(settings.NEW_API_ENDPOINT + query)
     query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
-    return json.load(reader(urlopen(query)))
+    return  json.load(reader(urlopen(query)))
+

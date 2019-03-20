@@ -24,7 +24,9 @@ urlpatterns = [
     url(r'^map/$', views.map_real_time, name='bus-map'),
 
     # Bus Stops
-    url(r'^stops/$', views.bus_stops_list, name='bus-stops-list'),
+    # ijl20 robot exceptions bugfix
+    #url(r'^stops/$', views.bus_stops_list, name='bus-stops-list'),
+    url(r'^stops/$', views.bus_stops_map, name='bus-stops-map'),
     url(r'^stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
     url(r'^stop/$', views.bus_stop, name='bus-stop-template'),
 
@@ -32,12 +34,14 @@ urlpatterns = [
     url(r'^lines/$', views.bus_lines_list, name='bus-lines-list'),
 
     # Bus Routes
-    url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
+    # ijl20 robot exceptions bugfix
+    #url(r'^route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
 
     # Bus Timetable
-    url(r'^route/timetable/map/bus/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
-    url(r'^route/timetable/map/(?P<journey_id>.+)/$', views.route_timetable_map, name='route-timetable-map'),
-    url(r'^route/timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
+    # ijl20 robot exceptions bugfix
+    #url(r'^route/timetable/map/bus/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
+    #url(r'^route/timetable/map/(?P<journey_id>.+)/$', views.route_timetable_map, name='route-timetable-map'),
+    #url(r'^route/timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable'),
 
     # New Bus Timetable
     url(r'^timetable/journey/(?P<vehicle_journey_id>.+)/$', views.vehicle_journey_real_time, name='vehicle-journey-real-time'),
