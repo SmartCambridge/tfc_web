@@ -2,6 +2,8 @@ import json
 from datetime import date
 from django.shortcuts import render
 from django.urls import reverse
+from django.http import Http404
+from urllib.error import HTTPError
 import logging
 
 from api.util import do_api_call
@@ -48,8 +50,14 @@ def zone_transit_plot(request, zone_id):
     MM = user_date[5:7]
     dd = user_date[8:10]
 
-    transit_json = get_zone_history(zone_id, user_date)
-    zone_config = get_zone_metadata(zone_id)
+    try:
+        transit_json = get_zone_history(zone_id, user_date)
+        zone_config = get_zone_metadata(zone_id)
+    except HTTPError as e:
+        if e.code == 404:
+            raise Http404("Zone transit plot invalid zone id {0}".format(zone_id))
+        else:
+            raise e
 
     zone_reverse_id = zone_config['request_data']['options']['config'].get('zone_reverse_id',None)
 
