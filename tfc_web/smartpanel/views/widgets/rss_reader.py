@@ -41,11 +41,10 @@ def rss_reader(request):
             # https://stackoverflow.com/questions/35042216/requests-module-return-json-with-items-unordered
             rss_xml = r.text
         except:
-            logger.error("Error retrieving rss feed for %s: %s %s %s",
-            title,
-            rss_url,
-            sys.exc_info()[0],
-            sys.exc_info()[1])
+            logger.error("Error retrieving rss feed for %s: %s %s",
+                rss_url,
+                sys.exc_info()[0],
+                sys.exc_info()[1])
         # Whatever happens, cache what we got so we don't keep hitting the API
         finally:
             cache.set(current_key, rss_xml, timeout=600)
@@ -55,8 +54,7 @@ def rss_reader(request):
     try:
         cache.set(lng_key, rss_xml, timeout=None)
     except:
-        logger.error("Error cacheing current rss feed for %s: %s %s %s",
-            title,
+        logger.error("Error cacheing current rss feed for %s: %s %s",
             rss_url,
             sys.exc_info()[0],
             sys.exc_info()[1])
@@ -68,7 +66,6 @@ def rss_reader(request):
             rss_xml = lng_data
         else:
             logger.info('Cache miss for %s', lng_key)
-            title = 'RSS title unknown'
 
     #rss_xml = "debug"
     return render(request, 'smartpanel/rss_reader.html', { "rss_xml": rss_xml }
