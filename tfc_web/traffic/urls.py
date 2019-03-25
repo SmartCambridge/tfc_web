@@ -19,6 +19,8 @@ from traffic import views
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='traffic/home.html'), name='traffic_home'),
+    url(r'^anpr/map/json/$', views.anpr_map, {'return_format': 'json'}, name='anpr_map_json'),
+    url(r'^anpr/map/$', views.anpr_map, name='anpr_map'),
     url(r'^zones/map/$', views.zones_map, name='zones_map'),
     url(r'^zones/list/$', views.zones_list, name='zones_list'),
     url(r'^zone/map/(?P<zone_id>[-\w]+)/$', views.zone_map, name='zone_map'),

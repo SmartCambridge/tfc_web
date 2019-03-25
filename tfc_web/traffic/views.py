@@ -1,14 +1,46 @@
 import json
-from datetime import date
+import re
+import time
+from datetime import date, datetime, timedelta
+
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 from django.urls import reverse
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from urllib.error import HTTPError
 import logging
 
 from api.util import do_api_call
+from traffic.models import ANPRCamera, TripChain
+
 
 logger = logging.getLogger(__name__)
+
+
+def anpr_map(request, return_format='html'):
+    start_time = request.GET.get('datetime', time.mktime(datetime(day=11, month=6, year=2017, hour=8).timetuple()))
+    start_time = datetime.fromtimestamp(int(start_time))
+    # Discard all trips that took longer than 3 hours as these are very likely round trips.
+    trips_m = TripChain.objects.filter(entry_time__range=(start_time, start_time + timedelta(hours=1)),
+                                       total_trip_time__lt=timedelta(hours=3))
+    trips = []
+    for trip_m in trips_m:
+        trips.append({
+            "time": trip_m.entry_time,
+            "chain_vector": re.split(r'_[A-Za-z]+>?', trip_m.chain_vector)[0:-1]
+        })
+    if return_format == 'html':
+        return render(request, 'traffic/anpr_camera.html', {
+            'cameras': ANPRCamera.objects.all(),
+            'trips': json.dumps(trips, cls=DjangoJSONEncoder)
+        })
+    elif return_format == 'json':
+        return JsonResponse({
+            'trips': trips
+        })
+    else:
+        raise Exception('Format not supported')
+
 
 #############################################################################
 # Utilities                                                                 £

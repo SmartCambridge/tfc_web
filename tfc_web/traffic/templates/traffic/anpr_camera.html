@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+    {% include 'leaflet_snippet.html' %}
+    <link rel="stylesheet" href="{% static 'map.css' %}" />
+    <script src="{% static 'js/nouislider.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'nouislider.min.css' %}" />
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="width: 100%;"><h3 style="margin-left: 20px; margin-bottom: 10px;">Traffic flow</h3></div>
+        <div style=" width: 100%;">
+            <p style="margin-bottom: 50px">This map shows the transit flow for each one of the traffic cameras in the map. When a camera is clicked,
+            the map shows all the transit that has as an origin the camera selected and has as a destiantion any other
+            of the cameras shown in the map. The width of the line indicates how much flow there is between cameras.
+            The flow indicate the end to end trip for each one of the vehicles detected, meaning that all detections
+            from different cameras are shown.</p>
+            <div id="slider-date" class="noUi-target noUi-ltr noUi-horizontal" style="margin: 10px 50px"></div>
+        </div>
+        <div id="map" style="height: 80%; width: 100%;"></div>
+    </div>
+    <script>
+        var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
+        var info_map = L.control();
+        var urlparams = new URLSearchParams(window.location.search);
+        var dateSlider;
+        var trips = JSON.parse('{{ trips|safe }}');
+        var trip_convinations = {};
+        var camera_origin_selected;
+        var camera_destination_selected;
+        var cameras = {{% for camera in cameras %}
+            "{{ camera.id }}": {
+                "lat": "{{ camera.lat }}",
+                "lng": "{{ camera.lng }}"
+            },
+        {% endfor %}};
+
+        info_map.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
+            this.update();
+            return this._div;
+        };
+
+        // method that we will use to update the control based on feature properties passed
+        info_map.update = function (info_text) {
+            this._div.innerHTML = info_text;
+        };
+
+        var cameraIcon = L.icon({
+            iconUrl: '{% static 'images/camera.png' %}',
+            iconSize: [30, 30]
+        });
+
+        var cameraOriginSelectedIcon = L.icon({
+            iconUrl: '{% static 'images/camera_origin_selected.png' %}',
+            iconSize: [30, 30]
+        });
+
+        var cameraDestinationSelectedIcon = L.icon({
+            iconUrl: '{% static 'images/camera_destination_selected.png' %}',
+            iconSize: [30, 30]
+        });
+
+        function clearMap() {
+            var i;
+            for(i in map._layers) {
+                if(map._layers[i]._path !== undefined) {
+                    try {
+                        map.removeLayer(map._layers[i]);
+                    }
+                    catch(e) {
+                        console.log("problem with " + e + map._layers[i]);
+                    }
+                }
+            }
+        }
+
+        function drawFlow() {
+            trip_convinations = {};
+            if (camera_origin_selected !== undefined) {
+                for (var i = 0; i < trips.length; i++) {
+                    // Select the camera you want to view from
+                    if (trips[i].chain_vector[0] === camera_origin_selected.options['cameraid']) {
+                        if (((camera_destination_selected !== undefined) &&
+                            (trips[i].chain_vector[trips[i].chain_vector.length - 1] ===
+                                camera_destination_selected.options['cameraid'])) ||
+                            (camera_destination_selected === undefined)) {
+                            for (var j = 0; j < trips[i].chain_vector.length - 1; j++) {
+                                var key = trips[i].chain_vector[j] + "," + trips[i].chain_vector[j + 1];
+                                if (key in trip_convinations)
+                                    trip_convinations[key]++;
+                                else
+                                    trip_convinations[key] = 1;
+                            }
+                        }
+                    }
+                }
+            }
+            clearMap();
+
+            Object.keys(trip_convinations).forEach(function(key) {
+                var camerasi = key.split(",");
+                var camera1 = parseInt(camerasi[0]);
+                var camera2 = parseInt(camerasi[1]);
+                {#console.log(camera1 + " - " + camera2);#}
+                if (camera1 !== 35 && camera2 !== 35 && camera1 !== 96 && camera2 !== 96) {
+                    var latlngs = [
+                        [cameras[camera1].lat, cameras[camera1].lng],
+                        [cameras[camera2].lat, cameras[camera2].lng]
+                    ];
+                    L.polyline(latlngs, {weight: trip_convinations[key], opacity: 0.5, lineCap: "butt"}).addTo(map);
+                }
+            });
+        }
+
+        function cameraMarkerOnClick(e) {
+            {#console.log(e);#}
+            {# There is an origin camera selected #}
+            if (camera_origin_selected !== undefined) {
+                {# User is deactivating the origin camera so we deselect origin and destiny #}
+                if (camera_origin_selected === e.target) {
+                    {# If it was a destiantion camera selected revert its icon back to normal #}
+                    if (camera_destination_selected !== undefined) {
+                        camera_destination_selected.setIcon(cameraIcon);
+                        camera_destination_selected = undefined;
+                    }
+                    camera_origin_selected.setIcon(cameraIcon);
+                    camera_origin_selected = undefined;
+                } else {
+                    if (camera_destination_selected !== undefined) {
+                        camera_destination_selected.setIcon(cameraIcon);
+                        if (camera_destination_selected === e.target) {
+                            camera_destination_selected = undefined;
+                        } else {
+                            camera_destination_selected = e.target;
+                            camera_destination_selected.setIcon(cameraDestinationSelectedIcon);
+                        }
+                    } else {
+                        camera_destination_selected = e.target;
+                        camera_destination_selected.setIcon(cameraDestinationSelectedIcon);
+                    }
+                }
+                {# User is selecting a new destination camera #}
+            } else {
+                {# There isn't any origin camera selected #}
+                camera_origin_selected = e.target;
+                camera_origin_selected.setIcon(cameraOriginSelectedIcon);
+            }
+            drawFlow();
+        }
+
+        function retrieve_flowdata(start_time) {
+            var url = '{% url 'anpr_map_json' %}?datetime=' + start_time.toString();
+            $.ajax({
+                url: url,
+                dataType: 'application/json',
+                beforeSend: function(){
+                    dateSlider.setAttribute('disabled', true);
+                },
+                complete: function (data) {
+                    dateSlider.removeAttribute('disabled');
+                    trips = JSON.parse(data.responseText)['trips'];
+                    drawFlow();
+                    {#console.log(trips);#}
+                }
+            });
+        }
+
+        // Create a new date from a string, return as a timestamp.
+        function timestamp(str) {
+            return new Date(str).getTime()/1000;
+        }
+
+        // Create a string representation of the date.
+        function formatDate(idate) {
+            var date = new Date(+idate*1000);
+            return date.toGMTString();
+        }
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            info_map.addTo(map);
+
+            Object.keys(cameras).forEach(function(key) {
+                L.marker([cameras[key].lat, cameras[key].lng], {"icon": cameraIcon, "cameraid": key}).addTo(map).on('click', cameraMarkerOnClick);
+            });
+
+            /************* This is the START of the date slider code **************/
+            dateSlider = document.getElementById('slider-date');
+
+            noUiSlider.create(dateSlider, {
+                // Create two timestamps to define a range.
+                range: {
+                    min: timestamp('2017-06-11 00:00 GMT'),
+                    max: timestamp('2017-06-18 00:00 GMT')
+                },
+
+                // Steps of one hour
+                step: 60 * 60,
+
+                // Two more timestamps indicate the handle starting positions.
+                start: [timestamp('2017-06-11 08:00 GMT')],
+
+                tooltips: [true],
+
+                format: { to: formatDate, from: Number }
+            });
+
+            dateSlider.noUiSlider.on('set', function (values, handle) {
+                {#console.log(values);#}
+                retrieve_flowdata(timestamp(values[0]));
+            });
+            /************* This is the END of the date slider code **************/
+        });
+    </script>
+{% endblock %}
