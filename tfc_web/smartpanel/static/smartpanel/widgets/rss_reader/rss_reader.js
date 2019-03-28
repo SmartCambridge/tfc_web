@@ -636,7 +636,7 @@ function RssReader(widget_id) {
                                         { text: 'Main Title:',
                                           title: 'The main title at the top of the widget, e.g. RSS feed name'
                                         },
-                                        params.title ? params.title.text : PARAMS_NEWS.title.text);
+                                        params.title ? params.title.text : DEFAULT_PARAMS['news'].title.text);
         // url
         //
         var url_result = widget_config.input( config_tbody,
