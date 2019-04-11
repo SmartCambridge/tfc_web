@@ -6,9 +6,7 @@ from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
 from smartpanel.views.smartpanel import smartpanel_settings
-# ijl20 django exceptions bugfix (Route only used by obsolete bus_route_map)
-#from transport.models import Stop, Line, Route, VehicleJourney, Timetable
-from transport.models import Stop, Line, VehicleJourney, Timetable
+from transport.models import Stop, Line, Route, VehicleJourney, Timetable
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
 from smartcambridge import rt_crypto
@@ -31,25 +29,9 @@ def map_real_time(request):
 
 def bus_lines_list(request):
     bus_lines = Line.objects.all().order_by('line_name')
-    # ijl20 django robot exceptions bugfix
-    #return render(request, 'bus_lines_list.html', {'bus_lines': bus_lines})
     return render(request, 'transport/bus_lines_list.html', {'bus_lines': bus_lines})
 
-# ijl20 - django robot exceptions bugfix. Obsolete? 2019-03-20
-# def bus_route_map(request, bus_route_id):
-#    return render(request, 'bus_route_map.html', {'bus_route': Route.objects.get(id=bus_route_id)})
 
-# ijl20 - django robot exceptions bugfix. Obsolete? 2019-03-20
-#def bus_route_timetable_map(request, journey_id):
-#    return render(request, 'transport/bus_route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
-
-
-# ijl20 - django robot exceptions bugfix. Obsolete? 2019-03-20
-#def route_timetable_map(request, journey_id):
-#    return render(request, 'route_timetable_map.html', {'journey': VehicleJourney.objects.get(id=journey_id)})
-
-# ijl20 - django robots exceptions bugfix. Changed name to bus_stops_map
-#def bus_stops_list(request):
 def bus_stops_map(request):
     area = Polygon.from_bbox((-0.11230006814002992, 52.29464119811643, 0.24690136313438418, 52.10594080364339))
     bus_stops = Stop.objects.filter(gis_location__contained=area)
@@ -76,11 +58,6 @@ def bus_stop(request, bus_stop_id):
         'RTMONITOR_URI': settings.RTMONITOR_URI,
         'settings': smartpanel_settings()})
 
-
-def bus_route_timetable(request, bus_route_id):
-    bus_route = Route.objects.get(id=bus_route_id)
-    journeys = VehicleJourney.objects.filter(journey_pattern__route=bus_route).order_by('departure_time')
-    return render(request, 'bus_route_timetable.html', {'bus_route': bus_route, 'journeys': journeys})
 
 def vehicle_journey_real_time(request, vehicle_journey_id):
     vj = get_object_or_404(VehicleJourney, id=vehicle_journey_id)
@@ -122,21 +99,21 @@ class ServiceDetailView(DetailView):
                     for row in grouping.rows:
                         row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
 
+        if not context.get('timetables'):
+            context['stopusages'] = self.object.stopusage_set.all().select_related(
+                'stop__locality'
+            ).defer('stop__osm', 'stop__locality__latlong').order_by('direction', 'order')
+            context['has_minor_stops'] = any(s.timing_status == 'OTH' for s in context['stopusages'])
+        else:
+            stops_dict = {stop.pk: stop for stop in self.object.stops.all().select_related(
+                'locality').defer('osm', 'latlong', 'locality__latlong')}
+            for table in context['timetables']:
+                table.groupings = [grouping for grouping in table.groupings if grouping.rows and grouping.rows[0].times]
+                for grouping in table.groupings:
+                    grouping.rows = [row for row in grouping.rows if any(row.times)]
+                    for row in grouping.rows:
+                        row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
 
-        # if not context.get('timetables'):
-        #     context['stopusages'] = self.object.stopusage_set.all().select_related(
-        #         'stop__locality'
-        #     ).defer('stop__osm', 'stop__locality__latlong').order_by('direction', 'order')
-        #     context['has_minor_stops'] = any(s.timing_status == 'OTH' for s in context['stopusages'])
-        # else:
-        #     stops_dict = {stop.pk: stop for stop in self.object.stops.all().select_related(
-        #         'locality').defer('osm', 'latlong', 'locality__latlong')}
-        #     for table in context['timetables']:
-        #         table.groupings = [grouping for grouping in table.groupings if grouping.rows and grouping.rows[0].times]
-        #         for grouping in table.groupings:
-        #             grouping.rows = [row for row in grouping.rows if any(row.times)]
-        #             for row in grouping.rows:
-        #                 row.part.stop.stop = stops_dict.get(row.part.stop.atco_code)
         return context
 
 ## Bus Analysis page
@@ -150,3 +127,32 @@ def rtroute(request):
                   { "rt_token": rt_token,
                     "RTMONITOR_URI": settings.RTMONITOR_URI
     })
+
+
+##############################
+######## DEBUG VIEWS #########
+##############################
+
+# debug view
+def bus_route_map(request, bus_route_id):
+    bus_route = get_object_or_404(Route, id=bus_route_id)
+    return render(request, 'transport/debug/bus_route_map.html', {'bus_route': bus_route})
+
+
+# debug view
+def bus_route_timetable_map(request, journey_id):
+    journey = get_object_or_404(VehicleJourney, id=journey_id)
+    return render(request, 'transport/debug/bus_route_timetable_map.html', {'journey': journey})
+
+
+# debug view
+def route_timetable_map(request, journey_id):
+    journey = get_object_or_404(VehicleJourney, id=journey_id)
+    return render(request, 'transport/debug/route_timetable_map.html', {'journey': journey})
+
+
+# debug view
+def bus_route_timetable(request, bus_route_id):
+    bus_route = get_object_or_404(Route, id=bus_route_id)
+    journeys = VehicleJourney.objects.filter(journey_pattern__route=bus_route).order_by('departure_time')
+    return render(request, 'bus_route_timetable.html', {'bus_route': bus_route, 'journeys': journeys})
