@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+    {% include 'leaflet_snippet.html' %}
+    <script>
+        var route = "";
+        function route_change(bus_route) {
+            route = bus_route;
+            retrieve_busdata();
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+    <script>
+        var map = L.map('map');
+
+        $(document).ready(function() {
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            L.polyline({{ bus_route.get_route_coordinates }}).addTo(map);
+            map.fitBounds({{ bus_route.get_route_coordinates }});
+        });
+
+    </script>
+{% endblock %}
