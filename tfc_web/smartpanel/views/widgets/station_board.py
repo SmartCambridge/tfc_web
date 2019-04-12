@@ -2,6 +2,7 @@ import logging
 from django.core.cache import cache
 from django.shortcuts import render
 from django.conf import settings
+from django.http.response import HttpResponseBadRequest
 import zeep
 import zeep.transports
 import zeep.cache
@@ -27,7 +28,8 @@ def station_board(request, ver=''):
     and render it as a web page
     '''
     station = request.GET.get('station', '')
-    assert station, 'No station code found'
+    if station == '':
+        return HttpResponseBadRequest('Missing station identifier')
     offset = int(request.GET.get('offset', 0))
 
     current_key = "station_board_current!{0}!{1}".format(station, offset)
