@@ -40,5 +40,17 @@ urlpatterns = [
     url(r'^api/', include('transport.api.urls'),),
 
     # Bus Analysis
-    url(r'^rtroute/$', views.rtroute, name='rtroute')
+    url(r'^rtroute/$', views.rtroute, name='rtroute'),
+
+    ##############################
+    ######## DEBUG VIEWS #########
+    ##############################
+
+    # Bus Routes
+    url(r'^debug/route/map/(?P<bus_route_id>.+)/$', views.bus_route_map, name='bus-route-map'),
+
+    # Bus Timetable
+    url(r'^debug/route/timetable/map/bus/(?P<journey_id>.+)/$', views.bus_route_timetable_map, name='bus-route-timetable-map'),
+    url(r'^debug/route/timetable/map/(?P<journey_id>.+)/$', views.route_timetable_map, name='route-timetable-map'),
+    url(r'^debug/route/timetable/(?P<bus_route_id>.+)/$', views.bus_route_timetable, name='bus-route-timetable')
 ]
