@@ -63,7 +63,7 @@ class Command(BaseCommand):
                     with traveline_zip_file.open(filename) as xml_file:
                         content = xmltodict.parse(xml_file)
 
-                        if content['TransXChange']['Services']['Service']['Mode'] in ["bus", "coach"]:
+                        if content['TransXChange']['Services']['Service'].get('Mode') in ["bus", "coach"]:
                             # Operator
                             operator = content['TransXChange']['Operators']['Operator']
                             bus_operator, created = Operator.objects.get_or_create(
@@ -79,7 +79,7 @@ class Command(BaseCommand):
                                 line_name=service['Lines']['Line']['LineName'],
                                 area=tnds_zone,
                                 filename=content['TransXChange']['@FileName'],
-                                description=service['Description'],
+                                description=service.get('Description', ''),
                                 operator=bus_operator,
                                 standard_origin=service['StandardService']['Origin'],
                                 standard_destination=service['StandardService']['Destination'],
