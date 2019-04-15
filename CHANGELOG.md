@@ -1,3 +1,88 @@
+## Release 13 Bugfix 1 (2019-04-15)
+
+* Fix syntax error in tfc_web/transport/views.py
+
+## Release 13 (2019-04-15)
+
+# User visible changes
+
+* Rework station_board view to better cope with errors and reuse the last successfully retrieved data if the upstream data source fails
+
+# Non user visible changes
+
+* Fix obscure bug in the RSS SmartPanel widget which could cause the widget to crash
+
+* Work around problems when more than one TNDS data file contains information for the same bus line
+
+* Move various 'debug' views of bus route information into a separate 'debug' namespace, and fix them to return 404 Not Found when an object isn't found rather than throwing an error
+
+## Release 12 Bugfix 1 (2019-03-27)
+
+* Update aq, transport and parking views to return 404 Not Found rather than Internal Server Error if the sensor, zone or car park id doesn't exist
+
+* Add custom email format for exception reports
+
+* Fix redundant reference to 'title' in RSS widget error handling
+
+* Add pre-defined Pocket SmartPanel configurations for bus stops at Shire Hall
+
+## Release 12 (2019-03-06)
+
+# User visible changes
+
+* Bus Stop web view now uses smartpanel bus stop widget and bus timetable widget.
+
+* New Cambridge Sensor Network 2.0:
+  + Applications are now Connections. This is where the user receives the data that their sensors produce.
+  + Users now have to submit the APP_EUI field that they are using in their devices.
+  + New UI for adding Devices/Sensors to Connections
+  + Email to user when their new Connection has been approved by administrators.
+
+# Non user visible changes
+
+* Updated sockjs to use 1.3.0
+
+* Adjust default height/width of the SmartPanel 'iframe' display so more content will display correctly
+
+* Stop using Errorception to log Javascript errors in the Pocket Smartpanel
+
+* Cambridge Sensor Network 2.0
+  - New APIs for Everynet
+  - Autocreation of Filters when a new Connection is configured.
+  - Autoupdate of Filters when new sensors/devices are added or removed to a Connection.
+  - New admin section linking devices and connections to the Everynet portal
+  - New management workflow for processes where there is no corresponding API in the Everynet portal API.
+  - Simplified database, tfcserver is no longer user
+  - Simplified code, tfcserver API (and the corresponding Everynet vertex) is no longer used.
+
+## Release 11 (2019-02-04)
+
+User facing changes
+---------------------
+
+* Rework the query in the stops API endpoint to work significantly faster
+
+* Increase the maximum number of pages to return in the stops API endpoint from default 25, max 50 to default 250, max 500
+
+* Change the bus stop chooser used in SmartPanel configuration to show bus stops as clusters at low zoom levels to stop the interface slowing down due to handling too many markers
+
+* Replace the non-functioning bus stop list at /transport/stops with a map based on the bus stop chooser
+
+* Fix a bug that prevented the configuration of CSN destinations from updating when they were changed on the web site
+
+* Fix a bug that prevented CSN devices with DevEUIs using upper case letters from being deleted
+
+* Fix a bus that prevented OTAA activation from working
+
+Others
+-------
+
+* Remove unused transport area endpoints
+
+* Simplify JavaScript library dependancy management for SmartPanel widgets and prevent loading of duplicate libraries
+
+* Correct the location of the bus_stop template
+
 ## Release 10 (2019-01-18)
 
 User facing changes
