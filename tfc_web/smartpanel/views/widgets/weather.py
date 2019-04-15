@@ -9,6 +9,7 @@ import sys
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import render
+from django.http.response import HttpResponseBadRequest
 
 
 logger = logging.getLogger(__name__)
@@ -266,7 +267,8 @@ def weather(request, ver=''):
     and render it for inclusion in a widgit
     '''
     location = request.GET.get('location', '')
-    assert location, 'No location code found'
+    if location == '':
+        return HttpResponseBadRequest('Missing location code')
 
     forecasts = get_forecast_list(forecast_breakpoints)
 
