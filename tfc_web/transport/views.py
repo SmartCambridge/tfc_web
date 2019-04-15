@@ -98,12 +98,11 @@ class ServiceDetailView(DetailView):
             raise AttributeError("Generic detail view %s must be called with "
                                  "either an object pk or a slug."
                                  % self.__class__.__name__)
-        try:
-            # Get the single item from the filtered queryset
-            obj = queryset.first()
-            if obj is None:
-                raise Http404(_("No %(verbose_name)s found matching the query") % 
-                              {'verbose_name': queryset.model._meta.verbose_name})
+        # Get the single item from the filtered queryset
+        obj = queryset.first()
+        if obj is None:
+            raise Http404(_("No %(verbose_name)s found matching the query") % 
+                          {'verbose_name': queryset.model._meta.verbose_name})
         return obj
 
     def get_context_data(self, **kwargs):
