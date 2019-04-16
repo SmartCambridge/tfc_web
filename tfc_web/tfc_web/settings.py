@@ -286,15 +286,12 @@ LOGGING = {
         }
     },
     'loggers': {
-        #'django': {
-        #    'handlers': ['console'],
-        #    #'level': 'INFO',
+        # Moved to settings_production
+        #'django.request': {
+        #    'handlers': ['mail_admins'],
+        #    'level': 'ERROR',
+        #    'propagate': False,
         #},
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
     },
     'root': {
         'handlers': ['console'],
