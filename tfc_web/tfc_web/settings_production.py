@@ -7,3 +7,9 @@ EMAIL_HOST = "ppsw.cam.ac.uk"
 EMAIL_PORT = 25
 
 CSN_PREFIX = 'prod'
+
+LOGGING['loggers']['django.request'] = {
+    'handlers': ['mail_admins'],
+    'level': 'ERROR',
+    'propagate': False,
+    }
