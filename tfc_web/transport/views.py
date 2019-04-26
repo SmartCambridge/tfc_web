@@ -102,7 +102,7 @@ class ServiceDetailView(DetailView):
         # Get the single item from the filtered queryset
         obj = queryset.first()
         if obj is None:
-            raise Http404(("No %(verbose_name)s found matching the query") %
+            raise Http404("No %(verbose_name)s found matching the query" %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
 
