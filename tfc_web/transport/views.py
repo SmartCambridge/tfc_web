@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta, timezone
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
@@ -101,7 +102,7 @@ class ServiceDetailView(DetailView):
         # Get the single item from the filtered queryset
         obj = queryset.first()
         if obj is None:
-            raise Http404(_("No %(verbose_name)s found matching the query") % 
+            raise Http404("No %(verbose_name)s found matching the query" %
                           {'verbose_name': queryset.model._meta.verbose_name})
         return obj
 
