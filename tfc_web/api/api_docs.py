@@ -49,6 +49,43 @@ zone_id_fields = [
     ),
 ]
 
+app_id_fields = [
+    coreapi.Field(
+        "app_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="TTN application id (e.g. 'cambridge-sensor-network')"),
+        description="TTN application id (e.g. 'cambridge-sensor-network')",
+        example="cambridge-sensor-network",
+    ),
+]
+
+dev_eui_path_fields = [
+    coreapi.Field(
+        "dev_eui",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Device hardware address' (e.g. '763A53FFB342FBD8')"),
+        description="Device hardware address' (e.g. '763A53FFB342FBD8')",
+        example="763A53FFB342FBD8",
+    )
+]
+
+dev_eui_query_fields = [
+    coreapi.Field(
+        "dev_eui",
+        required=False,
+        location="query",
+        schema=coreschema.String(
+            description="Device hardware address' (e.g. '763A53FFB342FBD8'). " +
+            "Optional - if omitted data for all devices is returned."),
+        description="Device hardware address' (e.g. '763A53FFB342FBD8')",
+        example="763A53FFB342FBD8",
+    )
+]
+
 aq_history_fields = [
     coreapi.Field(
         "station_id",

@@ -1,18 +1,16 @@
 from datetime import datetime, timezone
 from django.conf import settings
-from django.http import Http404
+from pathlib import Path
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
 from rest_framework import status, serializers
 from rest_framework.exceptions import APIException
+
 import codecs
 import json
 import logging
-import os
-
 
 # Path to the data store
-DATA_PATH = settings.DATA_PATH
+DATA_PATH = Path(settings.DATA_PATH)
 
 
 logger = logging.getLogger(__name__)
@@ -39,6 +37,7 @@ class ListArgsSerializer(serializers.Serializer):
     ''' Common query string parameters '''
     start_date = serializers.DateField(input_formats=['%Y-%m-%d'])
     end_date = serializers.DateField(input_formats=['%Y-%m-%d'], required=False)
+    dev_eui = serializers.CharField(required=False)
 
     def validate(self, data):
         ''' Check that end date isn't more than MAX_DAYS days from start_date '''
@@ -57,16 +56,18 @@ class ListArgsSerializer(serializers.Serializer):
 
 def safe_build(path):
     '''
-    Build a pathname from DATA_PATH and path, checking that the
-    result is still somewhere within DATA_PATH, allowing for directory
-    traversal attempts and symlinks pointing outside DATA_PATH
+    Build a pathname from DATA_PATH and path, checking that none of the
+    components of the result are '..' to prevent directory traversal
+    attempts. A better approach would be to use Path.resolve(), except
+    that resolves symlinks and we rely on them for correct operation.
     '''
-    result = os.path.normpath(os.path.join(DATA_PATH, path))
-    if result.startswith(os.path.join(DATA_PATH, '')):
-        return result
-    logger.error("Requested file outside DATA_PATH: path '{0}', result '{1}'"
-                 .format(path, result))
-    raise TFCValidationError()
+    result = DATA_PATH.joinpath(path)
+    for component in result.parts:
+        if component == '..':
+            logger.error(
+                "Requested file path contains '..': '{0}'".format(result))
+            raise TFCValidationError()
+    return result
 
 
 def read_json(path):
@@ -74,15 +75,15 @@ def read_json(path):
     Read a file containing well-formed JSON, parse it and
     return the result
     '''
+    file = safe_build(path)
     try:
-        filename = safe_build(path)
-        with open(filename) as f:
+        with file.open() as f:
             return json.load(f)
     except json.JSONDecodeError:
-        logger.error("Failed to parse '{0}'".format(filename))
+        logger.error("Failed to parse '{0}'".format(file))
         raise
     except FileNotFoundError:
-        logger.info("Failed to open '{0}'".format(filename))
+        logger.info("Failed to open '{0}'".format(file))
         raise
 
 
@@ -92,19 +93,37 @@ def read_json_fragments(path):
     JSON, parse those lines and return the result as an array
     '''
     results = []
+    file = safe_build(path)
     try:
-        filename = safe_build(path)
-        with open(filename) as f:
+        with file.open() as f:
             for line in f:
                 results.append(json.loads(line))
     except json.JSONDecodeError:
         logger.error("Failed to parse '{0}' from '{1}'"
-                     .format(line, filename))
+                     .format(line, file))
         raise
     except FileNotFoundError:
-        logger.info("Failed to open '{0}'".format(filename))
+        logger.info("Failed to open '{0}'".format(file))
         raise
     return results
+
+
+def get_dir_items(path, is_dir=False, suffix=None):
+    '''
+    Return a list of items represented by the names of files or directories
+    in _path_. Require the directory entries to be files, unless _is_dir_
+    is true, in which case require them to be directories. If _suffix_
+    is not None then require that the directory entries end in _suffix_
+    and remove it from the returned names
+    '''
+    result = []
+    for f in safe_build(path).iterdir():
+        if (f.is_file() and is_dir) or (f.is_dir() and not is_dir):
+            continue
+        if suffix and f.suffix != suffix:
+            continue
+        result.append(f.stem)
+    return result
 
 
 def get_config(type, id=None, key=None, id_field_name=None):
@@ -140,9 +159,7 @@ def do_api_call(query):
     '''
     Helper function for authenticated access to the API
     '''
-    logger.debug('Query: %s', query)
     reader = codecs.getreader("utf-8")
     query = Request(settings.NEW_API_ENDPOINT + query)
     query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
-    return  json.load(reader(urlopen(query)))
-
+    return json.load(reader(urlopen(query)))

@@ -1,0 +1,12 @@
+/api/v1/csn/                <-- Lists applications
+
+/api/v1/csn/{application}   <-- Lists application metadata, incl dev_ids
+
+/api/v1/csn/history/{application} ? start=yyyy-mm-dd & end=yyyy-mm-dd
+                            <-- All data for all devices
+
+/api/v1/csn/history/{application}/{dev_id} ? start=yyyy-mm-dd & end=yyyy-mm-dd
+                            <-- All data for selected device
+
+api/v1/csn/latest/{application}/{dev_id}
+                            <-- latest data for selected device

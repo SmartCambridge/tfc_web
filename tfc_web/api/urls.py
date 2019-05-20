@@ -20,6 +20,7 @@ docpatterns = [
      url(r'^api/v1/aq/', include('aq.api.urls')),
      # Import transport views previously servedunder /transport/api/
      url(r'^api/v1/transport/', include('transport.api.urls')),
+     url(r'^api/v1/csn/', include('csn.api.urls')),
      ]
 
 # These are all the URLs. The near-duplication of the URLs above
@@ -51,4 +52,5 @@ urlpatterns = [
     url(r'^v1/aq/', include('aq.api.urls')),
     # Import transport views previously served under /transport/api/
     url(r'^v1/transport/', include('transport.api.urls')),
+    url(r'^v1/csn/', include('csn.api.urls')),
     ]
