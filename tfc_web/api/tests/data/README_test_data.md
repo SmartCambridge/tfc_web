@@ -21,5 +21,11 @@ Only a very limited sub-set of data is available:
         some time on 2018-06-19</dd>
     <dt>Zones</dt>
     <dd>Data for 2018-01-02 and 2018-09-01 (the latter including 
-    'distance' and 'avg_speed' fields)</dd>
+        'distance' and 'avg_speed' fields)</dd>
+    <dt>TTN CSN</dt>
+    <dd>Data for 2019-05-20 for the application cambridge-sensor-network
+        and for devices 0000000000000000, 70B3D5A9F001BDDF, 70B3D5A9F001BDE7,
+        763A53FFB342FBD8, 90DFFB81871882AE, 90DFFB8187188416, 90DFFB818718A037,
+        A81758FFFE0366B0, and a single 'latest' data packet for application
+        cambridge-sensor-network and device 763A53FFB342FBD8
 </dl>
