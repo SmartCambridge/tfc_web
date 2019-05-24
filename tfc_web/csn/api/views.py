@@ -11,12 +11,15 @@ from rest_framework.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
+FILES_ROOT = 'csn_ttn' # Cambridge Sensor Network data root
+FILES_BIN_PATH = 'data_bin_json' # sub-dir for data files /app-name/YYYY/MM/DD
+FILES_MONITOR_PATH = 'data_monitor_json' # sub-dir for data 'monitor' files, i.e. latest
 
 def get_app_list():
     '''
     Return all available application_ids
     '''
-    path = Path('csn_ttn', 'data_bin')
+    path = Path(FILES_ROOT, FILES_BIN_PATH)
     return util.get_dir_items(path, is_dir=True)
 
 
@@ -27,7 +30,7 @@ def get_dev_list(app_id):
     app_ids = get_app_list()
     if app_id not in app_ids:
         raise NotFound("No application '{0}'".format(app_id))
-    path = Path('csn_ttn', 'data_bin', app_id, 'devices')
+    path = Path(FILES_ROOT, FILES_BIN_PATH, app_id, 'devices')
     return util.get_dir_items(path, suffix='.json')
 
 
@@ -42,7 +45,7 @@ def get_app_monitor(app_id, dev_eui, suffix=''):
     if dev_eui not in dev_euis:
         raise NotFound("No device '{0}' in application '{1}'".format(dev_eui, app_id))
 
-    path = Path('csn_ttn', 'data_monitor', app_id, dev_eui + '.json' + suffix)
+    path = Path(FILES_ROOT, FILES_MONITOR_PATH, app_id, dev_eui + '.json' + suffix)
     try:
         return util.read_json(path)
     except FileNotFoundError:
@@ -128,7 +131,7 @@ class AppHistory(auth.AuthenticateddAPIView):
         results = []
         for date in (start_date + timedelta(n) for n in range(day_count)):
 
-            path = Path('csn_ttn', 'data_bin', app_id,
+            path = Path(FILES_ROOT, FILES_BIN_PATH, app_id,
                         date.strftime('%Y'),
                         date.strftime('%m'),
                         date.strftime('%d'))
