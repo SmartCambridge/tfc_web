@@ -123,6 +123,24 @@ var DD = {{config_DD}};     // day e.g. 23
 
 var parking_config = JSON.parse('{{ config_parking_config|escapejs }}');
 
+try {
+    // **********************************************************************************
+    // **********  Here is where we load the parking plot data    ***********************
+    // **********************************************************************************
+    var json_data = JSON.parse("{{ config_parking_data|escapejs }}");
+    // **********************************************************************************
+    // **********************************************************************************
+    // **********************************************************************************
+    if (!json_data)
+    {
+        console.log('no parking data received');
+    }
+} catch(err) {
+    console.log('error parsing config_parking_data '+err);
+    rita_data = new Array();
+}
+
+
 var YYYYMMDD = '{{config_YYYY}}/{{config_MM}}/{{config_DD}}';
 //********************************************************************************
 //********************************************************************************
@@ -211,13 +229,15 @@ function init()
 
     heading_date.textContent = day_of_week[plot_date.getDay()] + " " + DD + " " + month_of_year[MM] + " " + YYYY;
 
-    // get max occupancy for this car park from parking_config and adjust CHART_Y_MAX
-    try {
-          parking_capacity = parking_config.request_data.capacity;
-          console.log('Capacity of this car park is: '+parking_capacity);
-          CHART_Y_MAX = (1.2 * parking_capacity);
-          document.getElementById('parking_capacity').innerHTML = "(max "+parking_capacity+")";
-    } catch (err) {
+    // get max occupancy for this car park from the final occupancy record
+    // for the day the graph is being drawn
+
+    if (json_data && json_data[0].request_data.length > 0) {
+      final_record = json_data[0].request_data[json_data[0].request_data.length-1]
+      parking_capacity = final_record.spaces_capacity
+      console.log('Capacity of this car park is: '+parking_capacity);
+      CHART_Y_MAX = (1.2 * parking_capacity);
+      document.getElementById('parking_capacity').innerHTML = "(max "+parking_capacity+")";
     }
 
     // ******************************************************
@@ -231,41 +251,28 @@ function init()
 
     // Initialize data structure to hold parking occupancy messages inserted by server
     // And call draw_chart for each day's data
-    try {
-        // **********************************************************************************
-        // **********  Here is where we load the parking plot data    ***********************
-        // **********************************************************************************
-        var json_data = JSON.parse("{{ config_parking_data|escapejs }}");
-        // **********************************************************************************
-        // **********************************************************************************
-        // **********************************************************************************
-        if (!json_data)
-        {
-            console.log('no parking data received');
-        }
-        else
-        {
-            console.log('Rendering '+json_data.length+' days of data');
 
-            // note we draw requested day's data last so it is on top...
-            for (i=json_data.length-1;i>=0;i--)
+
+
+    if (json_data) 
+    {
+        console.log('Rendering '+json_data.length+' days of data');
+
+        // note we draw requested day's data last so it is on top...
+        for (i=json_data.length-1;i>=0;i--)
+        {
+            rita_data = json_data[i].request_data;
+            console.log('Day '+i+': Received '+rita_data.length+' records');
+
+            if (rita_data.length > 0)
             {
-                rita_data = json_data[i].request_data;
-                console.log('Day '+i+': Received '+rita_data.length+' records');
+              console.log('Day '+i+': init calling draw_chart()');
 
-                if (rita_data.length > 0)
-                {
-                  console.log('Day '+i+': init calling draw_chart()');
-
-                  // draw chart with the data embedded by the template into rita_data
-                  draw_chart(rita_data, i);
-                }
-                console.log('Day '+i+': rita_data.length is '+rita_data.length);
+              // draw chart with the data embedded by the template into rita_data
+              draw_chart(rita_data, i);
             }
+            console.log('Day '+i+': rita_data.length is '+rita_data.length);
         }
-    } catch(err) {
-        console.log('error parsing config_parking_data '+err);
-        rita_data = new Array();
     }
 
 }

@@ -24,7 +24,6 @@ def get_parking_metadata(parking_id):
 
     data = do_api_call('/api/v1/parking/' + parking_id)
     # Fix for change between old and new API field names
-    data['capacity'] = data['spaces_capacity']
     return {'request_data': data}
 
 

@@ -32,7 +32,6 @@ class ParkingConfigSerializer(serializers.Serializer):
     parking_id = serializers.CharField()
     parking_name = serializers.CharField()
     parking_type = serializers.CharField()
-    spaces_capacity = serializers.IntegerField(source='capacity')
 
 
 class ParkingListSerializer(serializers.Serializer):
