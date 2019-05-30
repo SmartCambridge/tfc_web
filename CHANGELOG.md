@@ -1,3 +1,27 @@
+## Release 15 (2019-05-30)
+
+# User visible changes
+
+* [#320] Rework the car park capacity indication on the car park graphs to cope with capacity changes over time; drop spaces_capacity from car park metadata returned by the API because returning a single value is misleading.
+
+# Non user visible changes
+
+* [#318] Upgrade django-rest-framework to at least 3.9.1 and Django to at least 1.11.6
+
+## Release 14 Bugfix 1 (2019-05-13)
+
+Add selected camera icons
+
+## Release 14 (2019-05-06)
+
+Added a new traffic flow tool to analyse traffic flows across Cambridge using data from the ANPR cameras.
+
+## Release 13 Bugfix 2 (2019-04-17)
+
+* Fix issue #309 that caused all the links on https://smartcambridge.org/transport/lines/ to fail
+
+* Update logging configuration not to send email notification of errors from development machines
+
 ## Release 13 Bugfix 1 (2019-04-15)
 
 * Fix syntax error in tfc_web/transport/views.py
