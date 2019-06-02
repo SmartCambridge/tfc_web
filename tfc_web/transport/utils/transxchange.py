@@ -202,23 +202,6 @@ class Row(object):
         self.next = row
 
 
-class Cell(object):
-    """Represents a special cell in a timetable, spanning multiple rows and columns,
-    with some text like 'then every 5 minutes until'.
-    """
-    def __init__(self, colspan, rowspan, duration):
-        self.colspan = colspan
-        self.rowspan = rowspan
-        self.duration = duration
-
-    def __str__(self):
-        if self.duration.seconds == 3600:
-            return 'then hourly until'
-        if self.duration.seconds % 3600 == 0:
-            return 'then every %d hours until' % (self.duration.seconds / 3600)
-        return 'then every %d minutes until' % (self.duration.seconds / 60)
-
-
 class Grouping(object):
     """Probably either 'outbound' or 'inbound'.
     (Could perhaps be extended to group by weekends, bank holidays in the future).
@@ -250,9 +233,6 @@ class Grouping(object):
             return
 
         prev_journey = None
-        in_a_row = 0
-        prev_difference = None
-        difference = None
         for i, journey in enumerate(self.journeys):
             for key in journey.notes:
                 if key in self.column_feet:
@@ -271,31 +251,8 @@ class Grouping(object):
                         self.column_feet[key][-1].span += 1
                     else:
                         self.column_feet[key].append(ColumnFoot(None, 1))
-
-            if prev_journey:
-                if prev_journey.notes != journey.notes:
-                    if in_a_row > 1:
-                        abbreviate(self, i, in_a_row - 1, prev_difference)
-                    in_a_row = 0
-                elif prev_journey.journeypattern.id == journey.journeypattern.id:
-                    difference = time_between(journey.departure_time, prev_journey.departure_time)
-                    if difference == prev_difference:
-                        in_a_row += 1
-                    else:
-                        if in_a_row > 1:
-                            abbreviate(self, i, in_a_row - 1, prev_difference)
-                        in_a_row = 0
-                else:
-                    if in_a_row > 1:
-                        abbreviate(self, i, in_a_row - 1, prev_difference)
-                    in_a_row = 0
-
-            prev_difference = difference
-            difference = None
             prev_journey = journey
 
-        if in_a_row > 1:
-            abbreviate(self, len(self.journeys), in_a_row - 1, prev_difference)
         for row in self.rows:
             row.times = [time for time in row.times if time is not None]
 
@@ -930,19 +887,6 @@ class Timetable(object):
                     previous_row.times[0] = row.times[0]
                     previous_row.times[1] = row.times[1]
                 previous_row = row
-
-
-def abbreviate(grouping, i, in_a_row, difference):
-    """Given a Grouping, and a timedetlta, modify each row and..."""
-    seconds = difference.total_seconds()
-    if not seconds or 3600 % seconds and seconds % 3600:  # not a factor or multiple of 1 hour
-        return
-    grouping.rows[0].times[i - in_a_row - 2] = Cell(in_a_row + 1, len(grouping.rows), difference)
-    for j in range(i - in_a_row - 1, i - 1):
-        grouping.rows[0].times[j] = None
-    for j in range(i - in_a_row - 2, i - 1):
-        for row in grouping.rows[1:]:
-            row.times[j] = None
 
 
 def timetable_from_filename(path, filename, day):
