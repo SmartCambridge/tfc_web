@@ -26,11 +26,20 @@ class Trip(models.Model):
 
 
 class TripChain(models.Model):
-    camera_id = models.CharField(db_index=True, max_length=10)
-    entry_time = models.DateTimeField(db_index=True)
+    camera_id = models.CharField(max_length=10)
+    entry_time = models.DateTimeField()
     vehicle_class = models.CharField(max_length=100)
     total_trip_time = models.DurationField()
     # The whole chain of movements
-    chain_vector = models.CharField(db_index=True, max_length=600)
+    chain_vector = models.CharField(max_length=600)
     # Chain vector with time (does not include initial camera)
-    chain_vector_time = models.CharField(db_index=True, max_length=600)
+    chain_vector_time = models.CharField(max_length=600)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['camera_id', 'entry_time', 'total_trip_time', 'chain_vector']),
+            models.Index(fields=['camera_id']),
+            models.Index(fields=['entry_time']),
+            models.Index(fields=['chain_vector']),
+            models.Index(fields=['chain_vector_time']),
+        ]
