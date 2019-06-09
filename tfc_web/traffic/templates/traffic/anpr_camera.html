@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{% static 'map.css' %}" />
     <script src="{% static 'js/nouislider.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'nouislider.min.css' %}" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 {% endblock %}
 {% block content %}
     <div style="height: 80vh;">
@@ -17,7 +18,10 @@
             from different cameras are shown.</p>
             <div id="slider-date" class="noUi-target noUi-ltr noUi-horizontal" style="margin: 10px 50px"></div>
         </div>
-        <div id="map" style="height: 80%; width: 100%;"></div>
+        <div id="map" style="height: 40%; width: 100%;"></div>
+        <div id="chart" style="height: 40%; width: 100%;">
+            <svg></svg>
+        </div>
     </div>
     <script>
         var map = L.map('map').setView({{ mapcenter|default:"[52.205, 0.119], 13" }});
@@ -26,6 +30,7 @@
         var dateSlider;
         var trips = JSON.parse('{{ trips|safe }}');
         var stats = JSON.parse('{{ stats|safe }}');
+        var total_stats = JSON.parse('{{ total_stats|safe }}');
         var trip_convinations = {};
         var camera_origin_selected;
         var camera_destination_selected;
@@ -35,6 +40,7 @@
                 "lng": "{{ camera.lng }}"
             },
         {% endfor %}};
+        var current_time = timestamp('2017-06-11 08:00 GMT');
 
         info_map.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control'); // create a div with a class "info"
@@ -61,6 +67,41 @@
             iconUrl: '{% static 'images/camera_destination_selected.png' %}',
             iconSize: [30, 30]
         });
+
+        /************* This is the code of the stats graph *****************/
+        function statsdata() {
+            var statsdata = [];
+            var i;
+            if (stats.length !== 0) {
+                statsdata.push(['Date and Time', 'Traffic from all cameras', 'Traffic from selected camera']);
+                for (i = 0; i < total_stats.length; i++) {
+                    statsdata.push([new Date(total_stats[i].time), total_stats[i].num, stats[i].num]);
+                }
+            } else {
+                statsdata.push(['Date and Time', 'Traffic from all cameras']);
+                for (i = 0; i < total_stats.length; i++) {
+                    statsdata.push([new Date(total_stats[i].time), total_stats[i].num]);
+                }
+
+            }
+            return statsdata;
+        }
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable(statsdata());
+            var options = {
+                title: 'Traffic on ' + new Date(current_time * 1000).toDateString(),
+                curveType: 'function',
+                legend: { position: 'bottom' },
+                vAxis: { minValue: 0 }
+            };
+            var chart = new google.visualization.LineChart(document.getElementById('chart'));
+            chart.draw(data, options);
+        }
+        /******* This is the END of the stats code for the graph **********/
 
         function clearMap() {
             var i;
@@ -147,10 +188,10 @@
                 camera_origin_selected = e.target;
                 camera_origin_selected.setIcon(cameraOriginSelectedIcon);
             }
-            drawFlow();
+            retrieve_flowdata();
         }
 
-        function retrieve_flowdata(start_time) {
+        function retrieve_flowdata() {
             var camera_origin_id = camera_origin_selected && camera_origin_selected.options &&
                 camera_origin_selected.options.cameraid || "";
             var camera_destination_id = camera_destination_selected && camera_destination_selected.options &&
@@ -161,7 +202,7 @@
             if (camera_origin_id !== "") {
                 camera_origin_id = "&camera_origin_id=" + camera_origin_id;
             }
-            var url = '{% url 'anpr_map_json' %}?datetime=' + start_time.toString() + camera_origin_id +
+            var url = '{% url 'anpr_map_json' %}?datetime=' + current_time.toString() + camera_origin_id +
                 camera_destination_id;
             $.ajax({
                 url: url,
@@ -172,8 +213,10 @@
                 complete: function (data) {
                     dateSlider.removeAttribute('disabled');
                     trips = JSON.parse(data.responseText)['trips'];
+                    stats = JSON.parse(data.responseText)['stats'];
+                    total_stats = JSON.parse(data.responseText)['total_stats'];
                     drawFlow();
-                    {#console.log(trips);#}
+                    drawChart();
                 }
             });
         }
@@ -221,10 +264,12 @@
             });
 
             dateSlider.noUiSlider.on('set', function (values, handle) {
-                {#console.log(values);#}
-                retrieve_flowdata(timestamp(values[0]));
+                current_time = timestamp(values[0]);
+                retrieve_flowdata();
             });
             /************* This is the END of the date slider code **************/
+
+            drawChart();
         });
     </script>
 {% endblock %}

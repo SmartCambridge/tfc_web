@@ -29,9 +29,9 @@ def anpr_map(request, return_format='html'):
                                        total_trip_time__lt=timedelta(hours=3))
 
     if camera_origin_id:
-        trips_m.filter(camera_id=camera_origin_id)
+        trips_m = trips_m.filter(camera_id=camera_origin_id)
     if camera_destination_id:
-        trips_m.filter(chain_vector__regex=r'^(_[A-Za-z]+>)*'+camera_destination_id+'(_[A-Za-z]+)?$')
+        trips_m = trips_m.filter(chain_vector__regex=r'^(_[A-Za-z]+>)*'+camera_destination_id+'(_[A-Za-z]+)?$')
 
     trips = []
     for trip_m in trips_m:
@@ -44,29 +44,37 @@ def anpr_map(request, return_format='html'):
     day = start_time.date()
     start_time_stats = datetime.combine(day, datetime.min.time())
     stats = []
+    total_stats = []
     for i in range(0,23):
         # Discard all trips that took longer than 3 hours as these are very likely round trips.
         trips_m = TripChain.objects.filter(entry_time__range=(start_time_stats, start_time_stats + timedelta(hours=1)))
-        if camera_origin_id:
-            trips_m.filter(camera_id=camera_origin_id)
-        if camera_destination_id:
-            trips_m.filter(chain_vector__regex=r'^(_[A-Za-z]+>)*'+camera_destination_id+'(_[A-Za-z]+)?$')
-        stats.append({
+        total_stats.append({
             "time": start_time_stats,
             "num": trips_m.count()
         })
+        if camera_origin_id:
+            trips_m = trips_m.filter(camera_id=camera_origin_id)
+        if camera_destination_id:
+            trips_m = trips_m.filter(chain_vector__regex=r'^(_[A-Za-z]+>)*'+camera_destination_id+'(_[A-Za-z]+)?$')
+        if camera_origin_id:
+            stats.append({
+                "time": start_time_stats,
+                "num": trips_m.count()
+            })
         start_time_stats += timedelta(hours=1)
 
     if return_format == 'html':
         return render(request, 'traffic/anpr_camera.html', {
             'cameras': ANPRCamera.objects.all(),
             'trips': json.dumps(trips, cls=DjangoJSONEncoder),
-            'stats': json.dumps(stats, cls=DjangoJSONEncoder)
+            'stats': json.dumps(stats, cls=DjangoJSONEncoder),
+            'total_stats': json.dumps(total_stats, cls=DjangoJSONEncoder)
         })
     elif return_format == 'json':
         return JsonResponse({
             'trips': trips,
-            'stats': stats
+            'stats': stats,
+            'total_stats': total_stats
         })
     else:
         raise Exception('Format not supported')
