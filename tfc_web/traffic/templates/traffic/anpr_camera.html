@@ -25,6 +25,7 @@
         var urlparams = new URLSearchParams(window.location.search);
         var dateSlider;
         var trips = JSON.parse('{{ trips|safe }}');
+        var stats = JSON.parse('{{ stats|safe }}');
         var trip_convinations = {};
         var camera_origin_selected;
         var camera_destination_selected;
@@ -150,7 +151,18 @@
         }
 
         function retrieve_flowdata(start_time) {
-            var url = '{% url 'anpr_map_json' %}?datetime=' + start_time.toString();
+            var camera_origin_id = camera_origin_selected && camera_origin_selected.options &&
+                camera_origin_selected.options.cameraid || "";
+            var camera_destination_id = camera_destination_selected && camera_destination_selected.options &&
+                camera_destination_selected.options.cameraid || "";
+            if (camera_destination_id !== "") {
+                camera_destination_id = "&camera_destination_id=" + camera_destination_id;
+            }
+            if (camera_origin_id !== "") {
+                camera_origin_id = "&camera_origin_id=" + camera_origin_id;
+            }
+            var url = '{% url 'anpr_map_json' %}?datetime=' + start_time.toString() + camera_origin_id +
+                camera_destination_id;
             $.ajax({
                 url: url,
                 dataType: 'application/json',
