@@ -11,11 +11,16 @@
     <div style="height: 80vh;">
         <div id="title" style="width: 100%;"><h3 style="margin-left: 20px; margin-bottom: 10px;">Traffic flow</h3></div>
         <div style=" width: 100%;">
-            <p style="margin-bottom: 50px">This map shows the transit flow for each one of the traffic cameras in the map. When a camera is clicked,
-            the map shows all the transit that has as an origin the camera selected and has as a destiantion any other
-            of the cameras shown in the map. The width of the line indicates how much flow there is between cameras.
-            The flow indicate the end to end trip for each one of the vehicles detected, meaning that all detections
-            from different cameras are shown.</p>
+            <p style="margin-bottom: 50px">
+                This map shows the transit flow for each one of the traffic cameras in the map. When a camera is clicked,
+                the map shows all the transit that has as an origin the camera selected and has as a destiantion any other
+                of the cameras shown in the map. The width of the line indicates how much flow there is between cameras.
+                The flow indicate the end to end trip for each one of the vehicles detected, meaning that all detections
+                from different cameras are shown.
+                <img src="{% static 'images/camera.png' %}" style="width: 20px;height: 20px;"> ANPR Camera
+                <img src="{% static 'images/camera_origin_selected.png' %}" style="width: 20px;height: 20px;"> ANPR Origin Camera
+                <img src="{% static 'images/camera_destination_selected.png' %}" style="width: 20px;height: 20px;"> ANPR Destination Camera
+            </p>
             <div id="slider-date" class="noUi-target noUi-ltr noUi-horizontal" style="margin: 10px 50px"></div>
         </div>
         <div id="map" style="height: 40%; width: 100%;"></div>
@@ -55,17 +60,17 @@
 
         var cameraIcon = L.icon({
             iconUrl: '{% static 'images/camera.png' %}',
-            iconSize: [30, 30]
+            iconSize: [20, 20]
         });
 
         var cameraOriginSelectedIcon = L.icon({
             iconUrl: '{% static 'images/camera_origin_selected.png' %}',
-            iconSize: [30, 30]
+            iconSize: [20, 20]
         });
 
         var cameraDestinationSelectedIcon = L.icon({
             iconUrl: '{% static 'images/camera_destination_selected.png' %}',
-            iconSize: [30, 30]
+            iconSize: [20, 20]
         });
 
         /************* This is the code of the stats graph *****************/
@@ -101,7 +106,7 @@
                 title: 'Traffic on ' + new Date(current_time * 1000).toDateString(),
                 curveType: 'function',
                 legend: { position: 'bottom' },
-                vAxis: { minValue: 0 }
+                vAxis: { minValue: 0, scaleType: 'mirrorLog' }
             };
             var chart = new google.visualization.LineChart(document.getElementById('chart'));
             chart.draw(data, options);
