@@ -73,7 +73,12 @@
             var statsdata = [];
             var i;
             if (stats.length !== 0) {
-                statsdata.push(['Date and Time', 'Traffic from all cameras', 'Traffic from selected camera']);
+                var legend_text;
+                if (camera_destination_selected !== undefined)
+                    legend_text = 'Traffic between selected cameras';
+                else
+                    legend_text = 'Traffic from selected camera';
+                statsdata.push(['Date and Time', 'Traffic from all cameras', legend_text]);
                 for (i = 0; i < total_stats.length; i++) {
                     statsdata.push([new Date(total_stats[i].time), total_stats[i].num, stats[i].num]);
                 }
