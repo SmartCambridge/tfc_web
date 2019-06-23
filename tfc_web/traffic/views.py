@@ -28,10 +28,14 @@ def anpr_map(request, return_format='html'):
     trips_m = TripChain.objects.filter(entry_time__range=(start_time, start_time + timedelta(hours=1)),
                                        total_trip_time__lt=timedelta(hours=3))
 
-    if camera_origin_id:
-        trips_m = trips_m.filter(camera_id=camera_origin_id)
-    if camera_destination_id:
-        trips_m = trips_m.filter(chain_vector__regex=r'^(_[A-Za-z]+>)*'+camera_destination_id+'(_[A-Za-z]+)?$')
+    if camera_origin_id and camera_destination_id:
+        trips_m = trips_m.filter(
+            chain_vector__regex=r'^([A-Za-z0-9]+(_[A-Za-z]+)?>)*' + camera_origin_id +
+                                '(_[A-Za-z]+)?>?([A-Za-z0-9]+(_[A-Za-z]+)?>)*' + camera_destination_id +
+                                '(_[A-Za-z]+)?(>[A-Za-z0-9]+(_[A-Za-z]+)?)*$')
+    elif camera_origin_id:
+        trips_m = trips_m.filter(chain_vector__regex=r'^([A-Za-z0-9]+(_[A-Za-z]+)?>)*' + camera_origin_id +
+                                                     '(_[A-Za-z]+)?(>[A-Za-z0-9]+(_[A-Za-z]+)?)*$')
 
     trips = []
     for trip_m in trips_m:
@@ -45,17 +49,21 @@ def anpr_map(request, return_format='html'):
     start_time_stats = datetime.combine(day, datetime.min.time())
     stats = []
     total_stats = []
-    for i in range(0,23):
+    for i in range(0,24):
         # Discard all trips that took longer than 3 hours as these are very likely round trips.
         trips_m = TripChain.objects.filter(entry_time__range=(start_time_stats, start_time_stats + timedelta(hours=1)))
         total_stats.append({
             "time": start_time_stats,
             "num": trips_m.count()
         })
-        if camera_origin_id:
-            trips_m = trips_m.filter(camera_id=camera_origin_id)
-        if camera_destination_id:
-            trips_m = trips_m.filter(chain_vector__regex=r'^(_[A-Za-z]+>)*'+camera_destination_id+'(_[A-Za-z]+)?$')
+        if camera_origin_id and camera_destination_id:
+            trips_m = trips_m.filter(
+                chain_vector__regex=r'^([A-Za-z0-9]+(_[A-Za-z]+)?>)*' + camera_origin_id +
+                                    '(_[A-Za-z]+)?>?([A-Za-z0-9]+(_[A-Za-z]+)?>)*' + camera_destination_id +
+                                    '(_[A-Za-z]+)?(>[A-Za-z0-9]+(_[A-Za-z]+)?)*$')
+        elif camera_origin_id:
+            trips_m = trips_m.filter(chain_vector__regex=r'^([A-Za-z0-9]+(_[A-Za-z]+)?>)*' + camera_origin_id +
+                                                         '(_[A-Za-z]+)?(>[A-Za-z0-9]+(_[A-Za-z]+)?)*$')
         if camera_origin_id:
             stats.append({
                 "time": start_time_stats,
