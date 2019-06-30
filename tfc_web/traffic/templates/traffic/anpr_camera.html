@@ -297,7 +297,9 @@
             }).addTo(map);
 
             Object.keys(cameras).forEach(function(key) {
-                L.marker([cameras[key].lat, cameras[key].lng], {"icon": cameraIcon, "cameraid": key}).addTo(map).on('click', cameraMarkerOnClick);
+                L.marker([cameras[key].lat, cameras[key].lng], {"icon": cameraIcon, "cameraid": key})
+                    .bindTooltip("Latitude: " + cameras[key].lat + "\nLongitude: " + cameras[key].lng, {sticky: true})
+                    .addTo(map).on('click', cameraMarkerOnClick);
             });
 
             /************* This is the START of the date slider code **************/
