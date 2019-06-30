@@ -36,10 +36,12 @@
         <div class="mdl-cell mdl-cell--3-col mdl-cell--8-col-tablet mdl-cell--4-col-phone">
             <p style="margin-bottom: 30px">
                 This map shows the transit flow for each one of the traffic cameras in the map. When a camera is clicked,
-                the map shows all the transit that has as an origin the camera selected and has as a destination any other
-                of the cameras shown in the map. The width of the line indicates how much flow there is between cameras.
-                The flow indicate the end to end trip for each one of the vehicles detected, meaning that all detections
-                from different cameras are shown.
+                the map shows all the transit going through that camera. You can use the From/To toggle to show traffic
+                incoming or traffic outgoing from the selected camera. The opacity of the lines show hou much traffic
+                flow there is between cameras. If you select two cameras, the map will show you how much traffic goes
+                between the two cameras in a specific direction (from the Origin to the Destination camera).
+                There is a slider you can use to select the time range (from selected to +1 hour) and the day that you
+                want to explore. The graph will also update showing the flow chart for the whole day.
                 <img src="{% static 'images/camera.png' %}" style="width: 20px;height: 20px;"> ANPR Camera
                 <img src="{% static 'images/camera_origin_selected.png' %}" style="width: 20px;height: 20px;"> ANPR Origin Camera
                 <img src="{% static 'images/camera_destination_selected.png' %}" style="width: 20px;height: 20px;"> ANPR Destination Camera
@@ -362,6 +364,6 @@
 
         $('#from-to-switch').change(function(){
             drawFlow();
-        })
+        });
     </script>
 {% endblock %}
