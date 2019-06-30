@@ -295,13 +295,20 @@
 
         // Create a new date from a string, return as a timestamp.
         function timestamp(str) {
-            return new Date(str).getTime()/1000;
+            var datetemp = new Date(str);
+            if (isNaN(datetemp)) {
+                var datestr = str.match(/(.*|From: (.*) - To: .*)/)[1];
+                datetemp = new Date(datestr);
+            }
+            return datetemp.getTime()/1000;
         }
 
         // Create a string representation of the date.
         function formatDate(idate) {
-            var date = new Date(+idate*1000);
-            return date.toGMTString();
+            var date_ini = new Date(+idate*1000);
+            var date_end = new Date(+idate*1000);
+            date_end.setHours(date_end.getHours() + 1);
+            return "From: " + date_ini.toGMTString() + " - To: " + date_end.toGMTString();
         }
 
         $(document).ready(function() {
@@ -362,6 +369,6 @@
 
         $('#from-to-switch').change(function(){
             drawFlow();
-        })
+        });
     </script>
 {% endblock %}
