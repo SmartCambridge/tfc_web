@@ -191,20 +191,32 @@
 
             max_weight = Math.max(...Object.values(trip_convinations));
 
+            var list_of_links = [];
             Object.keys(trip_convinations).forEach(function(key) {
                 var camerasi = key.split(",");
                 var camera1 = parseInt(camerasi[0]);
                 var camera2 = parseInt(camerasi[1]);
                 {#console.log(camera1 + " - " + camera2);#}
                 if (camera1 !== 35 && camera2 !== 35 && camera1 !== 96 && camera2 !== 96) {
-                    var latlngs = [
-                        [cameras[camera1].lat, cameras[camera1].lng],
-                        [cameras[camera2].lat, cameras[camera2].lng]
-                    ];
+                    var latlngs;
+                    if (list_of_links.includes(camera2+","+camera1)) {
+                        latlngs = [
+                            [(parseFloat(cameras[camera1].lat) + 0.00005).toString(),
+                                (parseFloat(cameras[camera1].lng) + 0.00005).toString()],
+                            [(parseFloat(cameras[camera2].lat) + 0.00005).toString(),
+                                (parseFloat(cameras[camera2].lng) + 0.00005).toString()]
+                        ]
+                    } else {
+                        latlngs = [
+                            [cameras[camera1].lat, cameras[camera1].lng],
+                            [cameras[camera2].lat, cameras[camera2].lng]
+                        ]
+                    }
                     var opacity = (trip_convinations[key]/max_weight)*3/4;
                     info_map.update("Maximum opacity: "+max_weight.toString());
                     L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
-                        trip_convinations[key].toString(), {sticky: true}).addTo(map);
+                        camera1+","+camera2+" "+trip_convinations[key].toString(), {sticky: true}).addTo(map);
+                    list_of_links.push(camera1+","+camera2);
                 }
             });
         }
