@@ -10,6 +10,18 @@
         .noUi-horizontal .noUi-tooltip {
             bottom: -40px;
         }
+        .mdl-switch.is-checked .mdl-switch__track {
+            background: rgba(7, 142, 54, 0.5);
+        }
+        .mdl-switch.is-disabled .mdl-switch__track {
+            background: rgba(0, 0, 0, 0.25);
+        }
+        .mdl-switch.is-checked .mdl-switch__thumb {
+            background: #00b2b6;
+        }
+        .mdl-switch.is-disabled .mdl-switch__thumb {
+            background: #989a9a;
+        }
     </style>
 {% endblock %}
 {% block inner_content %}
@@ -53,6 +65,7 @@
         var trip_convinations = {};
         var camera_origin_selected;
         var camera_destination_selected;
+        var from_to_switch = document.querySelector('#from-to-switch');
         var cameras = {{% for camera in cameras %}
             "{{ camera.id }}": {
                 "lat": "{{ camera.lat }}",
@@ -226,6 +239,13 @@
                 {# There isn't any origin camera selected #}
                 camera_origin_selected = e.target;
                 camera_origin_selected.setIcon(cameraOriginSelectedIcon);
+            }
+            if ((camera_origin_selected !== undefined) && (camera_destination_selected !== undefined)) {
+                from_to_switch.disabled = true;
+                from_to_switch.parentElement.classList.add("is-disabled");
+            } else {
+                from_to_switch.disabled = false;
+                from_to_switch.parentElement.classList.remove("is-disabled");
             }
             retrieve_flowdata();
         }
