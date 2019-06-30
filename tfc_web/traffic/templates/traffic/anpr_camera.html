@@ -202,6 +202,7 @@
                         [cameras[camera2].lat, cameras[camera2].lng]
                     ];
                     var opacity = (trip_convinations[key]/max_weight)*3/4;
+                    info_map.update("Maximum opacity: "+max_weight.toString());
                     L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
                         trip_convinations[key].toString(), {sticky: true}).addTo(map);
                 }
@@ -295,6 +296,17 @@
             L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+
+            info_map.onAdd = function (map) {
+                    this._div = L.DomUtil.create('div', 'leaflet-control-attribution leaflet-control');
+                    this.update();
+                    return this._div;
+            };
+            // method that we will use to update the control based on feature properties passed
+            info_map.update = function (info_text) {
+                this._div.innerHTML = info_text;
+            };
+            info_map.addTo(map);
 
             Object.keys(cameras).forEach(function(key) {
                 L.marker([cameras[key].lat, cameras[key].lng], {"icon": cameraIcon, "cameraid": key})
