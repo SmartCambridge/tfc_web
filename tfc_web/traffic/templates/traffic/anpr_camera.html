@@ -133,7 +133,7 @@
         function drawFlow() {
             trip_convinations = {};
             var from = document.getElementById("from-to-switch").checked;
-            var z, key, ti, tei;
+            var z, key, ti, tei, max_weight;
             if (camera_origin_selected !== undefined) {
                 for (var i = 0; i < trips.length; i++) {
                     // From the camera selected (we have to discard previous trip)
@@ -176,6 +176,8 @@
             }
             clearMap();
 
+            max_weight = Math.max(...Object.values(trip_convinations));
+
             Object.keys(trip_convinations).forEach(function(key) {
                 var camerasi = key.split(",");
                 var camera1 = parseInt(camerasi[0]);
@@ -186,7 +188,9 @@
                         [cameras[camera1].lat, cameras[camera1].lng],
                         [cameras[camera2].lat, cameras[camera2].lng]
                     ];
-                    L.polyline(latlngs, {weight: trip_convinations[key], opacity: 0.5, lineCap: "butt"}).addTo(map);
+                    var opacity = (trip_convinations[key]/max_weight)*3/4;
+                    L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
+                        trip_convinations[key].toString(), {sticky: true}).addTo(map);
                 }
             });
         }
