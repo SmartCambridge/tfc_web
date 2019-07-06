@@ -76,7 +76,7 @@
                 "units": {{ camera.units }}
             },
         {% endfor %}};
-        var current_time = timestamp('2017-06-11 08:00 GMT');
+        var current_time = timestamp('2017-06-12 08:00 GMT+1');
 
         var cameraIcon = L.icon({
             iconUrl: '{% static 'images/camera.png' %}',
@@ -305,7 +305,7 @@
         // Create a string representation of the date.
         function formatDate(idate) {
             var date = new Date(+idate*1000);
-            return date.toGMTString();
+            return date.toString();
         }
 
         $(document).ready(function() {
