@@ -71,7 +71,9 @@
         var cameras = {{% for camera in cameras %}
             "{{ camera.id }}": {
                 "lat": "{{ camera.lat }}",
-                "lng": "{{ camera.lng }}"
+                "lng": "{{ camera.lng }}",
+                "desc": "{{ camera.description }}",
+                "units": {{ camera.units }}
             },
         {% endfor %}};
         var current_time = timestamp('2017-06-11 08:00 GMT');
@@ -217,7 +219,7 @@
                     var opacity = (trip_convinations[key]/max_weight)*3/4;
                     info_map.update("Maximum opacity: "+max_weight.toString());
                     L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
-                        camera1+","+camera2+" "+trip_convinations[key].toString(), {sticky: true}).addTo(map);
+                        trip_convinations[key].toString() + " vehicles", {sticky: true}).addTo(map);
                     list_of_links.push(camera1+","+camera2);
                 }
             });
@@ -324,7 +326,7 @@
 
             Object.keys(cameras).forEach(function(key) {
                 L.marker([cameras[key].lat, cameras[key].lng], {"icon": cameraIcon, "cameraid": key})
-                    .bindTooltip("Latitude: " + cameras[key].lat + "\nLongitude: " + cameras[key].lng, {sticky: true})
+                    .bindTooltip(cameras[key].desc + "<br>Latitude: " + cameras[key].lat + "<br>Longitude: " + cameras[key].lng, {sticky: true})
                     .addTo(map).on('click', cameraMarkerOnClick);
             });
 
