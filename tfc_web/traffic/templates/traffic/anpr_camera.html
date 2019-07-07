@@ -2,6 +2,7 @@
 {% load static %}
 {% block head %}
     {% include 'leaflet_snippet.html' %}
+    <script type="text/javascript" src="{% static 'js/leaflet.polylineDecorator.js' %}"></script>
     <link rel="stylesheet" href="{% static 'map.css' %}" />
     <script src="{% static 'js/nouislider.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'nouislider.min.css' %}" />
@@ -135,16 +136,9 @@
 
         function clearMap() {
             var i;
-            for(i in map._layers) {
-                if(map._layers[i]._path !== undefined) {
-                    try {
-                        map.removeLayer(map._layers[i]);
-                    }
-                    catch(e) {
-                        console.log("problem with " + e + map._layers[i]);
-                    }
-                }
-            }
+            for(i in map._layers)
+                if ((map._layers[i]._path !== undefined) || (map._layers[i]._paths !== undefined))
+                    map.removeLayer(map._layers[i]);
         }
 
         function drawFlow() {
@@ -200,7 +194,6 @@
                 var camerasi = key.split(",");
                 var camera1 = parseInt(camerasi[0]);
                 var camera2 = parseInt(camerasi[1]);
-                {#console.log(camera1 + " - " + camera2);#}
                 if (camera1 !== 35 && camera2 !== 35 && camera1 !== 96 && camera2 !== 96) {
                     var latlngs;
                     if (list_of_links.includes(camera2+","+camera1)) {
@@ -218,8 +211,26 @@
                     }
                     var opacity = (trip_convinations[key]/max_weight)*3/4;
                     info_map.update("Maximum opacity: "+max_weight.toString());
-                    L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
+                    var line = L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
                         trip_convinations[key].toString() + " vehicles", {sticky: true}).addTo(map);
+                    L.polylineDecorator(line, {
+                        patterns: [
+                            {
+                                offset: '100%',
+                                repeat: 0,
+                                symbol: L.Symbol.arrowHead(
+                                    {
+                                        pixelSize: 15,
+                                        polygon: false,
+                                        pathOptions: {
+                                            stroke: true,
+                                            opacity: 0.25+opacity
+                                        }
+                                    }
+                                )
+                            }
+                        ]
+                    }).addTo(map);
                     list_of_links.push(camera1+","+camera2);
                 }
             });
