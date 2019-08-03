@@ -12,6 +12,20 @@
 
   <link rel="manifest" href="{% static 'manifest.json' %}">
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register("/sw.js").then(function(registration) {
+          // Registration was successful
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+          // registration failed :(
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+
   <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}"/>
 
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>

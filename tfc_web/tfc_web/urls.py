@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
 
 urlpatterns = [
+    # service worker
+    url(r'^sw.js$', TemplateView.as_view(template_name="sw.js", content_type='application/javascript'), name='sw.js'),
+
     # auth
     url(r'^accounts/', include('allauth.urls')),
 
