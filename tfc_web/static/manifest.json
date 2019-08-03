@@ -1,0 +1,32 @@
+{
+  "short_name": "SmartCambridge",
+  "name": "SmartCambridge",
+  "icons": [
+    {
+      "src": "/static_web/images/favicon.png",
+      "type": "image/png",
+      "sizes": "108x108"
+    },
+    {
+      "src": "/static_web/images/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "150x150"
+    },
+    {
+      "src": "/static_web/images/favicon-medium.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static_web/images/favicon-big.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/smartpanel/pocket/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/smartpanel/pocket/",
+  "theme_color": "#015850",
+  "prefer_related_applications": false
+}
