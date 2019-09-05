@@ -205,13 +205,112 @@ ons.ready(function () {
     }
 
     // Retrieve the configuration
-    if (localStorage.getItem(PAGES_KEY)) {
+    if (localStorage.getItem(PAGES_KEY))
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
-    }
     else {
-        PAGES = [];
+        PAGES = [
+            {
+                "widget": "weather",
+                "title": "Cambridge",
+                "data": {
+                    "location": "310042"
+                }
+            },
+            {
+                "widget": "station_board",
+                "title":"Cambridge",
+                "data": {
+                    "station":"CBG",
+                    "platforms":"y"
+                }
+            },
+            {
+                "widget": "stop_timetable",
+                "title": "Cambridge - St Andrew's Street (Stop S1)",
+                "data": {
+                    "stop": {
+                        "id": "0500CCITY492",
+                        "stop_id": "0500CCITY492",
+                        "atco_code": "0500CCITY492",
+                        "naptan_code": "CMBGJTAJ",
+                        "common_name": "St Andrew's Street",
+                        "indicator": "Stop S1",
+                        "locality_name": "Cambridge",
+                        "latitude": 52.2046714811,
+                        "longitude": 0.12236411084,
+                        "lat": 52.2046714811,
+                        "lng": 0.12236411084
+                    },
+                    "title": "St Andrew's Street (Stop S1)",
+                    "layout": "multiline",
+                    "destinations": [{
+                        "area": [{
+                            "lat": 52.17570364175672,
+                            "lng": 0.14228330925107005
+                        }, {"lat": 52.175488800588674, "lng": 0.1444551441818476}, {
+                            "lat": 52.176017346023265,
+                            "lng": 0.14606296084821227
+                        }, {"lat": 52.17649558019505, "lng": 0.14505780301988128}, {
+                            "lat": 52.17622663512504,
+                            "lng": 0.14254231005907061
+                        }],
+                        "description": "Hospital",
+                        "box": {
+                            "north": 52.17649558019505,
+                            "south": 52.175488800588674,
+                            "east": 0.14606296084821227,
+                            "west": 0.14228330925107005
+                        }
+                    }, {
+                        "area": [{"lat": 52.205272570950065, "lng": 0.12231070082634689}, {
+                            "lat": 52.20584108642862,
+                            "lng": 0.12381173204630615
+                        }, {"lat": 52.20498217848623, "lng": 0.12558894697576764}, {
+                            "lat": 52.20354579109039,
+                            "lng": 0.12294583953917028
+                        }, {"lat": 52.204710238021654, "lng": 0.12170623987913133}],
+                        "description": "City Centre",
+                        "box": {
+                            "north": 52.20584108642862,
+                            "south": 52.20354579109039,
+                            "east": 0.12558894697576764,
+                            "west": 0.12170623987913133
+                        }
+                    }, {
+                        "area": [{"lat": 52.32328491326036, "lng": -0.07158505730330945}, {
+                            "lat": 52.3232474380255,
+                            "lng": -0.07017082069069148
+                        }, {"lat": 52.322305705435205, "lng": -0.07021650206297637}, {
+                            "lat": 52.32234784355564,
+                            "lng": -0.07179640699177982
+                        }],
+                        "description": "St Ives Bus Station",
+                        "box": {
+                            "north": 52.32328491326036,
+                            "south": 52.322305705435205,
+                            "east": -0.07017082069069148,
+                            "west": -0.07179640699177982
+                        }
+                    }, {
+                        "area": [{"lat": 52.19371446386684, "lng": 0.1361500192433596}, {
+                            "lat": 52.19349174821103,
+                            "lng": 0.1370208151638508
+                        }, {"lat": 52.1922004274234, "lng": 0.13610429596155885}, {
+                            "lat": 52.19241752500701,
+                            "lng": 0.1352344220504165
+                        }],
+                        "description": "Station",
+                        "box": {
+                            "north": 52.19371446386684,
+                            "south": 52.1922004274234,
+                            "east": 0.1370208151638508,
+                            "west": 0.1352344220504165
+                        }
+                    }]
+                }
+            }
+        ];
     }
-
     // If PRELOAD_PAGES are available, merge those.
     if (PRELOAD_PAGES) {
         merge_preload(PAGES, JSON.parse(PRELOAD_PAGES));
