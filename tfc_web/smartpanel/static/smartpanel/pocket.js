@@ -339,6 +339,11 @@ document.addEventListener('init', function(event) {
                 ons.modifier.remove(item, 'chevron');
             });
         });
+
+        ons_page.querySelector('#feedback').addEventListener('click', function() {
+            window.open('https://forms.gle/3PvbdjdqJeRYHXaD8', '_system');
+        });
+
         ons_page.querySelector('#done').addEventListener('click', function() {
             ons_page.classList.remove('edit-mode');
             // Restore the chevron - see above
