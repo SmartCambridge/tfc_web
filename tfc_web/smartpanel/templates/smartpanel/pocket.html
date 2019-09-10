@@ -225,6 +225,24 @@
     </ons-page>
   </template>
 
+  <template id="startup-hint.html">
+    <ons-dialog id="startup-hint" mask-color: "#fff" cancelable>
+      <div style="text-align: center; padding: 10px;">
+        <p>
+        Tap the <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
+        at the top of the screen to add bus timetables, train timetables and weather
+        forecasts to your Pocket SmartPanel.
+      </p>
+      <p>
+        You can remove any that you don't like in the future by taping on Edit.
+        </p>
+        <p>
+          <ons-button onclick="hide_dialog('startup-hint')">Ok</ons-button>
+        </p>
+      </div>
+    </ons-dialog>
+  </template>
+
   <script>
 
     // Pre-load the spinner so it can be displayed on the stop_timetabl;e page
