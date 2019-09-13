@@ -317,7 +317,6 @@ document.addEventListener('init', function(event) {
         });
         ons_page.querySelector('#accept').addEventListener('click', function() {
             localStorage.setItem(VERSION_KEY, TCS_VERSION.toString());
-            localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
             navigator.replacePage('list.html');
         });
     }
@@ -340,6 +339,10 @@ document.addEventListener('init', function(event) {
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
         send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
+
+        // (Re)save current page list to persist any preloaded pages
+        localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
+
         ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+LOAD_TIME;
 
         ons_page.querySelector('#reload').addEventListener('click', reload_page);
