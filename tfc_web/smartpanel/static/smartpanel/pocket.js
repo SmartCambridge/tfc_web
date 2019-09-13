@@ -24,6 +24,7 @@ var TCS_VERSION = 1;
 var VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
 var PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
 var INSTANCE_KEY_NAME = 'POCKET_SMARTPANEL_INSTANCE';
+var INITIALISED_KEY_NAME = 'POCKET_SMARTPANEL_INITIALISED';
 
 // Available weather stations and their names
 var WEATHER_OPTIONS = [
@@ -72,6 +73,24 @@ var WIDGET_NAME = {
     'station_board': 'train timetable',
     'stop_timetable': 'bus timetable'
 };
+
+var DEFAULT_PAGES = [
+    {
+        'widget': 'weather',
+        'title': 'Cambridge',
+        'data': {
+            'location': '310042'
+        }
+    },
+    {
+        'widget': 'station_board',
+        'title': 'Cambridge',
+        'data': {
+            'station': 'CBG',
+            'platforms': 'y'
+        }
+    }
+]
 
 // Pre-defined destinations for the bus timetable
 var DESTINATIONS = [
@@ -208,7 +227,7 @@ ons.ready(function () {
     if (localStorage.getItem(PAGES_KEY))
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
     else {
-        PAGES = [];
+        PAGES = DEFAULT_PAGES;
     }
     // If PRELOAD_PAGES are available, merge those.
     if (PRELOAD_PAGES) {
@@ -233,9 +252,6 @@ function merge_preload(current_pages, preload_pages) {
     for (var i=0; i<preload_pages.length; i++) {
         append_page(current_pages, preload_pages[i]);
     }
-
-    // cache combined result back in localStorage
-    localStorage.setItem(PAGES_KEY, JSON.stringify(current_pages));
 }
 
 // append page to current_pages if it is not already in list
@@ -302,6 +318,7 @@ document.addEventListener('init', function(event) {
         });
         ons_page.querySelector('#accept').addEventListener('click', function() {
             localStorage.setItem(VERSION_KEY, TCS_VERSION.toString());
+            localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
             navigator.replacePage('list.html');
         });
     }
@@ -321,12 +338,14 @@ document.addEventListener('init', function(event) {
         ons_page.querySelector('#reload').addEventListener('click', reload_page);
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
-        if (PAGES.length === 0) {
-        //    document.querySelector('#first-time').show('#add', {direction: 'up'});
+
+        // Show usage hint the first time through
+        if (!localStorage.getItem(INITIALISED_KEY_NAME)) {
             ons.createElement('startup-hint.html', { append: true })
                 .then(function(dialog) {
                     dialog.show();
                 });
+            localStorage.setItem(INITIALISED_KEY_NAME, true);
         }
 
         ons_page.querySelector('.page-list').addEventListener('click', handle_page_list_click);
