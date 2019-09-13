@@ -69,7 +69,7 @@ html, body {
 
 .id {
     font-size: 0.6rem;
-    padding-right: 1em;
+    margin: 0.5em;
 }
 
 .hidden {

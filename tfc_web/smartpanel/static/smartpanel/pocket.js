@@ -317,7 +317,8 @@ document.addEventListener('init', function(event) {
         }
         send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
         ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+LOAD_TIME;
-        ons_page.querySelector('#debug_string').addEventListener('click',reload_page);
+
+        ons_page.querySelector('#reload').addEventListener('click', reload_page);
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
         if (PAGES.length === 0) {
@@ -330,6 +331,11 @@ document.addEventListener('init', function(event) {
 
         ons_page.querySelector('.page-list').addEventListener('click', handle_page_list_click);
 
+        ons_page.querySelector('#show-menu').addEventListener('click', function() {
+            var menu = document.getElementById('menu');
+            menu.open();
+        });
+
         ons_page.querySelector('#edit').addEventListener('click', function() {
             ons_page.classList.add('edit-mode');
             // Hide the chevron - using Array.prototype.forEach.call to
@@ -338,10 +344,14 @@ document.addEventListener('init', function(event) {
             Array.prototype.forEach.call(nodes, function(item) {
                 ons.modifier.remove(item, 'chevron');
             });
+            var menu = document.getElementById('menu');
+            menu.close();
         });
 
         ons_page.querySelector('#feedback').addEventListener('click', function() {
             window.open('https://forms.gle/3PvbdjdqJeRYHXaD8', '_system');
+            var menu = document.getElementById('menu');
+            menu.close();
         });
 
         ons_page.querySelector('#done').addEventListener('click', function() {

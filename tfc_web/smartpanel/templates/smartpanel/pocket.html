@@ -154,36 +154,46 @@
 
   <template id="list.html">
     <ons-page id="list" class="list">
-    	<ons-toolbar>
-        <div class="left">
-          <ons-toolbar-button>
-            <span id="edit" class="show-normal">Edit</span>
-            <span id="done" class="show-edit default">Done</span>
-          </ons-toolbar-button>
-        </div>
-        <div class="center">
-            <span class="show-normal">Pocket SmartPanel</span>
-            <span class="show-edit">Delete pages</span>
-        </div>
-        <div class="right">
-          <ons-toolbar-button id="add" class="show-normal">
-            <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
-          </ons-toolbar-button>
-        </div>
-      </ons-toolbar>
-      <ons-bottom-toolbar>
-        <div style="text-align: left; line-height: 44px">
-          <ons-toolbar-button id="feedback">
-            Send feedback
-          </ons-toolbar-button>
-        </div>
-      </ons-bottom-toolbar>
-      <div class="background">
-          <!-- add debug string with version/loadtime/istance_id to bottom of page, z-index to allow click to reload -->
-          <div id="debug_string" class="show-edit id" style="position: absolute; bottom: 10px; right: 10px; z-index: 100"></div>
-      </div>
-      <ons-list id="page-list" class="page-list"></ons-list>
-    </ons-page>
+      <ons-splitter>
+        <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
+          <ons-page>
+            <ons-list>
+              <ons-list-item id="edit" tappable>
+                Delete pages
+              </ons-list-item>
+              <ons-list-item id="feedback" tappable>
+                Send feedback
+              </ons-list-item>
+              <ons-list-item id="reload" tappable>
+                Reload
+              </ons-list-item>
+            </ons-list>
+            <div id="debug_string" class="id"></div>
+          </ons-page>
+        </ons-splitter-side>
+        <ons-splitter-content>
+          <ons-page>
+            <ons-toolbar>
+              <div class="left">
+                <ons-toolbar-button>
+                  <span id="show-menu" class="show-normal"><ons-icon icon="md-menu"></ons-icon></span>
+                  <span id="done" class="show-edit default">Done</span>
+                </ons-toolbar-button>
+              </div>
+              <div class="center">
+                  <span class="show-normal">Pocket SmartPanel</span>
+                  <span class="show-edit">Delete pages</span>
+              </div>
+              <div class="right">
+                <ons-toolbar-button id="add" class="show-normal">
+                  <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
+                </ons-toolbar-button>
+              </div>
+            </ons-toolbar>
+            <ons-list id="page-list" class="page-list"></ons-list>
+          </ons-page>
+        </ons-splitter-content>
+      </ons-splitter>
   </template>
 
   <template id="page-display.html">
@@ -238,7 +248,8 @@
         forecasts to your Pocket SmartPanel.
       </p>
       <p>
-        You can remove any that you don't like in the future by taping on Edit.
+        You can remove any that you don't like in the future by taping the
+        menu button.
         </p>
         <p>
           <ons-button onclick="hide_dialog('startup-hint')">Ok</ons-button>
