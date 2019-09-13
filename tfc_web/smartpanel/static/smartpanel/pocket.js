@@ -24,7 +24,6 @@ var TCS_VERSION = 1;
 var VERSION_KEY = 'POCKET_SMARTPANEL_TCS_VERSION';
 var PAGES_KEY = 'POCKET_SMARTPANEL_PAGES';
 var INSTANCE_KEY_NAME = 'POCKET_SMARTPANEL_INSTANCE';
-var INITIALISED_KEY_NAME = 'POCKET_SMARTPANEL_INITIALISED';
 
 // Available weather stations and their names
 var WEATHER_OPTIONS = [
@@ -328,6 +327,14 @@ document.addEventListener('init', function(event) {
     else if (ons_page.id === 'list') {
 
         instance_key = localStorage.getItem(INSTANCE_KEY_NAME);
+
+        // Use absence of instance key as a proxy for 'first use'
+        if (!instance_key) {
+            ons.createElement('startup-hint.html', { append: true })
+                .then(function(dialog) {
+                    dialog.show();
+                });
+        }
         if (!instance_key || /^\d+$/.test(instance_key)) {
             instance_key = generate_instance_key();
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
@@ -338,15 +345,6 @@ document.addEventListener('init', function(event) {
         ons_page.querySelector('#reload').addEventListener('click', reload_page);
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
-
-        // Show usage hint the first time through
-        if (!localStorage.getItem(INITIALISED_KEY_NAME)) {
-            ons.createElement('startup-hint.html', { append: true })
-                .then(function(dialog) {
-                    dialog.show();
-                });
-            localStorage.setItem(INITIALISED_KEY_NAME, true);
-        }
 
         ons_page.querySelector('.page-list').addEventListener('click', handle_page_list_click);
 
