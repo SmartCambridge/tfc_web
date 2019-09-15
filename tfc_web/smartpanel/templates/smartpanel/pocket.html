@@ -67,6 +67,7 @@
   <script src="{% static 'smartpanel/bus_stop_chooser/bus_stop_chooser.js' %}"></script>
   <script src="{% static 'js/rtmonitor_api.js' %}"></script>
   <script src="{% static 'smartpanel/pocket.js' %}"></script>
+  <script src="{% static 'smartpanel/qrscan.js' %}"></script>
 </head>
 
 <body>
@@ -158,6 +159,9 @@
         <ons-splitter-side id="menu" side="left" width="220px" collapse swipeable>
           <ons-page>
             <ons-list>
+              <ons-list-item id="qr" tappable>
+                Add via QR code
+              </ons-list-item>
               <ons-list-item id="edit" tappable>
                 Delete pages
               </ons-list-item>
@@ -236,6 +240,19 @@
       <div class="content">
         <div id="config-area" class="config-area"></div>
       </div>
+    </ons-page>
+  </template>
+
+  <template id="qr.html">
+    <ons-page id="qr">
+        <div class="app__layout">
+            <main class="app__layout-content">
+                <video autoplay></video>
+            </main>
+        </div>
+        <div class="app__overlay">
+            <div class="app__overlay-frame"></div>
+        </div>
     </ons-page>
   </template>
 

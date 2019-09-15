@@ -356,6 +356,16 @@ document.addEventListener('init', function(event) {
             menu.open();
         });
 
+        ons_page.querySelector('#qr').addEventListener('click', function() {
+           document.querySelector('#myNavigator').pushPage('qr.html').then(function() {
+               //Initializing qr scanner
+               QRReader.init('/static_web/smartpanel/decoder.js'); //To initialize QR Scanner
+               setTimeout(() => {
+                   scan();
+               }, 1000);
+           });
+        });
+
         ons_page.querySelector('#edit').addEventListener('click', function() {
             ons_page.classList.add('edit-mode');
             // Hide the chevron - using Array.prototype.forEach.call to
