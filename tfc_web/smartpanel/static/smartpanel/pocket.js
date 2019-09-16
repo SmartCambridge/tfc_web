@@ -14,7 +14,8 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
-var VERSION = '2.02';
+var VERSION = '3.00';
+// 3.00 Added defaults, first-use hint, feedback link, PWA support, etc.
 // 2.02 modified Edit..Delete confirm notificatio, added version, click-to-reload to page debug string
 // 2.01 moved debug id and timestamp to bottom of page
 // 2.00 Working Pocket Smartpanel
