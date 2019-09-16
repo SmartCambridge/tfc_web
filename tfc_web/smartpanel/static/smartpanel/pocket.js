@@ -1,7 +1,8 @@
 /* globals ons,
            RTMonitorAPI, BusStopChooser,
            Weather, StationBoard, StopTimetable, StopBusMap,
-           WIDGET_CONFIG, STATIC_URL, RT_TOKEN
+           WIDGET_CONFIG, STATIC_URL, RT_TOKEN,
+           PRELOAD_PAGES, POCKET_URL, LOAD_TIME, RELOAD_TIME, RTMONITOR_URI
 */
 
 /* exported DEBUG */
@@ -89,7 +90,7 @@ var DEFAULT_PAGES = [
             'platforms': 'y'
         }
     }
-]
+];
 
 // Pre-defined destinations for the bus timetable
 var DESTINATIONS = [
@@ -234,15 +235,16 @@ ons.ready(function () {
     }
 
     // Retrieve the configuration
-    if (localStorage.getItem(PAGES_KEY))
+    if (localStorage.getItem(PAGES_KEY)) {
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
+    }
     else {
         PAGES = DEFAULT_PAGES;
     }
     // If PRELOAD_PAGES are available, merge those.
     if (PRELOAD_PAGES) {
         merge_preload(PAGES, JSON.parse(PRELOAD_PAGES));
-        history.pushState(null,null,POCKET_URL); // provided by template
+        history.pushState(null, null, POCKET_URL); // provided by template
     }
     // Opening page depends on value stored under VERSION_KEY in localStorage
     var raw_version = localStorage.getItem(VERSION_KEY);
@@ -267,7 +269,7 @@ function merge_preload(current_pages, preload_pages) {
 // append page to current_pages if it is not already in list
 function append_page(current_pages, page) {
     for (var i=0; i<current_pages.length; i++) {
-        if (page_match(current_pages[i],page)) {
+        if (page_match(current_pages[i], page)) {
             // page is already in list of current pages, so do nothing and return
             return;
         }
@@ -278,36 +280,30 @@ function append_page(current_pages, page) {
 // return true if two pages are the same, e.g
 // weather/Cambridge == weather/Cambridge
 function page_match(page1, page2) {
-   return (page1.widget == page2.widget && page1.title == page2.title)
+    return (page1.widget === page2.widget && page1.title === page2.title);
 }
 
 // Add listener for user backgrounding this 'app'
 // If page becomes 'visible' *after* RELOAD_TIME then page will be reloaded (and get new rt_token)
 // If page becomes 'hidden' then it will force RTMONITOR_API to disconnect
-document.addEventListener("visibilitychange", function(event) {
+document.addEventListener('visibilitychange', function() {
 
     var visibility_state = document.visibilityState;
 
-    if (visibility_state == 'visible') {
-        console.log('visibilitystate visible');
+    if (visibility_state === 'visible') {
         var visible_time = new Date();
         if (visible_time > RELOAD_TIME) { // RELOAD_TIME set in pocket.html to 4:30am tomorrow morning
-            console.log('visibilitychange reloading page');
             document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
             location.reload(true);
         } else {
-            console.log('visibilitychange no reload');
             if (RTMONITOR_API) {
-                console.log('visibilitystate reconnecting rtmonitor_api');
                 RTMONITOR_API.connect();
             }
         }
     }
 
-    if (visibility_state == 'hidden') {
-        console.log('visibilitystate hidden');
+    if (visibility_state === 'hidden') {
         if (RTMONITOR_API) {
-            console.log('visibilitystate disconnecting rtmonitor_api');
             RTMONITOR_API.disconnect();
         }
     }
@@ -355,7 +351,7 @@ document.addEventListener('init', function(event) {
         // (Re)save current page list to persist any preloaded pages
         localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
 
-        ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+LOAD_TIME;
+        ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+ LOAD_TIME;
 
         ons_page.querySelector('#reload').addEventListener('click', reload_page);
 
@@ -485,10 +481,11 @@ function handle_page_list_click(evt) {
 function delete_page(page_number, ons_page) {
     var page_title = PAGES[page_number].title;
     var page_widget = PAGES[page_number].widget;
-    ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?',
-                              title: 'Edit',
-                              buttonLabels: ['Cancel','DELETE']
-                             })
+    ons.notification.confirm({
+        message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?',
+        title: 'Edit',
+        buttonLabels: ['Cancel', 'DELETE']
+    })
         .then(function(button) {
             if (button === 1) {
                 PAGES.splice(page_number, 1);
@@ -530,11 +527,11 @@ function display_page(page_number, ons_page) {
         current_widget = new StopTimetable('stop_timetable');
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
-                                            rt_client_id: instance_key,
-                                            rt_client_name: 'Pocket SmartPanel V'+VERSION,
-                                            rt_token: RT_TOKEN // from tfc_web..pocket.html
-                                         },
-                                         RTMONITOR_URI); // from tfc_web..pocket.html
+            rt_client_id: instance_key,
+            rt_client_name: 'Pocket SmartPanel V'+VERSION,
+            rt_token: RT_TOKEN // from tfc_web..pocket.html
+        },
+        RTMONITOR_URI); // from tfc_web..pocket.html
         break;
     }
 
@@ -553,10 +550,6 @@ function display_page(page_number, ons_page) {
         },
         page_config.data
     );
-
-//    if (widget_type === 'stop_timetable') {
-//        RTMONITOR_API.init();
-//    } // not needed with current rtmonitor_api version
 
 }
 
@@ -930,12 +923,12 @@ function send_beacon(component_id, params) {
     uri += encodeURIComponent(component_id)+'/';
 
     // add (optional) params to querystring
-    var params_count = 0
+    var params_count = 0;
     if (params) {
         for (var key in params) {
             if (params.hasOwnProperty(key)) {
                 params_count++;
-                var qs_join = params_count == 1 ? '?' : '&';
+                var qs_join = params_count === 1 ? '?' : '&';
                 uri += qs_join + key + '=' + encodeURIComponent(params[key]);
             }
         }
@@ -974,14 +967,6 @@ function random_chars(chars, count) {
         result += chars.substring(rnum, rnum+1);
     }
     return result;
-}
-
-
-// Hide a dialogue
-function hide_dialog(id) {
-    document
-        .getElementById(id)
-        .hide();
 }
 
 
