@@ -75,3 +75,9 @@ html, body {
 .hidden {
     display: none;
 }
+
+.page-menu img {
+    display: block;
+    margin: 0.5em auto 0.5em 14px;
+    width: 160px;
+}
