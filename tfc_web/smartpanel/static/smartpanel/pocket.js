@@ -187,6 +187,17 @@ var DESTINATIONS = [
     }
 ];
 
+var FIRST_USE_HINT =
+'      <p>' +
+'        You can tap <ons-toolbar-button><ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon></ons-toolbar-button>' +
+'        at the top to add bus timetables, train timetables and weather' +
+'        to this Pocket SmartPanel.' +
+'      </p>' +
+'      <p>' +
+'        You can remove pages by tapping <ons-toolbar-button><ons-icon icon="md-menu"></ons-icon></ons-toolbar-button>' +
+'        and choosing \'Delete pages\'' +
+'      </p>';
+
 // Widget spec requires a RTMONITOR_API global
 var RTMONITOR_API;
 
@@ -329,11 +340,12 @@ document.addEventListener('init', function(event) {
 
         // Use absence of instance key as a proxy for 'first use'
         if (!instance_key) {
-            ons.createElement('startup-hint.html', { append: true })
-                .then(function(dialog) {
-                    dialog.show();
-                });
+            ons.notification.alert({
+                messageHTML: FIRST_USE_HINT,
+                buttonLabels: 'Ok, got it!',
+                title: 'Hint'});
         }
+
         if (!instance_key || /^\d+$/.test(instance_key)) {
             instance_key = generate_instance_key();
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
