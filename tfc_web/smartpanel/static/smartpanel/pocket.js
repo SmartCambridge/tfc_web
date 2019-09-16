@@ -456,17 +456,11 @@ function handle_page_list_click(evt) {
         return;
     }
     var page_number = getElementIndex(list_item);
-    var ons_page = list_item.closest('ons-page');
+    var ons_page = list_item.closest('ons-page#list');
     var navigator = document.querySelector('#myNavigator');
 
-    // A click on a delete icon
-    if (evt.target.closest('.delete')) {
-        delete_page(page_number, ons_page);
-    }
-    //Otherwise a click when editing
-    else if (ons_page.classList.contains('edit-mode')) {
-        // this commented line is alternative "edit the config for the page"
-        //navigator.pushPage('config.html', {data: { page_number: page_number }});
+    // A click when editing
+    if (ons_page.classList.contains('edit-mode')) {
         delete_page(page_number, ons_page);
     }
     // Otherwise
