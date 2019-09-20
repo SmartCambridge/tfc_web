@@ -6,6 +6,7 @@
 {% block extra_drawer_css %}mdl-layout--fixed-drawer{% endblock %}
 {% block navigation %}
     <a class="mdl-navigation__link" href="{% url 'smartpanel-home' %}">SmartPanels Home</a>
+    <a class="mdl-navigation__link" href="{% url 'smartpanel-pocket' %}">Pocket SmartPanel</a>
     {% if user.is_authenticated %}
         <div class="drawer-separator"></div>
         <a class="mdl-navigation__link" href="{% url 'smartpanel-list-my-layouts' %}">My SmartPanel layouts</a>
@@ -17,6 +18,8 @@
     {% endif %}
     <div class="drawer-separator"></div>
     <a class="mdl-navigation__link" href="/csn/forum/forum/smartpanel-3/">SmartPanel forum</a>
+    <a class="mdl-navigation__link" href="{% url 'smartpanel-pocketlog-unique' %}">Pocket SmartPanel - unique clients</a>
+    <a class="mdl-navigation__link" href="{% url 'smartpanel-pocketlog-total' %}">Pocket SmartPanel - total clients</a>
     <a class="mdl-navigation__link" href="{% url 'smartcambridge-tcs' %}">Terms and Conditions</a>
     <a class="mdl-navigation__link" href="{% url 'smartpanel-info' %}">About</a>
 {% endblock %}
