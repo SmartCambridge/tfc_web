@@ -2,9 +2,10 @@ from django.contrib.admin import ModelAdmin
 from smartpanel.models import Layout, Display, Pocket
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.contrib.gis import admin as admin
 
 
-class DisplayAdmin(admin.ModelAdmin):
+class DisplayAdmin(admin.OSMGeoAdmin):
     list_display = ('slug', 'name', 'layout_link', 'owner_link')
     search_fields = ('slug', 'name', 'owner__username')
 
@@ -23,7 +24,7 @@ class DisplayAdmin(admin.ModelAdmin):
     layout_link.short_description = 'Layout'
     layout_link.admin_order_field = 'layout__name'
 
-class LayoutAdmin(admin.ModelAdmin):
+class LayoutAdmin(admin.OSMGeoAdmin):
     list_display = ('slug', 'name', 'owner_link')
     search_fields = ('slug', 'name', 'owner__username')
 
