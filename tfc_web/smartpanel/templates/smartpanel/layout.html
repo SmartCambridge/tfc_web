@@ -137,6 +137,7 @@
                                 display_name: '{{ display.name }}', 
                                 layout_owner: '{{ layout.owner.username }}',
                                 display_owner: '{{ display.owner.username }}',
+                                map_reload_limit: {{ display.map_reload_limit|default:'undefined' }},
                                 settings: JSON.parse('{{ settings|jsonify|escapejs }}'),
                             },
                             JSON.parse("{{ value.data|jsonify|escapejs }}"));

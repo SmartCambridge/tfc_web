@@ -254,6 +254,8 @@ except NameError:
 SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
 SMARTPANEL_API_TOKEN = JS_API_KEY
 
+SMARTPANEL_TRAFFIC_MAP_RELOAD_LIMIT_DEFAULT = 10
+
 # ======================================================================
 # RTMONITOR_URI WEBSOCKET ENDPOINT =====================================
 

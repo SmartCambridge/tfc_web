@@ -217,6 +217,22 @@ def layout(request, slug, display=None):
 
     dependencies_list = generate_dependencies_list(uwl)
 
+    # If there are any traffic-map widgets, then get a Google API key -
+    # either the first custom key found in a traffic-map widget
+    # configuration, or the default from settings. Use this to add
+    # a custom URL to dependencies_list for inclusion in the rendered
+    # page
+    if 'traffic_map' in uwl:
+        api_key = settings.GOOGLE_API_KEY
+        for widget_config in widgets.values():
+            if widget_config['widget'] == 'traffic_map':
+                custom_key = widget_config['data'].get('api_key', None)
+                if custom_key:
+                    api_key = custom_key
+                    break
+        url = "https://maps.googleapis.com/maps/api/js?key={}".format(api_key)
+        dependencies_list['js'].append({"src": url})
+
     if display is None:
 
         # layout gets a 10-minute rt_token

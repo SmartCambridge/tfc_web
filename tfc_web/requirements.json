@@ -30,14 +30,6 @@
                   "integrity": "sha256-FJZOELgwnfQRdG8KZUSWCYgucECDf4w5kfQdQSGbVpI="
                 }
             ]
-        },
-
-        "google-maps-api": {
-            "scripts": [
-                {
-                    "src": "https://maps.googleapis.com/maps/api/js?key=AIzaSyAEkMI-ZAAt1kjv668jfBXhNB1-odv5m3g"
-                }
-            ]
         }
     }
 }
