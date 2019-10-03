@@ -69,6 +69,15 @@
         var DEBUG = '';
         var widgets = [];
 
+        // GET/SET a persistent ID for the device/browser this is running on
+        if (!localStorage.getItem('SMARTCAMBRIDGE_CLIENT_ID')) {
+            // Default to Pocket instance, if present
+            var id = random_chars('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4) +
+                '-' +
+                random_chars('0123456789', 4);
+            localStorage.setItem('SMARTCAMBRIDGE_CLIENT_ID', id);
+        }
+
         function reload_widgets () {
             for (var i = 0; i < widgets.length; i++)
                 if ('reload' in widgets[i])
@@ -81,6 +90,17 @@
             var mm = ('0'+datetime.getMinutes()).slice(-2);
             var ss = ('0'+datetime.getSeconds()).slice(-2);
             document.getElementById('screen_clock').innerHTML = hh+':'+mm+':'+ss;
+        }
+
+        // Choose `count` characters at random from `chars`
+        function random_chars(chars, count) {
+            var result = '';
+            for (var i = 0; i < count; ++i) {
+               var rnum = Math.floor(Math.random() * chars.length);
+               result += chars.substring(rnum, rnum+1);
+            }
+            return result;
+
         }
 
         {% if display %}
