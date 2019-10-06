@@ -37,6 +37,7 @@ class Display(models.Model):
     layout = models.ForeignKey(Layout, null=True, related_name="displays", on_delete=DO_NOTHING)
     owner = models.ForeignKey(User, on_delete=DO_NOTHING)
     slug = models.SlugField(max_length=12, unique=True)
+    map_reload_limit = models.IntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:

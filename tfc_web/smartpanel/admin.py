@@ -6,7 +6,7 @@ from django.contrib.gis import admin as admin
 
 
 class DisplayAdmin(admin.OSMGeoAdmin):
-    list_display = ('slug', 'name', 'layout_link', 'owner_link')
+    list_display = ('slug', 'name', 'layout_link', 'owner_link', 'map_reload_limit')
     search_fields = ('slug', 'name', 'owner__username')
 
     def owner_link(self, display):

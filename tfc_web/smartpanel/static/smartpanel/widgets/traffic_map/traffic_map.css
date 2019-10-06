@@ -28,3 +28,22 @@
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
 }
+
+.map_message {
+    background-color: white;
+    top: 10%;
+    color: black;
+    font-size: 1rem;
+    left: 50%;
+    position: absolute;
+    text-align: center;
+    -ms-transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+.map_message *:first-child {
+    font-size: 1.25rem;
+    font-weight: bold;
+    padding-bottom: 0.75rem;
+}

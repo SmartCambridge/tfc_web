@@ -1,7 +1,7 @@
 /* Traffic Map Widget for ACP Lobby Screen */
 
 /*jshint esversion:6 */
-/*global google, document, DEBUG */
+/*global moment, google, document, DEBUG */
 /*exported TrafficMap */
 
 function TrafficMap(widget_id) {
@@ -9,6 +9,8 @@ function TrafficMap(widget_id) {
     'use strict';
 
     var self = this;
+
+    var USAGE_RECORD_KEY = 'SMARTPANEL_TRAFFIC_MAP';
 
     //var DEBUG = ' traffic_map_log';
 
@@ -34,19 +36,6 @@ function TrafficMap(widget_id) {
         map_div.classList.add('map');
         widget_area.appendChild(map_div);
 
-        // First map settings
-        self.log(widget_id,'init - prepping map 0');
-        var map0 = params.maps[0];
-        var google_map = new google.maps.Map(map_div, {
-            zoom: map0.zoom,
-            center: {lat: map0.lat, lng: map0.lng},
-            disableDefaultUI: true
-        });
-        var trafficLayer = new google.maps.TrafficLayer({
-            autoRefresh: true
-        });
-        trafficLayer.setMap(google_map);
-
         // Title
         var title = document.createElement('h1');
         title.classList.add('translucent');
@@ -57,39 +46,68 @@ function TrafficMap(widget_id) {
         title.appendChild(document.createTextNode('Road Traffic'));
         widget_area.appendChild(title);
 
-        // Ledgend
-        var ledgend = document.createElement('div');
-        ledgend.classList.add('ledgend');
-        ledgend.appendChild(document.createTextNode('Live traffic speed'));
-        ledgend.appendChild(document.createElement('br'));
-        var fast = document.createElement('i');
-        fast.appendChild(document.createTextNode('Fast '));
-        ledgend.appendChild(fast);
-        var img2 = document.createElement('img');
-        img2.setAttribute('src', config.static_url + 'traffic-legend.png');
-        ledgend.appendChild(img2);
-        var slow = document.createElement('i');
-        slow.appendChild(document.createTextNode(' Slow'));
-        ledgend.appendChild(slow);
-        widget_area.appendChild(ledgend);
-
-        // Rotation logic
-        var map_no = 0;
-        if (params.maps.length > 1) {
-            var interval = params.interval * 1000 || 7500;
-            if (interval < 1000) {
-                interval = 1000;
+        // Check if we've outstayed our welcome
+        if (params.api_key || usage_ok(config)) {
+            if (params.api_key) {
+                send_beacon({
+                    event: 'google_api_call_custom_key',
+                    layout: config.layout_id,
+                    display: config.display_id
+                });
             }
-            self.log('do load - interval is', interval);
-            window.setInterval(function() {
-                map_no = (map_no + 1) % params.maps.length;
-                self.log(widget_id,'TrafficMap - rolling maps to map number', map_no);
-                google_map.panTo({lat: params.maps[map_no].lat, lng: params.maps[map_no].lng});
-                google_map.setZoom(params.maps[map_no].zoom);
-            }, interval);
+            // Setup a map with the first map's settings
+            self.log(widget_id,'init - prepping map 0');
+            var map0 = params.maps[0];
+            var google_map = new google.maps.Map(map_div, {
+                zoom: map0.zoom,
+                center: {lat: map0.lat, lng: map0.lng},
+                disableDefaultUI: true
+            });
+            var trafficLayer = new google.maps.TrafficLayer({
+                autoRefresh: true
+            });
+            trafficLayer.setMap(google_map);
+
+            // Ledgend
+            var ledgend = document.createElement('div');
+            ledgend.classList.add('ledgend');
+            ledgend.appendChild(document.createTextNode('Live traffic speed'));
+            ledgend.appendChild(document.createElement('br'));
+            var fast = document.createElement('i');
+            fast.appendChild(document.createTextNode('Fast '));
+            ledgend.appendChild(fast);
+            var img2 = document.createElement('img');
+            img2.setAttribute('src', config.static_url + 'traffic-legend.png');
+            ledgend.appendChild(img2);
+            var slow = document.createElement('i');
+            slow.appendChild(document.createTextNode(' Slow'));
+            ledgend.appendChild(slow);
+            widget_area.appendChild(ledgend);
+
+            // Rotation logic
+            var map_no = 0;
+            if (params.maps.length > 1) {
+                var interval = params.interval * 1000 || 7500;
+                if (interval < 1000) {
+                    interval = 1000;
+                }
+                self.log('do load - interval is', interval);
+                window.setInterval(function() {
+                    map_no = (map_no + 1) % params.maps.length;
+                    self.log(widget_id,'TrafficMap - rolling maps to map number', map_no);
+                    google_map.panTo({lat: params.maps[map_no].lat, lng: params.maps[map_no].lng});
+                    google_map.setZoom(params.maps[map_no].zoom);
+                }, interval);
+            }
+            else {
+                self.log(widget_id,'display - only one map');
+            }
         }
         else {
-            self.log(widget_id,'display - only one map');
+            var message_div = document.createElement('div');
+            message_div.classList.add('map_message');
+            message_div.innerHTML = '<div>Reload limit exceeded</div><div>Contact info@smartcambridge.org</div>';
+            widget_area.appendChild(message_div);
         }
 
         self.log(widget_id,'TrafficMap.display done');
@@ -144,6 +162,17 @@ function TrafficMap(widget_id) {
         config_info3.appendChild(document.createTextNode(config_info_text));
         config_div.appendChild(config_info3);
 
+        var config_info4 = document.createElement('p');
+        config_info_text =
+            'You probably don\'t need to supply a \'Google API key\'. However if your ' +
+            'SmartPanel reloads frequently (more than a few times per day) it will run up ' +
+            'charges from Google that SmartCambridge is unable to absorb. If this happens ' +
+            'then display of the Traffic Map will be blocked unless you register with Google ' +
+            'and supply your own API key here. If you have more than one Traffic Map in ' +
+            'the same layout then use the same API key for each of them.';
+        config_info4.appendChild(document.createTextNode(config_info_text));
+        config_div.appendChild(config_info4);
+
         var config_form = document.createElement('form');
         config_div.appendChild(config_form);
 
@@ -171,12 +200,20 @@ function TrafficMap(widget_id) {
 
         var maps_result = input_google_map_list( widget_config, config_tbody, params.maps );
 
+        var api_key_result = widget_config.input( config_tbody,
+                                         'string',
+                                         { text: 'Google API key: (optional):',
+                                           title: 'Your own Google Maps API key to use, rather then the default one provided by SmartCambridge'
+                                         },
+                                         params.api_key);
+
 
         //debug
         // return a test set of maps
         return { valid: function () { return true; },
                  value: function () { return { interval: interval_result.value(),
-                                               maps: maps_result.value()
+                                               maps: maps_result.value(),
+                                               api_key: api_key_result.value()
                                                /*
                                                maps: [
                                                        { lat: 52.204684, lng: 0.124622, zoom: 12 },
@@ -399,6 +436,85 @@ function TrafficMap(widget_id) {
                  valid: function () { return true; }
                };
     }
+
+    // Retrieve (or initialise) a count of the number of times the traffic_map
+    // has been loaded on the current browser, update this as necessary,
+    // and compare this to this display's reload limit. Return true if the limit
+    // hasn't been exceeded, false otherwise.
+    function usage_ok(config) {
+
+        var data;
+
+        if (localStorage.getItem(USAGE_RECORD_KEY)) {
+            data = JSON.parse(localStorage.getItem(USAGE_RECORD_KEY));
+            // Set to 0 if the day has changed
+            if (data.day !== moment().format('YYYY-MM-DD')) {
+                data.day = moment().format('YYYY-MM-DD');
+                data.count = 0;
+            }
+        }
+        else {
+            data = {
+                day: moment().format('YYYY-MM-DD'),
+                count: 0
+            };
+        }
+
+        data.count += 1;
+        localStorage.setItem(USAGE_RECORD_KEY, JSON.stringify(data));
+
+        var actual_limit = config.map_reload_limit !== undefined
+            ? config.map_reload_limit
+            : config.settings.SMARTPANEL_TRAFFIC_MAP_RELOAD_LIMIT_DEFAULT;
+
+        if (data.count > actual_limit) {
+            send_beacon({
+                event: 'google_usage_limit_exceeded',
+                count: data.count,
+                limit: actual_limit,
+                layout: config.layout_id,
+                display: config.display_id
+            });
+            return(false);
+        }
+
+        send_beacon({
+            event: 'google_api_call',
+            count: data.count,
+            limit: actual_limit,
+            layout: config.layout_id,
+            display: config.display_id
+        });
+        return(true);
+
+    }
+
+
+    function send_beacon(params) {
+        var uri = '/smartcambridge/logger/';
+        uri += encodeURIComponent('smartpanel')+'/';     // module_id
+        var instance = localStorage.getItem('SMARTCAMBRIDGE_CLIENT_ID');
+        uri += encodeURIComponent(instance)+'/';
+
+        uri += encodeURIComponent('traffic_map')+'/';
+
+        // add (optional) params to querystring
+        var params_count = 0;
+        if (params) {
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    params_count++;
+                    var qs_join = params_count === 1 ? '?' : '&';
+                    uri += qs_join + key + '=' + encodeURIComponent(params[key]);
+                }
+            }
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', uri, true);
+        xhr.send();
+    }
+
 
     self.log(widget_id, 'Instantiated TrafficMap');
 
