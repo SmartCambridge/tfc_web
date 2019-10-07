@@ -6,8 +6,7 @@
 
 #chart {
     height: calc(100vh - 350px);
-    margin: 5px 5px 5px 10px;
-    width: 95vw;
+    width: 100%;
 }
 
 svg {
