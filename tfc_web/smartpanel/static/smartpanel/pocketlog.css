@@ -1,0 +1,39 @@
+#content_title {
+  display: inline-block;
+  font-size: 22px;
+  margin: 5px 10px 10px 5px;
+}
+
+#chart {
+    height: calc(100vh - 350px);
+    width: 100%;
+}
+
+svg {
+  background-color: AliceBlue;
+  font: 13px sans-serif;
+  shape-rendering: crispEdges;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: #707070;
+}
+
+path.domain {
+    stroke: none;
+}
+
+.y .tick line {
+    stroke: #d4c1c1;
+}
+
+.ylabel {
+    font: 15px sans-serif;
+}
+
+.dot {
+  stroke: #000;
+}

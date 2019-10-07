@@ -33,6 +33,8 @@ urlpatterns = [
     url(r'^pocket/$', smartpanel.pocket, name='smartpanel-pocket'),
     url(r'^pocket/(?P<name>\w+)/$', smartpanel.pocket, name='smartpanel-pocket-pages'),
     url(r'^info/$', TemplateView.as_view(template_name="smartpanel/info.html"), name='smartpanel-info'),
+    url(r'^pocketlog/unique$', TemplateView.as_view(template_name="smartpanel/pocketlog_unique.html"), name='smartpanel-pocketlog-unique'),
+    url(r'^pocketlog/total$', TemplateView.as_view(template_name="smartpanel/pocketlog_total.html"), name='smartpanel-pocketlog-total'),
     # Widgets specific URLs
     url(r'^weather$', weather.weather),
     url(r'^weather/2$', weather.weather, {'ver': 2}, name='smartpanel-weather'),
