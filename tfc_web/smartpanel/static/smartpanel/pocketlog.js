@@ -7,12 +7,26 @@ var colors = ['royalblue', 'cornflowerblue'];
 // Graph container
 var margin = {top: 20, right: 100, bottom: 35, left: 50};
 
+var resizeTimer;
+
 function stacked_bar_graph(data, columns, ylabel) {
     draw_graph(data, columns, ylabel, stacked_bar_graph_internal);
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            draw_graph(data, columns, ylabel, stacked_bar_graph_internal);
+        }, 250);
+    });
 }
 
 function dot_graph(data, columns, ylabel) {
     draw_graph(data, columns, ylabel, dot_graph_internal);
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            draw_graph(data, columns, ylabel, dot_graph_internal);
+        }, 250);
+    });
 }
 
 function draw_graph(data, columns, ylabel, grapher) {
@@ -38,6 +52,7 @@ function draw_graph(data, columns, ylabel, grapher) {
         .tickSize(-width, 0, 0)
         .ticks(5);
 
+    d3.selectAll('#chart svg').remove();
     var svg = d3.select('#chart').append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
