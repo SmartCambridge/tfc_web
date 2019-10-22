@@ -6,7 +6,7 @@ whitenoise==3.3.0
 xmltodict==0.10.2
 psycopg2-binary==2.7.4
 gunicorn==19.7.0
-Pillow==4.0.0
+Pillow==6.2.0
 pytz==2016.10
 django-machina==0.5.6
 wheel
