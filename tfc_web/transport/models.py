@@ -54,7 +54,6 @@ class Stop(models.Model):
     # modification = models.CharField(max_length=3, null=True, blank=True)
     # status = models.CharField(max_length=3, null=True, blank=True)
     gis_location = models.PointField(null=True)
-    objects = models.GeoManager()
     data = JSONField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
