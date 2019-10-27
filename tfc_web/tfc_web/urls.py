@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
 
     # Main pages
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^$', TemplateView.as_view(template_name="index.html"), name='home'),
     url(r'^about$', TemplateView.as_view(template_name="about.html"), name='about'),
 
