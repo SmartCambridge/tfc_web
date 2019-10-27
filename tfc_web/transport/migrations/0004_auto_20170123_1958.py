@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import migrations, models
 
 
@@ -34,7 +35,9 @@ class Migration(migrations.Migration):
                 ('stop_to_sequence_number', models.IntegerField()),
                 ('run_time', models.DurationField()),
                 ('wait_time', models.DurationField(blank=True, null=True)),
-                ('journey_pattern_section', models.ForeignKey(to='transport.JourneyPatternSection', related_name='timing_link')),
+                ('journey_pattern_section',
+                 models.ForeignKey(to='transport.JourneyPatternSection', related_name='timing_link',
+                                   on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -53,7 +56,8 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=255, serialize=False, primary_key=True)),
                 ('description', models.CharField(max_length=255)),
                 ('stops_list', models.TextField()),
-                ('line', models.ForeignKey(to='transport.Line', related_name='routes')),
+                ('line', models.ForeignKey(to='transport.Line', related_name='routes',
+                                           on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -111,7 +115,8 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(max_length=255, serialize=False, primary_key=True)),
                 ('departure_time', models.CharField(max_length=20)),
                 ('days_of_week', models.CharField(null=True, max_length=100)),
-                ('journey_pattern', models.ForeignKey(to='transport.JourneyPattern', related_name='journeys')),
+                ('journey_pattern', models.ForeignKey(to='transport.JourneyPattern', related_name='journeys',
+                                                      on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.RenameModel(
@@ -167,26 +172,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='line',
             name='operator',
-            field=models.ForeignKey(to='transport.Operator', related_name='lines'),
+            field=models.ForeignKey(to='transport.Operator', related_name='lines',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='journeypatterntiminglink',
             name='stop_from',
-            field=models.ForeignKey(related_name='departure_journeys', to_field='atco_code', to='transport.Stop'),
+            field=models.ForeignKey(related_name='departure_journeys', to_field='atco_code', to='transport.Stop',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='journeypatterntiminglink',
             name='stop_to',
-            field=models.ForeignKey(related_name='arrival_journeys', to_field='atco_code', to='transport.Stop'),
+            field=models.ForeignKey(related_name='arrival_journeys', to_field='atco_code', to='transport.Stop',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='journeypattern',
             name='route',
-            field=models.ForeignKey(to='transport.Route', related_name='journey_patterns'),
+            field=models.ForeignKey(to='transport.Route', related_name='journey_patterns',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='journeypattern',
             name='section',
-            field=models.ForeignKey(to='transport.JourneyPatternSection', related_name='journey_patterns'),
+            field=models.ForeignKey(to='transport.JourneyPatternSection', related_name='journey_patterns',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
     ]
