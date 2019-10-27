@@ -8,6 +8,10 @@ psycopg2-binary
 gunicorn
 Pillow
 pytz
+django-mptt
+django-haystack
+markdown2
+django-widget-tweaks
 django-machina
 wheel
 djangorestframework
