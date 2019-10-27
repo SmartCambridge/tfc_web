@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR, get_apps as get_machina_apps
+from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR
 from tfc_web.secrets import *
 
 
@@ -65,13 +65,12 @@ INSTALLED_APPS = [
     'corsheaders',
 ] + PROJECT_APPS
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -155,11 +154,25 @@ LOGIN_REDIRECT_URL = 'home'
 
 ######### Forum app (django-machina) configuration ##########
 INSTALLED_APPS += [
+    # Machina dependencies:
     'mptt',
     'haystack',
     'widget_tweaks',
-] + get_machina_apps()
-MIDDLEWARE_CLASSES += [
+
+    # Machina apps:
+    'machina',
+    'machina.apps.forum',
+    'machina.apps.forum_conversation',
+    'machina.apps.forum_conversation.forum_attachments',
+    'machina.apps.forum_conversation.forum_polls',
+    'machina.apps.forum_feeds',
+    'machina.apps.forum_moderation',
+    'machina.apps.forum_search',
+    'machina.apps.forum_tracking',
+    'machina.apps.forum_member',
+    'machina.apps.forum_permission'
+]
+MIDDLEWARE += [
     'machina.apps.forum_permission.middleware.ForumPermissionMiddleware',
 ]
 TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'templates/forum'))
