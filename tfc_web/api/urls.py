@@ -9,7 +9,7 @@ from authmultitoken.views import (
 )
 
 from .api_docs import api_description
-from .views import login_and_agree
+from .views import login_and_agree, nginx_auth_probe, download, download_schema
 from smartcambridge.decorator import smartcambridge_valid_user
 
 # These are the URL patterns for which documentation should
@@ -28,6 +28,12 @@ urlpatterns = [
     url(r'^$',
         TemplateView.as_view(template_name="api/index.html"), name="api_home"),
 
+    url(r'^program/$',
+        TemplateView.as_view(template_name="api/program_api.html"), name="program_api"),
+
+    url(r'download/$', download, name='download_api'),
+    url(r'download/(?P<feed>[-\w]+)-schema/$', download_schema, name="downlod_schema"),
+
     url(r'login-and-agree/', login_and_agree, name="login-and-agree"),
 
     # Define these here, rather then via include('authmultitoken.html_urls',
@@ -40,6 +46,7 @@ urlpatterns = [
         smartcambridge_valid_user(manage_token), name='manage_token'),
     url(r'^add-restriction/(?P<token_id>[-\w]+)',
         smartcambridge_valid_user(add_restriction), name='add_restriction'),
+    url(r'^nginx-auth-probe/', nginx_auth_probe, name='nginx_auth_probe'),
 
     url(r'^auth/', include('api.auth_urls')),
     url(r'^docs/', include_docs_urls(
