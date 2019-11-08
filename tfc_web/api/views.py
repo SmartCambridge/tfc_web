@@ -1,5 +1,6 @@
 
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.http import is_safe_url
@@ -17,7 +18,7 @@ def login_and_agree(request):
     redirect_to = request.GET.get('next')
     url_is_safe = is_safe_url(
         url=redirect_to,
-        allowed_hosts=settings.ALLOWED_HOSTS,
+        allowed_hosts=request.get_host(),
         require_https=request.is_secure(),
     )
     if url_is_safe and redirect_to:
