@@ -1,0 +1,157 @@
+{% extends "api/base.html" %}
+
+{% block content %}
+
+<h1>Description of bus position data</h1>
+
+<p>One row for each bus position report. This data comes directly from a
+'CEN TS 15531 Service Interface for Real Time Information' (SIRI) feed 
+containing SIRI 'Vehicle Monitoring service' data (see <a
+href="http://user47094.vs.easily.co.uk/siri/">http://user47094.vs.easily.co.uk/siri/</a>).
+Most column names are based directly on the corresponding element names
+in SIRI 'MonitoredVehicleJourney' records. The SIRI standards
+documentation may provide further information on the meaning and
+intended use of each data item. </p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time).
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with timezone information.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">VehicleRef</td>
+            <td class="mdl-data-table__cell--non-numeric">A unique identifier of the
+                vehicle that generated the position report.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">LineRef</td>
+            <td class="mdl-data-table__cell--non-numeric">An identifier for the 'line'
+                (e.g. timetable route) that the vehicle was servicing at the time of
+                the report. These have a close but not exact relationship to the line
+                identifiers in the timetable information published by
+                the <a href="http://www.travelinedata.org.uk/traveline-open-data/traveline-national-dataset/">Traveline National Dataset (TNDS)</a>.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">DirectionRef</td>
+            <td class="mdl-data-table__cell--non-numeric">The direction of travel of
+                the vehicle on its 'line'. Typically either 'INBOUND" or 'OUTBOUND'.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">OperatorRef</td>
+            <td class="mdl-data-table__cell--non-numeric">A code for the operator of
+                the vehicle.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">OriginRef</td>
+            <td class="mdl-data-table__cell--non-numeric">First stop on the
+                timetabled journey currently assigned to the vehicle, expressed as
+                the 'ATOCCode' of the stop in the
+                <a href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan">National
+                Public Transport Access Nodes (NaPTAN)</a> database.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">OriginName</td>
+            <td class="mdl-data-table__cell--non-numeric">A human-readable name for the
+                origin stop. Usually similar to the name information for the stop in NAPTAN
+                but frequently not identical.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">DestinationRef</td>
+            <td class="mdl-data-table__cell--non-numeric">Last stop on the
+                timetabled journey currently assigned to the vehicle, expressed as
+                the 'ATOCCode' of the stop in the
+                <a href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan">National
+                Public Transport Access Nodes (NaPTAN)</a> database.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">DestinationName</td>
+            <td class="mdl-data-table__cell--non-numeric">A human-readable name for the
+                destination stop. Usually similar to the name information for the stop in NAPTAN
+                but frequently not identical.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">OriginAimedDepartureTime</td>
+            <td class="mdl-data-table__cell--non-numeric">The timetabled departure time
+                from the origin stop for the timetabled journey currently assigned to the
+                vehicle.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Longitude</td>
+            <td class="mdl-data-table__cell--non-numeric">The longitude component of the
+                vehicle's position at the time of the report in decimal degrees.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Latitude</td>
+            <td class="mdl-data-table__cell--non-numeric">The latitude component of the
+                vehicle's position at the time of the report in decimal degrees.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Bearing</td>
+            <td class="mdl-data-table__cell--non-numeric">The direction of travel of the
+                vehicle at the time of the position report in compass degrees (0-360) with
+                north equal to 0 degrees and east to 90.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Delay</td>
+            <td class="mdl-data-table__cell--non-numeric">A time delta representing the
+                current delay to the service against the timetable with early times shown
+                as negative values. This is expressed in ISO format using a limited version
+                of XMS-Schema's xsd:duration that only contains Month, Day, Hour, Minute,
+                Second and Millisecond terms.
+            </td>
+        </tr>
+
+
+    </tbody>
+
+</table>
+
+{% endblock %}
