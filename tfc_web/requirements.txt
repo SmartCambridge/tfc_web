@@ -14,7 +14,7 @@ markdown2
 django-widget-tweaks
 django-machina
 wheel
-djangorestframework
+djangorestframework<3.12
 coreapi
 pygments
 markdown

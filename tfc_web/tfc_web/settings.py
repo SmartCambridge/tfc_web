@@ -239,6 +239,7 @@ except KeyError:
     DATA_PATH = '/media/tfc'
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_THROTTLE_RATES': {
         'token_burst': '1200/min',
         'token_sustained': '12000/hour',
