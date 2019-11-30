@@ -18,7 +18,7 @@ git merge --ff-only
 
 # Install any new Python modules
 cd tfc_web
-pip3 install -r requirements.txt
+pip3 install -U -r requirements.txt
 
 # Run migrations
 ./manage.py migrate
