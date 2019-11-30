@@ -1,0 +1,199 @@
+{% extends "api/base.html" %}
+
+{% block content %}
+
+<h1>Description of air quality data</h1>
+
+<h2>Data</h2>
+
+<p>Air quality data is provided seperate 'data' and 'header' files:
+
+<h3>'Data' files</h3>
+
+<p>One row representing each observation from each sensor at each station
+location, with these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">station_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">sensor_type</td>
+            <td class="mdl-data-table__cell--non-numeric">The type of sensor.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp in miliseconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with time zone information.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">reading</td>
+            <td class="mdl-data-table__cell--non-numeric">Sensor reading
+                (units depending on sensor type).</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<h3>'Header' files</h3>
+
+<p>One row per month for each sensor at each station location, with
+these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">station_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">sensor_type</td>
+            <td class="mdl-data-table__cell--non-numeric">The type of sensor.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp in miliseconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with time zone information.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<p>together with some or all of the folowing columns:
+'BatteryVoltage', 'COFinal', 'COOffset', 'COPrescaled', 'COScaled',
+'COSerialNumber', 'COSlope', 'COStatus', 'GasProtocol', 'GasStatus',
+'Humidity', 'Latitude', 'Longitude', 'Name', 'NO2Final', 'NO2Offset',
+'NO2Prescaled', 'NO2Scaled', 'NO2SerialNumber', 'NO2Slope', 'NO2Status',
+'NOFinal', 'NOOffset', 'NOPrescaled', 'NOScaled', 'NOSerialNumber',
+'NOSlope', 'NOStatus', 'O3Final', 'O3Offset', 'O3Prescaled', 'O3Scaled',
+'O3SerialNumber', 'O3Slope', 'O3Status', 'OtherInfo', 'P1', 'P2', 'P3',
+'ParticleNumber', 'ParticleProtocol', 'ParticleStatus', 'PM10Final',
+'PM10Offset', 'PM10Output', 'PM10PreScaled', 'PM10Slope', 'PM1Final',
+'PM1Offset', 'PM1Output', 'PM1PreScaled', 'PM1Slope', 'PM2_5Final',
+'PM2_5Offset', 'PM2_5OutPut', 'PM2_5PreScaled', 'PM2_5Slope',
+'PMTotalOffset', 'PMTotalPreScaled', 'PMTotalSlope', 'PodFeaturetype',
+'Pressure', 'SerialNo', 'SO2Final', 'SO2Offset', 'SO2Prescaled',
+'SO2Scaled', 'SO2SerialNumber', 'SO2Slope', 'SO2Status', 'T1', 'T2', 'T3',
+'Temperature', 'TSP'.</p>
+
+<h2>Metadata</h2>
+
+<p>One row for each station location with these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">station_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Name</td>
+            <td class="mdl-data-table__cell--non-numeric">Human-readable
+            name of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Description</td>
+            <td class="mdl-data-table__cell--non-numeric">Human-readable
+            description of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">SensorType</td>
+            <td class="mdl-data-table__cell--non-numeric">A list separated
+            by '|' of the types of sensor available at this sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Latitude</td>
+            <td class="mdl-data-table__cell--non-numeric">Latitude
+                of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">Longitude</td>
+            <td class="mdl-data-table__cell--non-numeric">Longitude
+                of the sensor station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">date_from</td>
+            <td class="mdl-data-table__cell--non-numeric">The earliest date
+            for which data is available for this station.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">date_to</td>
+            <td class="mdl-data-table__cell--non-numeric">The latest date
+            for which data is available for this station.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<p>There's <a href="{% url 'aq_map' %}">a map showing all the sensor locations</a>.</p>
+
+{% endblock %}

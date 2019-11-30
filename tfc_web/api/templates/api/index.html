@@ -2,12 +2,23 @@
 
 {% block content %}
 
-<h1>Smart Cambridge APIs</h1>
+<h1>Smart Cambridge Data API and data downloads</h1>
 
-<p>This API provides programmatic access to information maintained by
-the Smart Cambridge project.</p>
+<p>SmartCambridge's work is focused on acquiring, processing and using
+data in real time. As part of that processing we archive the data
+we collect and make it available for reuse.</p>
 
-<p>Currently available:</p>
+<p>Archived data can be accessed in two ways:</p>
+
+<ul>
+    <li>By <a href="{% url 'download_api' %}">Download</a> which provide the data in
+    bulk as 'comma separated variable' (CSV) files which can
+    be imported into a range of tools for analysis.</li>
+    <li>Via the <a href="{% url 'program_api' %}">Program API</a> which is ideal for
+    use by programs and apps.</li>
+</ul>
+
+<p>Available data:</p>
 
 <ul>
 
@@ -15,15 +26,15 @@ the Smart Cambridge project.</p>
 of sensors deployed around Cambridge between June 2016 and February
 2017.</li>
 
-<li><a href="{% url 'parking_home' %}"> Car Parking</a> data showing
+<li><a href="{% url 'parking_home' %}">Car Parking</a> data showing
 the occupancy of Cambridge City Centre and Park and Ride car parks from
 2017 onward.</li>
 
-<li><a href="{% url 'traffic_home' %}">Traffic Speed</a> data for a
-number of roads within Cambridge based on bus position reports from
+<li><a href="{% url 'traffic_home' %}">Traffic Speed</a> data for
+roads within Cambridge based on bus position reports from
 October 2017 onward.</li>
 
-<li>API access to bus transport data from the <a
+<li>(Via the Program API only) bus transport data from the <a
 href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251
 /national-public-transport-access-nodes-naptan">National Public
 Transport Access Nodes (NaPTAN)</a> and <a
@@ -32,105 +43,8 @@ national-dataset/">Traveline National Dataset (TNDS)</a> resources.</li>
 
 </ul>
 
-<h2>API Endpoints</h2>
-
-<p>There is a seperate 
-<a href="{% url 'api-docs:docs-index'%}">reference
-page documenting the API endpoints</a>.</p>
-
-<p>The API operates over HTTP using REST-like conventions with
-parameters encoded in URL paths and query parameters. It can be accessed
-by any tool capable of making HTTP requests and interpreting the
-results. The reference page promotes the use of the <a
-href="http://www.coreapi.org/">CoreAPI</a> toolset but the API is in no
-way restricted to CoreAPI-aware tools.</p>
-
-<h2>Authentication</h2>
-
-<p>All API calls must be authenticated by someone who has agreed to the
-platform's 
-<a href="{% url 'smartcambridge-tcs' %}">Terms and
-Conditions</a>. You make authenticated calls either:</p>
-
-<ul>
-
-<li>by <a href="{% url 'login-and-agree' %}">signing in</a> (and
-agreeing the terms and conditions if you haven't already)</li>
-
-<li>by including an API token with the call. Beware that API calls made
-from browsers, for example from JavaScript, will always succeed for as
-long as you are logged in to this website <em>even if you are not
-successfully supplying a token</em>.</li>
-
-</ul>
-
-<p>To call the API using the 'Interact' links on the
-<a href="{% url 'api-docs:docs-index' %}">reference page</a>
-you can also authenticate using the
-'Authentication' menu at the bottom-left of that page providing you
-have already agreed to the terms and conditions.</p>
-
-<h2>Tokens</h2>
-
-<p>You can <a href="{% url 'create_token' %}">create</a> and
-subsequently
-<a href="{% url 'manage_tokens' %}">manage</a> as many API tokens as you
-want.</p>
-
-<p>To use a token for authentication, include it in an
-<tt>Authorization</tt> HTTP header in your requests, proceeded by the
-word <tt>Token</tt> and a single space:</p>
-
-<pre>
-Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
-</pre>
-
-<p>For example:</p>
-
-<pre>
-curl -H 'Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b' https://smartambridge.org/api/v1/aq/ 
-</pre>
-
-<p>Tokens used by JavaScript applications are of necessity exposed. To
-minimise the impact of this you can associate any token with a list of
-'referer' patterns. Access using that token will then be rejected if the
-'Referer' header provided by a browser don't match any of the patterns.
-While this is easily subverted in server-side scripts and by using
-custom proxies it does make it slightly harder to misuse tokens
-that are exposed in this way.</p>
-
-<p>You can setup referer restrictions on tokens from the 
-<a href="{% url 'manage_tokens' %}">token management page</a>.</p>
-
-<h2>Rate limiting</h2>
-
-<p>Access to the API is rate-limited to 1200 requests per minute and
-12000 requests per hour per token for token-based access, or per user
-otherwise. These are intended as back-stops to avoid accidents - please
-aim to keep you use of the API well below these rates. These limits may
-be reduced in the future.</p>
-
-<h2>Results format</h2>
-
-<p>Results are normally returned in <a
-href="https://www.json.org/">JSON</a> with <tt>Content-Type:
-application/json</tt>. However if a response is explicitly requested in
-HTML by including an <tt>Accept: text/html</tt> header in the request
-(as happens if the API is accessed directly from a browser) then results
-are returned in human-friendly HTML.</p>
-
-<p>Successful responses have HTTP status codes of <tt>200 OK</tt>. Other
-status codes (at least <tt>400 Bad Request</tt>, <tt>401 Authorization
-Required</tt>, and <tt>404 Not Found</tt>) indicate an error. Most
-errors include an <tt>application/json</tt> body containing further
-information. Some errors, in particular any that generate bogus URLs,
-generate generic HTML <tt>404 Not found</tt> pages with 
-<tt>Content-Type: text/html</tt>.
-
-<p>Individual output formats are not documented, but should be 
-self-explanatory. Some API calls that return lists of data items will return
-<tt>200 OK</tt> responses with empty lists, rather than <tt>404 Not
-found</tt>, if called with a valid request for which there happens to be
-no data available (e.g because of the chosen date range).</p>
+<p>The data is available to anyone, but you have to register and agree
+to the platform's <a href="{% url 'smartcambridge-tcs' %}">Terms and
+Conditions</a> before you can access it.</p>
 
 {% endblock %}
