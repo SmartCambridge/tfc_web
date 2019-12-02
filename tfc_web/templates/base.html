@@ -14,7 +14,7 @@
     <script>
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', function() {
-            navigator.serviceWorker.register("sw.js").then(function(registration) {
+            navigator.serviceWorker.register("/sw.js").then(function(registration) {
               // Registration was successful
               console.log('ServiceWorker registration successful with scope: ', registration.scope);
             }, function(err) {
@@ -110,7 +110,7 @@
                     <div class="drawer-separator"></div>
                     <a class="mdl-navigation__link" href="{% url 'forum:index' %}" style="color: #1cb2b5;">Forum</a>
                     <div class="drawer-separator"></div>
-                    <a class="mdl-navigation__link" href="{% url 'api_home' %}" style="color: #1cb2b5;">API</a>
+                    <a class="mdl-navigation__link" href="{% url 'api_home' %}" style="color: #1cb2b5;">Data access</a>
                     <div class="drawer-separator"></div>
                     <a class="mdl-navigation__link" href="{% url 'about' %}" style="color: #1cb2b5;">About</a>
                 {% endblock %}

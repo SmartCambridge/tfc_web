@@ -1,0 +1,161 @@
+{% extends "api/base.html" %}
+
+{% block content %}
+
+<h1>Description of traffic speed data</h1>
+
+<h2>Data</h2>
+
+<p>One row representing each time a bus completes a journey along a monitored
+section of road with these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                for the section of road being monitored.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time).</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with time zone information.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">duration</td>
+            <td class="mdl-data-table__cell--non-numeric">Time in seconds
+                taken to transit this section of road.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">distance</td>
+            <td class="mdl-data-table__cell--non-numeric">Distance
+                in meters covered by the bus while transiting this section
+                of road.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_delta</td>
+            <td class="mdl-data-table__cell--non-numeric">Bus tracks are 
+                approximated by a sequence
+                of straight line segments. ts_delta is the sum of
+                the duration of the first segment (the one that entered the section)
+                and the duration of the last (the one that left), in seconds.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">vehicle_id</td>
+            <td class="mdl-data-table__cell--non-numeric">A unique identifier
+                of the bus involved.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<h2>Metadata</h2>
+
+<p>One row for each monitored section of road with these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                for the section of road being monitored.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_reverse_id</td>
+            <td class="mdl-data-table__cell--non-numeric">The zone_id for
+                the same section of road as this one but for traffic
+                in the opposite direction (if there is one).</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_name</td>
+            <td class="mdl-data-table__cell--non-numeric">A human-readable
+                name for this section of road.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_map</td>
+            <td class="mdl-data-table__cell--non-numeric">'TRUE' if this section
+                of road is to be shown on the map on the SmartCambridge site and
+                'FALSE' otherwise. This is used to avoid displaying
+                the same section of road in both directions.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_center</td>
+            <td class="mdl-data-table__cell--non-numeric">A pair of numbers
+                separated by '|' representing the WGS84 latitude and longitude of
+                the aproximate centre of the road segment.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_zoom</td>
+            <td class="mdl-data-table__cell--non-numeric">An 'OpenStreetMap'-compatible
+                map zoom level that can be used along with zone_center to show this
+                section of road on a map.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_finish_index</td>
+            <td class="mdl-data-table__cell--non-numeric">The zero-based index of
+                the segment of zone_path that represents the 'finish line' for this
+                section of road.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">zone_path</td>
+            <td class="mdl-data-table__cell--non-numeric">A sequence of numbers
+                separated by '|' representing pairs of WGS84 latitudes and longitudes locating
+                the verticies of a clockwise polygon within which the segment of road lies.
+                The first segment represents the 'start line' and the segment
+                identified by 'zone_finish_index' represents the 'finish line'. To
+                generate an observation, a bus must enter the polygon across the start line
+                and leave it across the finish line without otherwise leaving the polygon.
+                </td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<p>There's <a href="{% url 'zones_map' %}">a map showing currently monitored
+sections of road</a>.</p>
+
+{% endblock %}
