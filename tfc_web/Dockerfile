@@ -1,4 +1,4 @@
-FROM python:3.8.0-slim-buster
+FROM python:3.6-slim-buster
 
 # Do everything relative to /usr/src/app which is where we install our
 # application.
