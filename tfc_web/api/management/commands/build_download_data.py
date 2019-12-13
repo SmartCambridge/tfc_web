@@ -28,7 +28,7 @@ SOURCE_DIR = settings.DATA_PATH
 try:
     DEST_DIR = settings.DEST_DIR
 except AttributeError:
-    DEST_DIR = os.path.join(settings.DATA_PATH, 'download_api')
+    DEST_DIR = SOURCE_DIR
 logger.debug('SOURCE_DIR: %s', SOURCE_DIR)
 logger.debug('DEST_DIR: %s', DEST_DIR)
 

@@ -276,7 +276,7 @@ DOWNLOAD_FEEDS = [
             {
                 'name': 'headers-year',
                 'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
-                'destination': os.path.join('aq', 'aq-headers-{date:%Y}'),
+                'destination': os.path.join('download_api', 'aq', 'aq-headers-{date:%Y}'),
                 'extractor': 'api.extractors.aq.aq_header_extractor',
                 'step': {'years': 1}
 
@@ -284,28 +284,28 @@ DOWNLOAD_FEEDS = [
             {
                 'name': 'data-year',
                 'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
-                'destination': os.path.join('aq', 'aq-data-{date:%Y}'),
+                'destination': os.path.join('download_api', 'aq', 'aq-data-{date:%Y}'),
                 'extractor': 'api.extractors.aq.aq_data_extractor',
                 'step': {'years': 1}
             },
             {
                 'name': 'headers-month',
                 'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
-                'destination': os.path.join('aq', 'aq-headers-{date:%Y}-{date:%m}'),
+                'destination': os.path.join('download_api', 'aq', 'aq-headers-{date:%Y}-{date:%m}'),
                 'extractor': 'api.extractors.aq.aq_header_extractor',
                 'step': {'months': 1}
             },
             {
                 'name': 'data-month',
                 'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
-                'destination': os.path.join('aq', 'aq-data-{date:%Y}-{date:%m}'),
+                'destination': os.path.join('download_api', 'aq', 'aq-data-{date:%Y}-{date:%m}'),
                 'extractor': 'api.extractors.aq.aq_data_extractor',
                 'step': {'months': 1}
             },
         ],
         'metadata': {
             'source_pattern': os.path.join('sys', 'data_cam_aq_config', 'list.json'),
-            'destination': os.path.join('aq', 'aq-metadata'),
+            'destination': os.path.join('download_api', 'aq', 'aq-metadata'),
             'extractor': 'api.extractors.aq.aq_metadata_extractor'
         }
     },
@@ -321,21 +321,21 @@ DOWNLOAD_FEEDS = [
             {
                 'name': 'year',
                 'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '*', '*', '*.txt'),
-                'destination': os.path.join('parking', 'parking-{date:%Y}'),
+                'destination': os.path.join('download_api', 'parking', 'parking-{date:%Y}'),
                 'extractor': 'api.extractors.parking.cam_park_rss_extractor',
                 'step': {'years': 1}
             },
             {
                 'name': 'month',
                 'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '{date:%m}', '*', '*.txt'),
-                'destination': os.path.join('parking', 'parking-{date:%Y}-{date:%m}'),
+                'destination': os.path.join('download_api', 'parking', 'parking-{date:%Y}-{date:%m}'),
                 'extractor': 'api.extractors.parking.cam_park_rss_extractor',
                 'step': {'months': 1}
             },
             {
                 'name': 'day',
                 'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
-                'destination': os.path.join('parking', 'parking-{date:%Y}-{date:%m}-{date:%d}'),
+                'destination': os.path.join('download_api', 'parking', 'parking-{date:%Y}-{date:%m}-{date:%d}'),
                 'extractor': 'api.extractors.parking.cam_park_rss_extractor',
                 'start': {'day': 1},  # First of this month
                 'step': {'days': 1}
@@ -344,7 +344,7 @@ DOWNLOAD_FEEDS = [
         ],
         'metadata': {
             'source_pattern': os.path.join('sys', 'data_parking_config', 'list.json'),
-            'destination': os.path.join('parking', 'parking-metadata'),
+            'destination': os.path.join('download_api', 'parking', 'parking-metadata'),
             'extractor': 'api.extractors.parking.cam_park_rss_metadata_extractor'
         }
     },
@@ -360,21 +360,21 @@ DOWNLOAD_FEEDS = [
             {
                 'name': 'year',
                 'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '*', '*', '*.txt'),
-                'destination': os.path.join('zone', 'zone-{date:%Y}'),
+                'destination': os.path.join('download_api', 'zone', 'zone-{date:%Y}'),
                 'extractor': 'api.extractors.zone.zone_extractor',
                 'step': {'years': 1}
             },
             {
                 'name': 'month',
                 'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '{date:%m}', '*', '*.txt'),
-                'destination': os.path.join('zone', 'zone-{date:%Y}-{date:%m}'),
+                'destination': os.path.join('download_api', 'zone', 'zone-{date:%Y}-{date:%m}'),
                 'extractor': 'api.extractors.zone.zone_extractor',
                 'step': {'months': 1}
             },
             {
                 'name': 'day',
                 'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
-                'destination': os.path.join('zone', 'zone-{date:%Y}-{date:%m}-{date:%d}'),
+                'destination': os.path.join('download_api', 'zone', 'zone-{date:%Y}-{date:%m}-{date:%d}'),
                 'extractor': 'api.extractors.zone.zone_extractor',
                 'start': {'day': 1},  # First of this month
                 'step': {'days': 1}
@@ -382,7 +382,7 @@ DOWNLOAD_FEEDS = [
         ],
         'metadata': {
             'source_pattern': os.path.join('sys', 'data_zone_config', 'list_all.json'),
-            'destination': os.path.join('zone', 'zone-metadata'),
+            'destination': os.path.join('download_api', 'zone', 'zone-metadata'),
             'extractor': 'api.extractors.zone.zone_metadata_extractor'
         }
     },
@@ -390,14 +390,14 @@ DOWNLOAD_FEEDS = [
         'name': 'bus',
         'title': 'Bus position reports',
         'desc': 'Raw position reports from buses in the Cambridge area from October 2017 onward.',
-        'archive_by_default': False,
+        'archive_by_default': True,
         'display': False,
         'first_year': 2017,
         'archives': [
             {
                 'name': 'month',
                 'source_pattern': os.path.join('sirivm_json/data_bin/', '{date:%Y}', '{date:%m}', '*', '*.json'),
-                'destination': os.path.join('bus', 'bus-{date:%Y}-{date:%m}'),
+                'destination': os.path.join('download_private', 'bus', 'bus-{date:%Y}-{date:%m}'),
                 'extractor': 'api.extractors.bus.bus_extractor',
                 'step': {'months': 1}
             }
