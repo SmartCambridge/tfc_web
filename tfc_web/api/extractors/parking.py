@@ -25,12 +25,17 @@ def cam_park_rss_extractor(files, writer):
     writer.writerow(fields)
 
     for file in files:
-        logger.debug('Processing %s', file)
-        with open(file) as reader:
-            for line in reader:
-                data = json.loads(line)
-                data['ts_text'] = epoch_to_text(data['ts'])
-                writer.writerow([data.get(f) for f in fields])
+        try:
+            logger.debug('Processing %s', file)
+            with open(file) as reader:
+                for line in reader:
+                    data = json.loads(line)
+                    data['ts_text'] = epoch_to_text(data['ts'])
+                    writer.writerow([data.get(f) for f in fields])
+        except OSError as e:
+            logger.error('Error opening %s: %s', file, e)
+        except json.decoder.JSONDecodeError as e:
+            logger.error('Error decoding %s: %s', file, e)
 
 
 # Metadata extractors for each storage type. They receive a single filename
@@ -43,8 +48,13 @@ def cam_park_rss_metadata_extractor(files, writer):
     writer.writerow(fields)
 
     assert len(files) == 1, 'Expecting exactly one file'
-    logger.debug('Processing %s', files[0])
-    with open(files[0]) as reader:
-        data = json.load(reader)
-        for carpark in data['parking_list']:
-            writer.writerow([carpark.get(f) for f in fields])
+    try:
+        logger.debug('Processing %s', files[0])
+        with open(files[0]) as reader:
+            data = json.load(reader)
+            for carpark in data['parking_list']:
+                writer.writerow([carpark.get(f) for f in fields])
+    except OSError as e:
+        logger.error('Error opening %s: %s', files[0], e)
+    except json.decoder.JSONDecodeError as e:
+        logger.error('Error decoding %s: %s', files[0], e)
