@@ -46,22 +46,27 @@ def aq_header_extractor(files, writer):
     writer.writerow(fields)
 
     for file in files:
-        logger.debug('Processing %s', file)
-        with open(file) as reader:
-            data = json.load(reader)
-            header = data['Header']
-            try:
-                station_id = str(header['StationID'])
-            except KeyError:
-                station_id = str(header['StationId'])
-            if not station_id.startswith('S-'):
-                station_id = 'S-' + station_id
-            header['station_id'] = station_id
-            header['sensor_type'] = data.get('SensorType')
-            ts = dateutil.parser.parse(header['Timestamp']).timestamp()
-            header['ts'] = ts
-            header['ts_text'] = epoch_to_text(ts)
-            writer.writerow([header.get(f) for f in fields])
+        try:
+            logger.debug('Processing %s', file)
+            with open(file) as reader:
+                data = json.load(reader)
+                header = data['Header']
+                try:
+                    station_id = str(header['StationID'])
+                except KeyError:
+                    station_id = str(header['StationId'])
+                if not station_id.startswith('S-'):
+                    station_id = 'S-' + station_id
+                header['station_id'] = station_id
+                header['sensor_type'] = data.get('SensorType')
+                ts = dateutil.parser.parse(header['Timestamp']).timestamp()
+                header['ts'] = ts
+                header['ts_text'] = epoch_to_text(ts)
+                writer.writerow([header.get(f) for f in fields])
+        except OSError as e:
+            logger.error('Error opening %s: %s', file, e)
+        except json.decoder.JSONDecodeError as e:
+            logger.error('Error decoding %s: %s', file, e)
 
 
 def aq_data_extractor(files, writer):
@@ -71,25 +76,30 @@ def aq_data_extractor(files, writer):
     writer.writerow(fields)
 
     for file in files:
-        logger.debug('Processing %s', file)
-        with open(file) as reader:
-            data = json.load(reader)
-            for ts, reading in data['Readings']:
-                # Capitalisation of 'StationID' inconsistent
-                try:
-                    station_id = str(data['Header']['StationID'])
-                except KeyError:
-                    station_id = str(data['Header']['StationId'])
-                if not station_id.startswith('S-'):
-                    station_id = 'S-' + station_id
-                row = [
-                  station_id,
-                  data['SensorType'],
-                  ts,
-                  epoch_to_text(ts/1000),
-                  reading
-                ]
-                writer.writerow(row)
+        try:
+            logger.debug('Processing %s', file)
+            with open(file) as reader:
+                data = json.load(reader)
+                for ts, reading in data['Readings']:
+                    # Capitalisation of 'StationID' inconsistent
+                    try:
+                        station_id = str(data['Header']['StationID'])
+                    except KeyError:
+                        station_id = str(data['Header']['StationId'])
+                    if not station_id.startswith('S-'):
+                        station_id = 'S-' + station_id
+                    row = [
+                      station_id,
+                      data['SensorType'],
+                      ts,
+                      epoch_to_text(ts/1000),
+                      reading
+                    ]
+                    writer.writerow(row)
+        except OSError as e:
+            logger.error('Error opening %s: %s', file, e)
+        except json.decoder.JSONDecodeError as e:
+            logger.error('Error decoding %s: %s', file, e)
 
 
 # Metadata extractors for each storage type. They receive a single filename
@@ -103,9 +113,14 @@ def aq_metadata_extractor(files, writer):
     writer.writerow(fields)
 
     assert len(files) == 1, 'Expecting exactly one file'
-    logger.debug('Processing %s', files[0])
-    with open(files[0]) as reader:
-        for station in json.load(reader)['aq_list']:
-            station['station_id'] = station['StationID']
-            station['SensorTypes'] = '|'.join(station['SensorTypes'])
-            writer.writerow([station.get(f) for f in fields])
+    try:
+        logger.debug('Processing %s', files[0])
+        with open(files[0]) as reader:
+            for station in json.load(reader)['aq_list']:
+                station['station_id'] = station['StationID']
+                station['SensorTypes'] = '|'.join(station['SensorTypes'])
+                writer.writerow([station.get(f) for f in fields])
+    except OSError as e:
+        logger.error('Error opening %s: %s', files[0], e)
+    except json.decoder.JSONDecodeError as e:
+        logger.error('Error decoding %s: %s', files[0], e)
