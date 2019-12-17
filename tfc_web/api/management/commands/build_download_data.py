@@ -7,6 +7,7 @@ day) as the tfc_prod user.
 '''
 
 import csv
+import fcntl
 import glob
 
 import importlib
@@ -161,6 +162,14 @@ def process_feed(feed, force):
 
     logger.debug('Processing %s feed', feed['name'])
 
+    # Acquire a lock for this feed
+    lock_file = open('/tmp/{}_feed.lock'.format(feed['name']), 'w')
+    try:
+        fcntl.lockf(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        logger.error('Failed to acquire lock for %s feed - someone else is processing it', feed['name'])
+        return
+
     # All of the feed's archives...
     if 'archives' in feed:
         for archive in feed['archives']:
@@ -191,6 +200,9 @@ def process_feed(feed, force):
     # ...and build the metadata
     if 'metadata' in feed:
         build_archive(feed['metadata'], None, force)
+
+    # And release the lock
+    lock_file.close()
 
 
 def process_feeds(feed_list, force):
