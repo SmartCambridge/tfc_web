@@ -390,7 +390,7 @@ DOWNLOAD_FEEDS = [
         'name': 'bus',
         'title': 'Bus position reports',
         'desc': 'Raw position reports from buses in the Cambridge area from October 2017 onward.',
-        'archive_by_default': True,
+        'archive_by_default': False,
         'display': False,
         'first_year': 2017,
         'archives': [
