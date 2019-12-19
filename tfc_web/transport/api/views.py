@@ -395,7 +395,35 @@ def siriVM_to_journey(request):
 
 
 VehicleJourneyList_schema = AutoSchema(
-    manual_fields=transport_pagination_fields
+    manual_fields=transport_pagination_fields + [
+        coreapi.Field(
+            "line",
+            required=False,
+            location="query",
+            schema=coreschema.String(
+                description="Limit results to journeys whose 'line name' "
+                            "is this. "
+                            "(e.g. 'Universal U')"
+                ),
+            description="Limit results to journeys whose 'line name' "
+                        "is this.",
+            example="Universal U",
+        ),
+        coreapi.Field(
+            "operator",
+            required=False,
+            location="query",
+            schema=coreschema.String(
+                description="Limit results to journeys whose operator name "
+                            "or operator code is this. "
+                            "(e.g. 'Whippet Coaches' or 'WHIP')"
+                ),
+            description="Limit results to journeys whose operator name "
+                        "or operator code is this.",
+            example="Whippet Coaches",
+        ),
+    ]
+
 )
 
 
@@ -411,6 +439,17 @@ class VehicleJourneyList(generics.ListAPIView):
     authentication_classes = default_authentication
     permission_classes = default_permission
     throttle_classes = default_throttle
+
+    def get_queryset(self):
+        queryset = VehicleJourney.objects.all()
+        line = self.request.query_params.get('line', None)
+        if line is not None:
+            queryset = queryset.filter(journey_pattern__route__line__line_name=line)
+        operator = self.request.query_params.get('operator', None)
+        if operator is not None:
+            queryset = (queryset.filter(journey_pattern__route__line__operator__short_name=operator) |
+                        queryset.filter(journey_pattern__route__line__operator__code=operator))
+        return queryset
 
 
 VehicleJourneyRetrieve_schema = AutoSchema(
