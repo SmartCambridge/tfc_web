@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 def zone_extractor(files, writer):
 
     logger.debug('In zone_extractor')
-    fields = ('zone_id', 'ts', 'ts_text', 'duration', 'distance', 'ts_delta', 'vehicle_id')
+    fields = ('zone_id', 'ts', 'ts_text', 'duration', 'distance', 'ts_delta', 'vehicle_id',
+              'line', 'direction', 'operator', 'origin', 'destination', 'departure_time')
     writer.writerow(fields)
 
     for file in files:
@@ -35,6 +36,12 @@ def zone_extractor(files, writer):
                 data['zone_id'] = data['module_id']
                 if 'distance' in data:
                     data['distance'] = round(data['distance'])
+                data['line'] = data['position_record'].get('LineRef')
+                data['direction'] = data['position_record'].get('DirectionRef')
+                data['operator'] = data['position_record'].get('OperatorRef')
+                data['origin'] = data['position_record'].get('OriginRef')
+                data['destination'] = data['position_record'].get('DestinationRef')
+                data['departure_time'] = data['position_record'].get('OriginAimedDepartureTime')
                 writer.writerow([data.get(f) for f in fields])
 
 # Metadata extractors for each storage type. They receive a single filename
