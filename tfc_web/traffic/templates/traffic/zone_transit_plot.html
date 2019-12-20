@@ -432,7 +432,7 @@ function draw_chart(rita_data)
           .attr('dx', CHART_DOT_RADIUS+10)
           .style('font-size', '22px')
           .style('fill', '#333')
-          .text(p.duration+p_time_str);
+          .text(p.duration+' sec.'+p_time_str);
     
 } // end draw_chart
 
@@ -440,13 +440,16 @@ function draw_chart(rita_data)
  // The point may have originated from GTFS feedhandler, GTFS feedmaker, or SIRI feedmaker
 function tooltip_html(d)
 {
-    var str = 'Zone: '+zone.zone_id;
+    var str = 'Zone:'+zone.zone_id;
     str += '<br/>Vehicle:'+d.vehicle_id;
-    str += '<br/>Transit time (secs):'+d.duration;
+    str += '<br/>Transit time:'+d.duration+' sec';
+    if (d.distance) {
+      str += '<br/>Distance:'+Math.round(d.distance)+' m';
+    }
     str += '<br/>Time:' + make_date(d.ts);
-    if (d.position_record)
+    if (d.journey)
     {
-        str += '<br/>'+JSON.stringify(d.position_record).replace(/,/g,', ');
+        str += '<br/>'+JSON.stringify(d.journey).replace(/,/g,', ');
     }
     if (d.route_id)
     {
