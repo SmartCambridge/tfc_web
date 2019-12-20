@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import migrations, models
 
 
@@ -24,6 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='journeypatterntiminglink',
             name='journey_pattern_section',
-            field=models.ForeignKey(related_name='timing_links', to='transport.JourneyPatternSection'),
+            field=models.ForeignKey(related_name='timing_links', to='transport.JourneyPatternSection',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

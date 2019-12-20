@@ -70,6 +70,60 @@ section of road with these columns:</p>
                 of the bus involved.</td>
         </tr>
 
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">line</td>
+            <td class="mdl-data-table__cell--non-numeric">An identifier for the 'line'
+                (e.g. timetable route) that the bus was servicing at the time of
+                the zone completion. These have a close but not exact relationship to the line
+                identifiers in the timetable information published by
+                the <a href="http://www.travelinedata.org.uk/traveline-open-data/traveline-national-dataset/">Traveline National Dataset (TNDS)</a>.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">direction</td>
+            <td class="mdl-data-table__cell--non-numeric">The direction of travel of
+                the vehicle on its 'line'. Typically either 'INBOUND" or 'OUTBOUND'.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">operator</td>
+            <td class="mdl-data-table__cell--non-numeric">A code for the operator of
+                the vehicle.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">origin</td>
+            <td class="mdl-data-table__cell--non-numeric">First stop on the
+                timetabled journey currently assigned to the vehicle that transited the zone,
+                expressed as
+                the 'ATOCCode' of the stop in the
+                <a href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan">National
+                Public Transport Access Nodes (NaPTAN)</a> database.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">destination</td>
+            <td class="mdl-data-table__cell--non-numeric">Last stop on the
+                timetabled journey currently assigned to the vehicle that transited the zone,
+                expressed as
+                the 'ATOCCode' of the stop in the
+                <a href="https://data.gov.uk/dataset/ff93ffc1-6656-47d8-9155-85ea0b8f2251/national-public-transport-access-nodes-naptan">National
+                Public Transport Access Nodes (NaPTAN)</a> database.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">departure_time</td>
+            <td class="mdl-data-table__cell--non-numeric">The timetabled departure time
+                from the origin stop for the timetabled journey currently assigned to the
+                vehicle that transited the zone.
+            </td>
+        </tr>
+
     </tbody>
 
 </table>

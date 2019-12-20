@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import migrations, models
 
 
@@ -14,11 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='journeypatterntiminglink',
             name='stop_from',
-            field=models.ForeignKey(related_name='departure_journeys', to_field='atco_code', to='transport.Stop', db_constraint=False),
+            field=models.ForeignKey(related_name='departure_journeys', to_field='atco_code', to='transport.Stop',
+                                    db_constraint=False, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='journeypatterntiminglink',
             name='stop_to',
-            field=models.ForeignKey(related_name='arrival_journeys', to_field='atco_code', to='transport.Stop', db_constraint=False),
+            field=models.ForeignKey(related_name='arrival_journeys', to_field='atco_code', to='transport.Stop',
+                                    db_constraint=False, on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

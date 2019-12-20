@@ -1,10 +1,10 @@
-FROM python:3.6-slim-stretch
+FROM python:3.6-slim-buster
 
 # Do everything relative to /usr/src/app which is where we install our
 # application.
 WORKDIR /usr/src/app
 
-RUN apt-get -y update && apt-get install -y binutils libproj-dev gdal-bin git gcc
+RUN apt-get -y update && apt-get install -y binutils libproj-dev gdal-bin git gcc libxml2-dev libxslt1-dev zlib1g-dev
 
 # Install any explicit requirements
 ADD requirements.txt ./
