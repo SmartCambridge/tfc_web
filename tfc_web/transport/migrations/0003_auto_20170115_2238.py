@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django
 from django.db import migrations, models
 
 
@@ -57,37 +58,44 @@ class Migration(migrations.Migration):
                 ('id', models.CharField(serialize=False, primary_key=True, max_length=255)),
                 ('description', models.CharField(max_length=255)),
                 ('stops_list', models.TextField()),
-                ('line', models.ForeignKey(related_name='routes', to='transport.BusLine')),
+                ('line', models.ForeignKey(related_name='routes', to='transport.BusLine',
+                                           on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='busline',
             name='operator',
-            field=models.ForeignKey(related_name='lines', to='transport.BusOperator'),
+            field=models.ForeignKey(related_name='lines', to='transport.BusOperator',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='busjourneypatternsection',
             name='line',
-            field=models.ForeignKey(related_name='journey_sections', to='transport.BusLine'),
+            field=models.ForeignKey(related_name='journey_sections', to='transport.BusLine',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='busjourneypattern',
             name='route',
-            field=models.ForeignKey(related_name='journey_patterns', to='transport.BusRoute'),
+            field=models.ForeignKey(related_name='journey_patterns', to='transport.BusRoute',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='busjourneypattern',
             name='section',
-            field=models.ForeignKey(related_name='journey_patterns', to='transport.BusJourneyPatternSection'),
+            field=models.ForeignKey(related_name='journey_patterns', to='transport.BusJourneyPatternSection',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='busjourney',
             name='line',
-            field=models.ForeignKey(related_name='journeys', to='transport.BusLine'),
+            field=models.ForeignKey(related_name='journeys', to='transport.BusLine',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='busjourney',
             name='pattern',
-            field=models.ForeignKey(related_name='journeys', to='transport.BusJourneyPattern'),
+            field=models.ForeignKey(related_name='journeys', to='transport.BusJourneyPattern',
+                                    on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

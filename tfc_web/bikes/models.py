@@ -3,8 +3,6 @@ from django.contrib.postgres.fields import JSONField
 
 
 class Bike(models.Model):
-    objects = models.GeoManager()
-
     bike_id = models.CharField(max_length=200, db_index=True)
     BIKE_COMPANIES = (
         ('ofo', 'ofo'),

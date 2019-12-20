@@ -54,7 +54,6 @@ class Stop(models.Model):
     # modification = models.CharField(max_length=3, null=True, blank=True)
     # status = models.CharField(max_length=3, null=True, blank=True)
     gis_location = models.PointField(null=True)
-    objects = models.GeoManager()
     data = JSONField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
@@ -107,7 +106,7 @@ class Line(models.Model):
     area = models.CharField(max_length=10)  # This is the TNDS zone
     filename = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    operator = models.ForeignKey(Operator, related_name="lines")
+    operator = models.ForeignKey(Operator, related_name="lines", on_delete=models.CASCADE)
     standard_origin = models.CharField(max_length=255)
     standard_destination = models.CharField(max_length=255)
     regular_days_of_week = models.CharField(max_length=255, null=True)
@@ -218,7 +217,7 @@ class Line(models.Model):
 class Route(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
     description = models.CharField(max_length=255)
-    line = models.ForeignKey(Line, related_name='routes')
+    line = models.ForeignKey(Line, related_name='routes', on_delete=models.CASCADE)
     stops_list = models.TextField()
     last_modified = models.DateTimeField(auto_now=True)
 
@@ -253,15 +252,16 @@ class JourneyPatternSection(models.Model):
 
 class JourneyPatternTimingLink(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    stop_from = models.ForeignKey(Stop, related_name='departure_journeys')
+    stop_from = models.ForeignKey(Stop, related_name='departure_journeys', on_delete=models.CASCADE)
     stop_from_timing_status = models.CharField(max_length=3)
     stop_from_sequence_number = models.IntegerField()
-    stop_to = models.ForeignKey(Stop, related_name='arrival_journeys')
+    stop_to = models.ForeignKey(Stop, related_name='arrival_journeys', on_delete=models.CASCADE)
     stop_to_timing_status = models.CharField(max_length=3)
     stop_to_sequence_number = models.IntegerField()
     run_time = models.DurationField()
     wait_time = models.DurationField(null=True, blank=True)
-    journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_links')
+    journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_links',
+                                                on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
 
     @python_2_unicode_compatible
@@ -271,9 +271,9 @@ class JourneyPatternTimingLink(models.Model):
 
 class JourneyPattern(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    route = models.ForeignKey(Route, related_name='journey_patterns')
+    route = models.ForeignKey(Route, related_name='journey_patterns', on_delete=models.CASCADE)
     direction = models.CharField(max_length=100)
-    section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns')
+    section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns', on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
 
     @python_2_unicode_compatible
@@ -283,7 +283,7 @@ class JourneyPattern(models.Model):
 
 class VehicleJourney(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys')
+    journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys', on_delete=models.CASCADE)
     departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True, blank=True)
     nonoperation_bank_holidays = models.CharField(max_length=200, null=True, blank=True)
@@ -331,7 +331,7 @@ class VehicleJourney(models.Model):
 
 
 class SpecialDaysOperation(models.Model):
-    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='special_days_operation')
+    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='special_days_operation', on_delete=models.CASCADE)
     days = DateRangeField()
     operates = models.BooleanField()
 
@@ -341,8 +341,8 @@ class SpecialDaysOperation(models.Model):
         ]
 
 class Timetable(models.Model):
-    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times')
-    stop = models.ForeignKey(Stop, related_name='journey_times')
+    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times', on_delete=models.CASCADE)
+    stop = models.ForeignKey(Stop, related_name='journey_times', on_delete=models.CASCADE)
     time = models.TimeField()
     order = models.IntegerField()  # Order of the stop in the vehicle journey (first stop, order = 1)
     last_stop = models.BooleanField(default=False)  # Last stop of a vehicle journey

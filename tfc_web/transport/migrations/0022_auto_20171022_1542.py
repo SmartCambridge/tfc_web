@@ -18,7 +18,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('time', models.TimeField()),
-                ('stop', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journey_times', to='transport.Stop')),
+                ('stop', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journey_times',
+                                           to='transport.Stop')),
             ],
         ),
         migrations.RemoveField(
@@ -28,6 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='timetable',
             name='vehicle_journey',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journey_times', to='transport.VehicleJourney'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journey_times',
+                                    to='transport.VehicleJourney'),
         ),
     ]
