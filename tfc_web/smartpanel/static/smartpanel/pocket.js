@@ -1,7 +1,8 @@
 /* globals ons,
            RTMonitorAPI, BusStopChooser,
            Weather, StationBoard, StopTimetable, StopBusMap,
-           WIDGET_CONFIG, STATIC_URL, RT_TOKEN
+           WIDGET_CONFIG, STATIC_URL, RT_TOKEN,
+           PRELOAD_PAGES, POCKET_URL, LOAD_TIME, RELOAD_TIME, RTMONITOR_URI
 */
 
 /* exported DEBUG */
@@ -13,7 +14,8 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
-var VERSION = '2.02';
+var VERSION = '3.00';
+// 3.00 Added defaults, first-use hint, feedback link, PWA support, etc.
 // 2.02 modified Edit..Delete confirm notificatio, added version, click-to-reload to page debug string
 // 2.01 moved debug id and timestamp to bottom of page
 // 2.00 Working Pocket Smartpanel
@@ -72,6 +74,24 @@ var WIDGET_NAME = {
     'station_board': 'train timetable',
     'stop_timetable': 'bus timetable'
 };
+
+var DEFAULT_PAGES = [
+    {
+        'widget': 'weather',
+        'title': 'Cambridge',
+        'data': {
+            'location': '310042'
+        }
+    },
+    {
+        'widget': 'station_board',
+        'title': 'Cambridge',
+        'data': {
+            'station': 'CBG',
+            'platforms': 'y'
+        }
+    }
+];
 
 // Pre-defined destinations for the bus timetable
 var DESTINATIONS = [
@@ -169,6 +189,17 @@ var DESTINATIONS = [
     }
 ];
 
+var FIRST_USE_HINT =
+'      <p>' +
+'        You can tap <ons-toolbar-button><ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon></ons-toolbar-button>' +
+'        at the top to add bus timetables, train timetables and weather' +
+'        to this Pocket SmartPanel.' +
+'      </p>' +
+'      <p>' +
+'        You can remove pages by tapping <ons-toolbar-button><ons-icon icon="md-menu"></ons-icon></ons-toolbar-button>' +
+'        and choosing \'Delete pages\'' +
+'      </p>';
+
 // Widget spec requires a RTMONITOR_API global
 var RTMONITOR_API;
 
@@ -209,13 +240,12 @@ ons.ready(function () {
         PAGES = JSON.parse(localStorage.getItem(PAGES_KEY));
     }
     else {
-        PAGES = [];
+        PAGES = DEFAULT_PAGES;
     }
-
     // If PRELOAD_PAGES are available, merge those.
     if (PRELOAD_PAGES) {
         merge_preload(PAGES, JSON.parse(PRELOAD_PAGES));
-        history.pushState(null,null,POCKET_URL); // provided by template
+        history.pushState(null, null, POCKET_URL); // provided by template
     }
     // Opening page depends on value stored under VERSION_KEY in localStorage
     var raw_version = localStorage.getItem(VERSION_KEY);
@@ -235,15 +265,12 @@ function merge_preload(current_pages, preload_pages) {
     for (var i=0; i<preload_pages.length; i++) {
         append_page(current_pages, preload_pages[i]);
     }
-
-    // cache combined result back in localStorage
-    localStorage.setItem(PAGES_KEY, JSON.stringify(current_pages));
 }
 
 // append page to current_pages if it is not already in list
 function append_page(current_pages, page) {
     for (var i=0; i<current_pages.length; i++) {
-        if (page_match(current_pages[i],page)) {
+        if (page_match(current_pages[i], page)) {
             // page is already in list of current pages, so do nothing and return
             return;
         }
@@ -254,36 +281,30 @@ function append_page(current_pages, page) {
 // return true if two pages are the same, e.g
 // weather/Cambridge == weather/Cambridge
 function page_match(page1, page2) {
-   return (page1.widget == page2.widget && page1.title == page2.title)
+    return (page1.widget === page2.widget && page1.title === page2.title);
 }
 
 // Add listener for user backgrounding this 'app'
 // If page becomes 'visible' *after* RELOAD_TIME then page will be reloaded (and get new rt_token)
 // If page becomes 'hidden' then it will force RTMONITOR_API to disconnect
-document.addEventListener("visibilitychange", function(event) {
+document.addEventListener('visibilitychange', function() {
 
     var visibility_state = document.visibilityState;
 
-    if (visibility_state == 'visible') {
-        console.log('visibilitystate visible');
+    if (visibility_state === 'visible') {
         var visible_time = new Date();
         if (visible_time > RELOAD_TIME) { // RELOAD_TIME set in pocket.html to 4:30am tomorrow morning
-            console.log('visibilitychange reloading page');
             document.body.innerHTML = '<h1 style="font-family: sans-serif;">Reloading...</h1>';
             location.reload(true);
         } else {
-            console.log('visibilitychange no reload');
             if (RTMONITOR_API) {
-                console.log('visibilitystate reconnecting rtmonitor_api');
                 RTMONITOR_API.connect();
             }
         }
     }
 
-    if (visibility_state == 'hidden') {
-        console.log('visibilitystate hidden');
+    if (visibility_state === 'hidden') {
         if (RTMONITOR_API) {
-            console.log('visibilitystate disconnecting rtmonitor_api');
             RTMONITOR_API.disconnect();
         }
     }
@@ -313,21 +334,36 @@ document.addEventListener('init', function(event) {
     else if (ons_page.id === 'list') {
 
         instance_key = localStorage.getItem(INSTANCE_KEY_NAME);
+
+        // Use absence of instance key as a proxy for 'first use'
+        if (!instance_key) {
+            ons.notification.alert({
+                messageHTML: FIRST_USE_HINT,
+                buttonLabels: 'Ok, got it!',
+                title: 'Hint'});
+        }
+
         if (!instance_key || /^\d+$/.test(instance_key)) {
             instance_key = generate_instance_key();
             localStorage.setItem(INSTANCE_KEY_NAME, instance_key);
         }
         send_beacon('list'); // module_id=pocket&instance_id=instance_key&component_id=list
-        ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+LOAD_TIME;
-        ons_page.querySelector('#debug_string').addEventListener('click',reload_page);
+
+        // (Re)save current page list to persist any preloaded pages
+        localStorage.setItem(PAGES_KEY, JSON.stringify(PAGES));
+
+        ons_page.querySelector('#debug_string').innerHTML = instance_key+' / '+VERSION+' / '+ LOAD_TIME;
+
+        ons_page.querySelector('#reload').addEventListener('click', reload_page);
 
         ons_page.querySelector('#add').addEventListener('click', choose_new_page);
-        if (PAGES.length === 0) {
-        //    document.querySelector('#first-time').show('#add', {direction: 'up'});
-            choose_new_page();
-        }
 
         ons_page.querySelector('.page-list').addEventListener('click', handle_page_list_click);
+
+        ons_page.querySelector('#show-menu').addEventListener('click', function() {
+            var menu = document.getElementById('menu');
+            menu.open();
+        });
 
         ons_page.querySelector('#edit').addEventListener('click', function() {
             ons_page.classList.add('edit-mode');
@@ -337,7 +373,16 @@ document.addEventListener('init', function(event) {
             Array.prototype.forEach.call(nodes, function(item) {
                 ons.modifier.remove(item, 'chevron');
             });
+            var menu = document.getElementById('menu');
+            menu.close();
         });
+
+        ons_page.querySelector('#feedback').addEventListener('click', function() {
+            window.open('https://forms.gle/3PvbdjdqJeRYHXaD8', '_system');
+            var menu = document.getElementById('menu');
+            menu.close();
+        });
+
         ons_page.querySelector('#done').addEventListener('click', function() {
             ons_page.classList.remove('edit-mode');
             // Restore the chevron - see above
@@ -420,17 +465,11 @@ function handle_page_list_click(evt) {
         return;
     }
     var page_number = getElementIndex(list_item);
-    var ons_page = list_item.closest('ons-page');
+    var ons_page = list_item.closest('ons-page#list');
     var navigator = document.querySelector('#myNavigator');
 
-    // A click on a delete icon
-    if (evt.target.closest('.delete')) {
-        delete_page(page_number, ons_page);
-    }
-    //Otherwise a click when editing
-    else if (ons_page.classList.contains('edit-mode')) {
-        // this commented line is alternative "edit the config for the page"
-        //navigator.pushPage('config.html', {data: { page_number: page_number }});
+    // A click when editing
+    if (ons_page.classList.contains('edit-mode')) {
         delete_page(page_number, ons_page);
     }
     // Otherwise
@@ -443,10 +482,11 @@ function handle_page_list_click(evt) {
 function delete_page(page_number, ons_page) {
     var page_title = PAGES[page_number].title;
     var page_widget = PAGES[page_number].widget;
-    ons.notification.confirm({message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?',
-                              title: 'Edit',
-                              buttonLabels: ['Cancel','DELETE']
-                             })
+    ons.notification.confirm({
+        message: 'Delete the ' + WIDGET_NAME[page_widget] + ' for ' + page_title + '?',
+        title: 'Edit',
+        buttonLabels: ['Cancel', 'DELETE']
+    })
         .then(function(button) {
             if (button === 1) {
                 PAGES.splice(page_number, 1);
@@ -488,11 +528,11 @@ function display_page(page_number, ons_page) {
         current_widget = new StopTimetable('stop_timetable');
         ons_page.querySelector('#map').classList.remove('hidden');
         RTMONITOR_API = new RTMonitorAPI({
-                                            rt_client_id: instance_key,
-                                            rt_client_name: 'Pocket SmartPanel V'+VERSION,
-                                            rt_token: RT_TOKEN // from tfc_web..pocket.html
-                                         },
-                                         RTMONITOR_URI); // from tfc_web..pocket.html
+            rt_client_id: instance_key,
+            rt_client_name: 'Pocket SmartPanel V'+VERSION,
+            rt_token: RT_TOKEN // from tfc_web..pocket.html
+        },
+        RTMONITOR_URI); // from tfc_web..pocket.html
         break;
     }
 
@@ -511,10 +551,6 @@ function display_page(page_number, ons_page) {
         },
         page_config.data
     );
-
-//    if (widget_type === 'stop_timetable') {
-//        RTMONITOR_API.init();
-//    } // not needed with current rtmonitor_api version
 
 }
 
@@ -888,12 +924,12 @@ function send_beacon(component_id, params) {
     uri += encodeURIComponent(component_id)+'/';
 
     // add (optional) params to querystring
-    var params_count = 0
+    var params_count = 0;
     if (params) {
         for (var key in params) {
             if (params.hasOwnProperty(key)) {
                 params_count++;
-                var qs_join = params_count == 1 ? '?' : '&';
+                var qs_join = params_count === 1 ? '?' : '&';
                 uri += qs_join + key + '=' + encodeURIComponent(params[key]);
             }
         }

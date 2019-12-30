@@ -1,0 +1,121 @@
+{% extends "api/base.html" %}
+
+{% block content %}
+
+<h1>Description of parking data</h1>
+
+<h2>Data</h2>
+
+<p>One row for each observation for each car park with these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">parking_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                for the car park.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time).</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">Observation
+                timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with timezone information.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">spaces_capacity</td>
+            <td class="mdl-data-table__cell--non-numeric">The total number
+                of spaces in the car park at the time of observation.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">spaces_occupied</td>
+            <td class="mdl-data-table__cell--non-numeric">The number of
+                spaces in use in the car park at the time of observation.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">spaces_free</td>
+            <td class="mdl-data-table__cell--non-numeric">The number of
+                available spaces in the car park at the time of observation.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<p>'spaces_occupied' + 'spaces_free' will always equal 'spaces_capacity'.</p>
+
+<h2>Metadata</h2>
+
+<p>One row for each car park with these columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">parking_id</td>
+            <td class="mdl-data-table__cell--non-numeric">Unique identifier
+                for the car park</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">parking_name</td>
+            <td class="mdl-data-table__cell--non-numeric">Human-readable
+                name for the car park</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">parking_type</td>
+            <td class="mdl-data-table__cell--non-numeric">Type of car park
+                ('car_park', 'park_and_ride')</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">latitude</td>
+            <td class="mdl-data-table__cell--non-numeric">WGS84 latitude
+                of approximate centre of the car park </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">longitude</td>
+            <td class="mdl-data-table__cell--non-numeric">WGS84 longitude
+                of approximate centre of the car park </td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<p>There's <a href="{% url 'parking_map' %}">a map showing all currently monitored car parks</a>.</p>
+
+{% endblock %}

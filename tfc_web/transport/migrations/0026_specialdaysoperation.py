@@ -19,7 +19,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('days', django.contrib.postgres.fields.ranges.DateRangeField()),
-                ('vehicle_journey', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='special_days_operation', to='transport.VehicleJourney')),
+                ('vehicle_journey', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                      related_name='special_days_operation',
+                                                      to='transport.VehicleJourney')),
             ],
         ),
     ]

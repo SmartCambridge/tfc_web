@@ -627,3 +627,8 @@ input:not(:checked) + label + .timetable-wrapper .referrer, input:not(:checked) 
     position: relative;
     color: black;
 }
+
+/* Class to override .mdl-data-table setting 'white-space: nowrap' */
+.wrapping-table {
+    white-space: normal;
+}

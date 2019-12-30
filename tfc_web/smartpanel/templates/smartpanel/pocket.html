@@ -7,8 +7,27 @@
 
   <title>SmartPocket</title>
 
+  <meta name="robots" content="noindex, nofollow">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register("/sw.js").then(function(registration) {
+          // Registration was successful
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+          // registration failed :(
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+  </script>
+
   <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}"/>
 
   <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.png' %}"/>
@@ -137,29 +156,47 @@
 
   <template id="list.html">
     <ons-page id="list" class="list">
-    	<ons-toolbar>
-        <div class="left">
-          <ons-toolbar-button>
-            <span id="edit" class="show-normal">Edit</span>
-            <span id="done" class="show-edit default">Done</span>
-          </ons-toolbar-button>
-        </div>
-        <div class="center">
-            <span class="show-normal">Pocket SmartPanel</span>
-            <span class="show-edit">Delete pages</span>
-        </div>
-        <div class="right">
-          <ons-toolbar-button id="add" class="show-normal">
-            <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
-          </ons-toolbar-button>
-        </div>
-      </ons-toolbar>
-      <div class="background">
-          <!-- add debug string with version/loadtime/istance_id to bottom of page, z-index to allow click to reload -->
-          <div id="debug_string" class="show-edit id" style="position: absolute; bottom: 10px; right: 10px; z-index: 100"></div>
-      </div>
-      <ons-list id="page-list" class="page-list"></ons-list>
-    </ons-page>
+      <ons-splitter>
+        <ons-splitter-side class="page-menu" id="menu" side="left" width="220px" collapse swipeable>
+          <ons-page>
+            <img src="{% static 'images/Smart-Cambridge-LOGO-WithByline.png' %}"/>
+            <ons-list>
+              <ons-list-item id="edit" tappable>
+                Delete pages
+              </ons-list-item>
+              <ons-list-item id="feedback" tappable>
+                Send feedback
+              </ons-list-item>
+              <ons-list-item id="reload" tappable>
+                Reload
+              </ons-list-item>
+            </ons-list>
+            <div id="debug_string" class="id"></div>
+          </ons-page>
+        </ons-splitter-side>
+        <ons-splitter-content>
+          <ons-page>
+            <ons-toolbar>
+              <div class="left">
+                <ons-toolbar-button>
+                  <span id="show-menu" class="show-normal"><ons-icon icon="md-menu"></ons-icon></span>
+                  <span id="done" class="show-edit default">Done</span>
+                </ons-toolbar-button>
+              </div>
+              <div class="center">
+                  <span class="show-normal">Pocket SmartPanel</span>
+                  <span class="show-edit">Delete pages</span>
+              </div>
+              <div class="right">
+                <ons-toolbar-button id="add" class="show-normal">
+                  <ons-icon icon="ion-ios-plus-empty, material:ion-android-add"></ons-icon>
+                </ons-toolbar-button>
+              </div>
+            </ons-toolbar>
+            <ons-list id="page-list" class="page-list"></ons-list>
+          </ons-page>
+        </ons-splitter-content>
+      </ons-splitter>
   </template>
 
   <template id="page-display.html">

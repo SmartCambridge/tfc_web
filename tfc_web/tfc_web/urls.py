@@ -17,11 +17,14 @@ from django.contrib import admin
 from django.views.generic import TemplateView, RedirectView
 
 urlpatterns = [
+    # service worker
+    url(r'^sw.js$', TemplateView.as_view(template_name="sw.js", content_type='application/javascript'), name='sw.js'),
+
     # auth
     url(r'^accounts/', include('allauth.urls')),
 
     # Main pages
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^$', TemplateView.as_view(template_name="index.html"), name='home'),
     url(r'^about$', TemplateView.as_view(template_name="about.html"), name='about'),
 

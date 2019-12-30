@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.core.cache import cache
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.templatetags.static import static
@@ -17,6 +18,7 @@ from django.utils.timezone import now
 from smartcambridge.decorator import smartcambridge_valid_user
 from smartpanel.forms import DisplayForm
 from smartpanel.models import Layout, Display, Pocket
+from transport.models import Stop
 
 from smartcambridge import rt_crypto
 
@@ -215,6 +217,22 @@ def layout(request, slug, display=None):
 
     dependencies_list = generate_dependencies_list(uwl)
 
+    # If there are any traffic-map widgets, then get a Google API key -
+    # either the first custom key found in a traffic-map widget
+    # configuration, or the default from settings. Use this to add
+    # a custom URL to dependencies_list for inclusion in the rendered
+    # page
+    if 'traffic_map' in uwl:
+        api_key = settings.GOOGLE_API_KEY
+        for widget_config in widgets.values():
+            if widget_config['widget'] == 'traffic_map':
+                custom_key = widget_config['data'].get('api_key', None)
+                if custom_key:
+                    api_key = custom_key
+                    break
+        url = "https://maps.googleapis.com/maps/api/js?key={}".format(api_key)
+        dependencies_list['js'].append({"src": url})
+
     if display is None:
 
         # layout gets a 10-minute rt_token
@@ -257,16 +275,42 @@ def pocket(request, name=None):
                                      "duration": timedelta(hours=25)
                                    } )
 
-    # Retrieve the name of a set of preload page params from the URL
-    # lookup in Pocket table and set preload_pages to JsonArray
-    # or None if not found (or no URL value given)
+    preload_pages = None
+    # Retrieve the name parameter from the URL. See if it coresponds to
+    # a set of preload page params. If so, retrieve them
+    # Otherwise, see if name is an ATCOCode or
+    # NaPTAN code and if so preload the coresponding stop
     if name is not None:
         try:
             preload_pages = Pocket.objects.get(name=name).params
         except Pocket.DoesNotExist:
-            preload_pages = None
-    else:
-        preload_pages = None
+            try:
+                stop = Stop.objects.get(Q(atco_code=name) | Q(naptan_code=name))
+                preload_pages = [
+                    {
+                        'widget': "stop_timetable",
+                        'title': stop.common_name,
+                        'data': {
+                            'layout': 'multiline',
+                            'title': stop.common_name,
+                            'stop': {
+                                'atco_code': stop.atco_code,
+                                'common_name': stop.common_name,
+                                'id': stop.atco_code,
+                                'indicator': stop.indicator,
+                                'lat': stop.latitude,
+                                'latitude': stop.latitude,
+                                'lng': stop.longitude,
+                                'locality_name': stop.locality_name,
+                                'longitude': stop.longitude,
+                                'naptan_code': stop.naptan_code,
+                                'stop_id': stop.atco_code
+                            },
+                        },
+                    }
+                ]
+            except Stop.DoesNotExist:
+                pass
 
     return render(request, 'smartpanel/pocket.html',
                   {'stylesheets': dependencies_list['css'],

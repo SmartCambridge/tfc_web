@@ -1,0 +1,55 @@
+{% extends "smartpanel/base.html" %}
+{% load static %}
+{% block page_title %}Pocket SmartPanel{% endblock %}
+{% block mobile_title %}Pocket SmartPanel{% endblock %}
+
+
+{% block head %}
+
+    <script src="{% static 'js/moment.js' %}" charset="utf-8"></script>
+    <!-- load the d3 library for the chart plot -->
+    <script src="{% static 'd3/d3.v5.min.js' %}" charset="utf-8"></script>
+    <!-- Load the plotting code  and CSS -->
+    <script src="{% static 'smartpanel/pocketlog.js' %}" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'smartpanel/pocketlog.css' %}">
+
+{% endblock %}
+
+
+{% block content %}
+<div id="content">
+
+    <div id="chart_title">
+        <div id="content_title">
+            Unique clients
+        </div>
+    </div> <!-- end chart_title -->
+
+    <!-- Actual d3 plot is embedded in this "chart" div -->
+    <div class="chart" id="chart">
+    </div>
+
+    <div>
+        <a href="pocketlog.csv">Raw data</a>
+    </div>
+
+    <div>
+        A 'Client' is a copy of the Pocket Smartpanel running in
+        a particular browser on a particular mobile or desktop device.
+        A single person may use more than one client.
+        'Repeat' clients are ones also used in the previous 30 days.
+    </div>
+
+</div> <!-- end content -->
+
+<script>
+var columns = {
+    'Active': 'Repeat',
+    'Inactive': 'New'
+}
+d3.csv('pocketlog.csv').then(function(data) {
+    stacked_bar_graph(data, columns, 'Unique clients per week');
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "api/base.html" %}
+
+{% load static %}
+
+{% block head %}
+<script src="{% static 'js/CollapsibleLists.js' %}"></script>
+<link rel="stylesheet" href="{% static 'treeview.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% block lazy_script %}
+<script>
+CollapsibleLists.apply();
+</script>
+{% endblock %}
+
+<h1>Data downloads</h1>
+
+<p>From here you can download much
+of the historic data accumulated by the SmartCambridge project as 'comma separated
+variable' (CSV) files which can be imported into a range of tools for
+analysis. It is intended to be used interactively - to access this
+data from programs and apps you might be better off
+using our <a href="{% url 'program_api' %}">Program API</a>.</p>
+
+<p>The data is supplied in ZIP archives, each containing a single CSV file.
+Depending on data availability and file size, these files contain data for
+individual years and/or months and/or days.</p>
+
+<p>The data is available to anyone, but you will need to authenticate to this
+platform and agree to the platform's <a href="{% url 'smartcambridge-tcs' %}">Terms
+and Conditions</a> before you can access it. You will be prompted to authenticate
+or to register for an account when you access the data.</p>
+
+
+  {% for feed in files %}
+
+    <h2>{{ feed.title }}</h2>
+
+      <p>{{ feed.desc }}</p>
+
+      <ul class="treeView">
+        <li class="root">
+          <ul class="collapsibleList">
+
+        {% if feed.info_template %}
+            <li><a href="{{ feed.name }}-schema/">Data description</a> {{ info_template }}</li>
+        {% endif %}
+
+        {% if 'metadata' in feed.feed_files %}
+            <li><a href="/api/download_files/{{ feed.name }}/{{ feed.feed_files.metadata}}-metadata.zip">Download sensor metadata</a>
+              <a href="/api/download_files/{{ feed.name }}/{{ feed.feed_files.metadata}}-metadata.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
+        {% endif %}
+
+        {% if feed.feed_files.year %}
+            <li>Download yearly files (for previous years)
+                <ul>
+                    {% for file in feed.feed_files.year %}
+                        <li><a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}.zip">{{ file.s }} {{ file.y }}</a>
+                          <a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endif %}
+
+        {% if feed.feed_files.month %}
+            <li>Download monthly files (for previous months)
+                <ul>
+                    {% for file in feed.feed_files.month %}
+                        <li><a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}.zip">{{ file.s }} {{ file.y }}-{{ file.m }}</a>
+                          <a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endif %}
+
+        {% if feed.feed_files.day %}
+            <li>Download daily files (for this month)
+                <ul>
+                    {% for file in feed.feed_files.day %}
+                        <li><a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}-{{ file.d }}.zip">{{ file.s }} {{ file.y }}-{{file.m }}-{{file.d }}</a>
+                        <a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}-{{ file.d }}.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endif %}
+
+      </ul>
+
+    </li>
+
+  </ul>
+
+  {% endfor %}
+
+
+{% endblock %}

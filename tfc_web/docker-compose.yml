@@ -33,6 +33,10 @@ services:
     <<: *devserver
     entrypoint: ["wait-for-it", "db:5432", "-t", "5", "--"]
     command: ["./manage.py", "migrate"]
+  makemigrations:
+    <<: *devserver
+    entrypoint: ["wait-for-it", "db:5432", "-t", "5", "--"]
+    command: ["./manage.py", "makemigrations"]
   shell:
     <<: *devserver
     command: ["shell"]

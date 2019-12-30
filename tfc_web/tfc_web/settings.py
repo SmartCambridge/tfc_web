@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR, get_apps as get_machina_apps
+from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR
 from tfc_web.secrets import *
 
 
@@ -65,13 +65,12 @@ INSTALLED_APPS = [
     'corsheaders',
 ] + PROJECT_APPS
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -155,11 +154,25 @@ LOGIN_REDIRECT_URL = 'home'
 
 ######### Forum app (django-machina) configuration ##########
 INSTALLED_APPS += [
+    # Machina dependencies:
     'mptt',
     'haystack',
     'widget_tweaks',
-] + get_machina_apps()
-MIDDLEWARE_CLASSES += [
+
+    # Machina apps:
+    'machina',
+    'machina.apps.forum',
+    'machina.apps.forum_conversation',
+    'machina.apps.forum_conversation.forum_attachments',
+    'machina.apps.forum_conversation.forum_polls',
+    'machina.apps.forum_feeds',
+    'machina.apps.forum_moderation',
+    'machina.apps.forum_search',
+    'machina.apps.forum_tracking',
+    'machina.apps.forum_member',
+    'machina.apps.forum_permission'
+]
+MIDDLEWARE += [
     'machina.apps.forum_permission.middleware.ForumPermissionMiddleware',
 ]
 TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'templates/forum'))
@@ -187,7 +200,6 @@ MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
     'can_start_new_topics',
     'can_reply_to_topics',
     'can_edit_own_posts',
-    'can_post_without_approval',
     'can_create_polls',
     'can_vote_in_polls',
     'can_download_file',
@@ -227,6 +239,7 @@ except KeyError:
     DATA_PATH = '/media/tfc'
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_THROTTLE_RATES': {
         'token_burst': '1200/min',
         'token_sustained': '12000/hour',
@@ -254,13 +267,160 @@ except NameError:
 SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
 SMARTPANEL_API_TOKEN = JS_API_KEY
 
+SMARTPANEL_TRAFFIC_MAP_RELOAD_LIMIT_DEFAULT = 10
+
 # ======================================================================
 # RTMONITOR_URI WEBSOCKET ENDPOINT =====================================
 
 RTMONITOR_URI = 'https://smartcambridge.org/rtmonitor/sirivm/'
 
 # ======================================================================
+# 'Download API' configuration
 
+DOWNLOAD_FEEDS = [
+    {
+        'name': 'aq',
+        'title': 'Air Quality',
+        'desc': 'Air Quality data from a selection of sensor stations deployed around '
+                'Cambridge between June 2016 and February 2017.',
+        'archive_by_default': True,
+        'display': True,
+        'first_year': 2016,
+        'archives': [
+            {
+                'name': 'headers-year',
+                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
+                'destination': os.path.join('aq', 'aq-headers-{date:%Y}'),
+                'extractor': 'api.extractors.aq.aq_header_extractor',
+                'step': {'years': 1}
+
+            },
+            {
+                'name': 'data-year',
+                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
+                'destination': os.path.join('aq', 'aq-data-{date:%Y}'),
+                'extractor': 'api.extractors.aq.aq_data_extractor',
+                'step': {'years': 1}
+            },
+            {
+                'name': 'headers-month',
+                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
+                'destination': os.path.join('aq', 'aq-headers-{date:%Y}-{date:%m}'),
+                'extractor': 'api.extractors.aq.aq_header_extractor',
+                'step': {'months': 1}
+            },
+            {
+                'name': 'data-month',
+                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
+                'destination': os.path.join('aq', 'aq-data-{date:%Y}-{date:%m}'),
+                'extractor': 'api.extractors.aq.aq_data_extractor',
+                'step': {'months': 1}
+            },
+        ],
+        'metadata': {
+            'source_pattern': os.path.join('sys', 'data_cam_aq_config', 'list.json'),
+            'destination': os.path.join('aq', 'aq-metadata'),
+            'extractor': 'api.extractors.aq.aq_metadata_extractor'
+        }
+    },
+    {
+        'name': 'parking',
+        'title': 'Car Parking',
+        'desc': 'Car Parking data showing the occupancy of Cambridge City Centre '
+                'and Park and Ride car parks from 2017 onward.',
+        'archive_by_default': True,
+        'display': True,
+        'first_year': 2017,
+        'archives': [
+            {
+                'name': 'year',
+                'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '*', '*', '*.txt'),
+                'destination': os.path.join('parking', 'parking-{date:%Y}'),
+                'extractor': 'api.extractors.parking.cam_park_rss_extractor',
+                'step': {'years': 1}
+            },
+            {
+                'name': 'month',
+                'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '{date:%m}', '*', '*.txt'),
+                'destination': os.path.join('parking', 'parking-{date:%Y}-{date:%m}'),
+                'extractor': 'api.extractors.parking.cam_park_rss_extractor',
+                'step': {'months': 1}
+            },
+            {
+                'name': 'day',
+                'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
+                'destination': os.path.join('parking', 'parking-{date:%Y}-{date:%m}-{date:%d}'),
+                'extractor': 'api.extractors.parking.cam_park_rss_extractor',
+                'start': {'day': 1},  # First of this month
+                'step': {'days': 1}
+            },
+
+        ],
+        'metadata': {
+            'source_pattern': os.path.join('sys', 'data_parking_config', 'list.json'),
+            'destination': os.path.join('parking', 'parking-metadata'),
+            'extractor': 'api.extractors.parking.cam_park_rss_metadata_extractor'
+        }
+    },
+    {
+        'name': 'zone',
+        'title': 'Traffic Speed',
+        'desc': 'Traffic Speed data for a number of roads within Cambridge '
+                'based on bus position reports from October 2017 onward.',
+        'archive_by_default': True,
+        'display': True,
+        'first_year': 2017,
+        'archives': [
+            {
+                'name': 'year',
+                'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '*', '*', '*.txt'),
+                'destination': os.path.join('zone', 'zone-{date:%Y}'),
+                'extractor': 'api.extractors.zone.zone_extractor',
+                'step': {'years': 1}
+            },
+            {
+                'name': 'month',
+                'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '{date:%m}', '*', '*.txt'),
+                'destination': os.path.join('zone', 'zone-{date:%Y}-{date:%m}'),
+                'extractor': 'api.extractors.zone.zone_extractor',
+                'step': {'months': 1}
+            },
+            {
+                'name': 'day',
+                'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
+                'destination': os.path.join('zone', 'zone-{date:%Y}-{date:%m}-{date:%d}'),
+                'extractor': 'api.extractors.zone.zone_extractor',
+                'start': {'day': 1},  # First of this month
+                'step': {'days': 1}
+            },
+        ],
+        'metadata': {
+            'source_pattern': os.path.join('sys', 'data_zone_config', 'list_all.json'),
+            'destination': os.path.join('zone', 'zone-metadata'),
+            'extractor': 'api.extractors.zone.zone_metadata_extractor'
+        }
+    },
+    {
+        'name': 'bus',
+        'title': 'Bus position reports',
+        'desc': 'Raw position reports from buses in the Cambridge area from October 2017 onward.',
+        'archive_by_default': False,
+        'display': False,
+        'first_year': 2017,
+        'archives': [
+            {
+                'name': 'month',
+                'source_pattern': os.path.join('sirivm_json/data_bin/', '{date:%Y}', '{date:%m}', '*', '*.json'),
+                'destination': os.path.join('bus', 'bus-{date:%Y}-{date:%m}'),
+                'extractor': 'api.extractors.bus.bus_extractor',
+                'step': {'months': 1}
+            }
+        ]
+    }
+]
+
+
+# ======================================================================
 # An attempt to adapt the default Django logging to log useful stuff
 # in development and production to the console (which will be captured
 # and logged by Gunicorn)

@@ -37,6 +37,7 @@ class Display(models.Model):
     layout = models.ForeignKey(Layout, null=True, related_name="displays", on_delete=DO_NOTHING)
     owner = models.ForeignKey(User, on_delete=DO_NOTHING)
     slug = models.SlugField(max_length=12, unique=True)
+    map_reload_limit = models.IntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -56,7 +57,7 @@ class Display(models.Model):
 
     @python_2_unicode_compatible
     def __str__(self):
-        return self.name
+        return "%s (%s)" % (self.name, self.slug)
 
 class Pocket(models.Model):
     name = models.CharField(max_length=100, unique=True)

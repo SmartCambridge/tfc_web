@@ -2,6 +2,17 @@ from rest_framework import serializers
 from api import util
 
 
+class ZoneJourneySerializer(serializers.Serializer):
+    line = serializers.CharField(source='LineRef')
+    direction = serializers.CharField(source='DirectionRef')
+    operator = serializers.CharField(source='OperatorRef')
+    origin = serializers.CharField(source='OriginRef')
+    origin_name = serializers.CharField(source='OriginName')
+    destination = serializers.CharField(source='DestinationRef')
+    destination_name = serializers.CharField(source='DestinationName')
+    departure_time = serializers.CharField(source='OriginAimedDepartureTime')
+
+
 class ZoneRecordSerializer(serializers.Serializer):
     acp_ts = serializers.IntegerField(source='ts')
     date = util.EpochField(source='ts')
@@ -11,6 +22,7 @@ class ZoneRecordSerializer(serializers.Serializer):
     vehicle_id = serializers.CharField()
     distance = serializers.FloatField(required=False)
     avg_speed = serializers.FloatField(required=False)
+    journey = ZoneJourneySerializer(source='position_record')
 
 
 class ZoneHistorySerializer(serializers.Serializer):
