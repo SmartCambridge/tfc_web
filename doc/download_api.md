@@ -24,11 +24,12 @@ extracts of SmartCambridge data, based on the configuration in
 is run it just updates the collection of archive files as needed. This
 command should be run once per day from `tfc_web`'s crontab.
 
-2. `/media/tfc/download_api/` where the built archive files are stored.
+2. Directories within `/media/tfc/` (currently `download_api/` and `download_private/`)
+where the built archive files are stored.
 
 3. Nginx configuration from `/etc/nginx/includes2/tfc_web.conf` (source
 in `nginx/includes2/tfc_web.conf` in the tfc_prod repository) that makes
-the files in `/media/tfc/download_api/` available under
+the files in `/media/tfc/download_api/` (but not `download_private`) available under
 `https://smartcambridge.org/api/download_files/` but only to people who
 have registered on the platform, authenticate to the Django app and
 agreed to the platform T&Cs.
@@ -64,9 +65,10 @@ list of feeds
 
 `display`: Optional. If present and `True`, this feed is listed on the
 index web page. Setting this to `False` won't prevent people accessing
-any archives that exist for this feed if they know or can guess the URL,
-it just means they won't be listed. There's currently no way to make
-data available based on who someone is.
+any archives that exist in `/media/tfc/download_api/` for this feed if
+they know or can guess the URL, it just means they won't be listed. It's
+conventional to use `/media/tfc/download_private/` for archives that
+should be maintained but not served over the web.
 
 `first_year`: The earliest year for which this feed contains data. Only
 data dated between 1 January in this year and yesterday will be
@@ -92,7 +94,7 @@ example, be replaced by the relevant year. An annual archive might have
 a `source_pattern` like `cam_aq/data_bin/{date:%Y}/*/*/*.json`.
 
 `destination`: A file system path relative to the Django configuration
-item `DEST_DIR` (defaulting to `{{ DATA_PATH }}/download_api/`) to which
+item `DEST_DIR` (defaulting to `DATA_PATH`) to which
 the archive will be written. The pattern is processed by
 `string.format()` as for `source_pattern`.
 
@@ -133,6 +135,11 @@ modification dates than the corresponding archive, and delete any for
 which there is no data or which correspond to dates before the archive's
 `start` or after its `end`. The command-line option `--force` will force
 all existing archives to be updated irrespective of dates.
+
+`build_download_data` obtains a lock file for each feed it tries to process
+and will skip processing any feeds for which the lock is already in use.
+This prevents accidental having two or more instances of the program
+processing the same feed at the saem time.
 
 Extractor functions
 ===================

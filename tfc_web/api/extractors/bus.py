@@ -30,10 +30,15 @@ def bus_extractor(files, writer):
     writer.writerow([f for f in fields])
 
     for file in files:
-        logger.debug('Processing %s', file)
-        with open(file) as reader:
-            data = json.load(reader)
-            for record in data['request_data']:
-                record['ts'] = record['acp_ts']
-                record['ts_text'] = epoch_to_text(record['acp_ts'])
-                writer.writerow([record.get(f) for f in fields])
+        try:
+            logger.debug('Processing %s', file)
+            with open(file) as reader:
+                data = json.load(reader)
+                for record in data['request_data']:
+                    record['ts'] = record['acp_ts']
+                    record['ts_text'] = epoch_to_text(record['acp_ts'])
+                    writer.writerow([record.get(f) for f in fields])
+        except OSError as e:
+            logger.error('Error opening %s: %s', file, e)
+        except json.decoder.JSONDecodeError as e:
+            logger.error('Error decoding %s: %s', file, e)
