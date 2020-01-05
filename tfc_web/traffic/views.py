@@ -95,20 +95,20 @@ def anpr_map(request, return_format='html'):
 
 def get_zone_list():
 
-    data = do_api_call('/api/v1/zone/')
+    data = do_api_call('/api/v1/traffic/zone/')
     return {'request_data': data}
 
 
 def get_zone_metadata(zone_id):
 
-    data = do_api_call('/api/v1/zone/' + zone_id)
+    data = do_api_call('/api/v1/traffic/zone/' + zone_id)
     return {'request_data': {'options': {'config': data}}}
 
 
 def get_zone_history(zone_id, date):
 
         return do_api_call(
-            '/api/v1/zone/history/' + zone_id +
+            '/api/v1/traffic/zone/history/' + zone_id +
             '?start_date=' + date)
 
 

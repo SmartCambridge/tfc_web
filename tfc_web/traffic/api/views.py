@@ -15,6 +15,8 @@ from api import util, auth, api_docs
 import coreapi
 import coreschema
 
+from ..models import ANPRCamera
+
 logger = logging.getLogger(__name__)
 
 
@@ -103,12 +105,8 @@ class ANPRCameraList(generics.ListAPIView):
     """
     Return a list of bus stops.
     """
+    queryset = ANPRCamera.objects.all()
     serializer_class = ANPRCameraSerializer
-    pagination_class = Pagination
-    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    ordering_fields = ('id', )
-    ordering = ('id', )
-    search_fields = ('id', )
 
     authentication_classes = default_authentication
     permission_classes = default_permission

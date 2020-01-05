@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class ANPRCamera(models.Model):
     id = models.CharField(primary_key=True, max_length=10)
     units = models.IntegerField()
