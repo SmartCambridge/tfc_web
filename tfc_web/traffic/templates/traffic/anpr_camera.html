@@ -190,11 +190,18 @@
             max_weight = Math.max(...Object.values(trip_convinations));
 
             var list_of_links = [];
-            Object.keys(trip_convinations).forEach(function(key) {
-                var camerasi = key.split(",");
+            var sorted_trips = [];
+            for (var trip_key in trip_convinations) {
+                sorted_trips.push([trip_key, trip_convinations[trip_key]]);
+            }
+            sorted_trips.sort(function(a, b) {
+                return a[1] - b[1];
+            });
+            sorted_trips.forEach(function(item) {
+                var camerasi = item[0].split(",");
                 var camera1 = parseInt(camerasi[0]);
                 var camera2 = parseInt(camerasi[1]);
-                if (camera1 !== 35 && camera2 !== 35 && camera1 !== 96 && camera2 !== 96) {
+                if (camera1 !== 35 && camera2 !== 35 && camera1 !== 96 && camera2 !== 96 && item[1] > 4) {
                     var latlngs;
                     if (list_of_links.includes(camera2+","+camera1)) {
                         latlngs = [
@@ -209,10 +216,13 @@
                             [cameras[camera2].lat, cameras[camera2].lng]
                         ]
                     }
-                    var opacity = (trip_convinations[key]/max_weight)*3/4;
+                    // red = 240 vehicles / hour
+                    var occupancy = ((item[1]/240) > 1) ? 1 : (item[1]/240);
+                    var hue = ((1-occupancy)*120).toString(10);
+                    var color = ["hsl(",hue,",75%,50%)"].join("");
                     info_map.update("Maximum opacity: "+max_weight.toString());
-                    var line = L.polyline(latlngs, {weight: 5, opacity: 0.25+opacity, lineCap: "butt"}).bindTooltip(
-                        trip_convinations[key].toString() + " vehicles", {sticky: true}).addTo(map);
+                    var line = L.polyline(latlngs, {weight: 5, color: color, lineCap: "butt"}).bindTooltip(
+                        item[1].toString() + " vehicles", {sticky: true}).addTo(map);
                     L.polylineDecorator(line, {
                         patterns: [
                             {
@@ -224,7 +234,7 @@
                                         polygon: false,
                                         pathOptions: {
                                             stroke: true,
-                                            opacity: 0.25+opacity
+                                            color: color
                                         }
                                     }
                                 )
