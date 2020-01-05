@@ -1,12 +1,15 @@
 from datetime import timedelta
 import logging
 
+from rest_framework import generics, filters
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.schemas import AutoSchema
 
+from api.auth import default_authentication, default_permission, default_throttle
+from transport.api.views import Pagination
 from .serializers import (
-    ZoneListSerializer, ZoneConfigSerializer, ZoneHistorySerializer)
+    ZoneListSerializer, ZoneConfigSerializer, ZoneHistorySerializer, ANPRCameraSerializer)
 from api import util, auth, api_docs
 
 import coreapi
@@ -94,3 +97,19 @@ class ZoneHistory(auth.AuthenticateddAPIView):
                 pass
         serializer = ZoneHistorySerializer({'request_data': results})
         return Response(serializer.data)
+
+
+class ANPRCameraList(generics.ListAPIView):
+    """
+    Return a list of bus stops.
+    """
+    serializer_class = ANPRCameraSerializer
+    pagination_class = Pagination
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    ordering_fields = ('id', )
+    ordering = ('id', )
+    search_fields = ('id', )
+
+    authentication_classes = default_authentication
+    permission_classes = default_permission
+    throttle_classes = default_throttle

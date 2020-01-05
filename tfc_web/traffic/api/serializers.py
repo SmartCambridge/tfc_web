@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from api import util
+from traffic.models import ANPRCamera
 
 
 class ZoneJourneySerializer(serializers.Serializer):
@@ -54,3 +55,10 @@ class ZoneConfigSerializer(serializers.Serializer):
 
 class ZoneListSerializer(serializers.Serializer):
     zone_list = ZoneConfigSerializer(many=True)
+
+
+class ANPRCameraSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ANPRCamera
+        fields = ['id', 'description', 'lat', 'lng']
