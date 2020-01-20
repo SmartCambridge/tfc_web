@@ -49,6 +49,30 @@ zone_id_fields = [
     ),
 ]
 
+link_or_route_id_fields = [
+    coreapi.Field(
+        "id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Identifier for a link or route (e.g. 'CAMBRIDGE_JTMS|9800W1CHALH6' or 'CAMBRIDGE_JTMS|9800WMBVAGBF')"),
+        description="Identifier for a link or route (e.g. 'CAMBRIDGE_JTMS|9800W1CHALH6' or 'CAMBRIDGE_JTMS|9800WMBVAGBF')",
+        example="CAMBRIDGE_JTMS|9800W1CHALH6",
+    ),
+]
+
+site_id_fields = [
+    coreapi.Field(
+        "site_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Site identifier (e.g. '{0D7C672E-EEE9-4924-815E-B49CC382DFFA}')"),
+        description="Site identifier (e.g. '{0D7C672E-EEE9-4924-815E-B49CC382DFFA}')",
+        example="{0D7C672E-EEE9-4924-815E-B49CC382DFFA}",
+    ),
+]
+
 aq_history_fields = [
     coreapi.Field(
         "station_id",

@@ -442,7 +442,68 @@ DOWNLOAD_FEEDS = [
                 'step': {'months': 1}
             }
         ]
-    }
+    },
+    {
+        'name': 'btjourney',
+        'title': 'Traffic Speed (Bluetooth sensors)',
+        'desc': 'Traffic Speed (\'btjourney\') data for roads within Cambridge '
+                'derived from Bluetooth sensor devices from 2020 onward.',
+        'archive_by_default': True,
+        'display': True,
+        'first_year': 2020,
+        'destination': 'download_api',
+        'archives': [
+            {
+                'name': 'year',
+                'title': 'Annual data',
+                'source_pattern': os.path.join('btjourney/journeytimes/data_link', '{date:%Y}', '*', '*', '*.txt'),
+                'destination_filename': 'btjourney-{date:%Y}',
+                'extractor': 'api.extractors.btjourney.btjourney_journey_extractor',
+                'step': {'years': 1}
+            },
+            {
+                'name': 'month',
+                'title': 'Monthly data',
+                'source_pattern': os.path.join('btjourney/journeytimes/data_link', '{date:%Y}', '{date:%m}', '*', '*.txt'),
+                'destination_filename': 'btjourney-{date:%Y}-{date:%m}',
+                'extractor': 'api.extractors.btjourney.btjourney_journey_extractor',
+                'step': {'months': 1}
+            },
+            {
+                'name': 'day',
+                'title': 'Daily data for this month',
+                'source_pattern': os.path.join('btjourney/journeytimes/data_link', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
+                'destination_filename': 'btjourney-{date:%Y}-{date:%m}-{date:%d}',
+                'extractor': 'api.extractors.btjourney.btjourney_journey_extractor',
+                'start': {'day': 1},  # First of this month
+                'step': {'days': 1}
+            },
+
+        ],
+        'metadata': [
+            {
+                'name': 'link_metadata',
+                'title': 'Link metadata',
+                'source_pattern': os.path.join('btjourney', 'locations', 'data_link', '*.json'),
+                'destination_filename': 'btjourney-link-metadata',
+                'extractor': 'api.extractors.btjourney.btjourney_link_extractor'
+            },
+            {
+                'name': 'route_metadata',
+                'title': 'Route metadata',
+                'source_pattern': os.path.join('btjourney', 'locations', 'data_route', '*.json'),
+                'destination_filename': 'btjourney-route-metadata',
+                'extractor': 'api.extractors.btjourney.btjourney_route_extractor'
+            },
+            {
+                'name': 'site_metadata',
+                'title': 'Site metadata',
+                'source_pattern': os.path.join('btjourney', 'locations', 'data_site', '*.json'),
+                'destination_filename': 'btjourney-site-metadata',
+                'extractor': 'api.extractors.btjourney.btjourney_site_extractor'
+            },
+        ]
+    },
 ]
 
 
