@@ -34,7 +34,7 @@ and Conditions</a> before you can access it. You will be prompted to authenticat
 or to register for an account when you access the data.</p>
 
 
-  {% for feed in files %}
+  {% for feed in feeds %}
 
     <h2>{{ feed.title }}</h2>
 
@@ -45,46 +45,32 @@ or to register for an account when you access the data.</p>
           <ul class="collapsibleList">
 
         {% if feed.info_template %}
-            <li><a href="{{ feed.name }}-schema/">Data description</a> {{ info_template }}</li>
+          <li>
+            <a href="{{ feed.name }}-schema/">Data description</a> {{ info_template }}
+          </li>
         {% endif %}
 
-        {% if 'metadata' in feed.feed_files %}
-            <li><a href="/api/download_files/{{ feed.name }}/{{ feed.feed_files.metadata}}-metadata.zip">Download sensor metadata</a>
-              <a href="/api/download_files/{{ feed.name }}/{{ feed.feed_files.metadata}}-metadata.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
-        {% endif %}
+        {% for metadata in feed.metadata %}
+          <li>
+            <a href="/api/download_files/{{ feed.name }}/{{ metadata.filename }}">{{ metadata.title }}</a>
+            <a href="/api/download_files/{{ feed.name }}/{{ metadata.filename }}"><img class="download-icon" src="{% static 'images/download.png' %}"></a>
+          </li>
+        {% endfor %}
 
-        {% if feed.feed_files.year %}
-            <li>Download yearly files (for previous years)
-                <ul>
-                    {% for file in feed.feed_files.year %}
-                        <li><a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}.zip">{{ file.s }} {{ file.y }}</a>
-                          <a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
-                    {% endfor %}
-                </ul>
+        {% for data in feed.data %}
+          {% if data.filenames %}
+            <li>{{ data.title }}
+              <ul>
+                {% for filename in data.filenames %}
+                  <li>
+                    <a href="/api/download_files/{{ feed.name }}/{{ filename }}">{{ filename }}</a>
+                    <a href="/api/download_files/{{ feed.name }}/{{ filename }}"><img class="download-icon" src="{% static 'images/download.png' %}"></a>
+                  </li>
+                {% endfor %}
+              </ul>
             </li>
-        {% endif %}
-
-        {% if feed.feed_files.month %}
-            <li>Download monthly files (for previous months)
-                <ul>
-                    {% for file in feed.feed_files.month %}
-                        <li><a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}.zip">{{ file.s }} {{ file.y }}-{{ file.m }}</a>
-                          <a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endif %}
-
-        {% if feed.feed_files.day %}
-            <li>Download daily files (for this month)
-                <ul>
-                    {% for file in feed.feed_files.day %}
-                        <li><a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}-{{ file.d }}.zip">{{ file.s }} {{ file.y }}-{{file.m }}-{{file.d }}</a>
-                        <a href="/api/download_files/{{ feed.name }}/{{ file.s }}-{{ file.y }}-{{ file.m }}-{{ file.d }}.zip"><img class="download-icon" src="{% static 'images/download.png' %}"></a></li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endif %}
+          {% endif %}
+        {% endfor %}
 
       </ul>
 

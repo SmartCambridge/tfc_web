@@ -67,7 +67,7 @@ def get_latest_dtm(files):
     return latest
 
 
-def build_archive(archive, d, force):
+def build_archive(feed, archive, d, force):
     '''
     Create or refresh an individual archive for date 'd'
     '''
@@ -76,7 +76,11 @@ def build_archive(archive, d, force):
     source_pattern = archive['source_pattern'].format(date=d)
     logger.debug('Build archive source pattern: %s', source_pattern)
 
-    destination = archive['destination'].format(date=d)
+    destination = os.path.join(
+        feed['destination'],
+        feed['name'],
+        archive['destination_filename'].format(date=d)
+    )
     logger.debug('Build archive destination: %s', destination)
 
     zip_dest = os.path.join(DEST_DIR, destination + '.zip')
@@ -138,12 +142,16 @@ def build_archive(archive, d, force):
             os.rename(zip_dest + pid, zip_dest)
 
 
-def delete_archive(archive, d):
+def delete_archive(feed, archive, d):
     '''
     Delete an individual archive dor date 'd' if it exists
     '''
 
-    destination = archive['destination'].format(date=d)
+    destination = os.path.join(
+        feed['destination'],
+        feed['name'],
+        archive['destination_filename'].format(date=d)
+    )
     logger.debug('Delete archive, destination: %s', destination)
 
     zip_dest = os.path.join(DEST_DIR, destination + '.zip')
@@ -192,14 +200,15 @@ def process_feed(feed, force):
             d = date(feed['first_year'], 1, 1)
             while d + step <= TODAY:
                 if d >= start and d <= end:
-                    build_archive(archive, d, force)
+                    build_archive(feed, archive, d, force)
                 else:
-                    delete_archive(archive, d)
+                    delete_archive(feed, archive, d)
                 d += step
 
     # ...and build the metadata
     if 'metadata' in feed:
-        build_archive(feed['metadata'], None, force)
+        for metadata in feed['metadata']:
+            build_archive(feed, metadata, None, force)
 
     # And release the lock
     lock_file.close()
