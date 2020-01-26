@@ -152,6 +152,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 LOGIN_REDIRECT_URL = 'home'
+ACCOUNT_FORMS = {'signup': 'smartcambridge.forms.CustomSignupForm'}
 
 ######### Forum app (django-machina) configuration ##########
 INSTALLED_APPS += [
