@@ -7,21 +7,26 @@ function IframeArea(widget_id) {
 
     'use strict';
 
-    //var DEBUG=' iframe_area_log';
+    // uncomment to enable debug logging to browser JS console
+    var DEBUG=' iframe_area_log';
 
     var self = this;
 
     this.display = function (config, params) {
         self.config = config;
         self.params = params;
-        self.log(widget_id, 'IframeArea',"Running display", params);
+        self.log(widget_id, 'IframeArea',"display params:", params, "config:", config);
         do_load();
     };
 
-    this.reload = function () {
-        self.log(widget_id,'IframeArea',"Running reload", self.config.container_id);
+    // Note the smartpanel will periodically call a widget 'reload' function if it exists, but
+    // for this iframe_area widget we are replacing that function with 'reload_local' so the period
+    // be adjusted or disabled. The default is to reload every 60 seconds, which is the same
+    // period as the smartpanel would call 'reload'.
+    this.reload_local = function () {
+        self.log(widget_id,'IframeArea',"Running reload_local", self.config.container_id);
         $('#' + self.config.container_id + ' iframe').attr("src", self.params.url);
-        self.log(widget_id,'IframeArea',"reload done", self.config.container_id);
+        self.log(widget_id,'IframeArea',"reload_local done", self.config.container_id);
     };
 
     function do_load() {
@@ -58,7 +63,24 @@ function IframeArea(widget_id) {
                       });
         }
         $('#' + self.config.container_id).empty().append(frame);
-        self.log(widget_id,"do_load done", self.config.container_id);
+
+        // start iframe reload interval loop if NO params.reload parameter, or params.reload != 0
+        if ( typeof self.params.reload === 'undefined' )
+        {
+            self.log(widget_id, "iframe_area no params.reload, so using 60 seconds");
+            setInterval(self.reload_local, 60000);
+        }
+        else
+        {
+            var reload_seconds = parseInt(self.params.reload);
+            self.log(widget_id, "iframe_area params.reload",reload_seconds,"seconds");
+            if (reload_seconds != 0)
+            {
+                setInterval(self.reload_local, reload_seconds * 1000);
+            }
+        }
+
+        self.log(widget_id,"iframe_area do_load done", self.config.container_id);
     } // end do_load()
 
     self.log = function() {
@@ -161,7 +183,7 @@ function IframeArea(widget_id) {
         //
         var offsetx_result = widget_config.input( config_tbody,
                                          'number',
-                                         { text: 'X Offset:',
+                                         { text: 'X Offset (px):',
                                            title: 'E.g. 300 will shift the iframe right into the page by 300px'
                                          },
                                          params.offsetx);
@@ -170,10 +192,20 @@ function IframeArea(widget_id) {
         //
         var offsety_result = widget_config.input( config_tbody,
                                          'number',
-                                         { text: 'Y Offset:',
+                                         { text: 'Y Offset (px):',
                                            title: 'E.g. 100 will shift the iframe down the page by 100px'
                                          },
                                          params.offsety);
+
+        // RELOAD
+        //
+        var reload_result = widget_config.input( config_tbody,
+                                         'number',
+                                         { text: 'Reload period (s):',
+                                           title: 'E.g. 60 will reload the page every 60 seconds. 0 will disable reload.'
+                                         },
+                                         params.reload);
+
 
         // value() is the function for this input element that returns its value
         var value_fn = function () {
@@ -186,6 +218,8 @@ function IframeArea(widget_id) {
             config_params.offsetx = offsetx_result.value();
 
             config_params.offsety = offsety_result.value();
+
+            config_params.reload = reload_result.value();
 
             self.log(self.widget_id,'input_iframe_area returning params:',config_params);
 
