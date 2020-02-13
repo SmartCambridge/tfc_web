@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_title %}BT Journey times{% endblock %}
+{% block title %}BT Journey times{% endblock %}
+{% block content %}
+
+    <h3>Point-to-point links</h3>
+
+    <ul class="mdl-list">
+    {% for link in config_links %}
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+                <i class="mdl-list__item-icon">
+                    <img src="{% static 'images/btjourney-icon.png' %}" style="width: 50px; margin-left: -2px; margin-top: -13px;">
+                </i>
+                <a href="{% url 'btjourney_plot' link.id %}">{{ link.name }}</a>
+            </span>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <h3>Compound routes</h3>
+
+    <ul class="mdl-list">
+    {% for route in config_routes %}
+        <li class="mdl-list__item">
+            <span class="mdl-list__item-primary-content">
+                <i class="mdl-list__item-icon">
+                    <img src="{% static 'images/btjourney-icon.png' %}" style="width: 50px; margin-left: -2px; margin-top: -13px;">
+                </i>
+                <a href="{% url 'btjourney_plot' route.id %}">{{ route.name }}</a>
+            </span>
+        </li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}
+
