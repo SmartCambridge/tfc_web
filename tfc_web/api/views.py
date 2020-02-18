@@ -71,24 +71,33 @@ def download(request):
         if not os.path.isdir(feed_source):
             continue
 
-        # Collect metadata file names
+        # Build a list of titles and filenames of metadata files available
+        # for download, from the 'title' and 'destination_filename' values
+        # in each 'metadata' item for this feed from settings.DOWNLOAD_FEEDS
         metadata = []
         if 'metadata' in feed:
             for metadata_item in feed['metadata']:
                 filename = metadata_item['destination_filename'] + '.zip'
+                # Only include files that actually exist...
                 if os.path.exists(os.path.join(source_dir, feed['name'], filename)):
                     metadata.append({
                         'title': metadata_item['title'],
                         'filename': filename,
                     })
 
-        # Collect data file names
+        # Build a list of titles and filename lists of data files available
+        # for download, from the 'title' and 'destination_filename' values
+        # in each 'archives' item for this feed from settings.DOWNLOAD_FEEDS
         data = []
         if 'archives' in feed:
             for archive_item in feed['archives']:
                 archive_pattern = archive_item['destination_filename']
+                # Convert '{...}' format() patterns into '\d+' regexp patterns
+                # This does rather assume that all format substitutions are numeric...
                 archive_pattern = re.sub(r'\{date:.*?\}', r'\d+', archive_pattern)
                 archive_pattern += '.zip'
+                # Include all the filenames in archive directory that match the pattern
+                # and which don't accidentally include the string 'metadata'
                 filenames = [
                     f for f in os.listdir(os.path.join(source_dir, feed['name']))
                     if re.fullmatch(archive_pattern, f) and 'metadata' not in f
