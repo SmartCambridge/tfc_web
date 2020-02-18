@@ -218,7 +218,10 @@ def bt_read_latest():
 
 class BTJourneyLinkList(auth.AuthenticateddAPIView):
     '''
-    List metadata for all known links.
+    List metadata for all known 'links' (journey segments between pairs of sensors).
+
+    Links are added and removed from the monitoring system from time to time so
+    journey time data will not be available for all of these links all of the time.
     '''
     def get(self, request):
         data = bt_get_config('link')
@@ -228,7 +231,10 @@ class BTJourneyLinkList(auth.AuthenticateddAPIView):
 
 class BTJourneyRouteList(auth.AuthenticateddAPIView):
     '''
-    List metadata for all known routes.
+    List metadata for all known 'routes' (journey segments built from multiple links).
+
+    Routes are added and removed from the monitoring system from time to time so
+    journey time data will not be available for all of these routes all of the time.
     '''
     def get(self, request):
         data = bt_get_config('route')
@@ -238,7 +244,12 @@ class BTJourneyRouteList(auth.AuthenticateddAPIView):
 
 class BTJourneyLinkOrRouteConfig(auth.AuthenticateddAPIView):
     '''
-    Return the metadata for a single link or route identified by _id_.
+    Return the metadata for a single 'link' (journey segment between a pair
+    of sensors) or 'route' (journey segments built from multiple links)
+    identified by _id_.
+
+    Links and routes are added and removed from the monitoring system from time to time so
+    journey time data will not necessarily be available for this links or route all of the time.
     '''
     schema = AutoSchema(manual_fields=link_or_route_id_fields)
 
@@ -256,7 +267,7 @@ class BTJourneyLinkOrRouteConfig(auth.AuthenticateddAPIView):
 
 class BTJourneySiteList(auth.AuthenticateddAPIView):
     '''
-    List metadata for all known sites.
+    List metadata for all known sensor 'sites'.
     '''
     def get(self, request):
         data = bt_get_config('site')
@@ -266,7 +277,7 @@ class BTJourneySiteList(auth.AuthenticateddAPIView):
 
 class BTJourneySiteConfig(auth.AuthenticateddAPIView):
     '''
-    Return the metadata for a single site identified by _site_id_.
+    Return the metadata for a single sensor 'site' identified by _site_id_.
     '''
     schema = AutoSchema(manual_fields=site_id_fields)
 
@@ -278,9 +289,14 @@ class BTJourneySiteConfig(auth.AuthenticateddAPIView):
 
 class BTJourneyLinkHistory(auth.AuthenticateddAPIView):
     '''
-    Return historic journey time data for the link or route identified by _id_.
+    Return historic journey time data for the 'link' (journey segment between a pair
+    of sensors) or 'route' (journey segments built from multiple links) identified by _id_.
     Data is returned in 24-hour chunks from _start_date_ to _end_date_
     inclusive. At most 31 day's data can be retrieved in a single request.
+
+    Links and routes are occasionally added. This endpoint might return
+    journey time data for links or routes for which metadata is not yet
+    available.
     '''
     schema = AutoSchema(manual_fields=link_or_route_id_fields + list_args_fields)
 
@@ -314,12 +330,16 @@ class BTJourneyLinkHistory(auth.AuthenticateddAPIView):
 
 class BTJourneyLinkLatestList(auth.AuthenticateddAPIView):
     '''
-    Return most recent journey times for all links and routes.
+    Return most recent journey times for all currently monitored 'links'
+    (journey segments between pairs
+    of sensors) and 'routes' (journey segments built from multiple links)
+
+    Links and routes are occasionally added. This endpoint might return
+    journey time data for links or routes for which metadata is not yet
+    available.
     '''
 
     def get(self, request):
-
-        # # FIXME: update when the format of post_data.json changes
 
         data = bt_read_latest()
         serializer = BTJourneyLinkRecordListSerializer(data)
@@ -328,14 +348,17 @@ class BTJourneyLinkLatestList(auth.AuthenticateddAPIView):
 
 class BTJourneyLinkLatest(auth.AuthenticateddAPIView):
     '''
-    Return most recent journey time data for the link or route
+    Return most recent journey time data for the 'link' (journey segment between a pair
+    of sensors) or 'route' (journey segments built from multiple links)
     identified by _id_.
+
+    Links and routes are occasionally added. This endpoint might return
+    journey time data for links or routes for which metadata is not yet
+    available.
     '''
     schema = AutoSchema(manual_fields=link_or_route_id_fields)
 
     def get(self, request, id):
-
-        # # FIXME: update when the format of post_data.json changes
 
         data = bt_read_latest()
 
