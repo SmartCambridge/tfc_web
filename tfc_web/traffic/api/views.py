@@ -6,16 +6,81 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.schemas import AutoSchema
 
+import coreapi
+import coreschema
+
 from .serializers import (
     ZoneListSerializer, ZoneConfigSerializer, ZoneHistorySerializer,
     BTJourneySiteSerializer, BTJourneySiteListSerializer,
     BTJourneyLinkOrRouteSerializer,
     BTJourneyLinkListSerializer, BTJourneyRouteListSerializer,
     BTJourneyLinkRecordSerializer, BTJourneyLinkRecordListSerializer)
-from api import util, auth, api_docs
+from api import util, auth
 
 
 logger = logging.getLogger(__name__)
+
+zone_id_fields = [
+    coreapi.Field(
+        "zone_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Zone identifier (e.g. 'east_road_in')"),
+        description="Zone identifier (e.g. 'east_road_in')",
+        example="east_road_in",
+    ),
+]
+
+link_or_route_id_fields = [
+    coreapi.Field(
+        "id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Identifier for a link or route (e.g. 'CAMBRIDGE_JTMS|9800W1CHALH6' or 'CAMBRIDGE_JTMS|9800WMBVAGBF')"),
+        description="Identifier for a link or route (e.g. 'CAMBRIDGE_JTMS|9800W1CHALH6' or 'CAMBRIDGE_JTMS|9800WMBVAGBF')",
+        example="CAMBRIDGE_JTMS|9800W1CHALH6",
+    ),
+]
+
+site_id_fields = [
+    coreapi.Field(
+        "site_id",
+        required=True,
+        location="path",
+        schema=coreschema.String(
+            description="Site identifier (e.g. '{0D7C672E-EEE9-4924-815E-B49CC382DFFA}')"),
+        description="Site identifier (e.g. '{0D7C672E-EEE9-4924-815E-B49CC382DFFA}')",
+        example="{0D7C672E-EEE9-4924-815E-B49CC382DFFA}",
+    ),
+]
+
+list_args_fields = [
+    coreapi.Field(
+        "start_date",
+        required=True,
+        location="query",
+        schema=coreschema.String(
+            description="Start date for returned data. YYYY-MM-DD "
+                        "(e.g. '2018-01-01')"),
+        description="Start date for returned data. YYYY-MM-DD "
+                    "(e.g. '2018-01-01')",
+        example="2018-01-01",
+    ),
+    coreapi.Field(
+        "end_date",
+        location="query",
+        schema=coreschema.String(
+            description="End date for returned data. YYYY-MM-DD "
+            "(e.g. '2018-01-15'). Defaults to start_date and must be no "
+            "more than 31 days from start_date"),
+        description="End date for returned data. YYYY-MM-DD "
+                    "(e.g. '2018-01-15'). Defaults to start_date and must be no "
+                    "more than 31 days from start_date",
+        example="2018-01-15",
+    ),
+]
 
 
 # # Zones
@@ -56,7 +121,7 @@ class ZoneConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single zone identified by _zone_id_.
     '''
-    schema = AutoSchema(manual_fields=api_docs.zone_id_fields)
+    schema = AutoSchema(manual_fields=zone_id_fields)
 
     def get(self, request, zone_id):
         data = get_zone_config(zone_id)
@@ -70,7 +135,7 @@ class ZoneHistory(auth.AuthenticateddAPIView):
     Data is returned in 24-hour chunks from _start_date_ to _end_date_
     inclusive. A most 31 day's data can be retrieved in a single request.
     '''
-    schema = AutoSchema(manual_fields=api_docs.zone_id_fields+api_docs.list_args_fields)
+    schema = AutoSchema(manual_fields=zone_id_fields+list_args_fields)
 
     def get(self, request, zone_id):
 
@@ -175,7 +240,7 @@ class BTJourneyLinkOrRouteConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single link or route identified by _id_.
     '''
-    schema = AutoSchema(manual_fields=api_docs.link_or_route_id_fields)
+    schema = AutoSchema(manual_fields=link_or_route_id_fields)
 
     def get(self, request, id):
         try:
@@ -203,7 +268,7 @@ class BTJourneySiteConfig(auth.AuthenticateddAPIView):
     '''
     Return the metadata for a single site identified by _site_id_.
     '''
-    schema = AutoSchema(manual_fields=api_docs.site_id_fields)
+    schema = AutoSchema(manual_fields=site_id_fields)
 
     def get(self, request, site_id):
         data = bt_get_config('site', site_id)
@@ -217,7 +282,7 @@ class BTJourneyLinkHistory(auth.AuthenticateddAPIView):
     Data is returned in 24-hour chunks from _start_date_ to _end_date_
     inclusive. At most 31 day's data can be retrieved in a single request.
     '''
-    schema = AutoSchema(manual_fields=api_docs.link_or_route_id_fields + api_docs.list_args_fields)
+    schema = AutoSchema(manual_fields=link_or_route_id_fields + list_args_fields)
 
     def get(self, request, id):
 
@@ -266,7 +331,7 @@ class BTJourneyLinkLatest(auth.AuthenticateddAPIView):
     Return most recent journey time data for the link or route
     identified by _id_.
     '''
-    schema = AutoSchema(manual_fields=api_docs.link_or_route_id_fields)
+    schema = AutoSchema(manual_fields=link_or_route_id_fields)
 
     def get(self, request, id):
 
