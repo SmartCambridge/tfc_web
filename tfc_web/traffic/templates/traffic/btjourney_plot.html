@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title %}BT Journey Times{% endblock %}
 {% block page_title %}  <span id="page_title_link_name"></span> BT Journey Times</span>{% endblock %}
 {% block mobile_title %}BT Journey Times<span id="mobile_title_link_name"></span>{% endblock %}
 
@@ -160,7 +161,6 @@ var CHART_Y_MAX = 1000; // FIX limit of Y axis
 
 function init()
 {
-    document.title = 'Transit Plot v2.2';
 
     // make ?noframe adjustments to content
     if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0)
