@@ -380,6 +380,8 @@ function site_popup(marker) {
            `<tr><th>Name</th><td>${site.name}</td></tr>` +
            `<tr><th>Description</th><td>${site.description}</td></tr>` +
            `<tr><th>Id</th><td>${site.id}</td></tr>` +
+           `<tr><th>latitude</th><td>${site.location.lat}</td></tr>` +
+           `<tr><th>Longitude</th><td>${site.location.lng}</td></tr>` +
            '</table>';
 
 }
