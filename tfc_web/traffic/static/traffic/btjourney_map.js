@@ -417,7 +417,7 @@ function line_popup(polyline) {
     }
 
     message += '</table>' +
-               `<p><a href="../plot/${escape(link.id)}">Journey time plot</a></p>`;
+               `<div class="popuphead"><a href="../plot/${escape(link.id)}">Journey time plot</a></div>`;
 
     return message;
 
