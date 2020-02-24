@@ -182,6 +182,17 @@ def get_btjourney_history(link_id, date):
             '?start_date=' + date)
 
 
+def add_sortable_names(link_list):
+    '''
+    Make a 'sortable' version of a a link (or route) name by moving
+    any numeric+optional alpha prefix to the end. This relies on
+    heuristics that might break in the future to recognise the prefix.
+    '''
+
+    for link in link_list:
+        link['sortname'] = re.sub(r'^(\d+\w*):? *(.*)$', r'\2 (\1)', link['name'])
+
+
 #############################################################################
 # traffic/btjourney/plot/<link_id>?date=YYYY-MM-DD                          #
 #############################################################################
@@ -235,13 +246,15 @@ def btjourney_map(request):
 
 def btjourney_list(request):
 
-    links = get_link_list()
-    routes = get_route_list()
+    links = get_link_list()['link_list']
+    add_sortable_names(links)
+    routes = get_route_list()['route_list']
+    add_sortable_names(routes)
 
-    link_list = sorted(links['link_list'], key=lambda l: l['name'])
-    route_list = sorted(routes['route_list'], key=lambda r: r['name'])
+    sorted_links = sorted(links, key=lambda l: l['sortname'])
+    sorted_routes = sorted(routes, key=lambda l: l['sortname'])
 
     return render(request, 'traffic/btjourney_list.html', {
-        'config_links': link_list,
-        'config_routes': route_list,
+        'config_links': sorted_links,
+        'config_routes': sorted_routes,
     })
