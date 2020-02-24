@@ -455,6 +455,8 @@ function get_legend() {
         add_button(div, 'actual', 'Actual speed');
         add_button(div, 'normal', 'Normal speed');
         add_button(div, 'relative', 'Speed relative to normal');
+        var desc = L.DomUtil.create('div', 'ledgend-desc', div);
+        desc.innerHTML = '\'Normal\' is the long-term average speed<br>for current time of day and day of week.';
         var key = L.DomUtil.create('div', 'ledgend-key', div);
         key.id = 'ledgend-key';
         set_ledgend_key(key);

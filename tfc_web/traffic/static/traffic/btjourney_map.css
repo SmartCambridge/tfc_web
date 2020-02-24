@@ -5,6 +5,10 @@
     font-weight: bold;
 }
 
+.ledgend-desc {
+    margin-top: 0.5em;
+}
+
 .ledgend-colours, .ledgend-common {
     margin-top: 0.5em;
 }
