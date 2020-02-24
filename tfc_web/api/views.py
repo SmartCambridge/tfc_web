@@ -1,5 +1,6 @@
 
 import logging
+import json
 import re
 import os
 
@@ -57,8 +58,9 @@ def download(request):
     source_dir = os.path.join(settings.DATA_PATH, 'download_api')
 
     # Build a list of the available files for each feed
-    files = []
-    for feed in sorted(settings.DOWNLOAD_FEEDS, key=lambda v: v['title']):
+    template_data = []
+
+    for feed in settings.DOWNLOAD_FEEDS:
 
         # Skip feeds without 'display': True
         if not feed.get('display'):
@@ -69,26 +71,41 @@ def download(request):
         if not os.path.isdir(feed_source):
             continue
 
-        # Collect al lthe files
-        feed_files = {'day': [], 'month': [], 'year': []}
-        for file in sorted(os.listdir(feed_source)):
-            # <feed>/<section>-yyyy.zip
-            # <feed>/<section>-yyyy-mm.zip
-            # <feed>/<section>-yyyy-mm-dd.zip
-            # <feed>/<section>-metadata.zip
-            match = re.search(r'(.*?)-(\d\d\d\d)(?:-(\d\d))?(?:-(\d\d))?.zip$', file)
-            if match:
-                section, year, month, day = match.group(1, 2, 3, 4)
-                if day:
-                    feed_files['day'].append({'s': section, 'y': year, 'm': month, 'd': day})
-                elif month:
-                    feed_files['month'].append({'s': section, 'y': year, 'm': month})
-                else:
-                    feed_files['year'].append({'s': section, 'y': year})
-            match = re.search(r'(.*?)-metadata.zip', file)
-            if match:
-                section = match.group(1)
-                feed_files['metadata'] = (section)
+        # Build a list of titles and filenames of metadata files available
+        # for download, from the 'title' and 'destination_filename' values
+        # in each 'metadata' item for this feed from settings.DOWNLOAD_FEEDS
+        metadata = []
+        if 'metadata' in feed:
+            for metadata_item in feed['metadata']:
+                filename = metadata_item['destination_filename'] + '.zip'
+                # Only include files that actually exist...
+                if os.path.exists(os.path.join(source_dir, feed['name'], filename)):
+                    metadata.append({
+                        'title': metadata_item['title'],
+                        'filename': filename,
+                    })
+
+        # Build a list of titles and filename lists of data files available
+        # for download, from the 'title' and 'destination_filename' values
+        # in each 'archives' item for this feed from settings.DOWNLOAD_FEEDS
+        data = []
+        if 'archives' in feed:
+            for archive_item in feed['archives']:
+                archive_pattern = archive_item['destination_filename']
+                # Convert '{...}' format() patterns into '\d+' regexp patterns
+                # This does rather assume that all format substitutions are numeric...
+                archive_pattern = re.sub(r'\{date:.*?\}', r'\d+', archive_pattern)
+                archive_pattern += '.zip'
+                # Include all the filenames in archive directory that match the pattern
+                # and which don't accidentally include the string 'metadata'
+                filenames = [
+                    f for f in os.listdir(os.path.join(source_dir, feed['name']))
+                    if re.fullmatch(archive_pattern, f) and 'metadata' not in f
+                ]
+                data.append({
+                    'title': archive_item['title'],
+                    'filenames': filenames
+                })
 
         # See if there's a template containing documentation
         try:
@@ -97,16 +114,17 @@ def download(request):
         except TemplateDoesNotExist:
             info_template = False
 
-        files.append({
+        template_data.append({
             'name': feed['name'],
             'title': feed['title'],
             'desc': feed['desc'],
-            'feed_files': feed_files,
+            'metadata': metadata,
+            'data': data,
             'info_template': info_template
         })
 
     return render(request, 'api/download.html', {
-        'files':  files,
+        'feeds':  template_data,
     })
 
 

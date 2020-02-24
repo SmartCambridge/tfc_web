@@ -35,33 +35,34 @@ have registered on the platform, authenticate to the Django app and
 agreed to the platform T&Cs.
 
 3. Other Django components in the 'api' app (`tfc_web/api/`, including
-`nginx_auth_probe()`, `download()` and `download_schema()` in
+`download()` and `download_schema()` in
 `views.py`, `templates/api/download.html`,
 `templates/api/*-schema.html`) that present the page at
 [https://smartcambridge.org/api/download/](https://smartcambridge.org/api/download/)
 which provides an index to available downloadable files.
-`build_download_data` can produce archives with various date ranges
-but `views.py` and `templates/api/download.html` currently assume that
-there are only annual, monthly and/or daily archives.
 
 Configuration
 =============
 
 The Django configuration item `DOWNLOAD_FEEDS` contains a sequence of
 dictionaries, each corresponding to a 'feed' of data to make available.
-Each dictionary contain the following keys:
 
-`name`: A short name or tag for this feed. Used in log records and URLs
+Feed configurations
+-------------------
+
+Each feed dictionary contain the following keys:
+
+`name`: A short name or tag for this feed. Used in log records, directory names and URLs.
 
 `title`: A human-readable title for this feed. Used as a title on the
-index web page
+index web page.
 
 `desc`: A longer description of this feed. Displayed on the index web
 page.
 
 `archive_by_default`: Optional. If present and `True`, archives for this
-feed are processed when build_download_data is run without an explicit
-list of feeds
+feed are processed when `build_download_data` is run without an explicit
+list of feeds.
 
 `display`: Optional. If present and `True`, this feed is listed on the
 index web page. Setting this to `False` won't prevent people accessing
@@ -74,28 +75,46 @@ should be maintained but not served over the web.
 data dated between 1 January in this year and yesterday will be
 processed.
 
+`destination`: The directory relative to the Django configuration
+item `DEST_DIR` (defaulting to the configuration
+item `DATA_PATH` which is typically `/media/tfc`)
+within which archive and metadata files are written.
+
 `archives`: Optional. If present, must be a sequence of dictionaries
-defining how each archive that will be maintained.
+containing archive configurations.
 
-`metadata`: Optional. If present, must be a dictionary defining how a
-data metadata will be maintained.
+`metadata`: Optional. If present, must be a sequence of dictionaries
+containing metadata configurations.
 
-Archive and metadata dictionaries contain the following keys:
+Archive and metadata configurations
+-----------------------------------
 
-`name`: A short name or tag for this archive. Used in log records
+The configuration for archives and metadata is similar. The significant
+difference between the two is that each 'archive' entries create multiple,
+time-bounded files (annual archives, monthly archives, etc.)
+while each 'metadata' entry creates a single file. The dictionaries contain
+the following keys:
+
+`name`: A short name or tag for this archive. Used in log records.
+
+`title`: A human-readable title. Used as a title on the
+index web page.
 
 `source_pattern`: A filesystem path relative to the Django configuration
 item `DATA_PATH` (typically `/media/tfc`) that selects data files to be
-processed for inclusion in an archive. The pattern can containing file
-system glob wild-cards which will be expanded. The pattern is processed
+processed for inclusion in an archive or metadata. The pattern can containing file
+system glob wild-cards which will be expanded. For archives (but not metadata)
+the pattern is also processed
 by `string.format()` with a parameter `date` that contains the start
-date for the archive being processed. As a result `{date:%Y}` will, for
+date for the period being processed. As a result `{date:%Y}` will, for
 example, be replaced by the relevant year. An annual archive might have
 a `source_pattern` like `cam_aq/data_bin/{date:%Y}/*/*/*.json`.
 
-`destination`: A file system path relative to the Django configuration
-item `DEST_DIR` (defaulting to `DATA_PATH`) to which
-the archive will be written. The pattern is processed by
+`destination_filename`: The name of the file to which data is written (omiting the '.zip' suffix).
+The file will be stored in a directory named after
+the coresponding feed's `name`, within the feeds `destination`, within the
+Django configuration item `DEST_DIR` (defaulting to `DATA_PATH` and typically `/media/tfc`).
+For archives (but not metadata files) the name is processed by
 `string.format()` as for `source_pattern`.
 
 `extractor`: A dot-separated Python path identifying the 'extractor'
@@ -138,8 +157,8 @@ all existing archives to be updated irrespective of dates.
 
 `build_download_data` obtains a lock file for each feed it tries to process
 and will skip processing any feeds for which the lock is already in use.
-This prevents accidental having two or more instances of the program
-processing the same feed at the saem time.
+This prevents accidentally having two or more instances of the program
+processing the same feed at the same time.
 
 Extractor functions
 ===================
@@ -151,9 +170,11 @@ corresponding feed name in `tfc_web/aq/extractors` - e.g.
 `tfc_web/aq/extractors/parking.py`. Most feeds need a pair of
 extractors - one for the data itself and one for the feed metadata from
 `/media/tfc/sys/` - but this can vary (the 'aq' feed has two data
-extractors, for example, and the 'bus' feed has no metadata).
+extractors, for example, the 'bus' feed has no metadata, and the 'btjourneys'
+feed creates two metadata files from dynamic data rather than
+static data in `/media/tfc/sys/`).
 
-Extractor functions receive a list of names of feed data files to
+Extractor functions receive a list of names of files to
 process and a Python CSV writer object as parameters. Their return value
 is ignored. They are expected to write a header row to the CSV writer
 and then to extract information from each file, manipulate it as needed,
@@ -167,14 +188,14 @@ Adding a new data source
 Making a new data feed downloadable unfortunately needs changes in
 several places (blame the system designer):
 
-1. Create 'extractor' functions for the data.
+1. Create 'extractor' functions for the data and/or metadata
 
 2. Edit `settings.py` and add a new element to `DOWNLOAD_FEEDS` to
 represent the new feed. Set `display` to `False` until you are ready to
 publish the data. You may also want to set `archive_by_default` to
 `False` initially.
 
-   Run `./manage.py build_download_data <feed name>` by hand and confirm
+3.  Run `./manage.py build_download_data <feed name>` by hand and confirm
 that appropriate archives are created.
 
 4. Optionally add a file in `tfc_web/api/templates/api/` called `<feed
@@ -185,5 +206,5 @@ name>-schema.html` containing a description of the data and its format
 [https://smartcambridge.org/api/download/](https://smartcambridge.org/api/download/)
 displays the feed as expected.
 
-6. Set `archive_by_default` to `True` to automatically maintain the
+6. Set `archive_by_default` to `True` to enable automatic maintenance of the
 archives into the future.

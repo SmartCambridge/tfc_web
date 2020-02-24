@@ -22,4 +22,8 @@ Only a very limited sub-set of data is available:
     <dt>Zones</dt>
     <dd>Data for 2018-01-02 and 2018-09-01 (the latter including 
     'distance' and 'avg_speed' fields)</dd>
+    <dt>BTJourney</dt>
+    <dd>Data for roughly 16:30-17:00 on 2020-01-16 including a snapshot
+        of 'latest'. This data was crated by a mockup of what tfc_server will
+        eventually do and not copied from live.
 </dl>

@@ -8,15 +8,23 @@ from authmultitoken.views import (
     manage_tokens, create_token, manage_token, add_restriction
 )
 
-from .api_docs import api_description
 from .views import login_and_agree, nginx_auth_probe, download, download_schema
 from smartcambridge.decorator import smartcambridge_valid_user
+
+
+api_description = '''
+Programmatic access to data held by the Smartcambridge project.
+
+See [the main API documentation](/api/) for important information about
+using this API, **in particular about the need for authentication**.
+'''
+
 
 # These are the URL patterns for which documentation should
 # be generated
 docpatterns = [
      url(r'^api/v1/parking/', include('parking.api.urls')),
-     url(r'^api/v1/zone/', include('traffic.api.urls')),
+     url(r'^api/v1/traffic/', include('traffic.api.urls')),
      url(r'^api/v1/aq/', include('aq.api.urls')),
      # Import transport views previously servedunder /transport/api/
      url(r'^api/v1/transport/', include('transport.api.urls')),
@@ -54,7 +62,7 @@ urlpatterns = [
         description=api_description,
         patterns=docpatterns)),
     url(r'^v1/parking/', include('parking.api.urls')),
-    url(r'^v1/zone/', include('traffic.api.urls')),
+    url(r'^v1/traffic/', include('traffic.api.urls')),
     url(r'^v1/aq/', include('aq.api.urls')),
     # Import transport views previously served under /transport/api/
     url(r'^v1/transport/', include('transport.api.urls')),

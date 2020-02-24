@@ -287,42 +287,50 @@ DOWNLOAD_FEEDS = [
         'archive_by_default': True,
         'display': True,
         'first_year': 2016,
+        'destination': 'download_api',
         'archives': [
             {
-                'name': 'headers-year',
+                'name': 'data-year',
+                'title': 'Yearly data',
                 'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
-                'destination': os.path.join('download_api', 'aq', 'aq-headers-{date:%Y}'),
-                'extractor': 'api.extractors.aq.aq_header_extractor',
+                'destination_filename': 'aq-data-{date:%Y}',
+                'extractor': 'api.extractors.aq.aq_data_extractor',
                 'step': {'years': 1}
-
             },
             {
-                'name': 'data-year',
-                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
-                'destination': os.path.join('download_api', 'aq', 'aq-data-{date:%Y}'),
+                'name': 'data-month',
+                'title': 'Monthly data',
+                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
+                'destination_filename': 'aq-data-{date:%Y}-{date:%m}',
                 'extractor': 'api.extractors.aq.aq_data_extractor',
+                'step': {'months': 1}
+            },
+            {
+                'name': 'headers-year',
+                'title': 'Yearly header information',
+                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '*', '*', '*.json'),
+                'destination_filename': 'aq-headers-{date:%Y}',
+                'extractor': 'api.extractors.aq.aq_header_extractor',
                 'step': {'years': 1}
             },
             {
                 'name': 'headers-month',
+                'title': 'Monthly header information',
                 'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
-                'destination': os.path.join('download_api', 'aq', 'aq-headers-{date:%Y}-{date:%m}'),
+                'destination_filename': 'aq-headers-{date:%Y}-{date:%m}',
                 'extractor': 'api.extractors.aq.aq_header_extractor',
                 'step': {'months': 1}
             },
-            {
-                'name': 'data-month',
-                'source_pattern': os.path.join('cam_aq/data_bin', '{date:%Y}', '{date:%m}', '*', '*.json'),
-                'destination': os.path.join('download_api', 'aq', 'aq-data-{date:%Y}-{date:%m}'),
-                'extractor': 'api.extractors.aq.aq_data_extractor',
-                'step': {'months': 1}
-            },
         ],
-        'metadata': {
-            'source_pattern': os.path.join('sys', 'data_cam_aq_config', 'list.json'),
-            'destination': os.path.join('download_api', 'aq', 'aq-metadata'),
-            'extractor': 'api.extractors.aq.aq_metadata_extractor'
-        }
+        'metadata': [
+            {
+                'name': 'metadata',
+                'title': 'Sensor metadata',
+                'source_pattern': os.path.join('sys', 'data_cam_aq_config', 'list.json'),
+                'destination_filename': 'aq-metadata',
+                'extractor': 'api.extractors.aq.aq_metadata_extractor'
+            }
+        ]
     },
     {
         'name': 'parking',
@@ -332,74 +340,90 @@ DOWNLOAD_FEEDS = [
         'archive_by_default': True,
         'display': True,
         'first_year': 2017,
+        'destination': 'download_api',
         'archives': [
             {
                 'name': 'year',
+                'title': 'Annual data',
                 'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '*', '*', '*.txt'),
-                'destination': os.path.join('download_api', 'parking', 'parking-{date:%Y}'),
+                'destination_filename': 'parking-{date:%Y}',
                 'extractor': 'api.extractors.parking.cam_park_rss_extractor',
                 'step': {'years': 1}
             },
             {
                 'name': 'month',
+                'title': 'Monthly data',
                 'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '{date:%m}', '*', '*.txt'),
-                'destination': os.path.join('download_api', 'parking', 'parking-{date:%Y}-{date:%m}'),
+                'destination_filename': 'parking-{date:%Y}-{date:%m}',
                 'extractor': 'api.extractors.parking.cam_park_rss_extractor',
                 'step': {'months': 1}
             },
             {
                 'name': 'day',
+                'title': 'Daily data for this month',
                 'source_pattern': os.path.join('cam_park_rss/data_park', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
-                'destination': os.path.join('download_api', 'parking', 'parking-{date:%Y}-{date:%m}-{date:%d}'),
+                'destination_filename': 'parking-{date:%Y}-{date:%m}-{date:%d}',
                 'extractor': 'api.extractors.parking.cam_park_rss_extractor',
                 'start': {'day': 1},  # First of this month
                 'step': {'days': 1}
             },
 
         ],
-        'metadata': {
-            'source_pattern': os.path.join('sys', 'data_parking_config', 'list.json'),
-            'destination': os.path.join('download_api', 'parking', 'parking-metadata'),
-            'extractor': 'api.extractors.parking.cam_park_rss_metadata_extractor'
-        }
+        'metadata': [
+            {
+                'name': 'metadata',
+                'title': 'Sensor Metadata',
+                'source_pattern': os.path.join('sys', 'data_parking_config', 'list.json'),
+                'destination_filename': 'parking-metadata',
+                'extractor': 'api.extractors.parking.cam_park_rss_metadata_extractor'
+            }
+        ]
     },
     {
         'name': 'zone',
-        'title': 'Traffic Speed',
-        'desc': 'Traffic Speed data for a number of roads within Cambridge '
-                'based on bus position reports from October 2017 onward.',
+        'title': 'Traffic Speed (Buses)',
+        'desc': 'Traffic Speed (\'zone\') data for roads within Cambridge '
+                'based on bus position data from October 2017 onward.',
         'archive_by_default': True,
         'display': True,
         'first_year': 2017,
+        'destination': 'download_api',
         'archives': [
             {
                 'name': 'year',
+                'title': 'Annual data',
                 'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '*', '*', '*.txt'),
-                'destination': os.path.join('download_api', 'zone', 'zone-{date:%Y}'),
+                'destination_filename': 'zone-{date:%Y}',
                 'extractor': 'api.extractors.zone.zone_extractor',
                 'step': {'years': 1}
             },
             {
                 'name': 'month',
+                'title': 'Monthly data',
                 'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '{date:%m}', '*', '*.txt'),
-                'destination': os.path.join('download_api', 'zone', 'zone-{date:%Y}-{date:%m}'),
+                'destination_filename': 'zone-{date:%Y}-{date:%m}',
                 'extractor': 'api.extractors.zone.zone_extractor',
                 'step': {'months': 1}
             },
             {
                 'name': 'day',
+                'title': 'Daily data for this month',
                 'source_pattern': os.path.join('cloudamber/sirivm/data_zone', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
-                'destination': os.path.join('download_api', 'zone', 'zone-{date:%Y}-{date:%m}-{date:%d}'),
+                'destination_filename': 'zone-{date:%Y}-{date:%m}-{date:%d}',
                 'extractor': 'api.extractors.zone.zone_extractor',
                 'start': {'day': 1},  # First of this month
                 'step': {'days': 1}
             },
         ],
-        'metadata': {
-            'source_pattern': os.path.join('sys', 'data_zone_config', 'list_all.json'),
-            'destination': os.path.join('download_api', 'zone', 'zone-metadata'),
-            'extractor': 'api.extractors.zone.zone_metadata_extractor'
-        }
+        'metadata': [
+            {
+                'name': 'metadata',
+                'title': 'Sensor Metadata',
+                'source_pattern': os.path.join('sys', 'data_zone_config', 'list_all.json'),
+                'destination_filename': 'zone-metadata',
+                'extractor': 'api.extractors.zone.zone_metadata_extractor'
+            }
+        ]
     },
     {
         'name': 'bus',
@@ -408,16 +432,79 @@ DOWNLOAD_FEEDS = [
         'archive_by_default': False,
         'display': False,
         'first_year': 2017,
+        'destination': 'download_private',
         'archives': [
             {
                 'name': 'month',
+                'title': 'Monthly data',
                 'source_pattern': os.path.join('sirivm_json/data_bin/', '{date:%Y}', '{date:%m}', '*', '*.json'),
-                'destination': os.path.join('download_private', 'bus', 'bus-{date:%Y}-{date:%m}'),
+                'destination_filename': 'bus-{date:%Y}-{date:%m}',
                 'extractor': 'api.extractors.bus.bus_extractor',
                 'step': {'months': 1}
             }
         ]
-    }
+    },
+    {
+        'name': 'btjourney',
+        'title': 'Traffic Speed (Bluetooth sensors)',
+        'desc': 'Traffic Speed (\'btjourney\') data for roads within Cambridge '
+                'derived from Bluetooth sensor devices from 2020 onward.',
+        'archive_by_default': True,
+        'display': True,
+        'first_year': 2020,
+        'destination': 'download_api',
+        'archives': [
+            {
+                'name': 'year',
+                'title': 'Annual data',
+                'source_pattern': os.path.join('btjourney/journeytimes/data_link', '{date:%Y}', '*', '*', '*.txt'),
+                'destination_filename': 'btjourney-{date:%Y}',
+                'extractor': 'api.extractors.btjourney.btjourney_journey_extractor',
+                'step': {'years': 1}
+            },
+            {
+                'name': 'month',
+                'title': 'Monthly data',
+                'source_pattern': os.path.join('btjourney/journeytimes/data_link', '{date:%Y}', '{date:%m}', '*', '*.txt'),
+                'destination_filename': 'btjourney-{date:%Y}-{date:%m}',
+                'extractor': 'api.extractors.btjourney.btjourney_journey_extractor',
+                'step': {'months': 1}
+            },
+            {
+                'name': 'day',
+                'title': 'Daily data for this month',
+                'source_pattern': os.path.join('btjourney/journeytimes/data_link', '{date:%Y}', '{date:%m}', '{date:%d}', '*.txt'),
+                'destination_filename': 'btjourney-{date:%Y}-{date:%m}-{date:%d}',
+                'extractor': 'api.extractors.btjourney.btjourney_journey_extractor',
+                'start': {'day': 1},  # First of this month
+                'step': {'days': 1}
+            },
+
+        ],
+        'metadata': [
+            {
+                'name': 'link_metadata',
+                'title': 'Link metadata',
+                'source_pattern': os.path.join('btjourney', 'locations', 'data_link', '*.json'),
+                'destination_filename': 'btjourney-link-metadata',
+                'extractor': 'api.extractors.btjourney.btjourney_link_extractor'
+            },
+            {
+                'name': 'route_metadata',
+                'title': 'Route metadata',
+                'source_pattern': os.path.join('btjourney', 'locations', 'data_route', '*.json'),
+                'destination_filename': 'btjourney-route-metadata',
+                'extractor': 'api.extractors.btjourney.btjourney_route_extractor'
+            },
+            {
+                'name': 'site_metadata',
+                'title': 'Site metadata',
+                'source_pattern': os.path.join('btjourney', 'locations', 'data_site', '*.json'),
+                'destination_filename': 'btjourney-site-metadata',
+                'extractor': 'api.extractors.btjourney.btjourney_site_extractor'
+            },
+        ]
+    },
 ]
 
 

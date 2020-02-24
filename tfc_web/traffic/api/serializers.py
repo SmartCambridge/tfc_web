@@ -54,3 +54,69 @@ class ZoneConfigSerializer(serializers.Serializer):
 
 class ZoneListSerializer(serializers.Serializer):
     zone_list = ZoneConfigSerializer(many=True)
+
+
+class BTJourneyLatLngSearializer(serializers.Serializer):
+    lat = serializers.FloatField()
+    lng = serializers.FloatField()
+
+
+class BTJourneySiteSerializer(serializers.Serializer):
+    acp_id = serializers.CharField(source='id')
+    acp_ts = serializers.IntegerField(source='ts')
+    acp_lat = serializers.FloatField(source='location.lat')
+    acp_lng = serializers.FloatField(source='location.lng')
+    id = serializers.CharField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    location = BTJourneyLatLngSearializer()
+    ts = serializers.IntegerField()
+    ts_text = util.EpochField(source='ts')
+
+
+class BTJourneySiteListSerializer(serializers.Serializer):
+    site_list = BTJourneySiteSerializer(many=True)
+
+
+class BTJourneyLinkOrRouteSerializer(serializers.Serializer):
+    acp_id = serializers.CharField(source='id')
+    acp_ts = serializers.IntegerField(source='ts')
+    id = serializers.CharField()
+    name = serializers.CharField()
+    description = serializers.CharField()
+    sites = serializers.ListField(
+        child=serializers.CharField()
+    )
+    links = serializers.ListField(
+        child=serializers.CharField(),
+        required=False
+    )
+    length = serializers.IntegerField()
+    ts = serializers.IntegerField()
+    ts_text = util.EpochField(source='ts')
+
+
+class BTJourneyLinkListSerializer(serializers.Serializer):
+    link_list = BTJourneyLinkOrRouteSerializer(many=True)
+
+
+class BTJourneyRouteListSerializer(serializers.Serializer):
+    route_list = BTJourneyLinkOrRouteSerializer(many=True)
+
+
+class BTJourneyLinkRecordSerializer(serializers.Serializer):
+    acp_id = serializers.CharField(source='id')
+    acp_ts = serializers.IntegerField(source='ts', required=False)
+    id = serializers.CharField()
+    time = serializers.CharField()
+    period = serializers.IntegerField()
+    travelTime = serializers.IntegerField()
+    normalTravelTime = serializers.IntegerField()
+    ts = serializers.IntegerField(required=False)
+    ts_text = util.EpochField(source='ts', required=False)
+
+
+class BTJourneyLinkRecordListSerializer(serializers.Serializer):
+    request_data = BTJourneyLinkRecordSerializer(many=True)
+    ts = serializers.IntegerField(required=False)
+    ts_text = util.EpochField(source='ts', required=False)

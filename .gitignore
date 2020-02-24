@@ -108,3 +108,4 @@ tfc_web/data/TNDS_NEW/*.zip
 nohup.out
 
 tfc_web/api/tests/data/download_api/
+tfc_web/api/tests/data/download_private/
