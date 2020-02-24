@@ -1,3 +1,4 @@
+import collections
 from datetime import timedelta
 import logging
 import os
@@ -324,6 +325,15 @@ class BTJourneyLinkHistory(auth.AuthenticateddAPIView):
                 results = results + util.read_json_fragments(filename)
             except FileNotFoundError:
                 pass
+
+        # For reasons unknown, the period field in journey data is occasionally
+        # an empty object rather than an integer. In particular this has been
+        # observed for very recently created links
+        # (see e.g. CAMBRIDGE_JTMS|9800YRAA8RIZ on 2020-02-16)
+        for result in results:
+            if isinstance(result['period'], collections.Mapping):
+                result['period'] = None
+
         serializer = BTJourneyLinkRecordListSerializer({'request_data': results})
         return Response(serializer.data)
 
