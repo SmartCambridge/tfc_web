@@ -4,6 +4,7 @@ The functions used by the build_download_data command to extract
 Bluetooth-derived journey data and store it in CVS files.
 '''
 
+import collections
 import json
 import logging
 
@@ -31,6 +32,13 @@ def btjourney_journey_extractor(files, writer):
                 for line in reader:
                     data = json.loads(line)
                     data['ts_text'] = epoch_to_text(data['ts'])
+                    # For reasons unknown, the period field in journey data
+                    # is occasionally an empty object rather than an integer.
+                    # In particular this has been observed for very recently
+                    # created links (see e.g. CAMBRIDGE_JTMS|9800YRAA8RIZ on
+                    # 2020-02-16)
+                    if isinstance(data['period'], collections.Mapping):
+                        data['period'] = None
                     writer.writerow([data.get(f) for f in fields])
         except OSError as e:
             logger.error('Error opening %s: %s', file, e)
