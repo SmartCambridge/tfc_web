@@ -89,7 +89,7 @@ transport_stops_pagination_fields = [
 
 class Pagination(PageNumberPagination):
     page_size = 25
-    max_page_size = 50
+    max_page_size = 500
     page_size_query_param = 'page_size'
 
 
@@ -481,7 +481,7 @@ class VehicleJourneyList(generics.ListAPIView):
     """
     Return a list of all known vehicle journeys.
     """
-    queryset = VehicleJourney.objects.all()
+    queryset = VehicleJourney.objects.all().order_by('id')
     serializer_class = VehicleJourneySerializer
     pagination_class = Pagination
     schema = VehicleJourneyList_schema
