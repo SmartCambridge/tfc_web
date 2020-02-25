@@ -99,7 +99,7 @@ def download(request):
                 # Include all the filenames in archive directory that match the pattern
                 # and which don't accidentally include the string 'metadata'
                 filenames = [
-                    f for f in os.listdir(os.path.join(source_dir, feed['name']))
+                    f for f in sorted(os.listdir(os.path.join(source_dir, feed['name'])))
                     if re.fullmatch(archive_pattern, f) and 'metadata' not in f
                 ]
                 data.append({
