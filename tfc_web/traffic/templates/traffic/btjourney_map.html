@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_title %}BT Journey Speed{% endblock %}
+{% block title %}BT Journey Speed{% endblock %}
+
+{% block head %}
+    {% include 'leaflet_snippet.html' %}
+
+    <!-- Leaflet.PolylineOffst -->
+    <!-- https://github.com/bbecquet/Leaflet.PolylineOffset -->
+    <script type="text/javascript" src="{% static 'js/leaflet.polylineoffset.js' %}"></script>
+
+    <!-- Our style -->
+    <link rel="stylesheet" href="{% static 'traffic/btjourney_map.css' %}"/>
+
+    <!-- Our script -->
+    <script type="text/javascript">
+        API_TOKEN = '{{ key }}';
+    </script>
+    <script type="text/javascript" src="{% static 'traffic/btjourney_map.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="map" style="height: 100%; width: 100%;"></div>
+    </div>
+{% endblock %}

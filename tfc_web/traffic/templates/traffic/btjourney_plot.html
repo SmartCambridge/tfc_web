@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}BT Journey Times{% endblock %}
+{% block page_title %}  <span id="page_title_link_name"></span> BT Journey Times</span>{% endblock %}
+{% block mobile_title %}BT Journey Times<span id="mobile_title_link_name"></span>{% endblock %}
+
+
+{% block head %}
+
+{% include 'leaflet_snippet.html' %}
+<!-- load the d3 library for the chart plot -->
+<script src="{% static 'd3/d3.v3.min.js' %}" charset="utf-8"></script>
+  
+<style>
+      
+#page_date {
+  font-size: 22px;
+  margin: 5px 10px 10px 5px;
+  display: inline-block;
+}
+
+#content_title {
+  display: inline-block;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 5px 5px 10px 20px;
+}
+
+#heading_date {
+  display: inline-block;
+  width: 8em;
+}
+
+.time_shift {
+  display: inline-block;
+}
+
+#chart {
+    width: 95vw;
+    height: calc(100vh - 250px);
+    margin: 5px 5px 5px 10px;
+}
+
+.plot_svg {
+  background-color: AliceBlue;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #707070;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 400px;
+  /* height: 28px; */
+  text-align: center;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.error {
+  color: red;
+  display: inline-block;
+}
+
+.tick {
+  stroke: #222;
+}
+
+.grid {
+  stroke: #555;
+  opacity: 0.7;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.capacity_line {
+  fill: none;
+  stroke: red;
+  stroke-width: 1.5px;
+}
+
+</style>
+    
+<script type="text/javascript">
+
+//********************************************************************************
+//***********  LOAD VARS FROM SERVER    ******************************************
+//********************************************************************************
+
+var YYYY = {{config_yyyy}}; // Year e.g. 2016
+var MM = {{config_MM}};     // Month e.g. 07 = July
+var DD = {{config_dd}};     // day e.g. 23
+
+var YYYYMMDD = '{{config_yyyy}}/{{config_MM}}/{{config_dd}}';
+
+var feed_id = '{{config_feed_id}}';
+
+//********************************************************************************
+//********************************************************************************
+var link = {};
+try {        
+      link = (JSON.parse( '{{ config_link_config|escapejs }}' ));
+} catch (error)
+{
+  console.log('Failed to get link config data from server');
+}
+
+// ********************************************************************************
+// *************  end of server link config info         ****************************
+// ********************************************************************************
+
+var plot_date; // date of currently displayed plot (initialized from YYYY/MM/DD)
+
+var plot_date_is_today; // boolean confirming user selected date is TODAY
+
+var plot_date_minus_1; // plot_date - 1 day
+var plot_date_plus_1; // plot_date + 1 day
+
+var month_of_year = new Array("spacer", "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+var day_of_week = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+
+// d3 scatterplot parameters
+var chart_svg;    // chart svg element
+var chart_xScale; // d3 scale fn for x axis
+var chart_xAxis;  // x axis
+var chart_xValue; // value for x axis selected from current data object (i.e. timestamp)
+var chart_xMap;   // fn for x display value
+var chart_yScale;
+var chart_yAxis;
+var chart_yValue;
+var chart_yMap;
+//var chart_cValue; // value from current data point to determine color of circle (i.e. route_id)
+var chart_color;  // color chosen for current circle on scatterplaot
+var chart_tooltip;
+var check_data;
+
+// time of day for scatterplot to start/end
+var CHART_START_TIME = 0; // start chart at midnight
+var CHART_END_TIME = 24;  // end chart at midnight
+
+var CHART_DOT_RADIUS = 6; // size of dots on scatterplot
+var CHART_Y_MAX = 1200; // FIX limit of Y axis
+
+// **********************************************
+// Initialize this page (called in body:onload())
+// **********************************************
+
+function init()
+{
+
+    // make ?noframe adjustments to content
+    if (window.location.href.indexOf('?noframe') > 0 || window.location.href.indexOf('&noframe') > 0)
+    {
+        document.getElementById('content_title').innerHTML = "<i>" + link['name'] + "</i>";
+        document.getElementById('chart').style.height = "calc(100vh - 80px)";
+    }
+    // embed link name into page
+    try {
+        document.getElementById('page_title_link_name').innerHTML = "<i>" + link['name'] + "</i>";
+        document.getElementById('mobile_title_link_name').innerHTML = "<i>" + link['name'] + "</i>";
+    }
+    catch(err)
+    {
+        document.getElementById('page_title_link_name').innerHTML = '<div class="error">Unrecognised Link</div>';
+        document.getElementById('mobile_title_link_name').innerHTML = '<div class="error">Unrecognised Link</div>';
+    }
+
+    chart_day_start_ts = 0; // initially set start-time boundary of chart to distant past
+
+    plot_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    plot_date_is_today = false; // will set to true below if correct
+
+    var today = new Date();
+
+    // test if YYYY/MM/DD is TODAY'S DATE
+    if (today.getFullYear()==YYYY && today.getMonth()==(MM-1) && today.getDate()==DD)
+    {
+      console.log('plotting today - reloading in 6 minutes');
+      plot_date_is_today = true;
+      setTimeout( function () { location.reload(); }, 6 * 60 * 1000 );
+    }
+
+    var heading_date = document.getElementById('heading_date');
+
+    heading_date.textContent = day_of_week[plot_date.getDay()] + " " + DD + " " + month_of_year[MM] + " " + YYYY;
+
+    var rita_data = new Array();
+
+    try {
+        // **********************************************************************************
+        // **********  Here is where we load the journey plot data    ***********************
+        // **********************************************************************************
+        var journey_data = JSON.parse('{{ config_journey_data|escapejs }}');
+
+        // ********************************************************************************
+        // *************  Zone config info provided by server ****************************
+        // ********************************************************************************
+
+        if (!journey_data)
+        {
+            console.log('no journey data received');
+        }
+        else
+        {
+            rita_data = journey_data.request_data;
+            console.log('rita_data.length is '+rita_data.length);
+        }
+    } catch(err) {
+        console.log('error parsing config_journey_data');
+        rita_data = new Array();
+    }
+
+    console.log('Received '+rita_data.length+' records');
+
+    // set up layout / axes of scatterplot
+    init_chart();
+
+    if (rita_data.length > 0)
+    {
+      console.log('init calling draw_chart()');
+
+      // draw chart with the data embedded by the template into rita_data
+      draw_chart(rita_data, 'normalTravelTime');
+      draw_chart(rita_data, 'travelTime');
+      
+    }
+}
+
+// ******************************************                                                
+// Initialize the chart to appear on the page
+// - not yet with any data
+// ******************************************
+function init_chart()
+{
+      // get the height and width of the "chart" div, and set d3 svg element to that
+      var svg_width = document.getElementById("chart").clientWidth;
+      var svg_height = document.getElementById("chart").clientHeight;
+
+      // calculate the dimensions of the actual chart within the SVG area (i.e. allowing margins for axis info)
+      var chart_width = svg_width - 210;
+      var chart_height = svg_height - 110;
+      var chart_offsetx = 60;
+      var chart_offsety = 20;
+
+    // add the graph canvas to the body of the webpage
+    chart_svg = d3.select("#chart").append("svg")
+        .attr("width", svg_width)
+        .attr("height", svg_height)
+        .attr("class", "plot_svg")
+        .append("g")
+        .attr("transform", "translate(" + chart_offsetx + "," + chart_offsety + ")");
+
+    // setup x axis
+    chart_xScale = d3.time.scale().range([0, chart_width]); // value -> display
+    
+    var tick_count = 24;
+    if (chart_width < 600)
+        tick_count = 12;
+    
+    chart_xAxis = d3.svg.axis().scale(chart_xScale).orient("bottom").ticks(tick_count);
+
+    // setup y axis
+    chart_yScale = d3.scale.linear().range([chart_height, 0]); // value -> display
+    chart_yAxis = d3.svg.axis().scale(chart_yScale).orient("left").ticks(10);
+
+    // setup chart functions where d = the journey record
+    chart_xValue = function(d) { return make_date(d.ts);}; // data -> value
+    chart_xMap = function(d) { return chart_xScale(chart_xValue(d));}; // data -> display
+
+    chart_yValue = function(d, column) { return d[column];}, // data -> value
+    chart_yMap = function(d, column) { return chart_yScale(Math.min(chart_yValue(d, column), CHART_Y_MAX));}; // data -> display
+
+    // setup fill color
+    //chart_cValue = function(d) { return d.route_id; },
+    chart_color = function (d, column) {
+      if (column === 'normalTravelTime') {
+        return 'grey';
+      }
+      else {
+        if (d.travelTime > CHART_Y_MAX)
+        {
+          return 'red';
+        }
+        return (d.route_id==null || d.route_id=="") ? 'green' : 'yellow';
+      }
+    };
+
+    // initialize x axis - will redraw when data received
+    var min_date = new Date(YYYY,MM-1,DD);
+    min_date.setHours(CHART_START_TIME);
+    min_date.setMinutes(0);
+    min_date.setSeconds(0);
+
+    var max_date = new Date(min_date);
+    max_date.setHours(CHART_END_TIME);
+
+    chart_xScale.domain([min_date, max_date]);
+    chart_yScale.domain([0, CHART_Y_MAX]);
+
+    // x-axis
+    chart_svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + chart_height + ")")
+      .call(chart_xAxis
+            .tickSize(-chart_height, 0, 0)
+            .tickFormat(d3.time.format("%H"))
+       )
+      .attr("class", "grid")
+      .append("text")
+      .attr("class", "label")
+      .attr("x", chart_width)
+      .attr("y", 26)
+      .style("text-anchor", "end")
+      .text("Time of day");
+
+    // y-axis
+    chart_svg.append("g")
+      .attr("class", "y axis")
+      .call(chart_yAxis
+            .tickSize(-chart_width, 0, 0)
+            //.tickFormat("")
+      )
+      .attr("class", "grid")
+      .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -50)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Journey Time (seconds)");
+
+    // add the tooltip area to the webpage
+    chart_tooltip = d3.select("#chart").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+    
+}
+
+// ****************************************************************************
+// *********  Update the chart with journey data        ***********************
+// ****************************************************************************
+function draw_chart(rita_data, column)
+{
+    console.log('Drawing chart size='+rita_data.length);
+
+    // do nothing if no data is available
+    if (rita_data.length == 0) return;
+
+      var filtered_data = rita_data.filter(function(d) { return d[column] !== null; });
+
+      var radius = CHART_DOT_RADIUS;
+      if (column == 'normalTravelTime') {
+        radius = radius/2;
+      }
+
+      // draw dots
+      chart_svg.selectAll(".dot" + column)
+          .data(filtered_data)
+          .enter().append("circle")
+          .attr("class", "dot")
+          .attr("r", radius)
+          .attr("cx", chart_xMap)
+          .attr("cy", function(d) { return chart_yMap(d, column) } )
+          .style("fill", function(d) { return chart_color(d, column); })
+          .on("mouseover", function(d) {
+              chart_tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+              chart_tooltip.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+              chart_tooltip.html(tooltip_html(d, column))
+                   .style("left", (d3.event.pageX + 5) + "px")
+                   .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+              chart_tooltip.transition()
+                   .duration(500)
+                   .style("opacity", 0);
+          });
+
+      // add text for latest datapoint if we are plotting travelTime for today
+
+      if (column === 'travelTime' && plot_date_is_today) {
+      
+        var p = filtered_data[filtered_data.length - 1];
+
+        chart_svg.append("svg:rect")
+            .attr('x', chart_xMap(p)+CHART_DOT_RADIUS+4)
+            .attr('y', chart_yMap(p, column)-27)
+            .attr('width', 140)
+            .attr('height', 36)
+            .attr('rx', 6)
+            .attr('ry', 6)
+            .style('fill', 'white')
+
+        var p_time = make_date(p.ts);
+        var p_time_str = ' @ '+('0'+p_time.getHours()).slice(-2)+':'+('0'+p_time.getMinutes()).slice(-2);
+        chart_svg.append("svg:text")
+            .attr('x', chart_xMap(p))
+            .attr('y', chart_yMap(p, column))
+            .attr('dx', CHART_DOT_RADIUS+10)
+            .style('font-size', '22px')
+            .style('fill', '#333')
+            .text(p.travelTime+' sec.'+p_time_str);
+      }
+
+} // end draw_chart
+
+ // Create a plot TOOLTIP our of the point data
+ // The point may have originated from GTFS feedhandler, GTFS feedmaker, or SIRI feedmaker
+function tooltip_html(d, column)
+{
+    var str = 'Link:'+link.id;
+    str += '<br/>Name:'+link.name;
+    str += '<br/>Length:'+link.length+'m';
+    if (column === 'travelTime') {
+        str += '<br/>Travel time:'+d.travelTime+' sec';
+    }
+    else {
+        str += '<br/>Normal travel time:'+d.normalTravelTime+' sec';
+    }
+    str += '<br/>Time:' + make_date(d.ts);
+    return str;
+}
+    
+// ************************************************************************************
+// ************** Date forwards / backwards function             *********************
+// ************************************************************************************
+
+// move page to new date +n days from current date
+function date_shift(n)
+{
+    console.log('date_shift()');
+
+    new_date = new Date(YYYY,MM-1,DD); // as loaded in page template config_ values;
+
+    new_date.setDate(new_date.getDate()+n);
+
+    new_year = new_date.getFullYear();
+    new_month = ("0" + (new_date.getMonth()+1)).slice(-2);
+    new_day = ("0" + new_date.getDate()).slice(-2);
+
+    console.log(new_year+'-'+new_month+'-'+new_day);
+    window.location.href = '?date='+new_year+'-'+new_month+'-'+new_day;
+}
+
+// Return a javascript Date, given EITHER a UTC timestamp or a ISO 8601 datetime string
+function make_date(ts)
+{
+    var t;
+    if (isFinite(ts))
+    {
+        t = new Date(ts*1000);
+    }
+    else
+    {
+        // replace anything but numbers by spaces
+        var dt = ts.replace(/\D/g," ");
+
+        // trim any hanging white space
+        dt = dt.replace(/\s+$/,"");
+
+        // split on space
+        var dtcomps = dt.split(" ");
+
+        // modify month between 1 based ISO 8601 and zero based Date
+        dtcomps[1]--;
+
+        t = new Date(Date.UTC(dtcomps[0],dtcomps[1],dtcomps[2],dtcomps[3],dtcomps[4],dtcomps[5]));
+    }
+    return t;
+}
+
+</script>
+{% endblock %}
+    
+{% block content %}
+<div id="content">
+    <div id="chart_title">
+      <div id="page_date">
+        <div class="time_shift"><a href="#" onclick="date_shift(-7); return false">
+            <img src="{% static 'images/chevron-left-left.png' %}"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(-1); return false">
+            <img src="{% static 'images/chevron-left.png' %}"></a>
+        </div>
+        <div id="heading_date"></div>
+        <div class="time_shift"><a href="#" onclick="date_shift(1); return false;">
+            <img src="{% static 'images/chevron-right.png' %}"></a>
+        </div>
+        <div class="time_shift"><a href="#" onclick="date_shift(7); return false;">
+            <img src="{% static 'images/chevron-right-right.png' %}"></a>
+        </div>
+      </div> <!-- end page_date -->
+      <!-- content_title is alternative location for page title if ?noframe is given -->
+      <div id="content_title">
+      </div>
+    </div> <!-- end chart_title -->
+
+    <!-- Actual d3 plot is embedded in this "chart" div -->
+    <div class="chart" id="chart">
+    </div>
+
+</div> <!-- end content -->
+    
+<script>
+        $(document).ready(function() {
+            init();
+        });
+</script>
+
+{% endblock %}
