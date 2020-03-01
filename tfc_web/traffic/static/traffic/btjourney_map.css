@@ -1,0 +1,47 @@
+
+
+.ledgend-label {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.ledgend-desc {
+    margin-top: 0.5em;
+}
+
+.ledgend-colours, .ledgend-common {
+    margin-top: 0.5em;
+}
+
+.ledgend-button {
+    margin-right: 1em;
+}
+
+
+.clock {
+    font-size: 1.3em;
+}
+
+
+.popuphead {
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+}
+
+.spinner {
+    background-color: white;
+    background-image: url("indicator-lite.gif");
+    background-origin: content-box;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    box-sizing: content-box;
+    height: 32px;
+    left: 50%;
+    padding: 5px;
+    position: absolute;
+    top: 50%;
+    width: 32px;
+    z-index: 1001;
+}

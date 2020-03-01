@@ -8,9 +8,17 @@ from authmultitoken.views import (
     manage_tokens, create_token, manage_token, add_restriction
 )
 
-from .api_docs import api_description
 from .views import login_and_agree, nginx_auth_probe, download, download_schema
 from smartcambridge.decorator import smartcambridge_valid_user
+
+
+api_description = '''
+Programmatic access to data held by the Smartcambridge project.
+
+See [the main API documentation](/api/) for important information about
+using this API, **in particular about the need for authentication**.
+'''
+
 
 # These are the URL patterns for which documentation should
 # be generated

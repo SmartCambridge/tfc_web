@@ -25,7 +25,6 @@ from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
     default_throttle
-from api.api_docs import transport_pagination_fields, transport_stops_pagination_fields
 
 
 DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
@@ -35,6 +34,57 @@ DAYS = [ ['Monday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
          ['Friday', 'MondayToFriday', 'MondayToSaturday', 'MondayToSunday'],
          ['Saturday', 'Weekend', 'MondayToSaturday', 'MondayToSunday'],
          ['Sunday', 'Weekend', 'MondayToSunday'] ]
+
+
+transport_pagination_fields = [
+    coreapi.Field(
+        "page",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="A page number within the paginated result set "
+                        "(e.g. 2). Default 1"),
+        description="A page number within the paginated result set. "
+                    "(e.g. 2)",
+        example="2",
+    ),
+    coreapi.Field(
+        "page_size",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="Number of results to return per page. "
+                        "(e.g. 10). Default 25, maximum 50."),
+        description="Number of results to return per page. "
+                    "(e.g. 10). Default 25, maximum 50.",
+        example="10",
+        )
+    ]
+
+transport_stops_pagination_fields = [
+    coreapi.Field(
+        "page",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="A page number within the paginated result set "
+                        "(e.g. 2). Default 1"),
+        description="A page number within the paginated result set. "
+                    "(e.g. 2)",
+        example="2",
+    ),
+    coreapi.Field(
+        "page_size",
+        required=False,
+        location="query",
+        schema=coreschema.Integer(
+            description="Number of results to return per page. "
+                        "(e.g. 10). Default 50, maximum 200."),
+        description="Number of results to return per page. "
+                    "(e.g. 10). Default 50, maximum 200.",
+        example="10",
+        )
+    ]
 
 
 class Pagination(PageNumberPagination):

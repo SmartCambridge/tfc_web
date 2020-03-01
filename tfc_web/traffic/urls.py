@@ -24,5 +24,8 @@ urlpatterns = [
     url(r'^zones/map/$', views.zones_map, name='zones_map'),
     url(r'^zones/list/$', views.zones_list, name='zones_list'),
     url(r'^zone/map/(?P<zone_id>[-\w]+)/$', views.zone_map, name='zone_map'),
-    url(r'^zone/plot/transit/(?P<zone_id>[-\w]+)/$', views.zone_transit_plot, name='zone_transit_plot')
+    url(r'^zone/plot/transit/(?P<zone_id>[-\w]+)/$', views.zone_transit_plot, name='zone_transit_plot'),
+    url(r'^btjourney/list/$', views.btjourney_list, name='btjourney_list'),
+    url(r'^btjourney/map/$', views.btjourney_map, name='btjourney_map'),
+    url(r'^btjourney/plot/(?P<link_id>[_$|\w\d]+)/$', views.btjourney_plot, name='btjourney_plot')
 ]

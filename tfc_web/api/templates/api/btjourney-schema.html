@@ -1,0 +1,279 @@
+{% extends "api/base.html" %}
+
+{% block content %}
+
+<h1>Description of bluetooth-based traffic speed data</h1>
+
+<h2>Data</h2>
+
+<p>One row for each observation of traffic speeds along monitored
+section of road with the following columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">id</td>
+            <td class="mdl-data-table__cell--non-numeric">Identifier of the
+            section of road involved.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time)
+                of the retrieval of this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with timezone information
+                of the retrieval of this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">time</td>
+            <td class="mdl-data-table__cell--non-numeric">Time in text format
+            of the most recent journey time calculation for this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">period</td>
+            <td class="mdl-data-table__cell--non-numeric">The time in seconds
+                over which journeys were observed to calculate travelTime.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">travelTime</td>
+            <td class="mdl-data-table__cell--non-numeric">The time in seconds
+                taken by traffic transiting the section of road.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">normalTravelTime</td>
+            <td class="mdl-data-table__cell--non-numeric">A long term average
+            travelTime for this section of road based on the time of day, day of week,
+            Bank Holidays and school terms.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<h2>Link Metadata</h2>
+
+<p>One row for each monitored 'link' between a pair of sensor sites, with
+the following columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">id</td>
+            <td class="mdl-data-table__cell--non-numeric">Link identifier.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time)
+                of the retrieval of this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with timezone information
+                of the retrieval of this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">name</td>
+            <td class="mdl-data-table__cell--non-numeric">Name for this link.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">description</td>
+            <td class="mdl-data-table__cell--non-numeric">Description of this link.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">sites</td>
+            <td class="mdl-data-table__cell--non-numeric">A list separated
+                by '|' of the identifiers of the two sensor sites defining
+                the link.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">length</td>
+            <td class="mdl-data-table__cell--non-numeric">The length in meters
+                of this link.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<h2>Route Metadata</h2>
+
+<p>One row for each monitored 'compound route' built from individual links,
+with the folowing columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">id</td>
+            <td class="mdl-data-table__cell--non-numeric">Route identifier.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time)
+                of the retrieval of this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with timezone information
+                of the retrieval of this record.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">name</td>
+            <td class="mdl-data-table__cell--non-numeric">Name for this route.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">description</td>
+            <td class="mdl-data-table__cell--non-numeric">Description of this route.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">sites</td>
+            <td class="mdl-data-table__cell--non-numeric">A list separated
+                by '|' of the identifiers of the the sensor sites defining
+                the route.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">links</td>
+            <td class="mdl-data-table__cell--non-numeric">A list separated
+                by '|' of the identifiers of the links making up the route.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">length</td>
+            <td class="mdl-data-table__cell--non-numeric">The length in meters
+                of the route.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+<h2>Site Metadata</h2>
+
+<p>One row for each monitoring station with the following columns:</p>
+
+<table class="mdl-data-table mdl-js-data-table wrapping-table">
+
+    <thead>
+
+        <tr>
+            <th class="mdl-data-table__cell--non-numeric">Column name</th>
+            <th class="mdl-data-table__cell--non-numeric">Description</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">id</td>
+            <td class="mdl-data-table__cell--non-numeric">Station identifier.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp in seconds since 00:00:00 UTC on 1
+                January 1970, minus leap seconds ('Unix' or 'Epoch' time)
+                of the retrieval of this record.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">ts_text</td>
+            <td class="mdl-data-table__cell--non-numeric">
+                Timestamp as text in UK local time (UTC in the winter,
+                BST in the summer) with timezone information
+                of the retrieval of this record.
+            </td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">name</td>
+            <td class="mdl-data-table__cell--non-numeric">Station name.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">description</td>
+            <td class="mdl-data-table__cell--non-numeric">Station description.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">latitude</td>
+            <td class="mdl-data-table__cell--non-numeric">Station latitude.</td>
+        </tr>
+
+        <tr>
+            <td class="mdl-data-table__cell--non-numeric">longitude</td>
+            <td class="mdl-data-table__cell--non-numeric">Staion longitude.</td>
+        </tr>
+
+    </tbody>
+
+</table>
+
+
+{% endblock %}

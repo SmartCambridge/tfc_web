@@ -513,17 +513,17 @@ function make_date(ts)
 <div id="content">
     <div id="chart_title">
       <div id="page_date">
-        <div class="time_shift"><a href="#" onclick="date_shift(-7)">
+        <div class="time_shift"><a href="#" onclick="date_shift(-7); return false">
             <img src="{% static 'images/chevron-left-left.png' %}"></a>
         </div>
-        <div class="time_shift"><a href="#" onclick="date_shift(-1)">
+        <div class="time_shift"><a href="#" onclick="date_shift(-1); return false">
             <img src="{% static 'images/chevron-left.png' %}"></a>
         </div>
         <div id="heading_date"></div>
-        <div class="time_shift"><a href="#" onclick="date_shift(1);">
+        <div class="time_shift"><a href="#" onclick="date_shift(1); return false">
             <img src="{% static 'images/chevron-right.png' %}"></a>
         </div>
-        <div class="time_shift"><a href="#" onclick="date_shift(7);">
+        <div class="time_shift"><a href="#" onclick="date_shift(7); return false">
             <img src="{% static 'images/chevron-right-right.png' %}"></a>
         </div>
         {% if config_zone_reverse_id %}
