@@ -98,11 +98,11 @@ $(function () {
         widget.find('.edit-widget').click(function (e) {
             active_widget_id = $(e.currentTarget).data('widget-id').toString();
             // We check if the widget has already a configuration
+            $('#overlay-configure-widget').css( "display", "flex" );
             if (Object.keys(layout_design.widgets).indexOf(active_widget_id) > -1)
                 $("#widget-selector").val(layout_design.widgets[active_widget_id]['widget']).trigger("change");
             else
                 $("#widget-selector").prop('selectedIndex', 0);
-            $('#overlay-configure-widget').css( "display", "flex" );
             $('body').css('overflow','hidden');
         });
     }
