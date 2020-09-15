@@ -17,6 +17,8 @@
 
         "MovingMarker": { "scripts": [ "js/MovingMarker.js" ] },
 
+        "polylineoffset": { "scripts": [ "js/leaflet.polylineoffset.js"] },
+
         "Semicircle": { "scripts": [ "js/Semicircle.js" ] },
 
         "geo": { "scripts": [ "js/geo.js" ] },

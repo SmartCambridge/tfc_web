@@ -175,9 +175,12 @@ def bt_list_configs(which):
     '''
     results = []
     path = util.safe_build('btjourney/locations/data_{0}/'.format(which))
-    for file in os.listdir(path):
-        if os.path.isfile(os.path.join(path, file)) and file.endswith('.json'):
-            results.append(file[:-5])
+    try:
+        for file in os.listdir(path):
+            if os.path.isfile(os.path.join(path, file)) and file.endswith('.json'):
+                results.append(file[:-5])
+    except FileNotFoundError:
+        pass
     return results
 
 
@@ -214,7 +217,10 @@ def bt_read_latest():
     Read the current data monitor file
     '''
     filename = 'btjourney/journeytimes/data_monitor_json/post_data.json'
-    return util.read_json(filename)
+    try:
+        return util.read_json(filename)
+    except FileNotFoundError:
+        return {'request_data': []}
 
 
 class BTJourneyLinkList(auth.AuthenticateddAPIView):

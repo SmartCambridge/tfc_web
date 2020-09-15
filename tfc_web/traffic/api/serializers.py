@@ -3,13 +3,13 @@ from api import util
 
 
 class ZoneJourneySerializer(serializers.Serializer):
-    line = serializers.CharField(source='LineRef')
-    direction = serializers.CharField(source='DirectionRef')
+    line = serializers.CharField(source='LineRef', required=False)
+    direction = serializers.CharField(source='DirectionRef', required=False)
     operator = serializers.CharField(source='OperatorRef')
-    origin = serializers.CharField(source='OriginRef')
-    origin_name = serializers.CharField(source='OriginName')
-    destination = serializers.CharField(source='DestinationRef')
-    destination_name = serializers.CharField(source='DestinationName')
+    origin = serializers.CharField(source='OriginRef', required=False)
+    origin_name = serializers.CharField(source='OriginName', required=False)
+    destination = serializers.CharField(source='DestinationRef', required=False)
+    destination_name = serializers.CharField(source='DestinationName', required=False)
     departure_time = serializers.CharField(source='OriginAimedDepartureTime')
 
 
