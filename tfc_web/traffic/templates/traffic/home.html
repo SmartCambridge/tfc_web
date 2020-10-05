@@ -79,6 +79,25 @@
                         </a>
                     </div>
                 </div>
+                <!-- VORONOI MAP -->
+                <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-card mdl-shadow--3dp">
+                    <div class="mdl-card__media">
+                        <img src="{% static 'images/voronoi.png' %}">
+                    </div>
+                    <div class="mdl-card__title">
+                        <h4 class="mdl-card__title-text">BlueTruth Zone Map</h4>
+                    </div>
+                    <div class="mdl-card__supporting-text">
+                        <span class="mdl-typography--font-light mdl-typography--subhead">A conceptual overview of the traffic speeds in Cambridge using
+                        the real-time data from the BlueTruth sensors, with interactive view of historical data.</span>
+                    </div>
+                    <div class="mdl-card__actions">
+                        <a class="aqua-link mdl-button mdl-js-button mdl-typography--text-uppercase" href="{% url 'btjourney_list' %}">
+                            view map
+                            <i class="material-icons">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 {% endblock %}
