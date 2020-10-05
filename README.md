@@ -1,6 +1,6 @@
 [![Smart Cambridge logo](images/smart_cambridge_logo.jpg)](https://github.com/ijl20/tfc_web)
 
-# acp_web: the web public-access user interface of the SmartCambridge programme.
+# tfc_web: the web public-access user interface of the SmartCambridge programme.
 
 ## Overview
 
