@@ -258,3 +258,13 @@ def btjourney_list(request):
         'config_links': sorted_links,
         'config_routes': sorted_routes,
     })
+
+#############################################################################
+# traffic/bt_voronoi/map                                                     #
+#############################################################################
+
+def bt_voronoi_map(request):
+
+    return render(request, 'traffic/bt_voronoi_map.html', {
+        'key': settings.JS_API_KEY,
+    })

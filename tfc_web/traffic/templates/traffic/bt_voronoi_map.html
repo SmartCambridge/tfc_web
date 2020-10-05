@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+{% block page_title %}BT Areas{% endblock %}
+{% block title %}BT Areas{% endblock %}
+
+{% block head %}
+    {% include 'leaflet_snippet.html' %}
+    <!-- D3 stuff -->
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/libs/d3.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/libs/d3-concaveHull.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/libs/jquery.min.js'%}"></script>
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/libs/moment.min.js'%}"></script>
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/libs/daterangepicker.min.js'%}"></script>
+
+    <!-- Our scripts -->
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/async_functions.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/boundary_sites.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/dijkstra.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/cell_groups.js'%}"></script>
+
+    <!-- Objects -->
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/Nodes.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/VoronoiViz.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/SiteDB.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/VizTools.js'%}"></script>
+
+    <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/Hud.js'%}"></script>
+
+
+    <!-- Our style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bt_voronoi/css/libs/daterangepicker.css'%}">
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bt_voronoi/css/libs/leaflet.css'%}">
+
+    <!-- <link rel="stylesheet" href="{% static 'traffic/btjourney_map.css' %}"/> -->
+
+    <!-- Our script -->
+    <script type="text/javascript">
+        API_TOKEN = '{{ key }}';
+    </script>
+    <script>
+        var URL_NODE = '{{NODE}}';
+        var URL_DATE = '{{DATE}}';
+        function page_init() {
+            var voronoi_viz = new VoronoiViz();
+            voronoi_viz.init();
+        }
+    </script>
+{% endblock %} <!-- end head -->
+
+{% block content %}
+    <div class="selection_wrapper">
+        <form id="selection_form">
+            <div class="nav_date" id="back_1_week">&lt; Week</div>
+            <div class="nav_date" id="back_1_day">&lt; Day</div>
+            <div class="current_date">
+                <div id='date_now'></div>
+            </div>
+            <div class="nav_date" id="forward_1_day">Day &gt;</div>
+            <div class="nav_date" id="forward_1_week">Week &gt;</div>
+        </form>
+
+    </div> <!-- end selection_wrapper -->
+
+    <div id="map" style="height: 98vh; border: 1px solid black;"></div>
+{% endblock %} <!-- end content -->
+
+{% block lazy_script %}
+<script>
+    page_init();
+</script>
+{% endblock %} <!-- end lazy_script -->

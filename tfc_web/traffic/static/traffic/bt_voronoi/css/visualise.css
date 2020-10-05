@@ -1,0 +1,130 @@
+/* css file for the main visualisation */
+
+#zone_table {
+    font-size: 10px;
+}
+
+/* x div to close any of the semi-transparent cards overlayed over the map */
+#close {
+    float: right;
+    display: inline-block;
+    padding: 1px 3px;
+    background: rgb(231, 231, 231);
+}
+
+#close:hover {
+
+    background: rgb(170, 170, 170);
+}
+
+/* the map itself */
+#map {
+    width: 100%;
+    height: 700px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+/* cell styling  */
+.cell {
+    stroke: black;
+    stroke-width: 0.5px;
+    stroke-opacity: 0.3;
+    fill-opacity: 0.3;
+    /* stroke: white;
+    opacity: 0.6; */
+    pointer-events: visible !important;
+}
+
+.highlightedCell {
+    stroke: black;
+    stroke-width: 2px;
+    stroke-opacity: 1;
+    fill-opacity: 0.6;
+}
+
+.invisibleCell {
+    fill: none;
+    /* stroke-width: 0.5px;
+    fill-opacity: 0.3;
+    stroke-opacity: 0.3; */
+}
+
+
+/* .cell:hover {
+    stroke: black;
+    stroke-width: 5px;
+} */
+
+/* node points that indicate the sensor location */
+.point {
+    fill: red;
+}
+
+/* for ghost cell that are created to limit the voronoi triangulation */
+.invisiblePoint {
+    fill: none;
+}
+
+.selected {
+    stroke: black;
+    stroke-dasharray: 10;
+    opacity: 1;
+    /* border-style: dashed; */
+    stroke-opacity: 1;
+    stroke-width: 5;
+}
+
+#test_graph img {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+
+.sensor-arc {
+    fill: none;
+}
+
+.cell:hover .sensor-arc {
+    stroke: #f00;
+}
+
+.info {
+    padding: 6px 8px;
+    font: 10px/12px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    min-width: 200px;
+}
+
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+.ledgend-label {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.ledgend-colours,
+.ledgend-common {
+    margin-top: 0.5em;
+}
+
+.ledgend-button {
+    margin-right: 1em;
+}
+
+
+.clock {
+    font-size: 1.3em;
+}
+
+.leaflet-container {
+    /* background-color:rgba(255,0,0,0.0); */
+}
+

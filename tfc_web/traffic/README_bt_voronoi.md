@@ -56,7 +56,7 @@ The main visualisation object responsible for instantiating all other classes an
 The visualisation draws a Voronoi diagram that shows a total of 38 sensors and their collected traffic data that we transform into speed deviation differences for different areas in the city.
 
 To best read the ReadMe it's important to establish a common vocabulary, specifically what we refer to when saying *Cells, Nodes, and Links* withing the **VoronoiViz** context.
-![alt text](imgs/wiki_files/selected.png "selected")
+![alt text](docs/imgs/wiki_files/selected.png "selected")
 
 * Node - a sensor itself with its location in lat/lng
 * Cell - an area that is denoted for a single Node in the Voronoi diagram
