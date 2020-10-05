@@ -1,8 +1,6 @@
 [![Smart Cambridge logo](images/smart_cambridge_logo.jpg)](https://github.com/ijl20/tfc_web)
 
-With hep from [<img src="https://marker.io/vendor/img/logo/browserstack-logo.svg" height="30">](https://www.browserstack.com/)
-
-# Part of the Smart Cambridge programme.
+# acp_web: the web public-access user interface of the SmartCambridge programme.
 
 ## Overview
 
@@ -36,7 +34,7 @@ Create virtualenv for tfc_web:
 python3 -m venv tfc_web_venv
 ```
 Activate tfc_web virtualenv:
-``` 
+```
 source tfc_web_venv/bin/activate
 ```
 
@@ -107,8 +105,8 @@ run `./manage.py setup_tfc_prod` even if it may have been run before.
 
 ## Secrets
 
-You will need to set up some secrets in a file called secrets.py inside tfc_web/tfc_web folder where the settings 
-files are stored. Secrets need to be: 
+You will need to set up some secrets in a file called secrets.py inside tfc_web/tfc_web folder where the settings
+files are stored. Secrets need to be:
 
 ```
 SECRET_KEY = ''
@@ -133,13 +131,13 @@ SYSTEM_API_TOKENS = {
 ```
 
 * SECRET_KEY is the standard django SECRET_KEY, look in django documentation for how to set up a django secret key.
-* TNDS_USERNAME and TNDS_PASSWORD are the username and password used to download transport data from TNDS 
-(stop information and timetables). 
-* LW_APP_EUI, LW_APP_API_KEY, and LW_API_KEY are the loraWAN secrets needed for 
-set up devices in the loraWAN network, these keys need to be retrieved from Everynet panel. 
+* TNDS_USERNAME and TNDS_PASSWORD are the username and password used to download transport data from TNDS
+(stop information and timetables).
+* LW_APP_EUI, LW_APP_API_KEY, and LW_API_KEY are the loraWAN secrets needed for
+set up devices in the loraWAN network, these keys need to be retrieved from Everynet panel.
 * TFC_SERVER_CSN_TOKEN is the token shared with tfc_server for retrieving data
-from loraWAN sensors. 
-* OFO_TOKEN is the token used to communicatie with ofo server to retrieve bikes data, to know 
+from loraWAN sensors.
+* OFO_TOKEN is the token used to communicatie with ofo server to retrieve bikes data, to know
 how to retrieve this token visit: https://github.com/ubahnverleih/WoBike/blob/master/Ofo.md
 * NRE_API_KEY is the token used to access the National Rail Enquiries 'Live
 Departure Boards Web Service' (LDBWS) used by the Station Board SmartPanel widget. See
