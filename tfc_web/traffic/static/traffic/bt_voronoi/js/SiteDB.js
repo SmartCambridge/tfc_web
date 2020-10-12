@@ -86,7 +86,6 @@ class SiteDB {
     }
 
     initialise_nodes(voronoi_viz) {
-
         for (let i = 0; i < voronoi_viz.site_db.all_sites.length; i++) {
 
             let node = new Node(voronoi_viz,voronoi_viz.site_db.all_sites[i].id)
@@ -104,11 +103,8 @@ class SiteDB {
     }
 
     update_nodes(voronoi_viz) {
-        console.log('updating nodes')
-        for (let i = 0; i < voronoi_viz.site_db.all.length; i++) {
-            voronoi_viz.site_db.all[i].compute_travel_time(voronoi_viz);
-            voronoi_viz.site_db.all[i].compute_travel_speed(voronoi_viz);
-        }
+        voronoi_viz.site_db.all=[];
+        voronoi_viz.site_db.initialise_nodes(voronoi_viz)
     }
 
     //find the opposite of the link by looking at the *to* and *from*
@@ -126,8 +122,12 @@ class SiteDB {
 
     //calculates speed deviation for a given link
     calculate_deviation(voronoi_viz, link) {
+        //find the physical length of the requested link
         let dist = voronoi_viz.site_db.all_links.find(x => x.id === link).length;
+
         let travelTime, normalTravelTime;
+        
+        //get travel time and normal travel time, if travel time is undefined replace it with normal travel time
         try {
             travelTime = voronoi_viz.site_db.all_journeys.find(x => x.id === link).travelTime;
             normalTravelTime = voronoi_viz.site_db.all_journeys.find(x => x.id === link).normalTravelTime;
@@ -139,6 +139,7 @@ class SiteDB {
             travelTime = normalTravelTime;
         }
 
+        //convert time and distance to speed
         let current = (dist / travelTime) * voronoi_viz.tools.TO_MPH;
         let normal = (dist / normalTravelTime) * voronoi_viz.tools.TO_MPH; //historical speed
 
@@ -146,6 +147,7 @@ class SiteDB {
         return current - normal;
     }
 
+    //compute average speed data for groups of nodes
     get_zone_averages(voronoi_viz) {
         let zones = voronoi_viz.site_db.zones;
         let zone_readings = [];

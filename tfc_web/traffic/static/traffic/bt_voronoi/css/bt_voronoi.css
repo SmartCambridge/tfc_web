@@ -1,4 +1,14 @@
-/* css file for the main visualisation */
+/* css file for the main bt_voronoi visualisation */
+
+.loading_icon {
+    width: 100px;
+    height: 100px;
+}
+
+.node_name {
+    font-size: 20px;
+    line-height: 20px;
+}
 
 #zone_table {
     font-size: 10px;
@@ -127,4 +137,3 @@
 .leaflet-container {
     /* background-color:rgba(255,0,0,0.0); */
 }
-

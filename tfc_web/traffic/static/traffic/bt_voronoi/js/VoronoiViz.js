@@ -27,7 +27,7 @@ class VoronoiViz {
 
         //color range picker
         this.set_color;
-        
+
         // initialises the map on screen
         this.init_map(this);
     }
@@ -57,7 +57,7 @@ class VoronoiViz {
         voronoi_viz.map.on("viewreset moveend", voronoi_viz.draw_voronoi.bind(voronoi_viz));
         voronoi_viz.map.on("viewreset moveend", voronoi_viz.generate_hull.bind(voronoi_viz));
 
-        //Will execute myCallback every X seconds 
+        //Will execute myCallback every X seconds
         //the use of .bind(this) is critical otherwise we can't call other class methods
         //https://stackoverflow.com/questions/42238984/uncaught-typeerror-this-method-is-not-a-function-node-js-class-export
         window.setInterval(voronoi_viz.update.bind(voronoi_viz), 60000);
@@ -69,13 +69,14 @@ class VoronoiViz {
 
         voronoi_viz.site_db.load_api_data(voronoi_viz).then(() => {
 
+            console.log('updating nodes');
             voronoi_viz.site_db.update_nodes(voronoi_viz);
-            console.log('draw bar chart')
 
+            console.log('draw bar chart');
             // show_horizontal_bar(get_zone_averages());
             voronoi_viz.hud.show_vertical_bar(voronoi_viz, voronoi_viz.site_db.get_zone_averages(voronoi_viz));
 
-            console.log('redraw voronoi')
+            console.log('redraw voronoi');
             voronoi_viz.draw_voronoi(voronoi_viz);
 
             console.log('reloaded api data');
@@ -146,7 +147,7 @@ class VoronoiViz {
         }
 
         //remove old cell overlay and prepare to draw a new one
-        d3.select('#cell_overlay').remove();
+        voronoi_viz.screen_cleanup(voronoi_viz);
 
         // Reset the clock
         voronoi_viz.clock.update();
@@ -156,7 +157,7 @@ class VoronoiViz {
         let selected_sites = [];
 
         //create map bounds to know where to stop drawing
-        //as well topLeft && bottomRight values  
+        //as well topLeft && bottomRight values
         let bounds = voronoi_viz.map.getBounds(),
             bottomRight = voronoi_viz.map.latLngToLayerPoint(bounds.getSouthEast()),
             drawLimit = bounds.pad(0.4);
@@ -167,11 +168,11 @@ class VoronoiViz {
 
         /*
          Lat/Lng to pixel conversion
-         
+
          Here we use all_sites(Bluetooth sensor sites) and boundary_sites(imaginary sites that close off the Voronoi diagram)
          Naming conventions: "sites" is refering to physical lat/lng location, whereas "points" are pixel values on screen,
-         hence the creation of variables like boundary_sites and voronoi_viz.boundary_points. 
-    
+         hence the creation of variables like boundary_sites and voronoi_viz.boundary_points.
+
          */
 
 
@@ -233,7 +234,7 @@ class VoronoiViz {
 
         /*
         Creating the voronoi triangulation, using the previously defined boundaries
-    
+
         This is integral to the visualisation, and d3.js provides some very nice
         functions that do all the work for us.
         */
@@ -310,22 +311,22 @@ class VoronoiViz {
 
 
         /*Drawing the Voronoi polygons on the map.
-    
-        The code below will have all of the d3.js shenanigans for interactivity including 
+
+        The code below will have all of the d3.js shenanigans for interactivity including
         what happens on:
-    
+
         -mouseover (highlight cell)
         -mouseout (unhighlight cell)
         -click (selects the cell as the *selected node* and draws all the graphs)
         -doubleclick (selects cell #1 and #2 and draws the shortest path betwen them)
-        
-    
+
+
         Cells/Polygons are used interchangeably in the documentation, but generally speaking
         polygons are the digital representation as just the numbers in a list, whereas
         the cells are drawn objects on the screen, based on the polygon data.
         */
 
-        //creates paths objects from the genetated polygon data 
+        //creates paths objects from the genetated polygon data
         //(polygons are drawn as paths FYI)
         voronoi_viz.polygon_group.selectAll("g")
             .data(ready_voronoi_polygons)
@@ -344,6 +345,58 @@ class VoronoiViz {
                 return "M" + d.join("L") + "Z"
             });
 
+
+        //add the *title* so that the name of the node appears when the cell is being hovered on
+        voronoi_viz.polygon_group.selectAll(".cell").append("title").text(function (d) {
+            return d.data.name;
+        });
+
+        //add nodes' locations on the map (they're also cell/polygon centers)
+        circle_group.selectAll(".point")
+            .data(filtered_points)
+            .enter()
+            .append("circle")
+            .attr("class", function (d) {
+                if (d.id !== undefined) {
+                    return "point"
+                } else {
+                    return "invisiblePoint"
+                }
+            })
+            .attr("transform", function (d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            })
+            .attr("r", 2.5);
+
+        //----------D3.js interactivity--------//
+        voronoi_viz.make_interactive(voronoi_viz);
+
+        //change_modes adds the option of coloring in the cells based on:
+        // -current speed
+        // -historical(normal) speed
+        // -deviation in speed from the normal
+        voronoi_viz.change_modes(voronoi_viz);
+
+        //in case the selected node has been mislabeled:
+        try {
+            let node = voronoi_viz.site_db.get_selected_node(voronoi_viz).node_acp_id;
+            voronoi_viz.select_cell(voronoi_viz, node);
+        } catch (error) {
+            console.log('no node has been selected yet, error expected:\n', error);
+        }
+    }
+
+    screen_cleanup(voronoi_viz){
+        //remove all the previuosly drawn entities
+        d3.select('#cell_overlay').remove();
+        //wipe the svg variables clean
+        voronoi_viz.svg_canvas = null;
+        voronoi_viz.polygon_group = null;
+        voronoi_viz.dijkstra_group = null;
+        voronoi_viz.zone_outlines = null;
+    }
+
+    make_interactive(voronoi_viz) {
         //-------------------------------------//
         //----------D3.js interactivity--------//
         //---------------START-----------------//
@@ -376,7 +429,7 @@ class VoronoiViz {
                 let node_id = d.data.id;
                 let neighbors = voronoi_viz.site_db.get_node_from_id(voronoi_viz, node_id).neighbors;
 
-                //remove old links that were drawn for the other nodes 
+                //remove old links that were drawn for the other nodes
                 //that were hoverd in before
                 d3.selectAll('.arc_line').remove()
                 voronoi_viz.link_group.remove();
@@ -410,7 +463,7 @@ class VoronoiViz {
             .on('click', function (d, i) {
 
                 let selected_node = voronoi_viz.site_db.get_node_from_acp_id(voronoi_viz, d.data.acp_id)
-                //set as the main global selection 
+                //set as the main global selection
                 voronoi_viz.site_db.set_selected_node(voronoi_viz, selected_node);
 
                 voronoi_viz.select_cell(voronoi_viz, selected_node.node_acp_id)
@@ -442,7 +495,7 @@ class VoronoiViz {
                     //create the problem graph with start and finish nodes
                     let problem = voronoi_viz.generate_graph(voronoi_viz, selected_sites[0].name, selected_sites[1].name);
 
-                    //run the Dijkstra shortest path on the generated graph  
+                    //run the Dijkstra shortest path on the generated graph
                     //[returns the names of the nodes in order of the shortest path]
                     let result = dijkstra(problem, selected_sites[0].name, selected_sites[1].name);
 
@@ -471,7 +524,7 @@ class VoronoiViz {
                         }) // set the x values for the line generator
                         .y(function (d) {
                             return d.y;
-                        }) // set the y values for the line generator 
+                        }) // set the y values for the line generator
                         // apply smoothing to the line, I found curveCatmullRom works best
                         .curve(d3.curveCatmullRom.alpha(1)); //or d3.curveCardinal.tension(0.1)//or d3.curveNatural
 
@@ -507,48 +560,9 @@ class VoronoiViz {
         //-------------------------------------//
         //----------D3.js interactivity--------//
         //----------------END------------------//
-
-        //add the *title* so that the name of the node appears when the cell is being hovered on
-        voronoi_viz.polygon_group.selectAll(".cell").append("title").text(function (d) {
-            return d.data.name;
-        });
-
-        //add nodes' locations on the map (they're also cell/polygon centers)
-        circle_group.selectAll(".point")
-            .data(filtered_points)
-            .enter()
-            .append("circle")
-            .attr("class", function (d) {
-                if (d.id !== undefined) {
-                    return "point"
-                } else {
-                    return "invisiblePoint"
-                }
-            })
-            .attr("transform", function (d) {
-                return "translate(" + d.x + "," + d.y + ")";
-            })
-            .attr("r", 2.5);
-
-
-        //filtered_points = [];
-
-        //change_modes adds the option of coloring in the cells based on:
-        // -current speed
-        // -historical(normal) speed
-        // -deviation in speed from the normal
-        voronoi_viz.change_modes(voronoi_viz);
-
-        //in case the selected node has been mislabeled:
-        try {
-            let node = voronoi_viz.site_db.get_selected_node(voronoi_viz).node_acp_id;
-            voronoi_viz.select_cell(voronoi_viz, node);
-        } catch (error) {
-            console.log('no node has been selected yet, error expected:\n', error);
-        }
     }
 
-    //creates a d3 color interpolator 
+    //creates a d3 color interpolator
     //from the min/max values of the data
     set_color_range(voronoi_viz) {
 
@@ -629,7 +643,7 @@ class VoronoiViz {
         //always set the selected node in the url
         searchParams.set("node", node);
 
-        //if new date is different than the past, then change it 
+        //if new date is different than the past, then change it
         if (searchParams.get("date") != checker_date) {
             //but ignore the date parameter if it's 'today'
             if (today != checker_date) {
@@ -668,7 +682,7 @@ class VoronoiViz {
 
     init_map(voronoi_viz) {
 
-        let stamenToner = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
+        let stamenToner = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
             attribution: 'Map tiles by Stamen Design, CC BY 3.0 - Map data © OpenStreetMap',
             subdomains: 'abcd',
             minZoom: 0,
@@ -702,7 +716,8 @@ class VoronoiViz {
         let metadata_element = voronoi_viz.hud.create_element(voronoi_viz, 'metadata_table', 'bottomleft');
         let selected_cell = voronoi_viz.hud.create_element(voronoi_viz, 'selected_cell', 'topright', '<h4>Select a Cell</h4>');
         let info_widget = voronoi_viz.hud.create_element(voronoi_viz, 'info_bar', 'topright', voronoi_viz.tools.INFO_VIZ_TEXT);
-        let horizontal_chart = voronoi_viz.hud.create_element(voronoi_viz, 'bar_chart', 'topright', voronoi_viz.tools.ICON_LOADING);
+        // ICON_LOADING defined in template for static file reference
+        let horizontal_chart = voronoi_viz.hud.create_element(voronoi_viz, 'bar_chart', 'topright', ICON_LOADING);
         let zone_table = voronoi_viz.hud.create_element(voronoi_viz, 'zone_table', 'bottomright');
 
         //make navigation bar arrows for dates invisible
@@ -736,11 +751,11 @@ class VoronoiViz {
 
     //draws a link between two sites
     //[*link* is link id, *dur* is the animation duration, *color* (optional) link's color when drawn]
-    //This function has further nested functions that I thought would not make sense as object methods, 
+    //This function has further nested functions that I thought would not make sense as object methods,
     //since those were only used in the context of draw_link()
     draw_link(voronoi_viz, link, dur, color) {
 
-        //add the link_group to the canvas again 
+        //add the link_group to the canvas again
         //(we detach it previously to make it invisible after mouseout is being performed)
         voronoi_viz.link_group = voronoi_viz.svg_canvas.append("g")
             .attr("transform", "translate(" + (-voronoi_viz.topLeft.x) + "," + (-voronoi_viz.topLeft.y) + ")");
@@ -760,7 +775,7 @@ class VoronoiViz {
 
         //acquire the minmax values for the color scale.
         //we create a new color scale, even though the old one exits
-        //because the drawn links always colored based on speed deviation, 
+        //because the drawn links always colored based on speed deviation,
         //whereas the general set_colorScale can be changed to speed ranges etc.
         let values = voronoi_viz.site_db.get_min_max(voronoi_viz);
 
@@ -854,7 +869,7 @@ class VoronoiViz {
     }
 
     //fills in the cells with color oafter the mode has been changed.
-    //Important thing here-->deviation is calculated using:         
+    //Important thing here-->deviation is calculated using:
     //this.speedDeviation = this.travelSpeed - this.historicalSpeed;
     //hence if travelSpeed or historicalSpeed are null, the deviation becomes 0,
     //so we still have a value to fill the cell with. For current_speed and historical_speed

@@ -264,7 +264,18 @@ def btjourney_list(request):
 #############################################################################
 
 def bt_voronoi_map(request):
+    today = date.today().strftime('%Y-%m-%d')
+
+    user_date = request.GET.get('date')
+    if not user_date:
+        user_date = today
+
+    user_node = request.GET.get('node')
+    if not user_node:
+        user_node = '*'
 
     return render(request, 'traffic/bt_voronoi_map.html', {
         'key': settings.JS_API_KEY,
+        'DATE': user_date,
+        'NODE': user_node,
     })

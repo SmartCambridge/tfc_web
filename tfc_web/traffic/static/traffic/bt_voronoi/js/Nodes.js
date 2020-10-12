@@ -31,7 +31,6 @@ class Node {
 
     //returns the zone that the node belongs to (east, west, north, south, center)
     get_zone() {
-
         let groups = Object.keys(CELL_GROUPS);
         for (let i = 0; i < groups.length; i++) {
             let group_id = groups[i];
@@ -47,7 +46,7 @@ class Node {
     }
 
     //returns the name of the node based on the id
-    fetch_name(voronoi_viz, id) {
+    get_name_from_id(voronoi_viz, id) {
         return voronoi_viz.site_db.all_sites.find(x => x.id === id).name;
     }
 
@@ -84,24 +83,27 @@ class Node {
     }
 
     //adds the list of surrounding neigbour nodes to the node metadata
-    find_neighbors(voronoi_viz) //data is in all_links
-    {
+    find_neighbors(voronoi_viz){ //data is in all_links
         this.neighbors = [];
-        let tt, ntt, travelTime;
+        let tempTravelTime, normalTravelTime, travelTime; //temp
+        //iterate over all of the links
         for (let i = 0; i < voronoi_viz.site_db.all_links.length; i++) {
+            //check if the source site matches our initial node
             if (this.node_id == voronoi_viz.site_db.all_links[i].sites[0]) { //from this id
 
+                //try obtaining travel time and normal travel time. if travel time is undefined, select normal travel time instead.
                 try {
-                    tt = voronoi_viz.site_db.all_journeys.find(x => x.id === voronoi_viz.site_db.all_links[i].id).travelTime;
-                    ntt = voronoi_viz.site_db.all_journeys.find(x => x.id === voronoi_viz.site_db.all_links[i].id).normalTravelTime;
-                    travelTime = tt == undefined || null ? ntt : tt;
+                    tempTravelTime = voronoi_viz.site_db.all_journeys.find(x => x.id === voronoi_viz.site_db.all_links[i].id).travelTime;
+                    normalTravelTime = voronoi_viz.site_db.all_journeys.find(x => x.id === voronoi_viz.site_db.all_links[i].id).normalTravelTime;
+                    travelTime = tempTravelTime == undefined || null ? normalTravelTime : tempTravelTime;
                 } catch (err) {
                     travelTime = undefined;
-                    ntt = undefined;
+                    normalTravelTime = undefined;
                 }
 
-                //console.log(tt, travelTime);
-                let link = voronoi_viz.site_db.find_links(voronoi_viz, this.node_id, voronoi_viz.site_db.all_links[i].sites[1]);
+                //console.log(tempTravelTime, travelTime);
+                //find a link that has the same to/from nodes to acquire a unique id
+                let link = voronoi_viz.site_db.find_links(voronoi_viz, this.node_id, voronoi_viz.site_db.all_links[i].sites[1]);//to this id
                 this.neighbors.push({
                     "links": {
                         "out": link.out,
@@ -109,9 +111,9 @@ class Node {
                     },
                     "name": voronoi_viz.site_db.all_links[i].name,
                     "id": voronoi_viz.site_db.all_links[i].sites[1], //to this id
-                    "site": this.fetch_name(voronoi_viz, voronoi_viz.site_db.all_links[i].sites[1]),
+                    "site": this.get_name_from_id(voronoi_viz, voronoi_viz.site_db.all_links[i].sites[1]),
                     "travelTime": travelTime,
-                    "normalTravelTime": ntt,
+                    "normalTravelTime": normalTravelTime,
                     "dist": voronoi_viz.site_db.all_links[i].length
                 });
             }

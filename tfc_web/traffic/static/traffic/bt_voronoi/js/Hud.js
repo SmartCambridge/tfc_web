@@ -79,7 +79,7 @@ class Hud {
             .attr("y", 10 - (margin.top / 2))
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
-            .style("text-decoration", "none") //underline  
+            .style("text-decoration", "none") //underline
             .text("Zone Speeds");
 
         voronoi_viz.hud.svg_bar_chart.append("g")
@@ -244,7 +244,7 @@ class Hud {
             .attr("y", 10 - (margin.top / 2))
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
-            .style("text-decoration", "none") //underline  
+            .style("text-decoration", "none") //underline
             .text("Zone Speeds");
 
         // Add interactivity and
@@ -358,7 +358,7 @@ class Hud {
     //calls for functions that show node information in the bottom left corner
     show_node_information(voronoi_viz, acp_id, START, END) {
         document.getElementById("line_graph").style.opacity = 1;
-        document.getElementById("line_graph").innerHTML = voronoi_viz.tools.ICON_LOADING;
+        document.getElementById("line_graph").innerHTML = ICON_LOADING;
 
         //if no date provided, make the date "today"
         if (START == undefined) {
@@ -386,10 +386,11 @@ class Hud {
 
         //make HUD elements visible
         document.getElementById("selected_cell").style.opacity = 1;
-        document.getElementById("selected_cell").innerHTML = voronoi_viz.tools.ICON_CLOSE_AND_DESELECT + "<br>" + "<h1>" + selected_node.name + "</h1>";
+        document.getElementById("selected_cell").innerHTML = voronoi_viz.tools.ICON_CLOSE_AND_DESELECT + "<br>" +
+            '<div class="node_name">' + selected_node.name + "</div>";
         document.getElementById("datepicker").style.opacity = 1;
 
-        //make the date navigation buttons visible 
+        //make the date navigation buttons visible
         //(made invisible prior since without a cell selection, changing the date does not make sense)
         voronoi_viz.hud.set_nav_date_visible(1);
 
@@ -499,7 +500,7 @@ class Hud {
                     tt_in = link_in.travelTime;
                 }
 
-                //calculate speed 
+                //calculate speed
                 let speed_in = parseInt((neighbour.links.in.length / tt_in) * voronoi_viz.tools.TO_MPH);
 
                 if (link_out.travelTime == undefined || link_out.travelTime == null) {
@@ -508,7 +509,7 @@ class Hud {
                     tt_out = link_out.travelTime;
                 }
 
-                //calculate speed 
+                //calculate speed
                 let speed_out = parseInt((neighbour.links.out.length / tt_out) * voronoi_viz.tools.TO_MPH);
 
                 //innerHTML code foe every node
@@ -590,7 +591,7 @@ class Hud {
             .attr("y", 0 - (margin.top / 2))
             .attr("text-anchor", "middle")
             .style("font-size", "12px")
-            .style("text-decoration", "none") //underline  
+            .style("text-decoration", "none") //underline
             .text(site_name + " on " + START + ' ' + END);
 
         // text label for the y axis
@@ -859,7 +860,7 @@ class Hud {
     //----------------DATA RESTRUCTURING-----------------//
     //---------------------------------------------------//
 
-    //restructures queried historical data received from the API to into a 
+    //restructures queried historical data received from the API to into a
     //format that is more usbale in the visualisation context
     restructure_hist_data(voronoi_viz, unstr_fetched_data) {
         let structured_data = []
@@ -896,13 +897,13 @@ class Hud {
     //The fetched data has a problem that it does not differentiate different
     //links into different sublists, instead, we recieve all date in a single
     //list that makes creating separate line graphs difficult.
-    //Therefore, we parse the fetched data and create unique sublists with 
+    //Therefore, we parse the fetched data and create unique sublists with
     //each acp_id having its own list.
     restructure_to_sublists(old_list) {
         let new_list = []
         let new_sublist = [];
 
-        //create a separate array for used acp_ids as 
+        //create a separate array for used acp_ids as
         //sometimes there are doubles that will create
         //problems for the scatter plot.
         //Doubles appear beacause some links have "-fixed"
@@ -911,7 +912,7 @@ class Hud {
 
         let temp_id = old_list[0].acp_id;
 
-        //iterate over a list of fetched readings that have 
+        //iterate over a list of fetched readings that have
         //all acp_id's in a single list
         for (let i = 0; i < old_list.length; i++) {
             let current_id = old_list[i].acp_id;
@@ -997,7 +998,7 @@ class Hud {
             let id_out = site.neighbors[i].links.in.acp_id.replace('|', '%7C');
             let id_in = site.neighbors[i].links.out.acp_id.replace('|', '%7C');
 
-            //fetch data for both directions and push it to 
+            //fetch data for both directions and push it to
             voronoi_viz.hud.historical_link(id_out, date_start, date_end).then((data) => {
                 queried_links.push(data)
             });
@@ -1064,7 +1065,7 @@ class Hud {
         let start_time = new Date().getTime()
 
         while (true) {
-            //arg and test are the two parameters that 
+            //arg and test are the two parameters that
             //have the conditional information on promises
             if (conditionObj.asked == conditionObj.asnwered) {
                 break; // or return

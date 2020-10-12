@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block page_title %}BT Areas{% endblock %}
+{% block page_title %}Cambridge BlueTruth Zone Map{% endblock %}
 {% block title %}BT Areas{% endblock %}
 
 {% block head %}
@@ -16,39 +16,41 @@
     <!-- Our scripts -->
 
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/async_functions.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/boundary_sites.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/dijkstra.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/cell_groups.js'%}"></script>
 
     <!-- Objects -->
 
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/Nodes.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/VoronoiViz.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/SiteDB.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/VizTools.js'%}"></script>
-
     <script type="text/javascript" src="{% static 'traffic/bt_voronoi/js/Hud.js'%}"></script>
-
 
     <!-- Our style -->
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bt_voronoi/css/libs/daterangepicker.css'%}">
     <link rel="stylesheet" type="text/css" href="{% static 'traffic/bt_voronoi/css/libs/leaflet.css'%}">
 
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bt_voronoi/css/bt_voronoi.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'traffic/bt_voronoi/css/date_picker_top.css' %}">
+
     <!-- <link rel="stylesheet" href="{% static 'traffic/btjourney_map.css' %}"/> -->
 
     <!-- Our script -->
     <script type="text/javascript">
-        API_TOKEN = '{{ key }}';
+        const API_TOKEN = '{{ key }}';
+        const LINK_URL = '/api/v1/traffic/btjourney/link/';
+        const SITE_URL = '/api/v1/traffic/btjourney/site/';
+        const JOURNEY_URL = '/api/v1/traffic/btjourney/latest/';
+        const ROUTE_URL = '/api/v1/traffic/btjourney/route/';
+        const HISTORICAL_API="/api/v1/traffic/btjourney/history/";
     </script>
+
     <script>
         var URL_NODE = '{{NODE}}';
         var URL_DATE = '{{DATE}}';
+        var ICON_LOADING = '<img class="loading_icon" src="'+"{% static 'traffic/bt_voronoi/images/loading_icon.gif' %}"+'">';
         function page_init() {
             var voronoi_viz = new VoronoiViz();
             voronoi_viz.init();
@@ -70,7 +72,7 @@
 
     </div> <!-- end selection_wrapper -->
 
-    <div id="map" style="height: 98vh; border: 1px solid black;"></div>
+    <div id="map" style="height: 72vh; border: 1px solid black;"></div>
 {% endblock %} <!-- end content -->
 
 {% block lazy_script %}

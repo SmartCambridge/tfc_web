@@ -21,42 +21,44 @@
 }
 .current_date{
     display: inline-block;
-   
+
 }
 #date_now{
     margin: 0;
     color: #222;
     background-color: #fff;
 	border: 1px solid #fff;
-    border-radius: 3px;    
+    border-radius: 3px;
     font-family: Arial;
     font-style: normal;
-    font-size: 13px;
+    font-size: 14px;
     padding: 5px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 
 }
-#date_now h2{
+
+#date_now_header {
+    font-size: 34px;
     margin: 0;
-  
-} 
+}
+
 .nav_date {
     display: inline-block;
     color: #222;
     background-color: #fff;
 	border: 1px solid #fff;
-    border-radius: 3px;    
+    border-radius: 3px;
     font-family: Arial;
     font-style: normal;
     font-size: 13px;
     height: 100%;
     padding: 5px;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);   
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
 .nav_date:hover {
-    
+
     background-color: #fff;
     border: 1px solid #fff;
     box-shadow: 0 2px 6px rgba(0,0,0,0.6);

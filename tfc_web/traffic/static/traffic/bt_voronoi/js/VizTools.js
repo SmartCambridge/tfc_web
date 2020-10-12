@@ -36,8 +36,6 @@ class VizTools {
             '<br>' +
             '<input type="text" name="datefilter" id="datepicker_input" value="" />';
 
-        this.ICON_LOADING = '<img src="./static/images/loading_icon.gif "width="100px" height="100px" >';
-
         this.HALF_TAB = '&emsp;&emsp;';
         this.TAB = '&emsp;&emsp;&emsp;&emsp;';
 
