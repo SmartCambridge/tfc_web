@@ -144,7 +144,7 @@ def load_line(tnds_zone, content, bus_operator, service):
         datetime_end_date = dt.strptime(start_date,'%Y-%m-%d') + timedelta(days=200)
         end_date = datetime_end_date.strftime('%Y-%m-%d')
 
-    bus_line = Line.objects.create(
+    line = Line.objects.create(
         line_id=service['Lines']['Line']['@id'],
         line_name=service['Lines']['Line']['LineName'],
         area=tnds_zone, # ijl20 - not used anywhere ?
@@ -155,25 +155,25 @@ def load_line(tnds_zone, content, bus_operator, service):
         standard_destination=service['StandardService']['Destination'],
         start_date=start_date,
         end_date=end_date,
-        regular_days_of_week=
-            list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
-        if 'OperatingProfile' in service and
-           'RegularDayType' in service['OperatingProfile'] and
-           'DaysOfWeek' in service['OperatingProfile']['RegularDayType']
-            else ('MondayToFriday',),
-        bank_holiday_operation=
-            list(service['OperatingProfile']['BankHolidayOperation']['DaysOfOperation'].keys())
-        if 'OperatingProfile' in service and
-           'BankHolidayOperation' in service['OperatingProfile'] and
-           'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None
+        regular_days_of_week = (
+                list(service['OperatingProfile']['RegularDayType']['DaysOfWeek'].keys())
+                if 'OperatingProfile' in service and
+                   'RegularDayType' in service['OperatingProfile'] and
+                   'DaysOfWeek' in service['OperatingProfile']['RegularDayType']
+                    else ('MondayToFriday',)),
+        bank_holiday_operation = (
+                list(service['OperatingProfile']['BankHolidayOperation']['DaysOfOperation'].keys())
+                if 'OperatingProfile' in service and
+                   'BankHolidayOperation' in service['OperatingProfile'] and
+                   'DaysOfOperation' in service['OperatingProfile']['BankHolidayOperation'] else None )
     )
 
-    return bus_line
+    return line
 
 ###############################################################
 # Create Route objects in PostgreSQL
 ###############################################################
-def load_routes(tnds_zone, content, bus_line, service_code):
+def load_routes(tnds_zone, service_code, content, line):
     route_objects = []
 
     # Collect all the routesections under the <RouteSections> tag
@@ -223,7 +223,7 @@ def load_routes(tnds_zone, content, bus_line, service_code):
 
         # Create Route object and add to route_objects
         route_objects.append(
-            Route(id=tnds_zone+'-'+service_code+'-'+routes[route_id]['@id'], line=bus_line,
+            Route(id=tnds_zone+'-'+service_code+'-'+routes[route_id]['@id'], line=line,
                   stops_list=','.join(stops),
                   description=routes[route_id]['Description']))
 
@@ -331,50 +331,73 @@ def parse_journey_patterns(content):
 
     return pattern_objects
 
-###############################################################
-# Load the XML content for a single service (i.e. TNDS file)
-###############################################################
-def load_xml(tnds_zone, xml_file):
-    content = xmltodict.parse(xml_file)
-
-    if content['TransXChange']['Services']['Service'].get('Mode')  not in ["bus", "coach"]:
-        return
-
-    bus_operator = load_operator(content) # Update database Operator
-
-    service = content['TransXChange']['Services']['Service']
-
-    line = load_line(tnds_zone, content, bus_operator, service) # Update database Line
-
-    service_code = service['ServiceCode'] # will re-use for Route
-
-    load_routes(tnds_zone, content, line, service_code)
-
-    journey_pattern_section_objects = parse_journey_pattern_sections(content)
-
-    #print(section_objects)
-
-    journey_pattern_objects = parse_journey_patterns(content)
-
-    print(journey_pattern_objects)
-
-    #DEBUG
-    return
-
-    # Journey
+##################################################################################
+# Parse and load <VehicleJourney> elements
+#
+##################################################################################
+def load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects):
+    # Make list of <VehicleJourney> elements from xmltodict(TNDS xml)
     journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
     journeys = list([journeys]) if journeys.__class__ is not list else journeys
+
     order_journey = 1
     vehicle_journey_objects = []
     special_days_operation = []
     for journey in journeys:
+        service_code = journey['ServiceRef']
+        # Make globally unique identifier for this VehicleJourney
+        # Note pre Oct 2020 we used <PrivateCode> as the globally unique identifier
+        vehicle_journey_id = tnds_zone+'-'+service_code+'-'+journey['VehicleJourneyCode']
         regular_days = []
         nonoperation_bank_holidays = []
         operation_bank_holidays = []
+
+        # Find a 'parent' VehicleJourney if there is one
+        if 'VehicleJourneyRef' in journey:
+            vehicle_journey_ref = journey['VehicleJourneyRef']
+            # OK, now we need to search for the VehicleJourney with (its VehicleJourneyCode)==(this VehicleJourneyRef)
+            parent_found = None
+            for parent_journey in journeys:
+                if parent_journey['VehicleJourneyCode'] == vehicle_journey_ref:
+                    #DEBUG
+                    print("Matched VehicleJourney {} to parent {}".format(vehicle_journey_id, vehicle_journey_ref))
+                    parent_found = parent_journey
+                    break
+        ######################################################
+        # JourneyPattern
+        # Find JourneyPattern id within VehicleJourney element
+        # If it's not in there, we'll try again with the 'parent' VehicleJourney via VehicleJourneyRef
+        journey_pattern_ref = None
+        if 'JourneyPatternRef' in journey:
+            journey_pattern_ref = journey['JourneyPatternRef']
+
+        if journey_pattern_ref is None and parent_found is not None and 'JourneyPatternRef' in parent_found:
+            journey_pattern_ref = parent_found['JourneyPatternRef']
+
+        if journey_pattern_ref is None:
+            logger.error("VehicleJourney {} no JourneyPattern".format(vehicle_journey_id))
+            continue # This VehicleJourney is useless if there's no JourneyPattern
+
+        journey_pattern = journey_pattern_objects[journey_pattern_ref]
+
+        ######################################################
+        # direction from JourneyPattern
+        ######################################################
+        direction = journey_pattern['direction']
+
+        # OperatingProfile
+        # Find the OperatingProfile, which may be in *this* <VehicleJourney> or in parent via its <VehicleJourneyRef>
+        operating_profile = None
         if 'OperatingProfile' in journey:
-            element = journey['OperatingProfile']
-            if 'RegularDayType' in element and 'DaysOfWeek' in element['RegularDayType']:
-                week_days_element = element['RegularDayType']['DaysOfWeek']
+            operating_profile = journey['OperatingProfile']
+
+        if operating_profile is None and parent_found is not None and 'OperatingProfile' in parent_found:
+            operating_profile = parent_found['OperatingProfile']
+
+        # If we have an OperatingProfile then process it, otherwise just skip it.
+        if operating_profile is not None:
+            if 'RegularDayType' in operating_profile and 'DaysOfWeek' in operating_profile['RegularDayType']:
+                week_days_element = operating_profile['RegularDayType']['DaysOfWeek']
                 for day in list(week_days_element.keys()):
                     if 'To' in day:
                         day_range_bounds = [WEEKDAYS[i] for i in day.split('To')]
@@ -386,24 +409,24 @@ def load_xml(tnds_zone, xml_file):
                         regular_days.append(day)
 
             # Special Days:
-            if 'SpecialDaysOperation' in element:
-                if 'DaysOfNonOperation' in element['SpecialDaysOperation'] and element['SpecialDaysOperation']['DaysOfNonOperation']:
-                    noopdays = element['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
+            if 'SpecialDaysOperation' in operating_profile:
+                if 'DaysOfNonOperation' in operating_profile['SpecialDaysOperation'] and operating_profile['SpecialDaysOperation']['DaysOfNonOperation']:
+                    noopdays = operating_profile['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
                     noopdays = list([noopdays]) if noopdays.__class__ is not list else noopdays
                     nonoperation_days = \
                         list(map(lambda x:
-                                 SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
+                                 SpecialDaysOperation(vehicle_journey_id=vehicle_journey_id,
                                                       days=DateRange(lower=x['StartDate'],
                                                                      upper=x['EndDate'],
                                                                      bounds="[]"),
                                                       operates=False), noopdays))
                     special_days_operation += nonoperation_days
-                if 'DaysOfOperation' in element['SpecialDaysOperation'] and element['SpecialDaysOperation']['DaysOfOperation']:
-                    opdays = element['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
+                if 'DaysOfOperation' in operating_profile['SpecialDaysOperation'] and operating_profile['SpecialDaysOperation']['DaysOfOperation']:
+                    opdays = operating_profile['SpecialDaysOperation']['DaysOfOperation']['DateRange']
                     opdays = list([opdays]) if opdays.__class__ is not list else opdays
                     operation_days = \
                         list(map(lambda x:
-                                 SpecialDaysOperation(vehicle_journey_id=journey['PrivateCode'],
+                                 SpecialDaysOperation(vehicle_journey_id=vehicle_journey_id,
                                                       days=DateRange(lower=x['StartDate'],
                                                                      upper=x['EndDate'],
                                                                      bounds="[]"),
@@ -411,24 +434,67 @@ def load_xml(tnds_zone, xml_file):
                     special_days_operation += operation_days
 
             # Bank Holidays
-            if 'BankHolidayOperation' in element:
-                if 'DaysOfNonOperation' in element['BankHolidayOperation'] and element['BankHolidayOperation']['DaysOfNonOperation']:
+            if 'BankHolidayOperation' in operating_profile:
+                if 'DaysOfNonOperation' in operating_profile['BankHolidayOperation'] and operating_profile['BankHolidayOperation']['DaysOfNonOperation']:
                     nonoperation_bank_holidays = list(
-                        element['BankHolidayOperation']['DaysOfNonOperation'].keys())
-                if 'DaysOfOperation' in element['BankHolidayOperation'] and element['BankHolidayOperation']['DaysOfOperation']:
+                        operating_profile['BankHolidayOperation']['DaysOfNonOperation'].keys())
+                if 'DaysOfOperation' in operating_profile['BankHolidayOperation'] and operating_profile['BankHolidayOperation']['DaysOfOperation']:
                     operation_bank_holidays = list(
-                        element['BankHolidayOperation']['DaysOfOperation'].keys())
+                        operating_profile['BankHolidayOperation']['DaysOfOperation'].keys())
+
         vehicle_journey_objects.append(VehicleJourney(
-            id=journey['PrivateCode'], journey_pattern_id=tnds_zone+'-'+journey['JourneyPatternRef'],
-            departure_time=journey['DepartureTime'], days_of_week=' '.join(regular_days),
-            nonoperation_bank_holidays=' '.join(nonoperation_bank_holidays),
-            operation_bank_holidays=' '.join(operation_bank_holidays), order=order_journey)
+            id = vehicle_journey_id,
+            journey_pattern_id = None, # Deprecated. Was tnds_zone+'-'+journey['JourneyPatternRef']
+            departure_time = journey['DepartureTime'],
+            days_of_week = ' '.join(regular_days),
+            nonoperation_bank_holidays = ' '.join(nonoperation_bank_holidays),
+            operation_bank_holidays = ' '.join(operation_bank_holidays),
+            line = line,
+            direction = direction,
+            order=order_journey)
         )
         order_journey += 1
 
     if vehicle_journey_objects:
         VehicleJourney.objects.bulk_create(vehicle_journey_objects)
         SpecialDaysOperation.objects.bulk_create(special_days_operation)
+
+###############################################################
+# Load the XML content for a single service (i.e. TNDS file)
+###############################################################
+def load_xml(tnds_zone, xml_file):
+    content = xmltodict.parse(xml_file)
+
+    if content['TransXChange']['Services']['Service'].get('Mode')  not in ["bus", "coach"]:
+        return
+
+    # Create Operator record in PostgreSQL
+    bus_operator = load_operator(content) # Update database Operator
+
+    service = content['TransXChange']['Services']['Service']
+
+    # Create Line record in PostgreSQL
+    line = load_line(tnds_zone, content, bus_operator, service) # Update database Line
+
+    service_code = service['ServiceCode'] # will re-use for Route
+
+    # Create Route records in PostgreSQL
+    load_routes(tnds_zone, service_code, content, line)
+
+    # Build dictionary of journey_pattern_sections
+    journey_pattern_section_objects = parse_journey_pattern_sections(content)
+
+    #print(section_objects)
+
+    # Build dictionary of journey_patterns
+    journey_pattern_objects = parse_journey_patterns(content)
+
+    #print(journey_pattern_objects)
+
+    load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects)
+
+    #DEBUG
+    return
 
     # Create Timetable objects from each VehicleJourney
     for vehicle_journey in VehicleJourney.objects.all():
