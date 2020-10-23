@@ -281,13 +281,21 @@ class JourneyPattern(models.Model):
         return self.id
 
 
+################################################################################################
+# VehicleJourney
+# Directly from TNDS file
+# Deprecated journey_pattern (timinglinks are now TimetableStops)
+################################################################################################
 class VehicleJourney(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys', on_delete=models.CASCADE)
+    journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys', null=True, blank=True, on_delete=models.CASCADE)
+    line = models.ForeignKey(Line, related_name='journeys', null=True, blank=True, on_delete=models.CASCADE)
     departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True, blank=True)
     nonoperation_bank_holidays = models.CharField(max_length=200, null=True, blank=True)
     operation_bank_holidays = models.CharField(max_length=200, null=True, blank=True)
+    direction = models.CharField(max_length=100, null=True, blank=True) # E.g. "outbound"|"inbound"|blank
+    tnds_zone = models.CharField(max_length=20, null=True, blank=True) # E.g. "EA"
     order = models.IntegerField()
     last_modified = models.DateTimeField(auto_now=True)
 
@@ -329,7 +337,6 @@ class VehicleJourney(models.Model):
     def __str__(self):
         return self.id
 
-
 class SpecialDaysOperation(models.Model):
     vehicle_journey = models.ForeignKey(VehicleJourney, related_name='special_days_operation', on_delete=models.CASCADE)
     days = DateRangeField()
@@ -344,6 +351,26 @@ class Timetable(models.Model):
     vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times', on_delete=models.CASCADE)
     stop = models.ForeignKey(Stop, related_name='journey_times', on_delete=models.CASCADE)
     time = models.TimeField()
+    order = models.IntegerField()  # Order of the stop in the vehicle journey (first stop, order = 1)
+    last_stop = models.BooleanField(default=False)  # Last stop of a vehicle journey
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['vehicle_journey', 'stop', 'time', 'order', 'last_stop']),
+        ]
+
+################################################################################################
+# TimetableStops replaces Timetable, contains stop-time pairs for each VehicleJourney
+# ALL timetable info stored in TimetableStops and VehicleJourney
+# i.e. we collect data from JourneyPattern, JourneyPatternSections, JourneyPatternTimingLinks
+################################################################################################
+class TimetableStop(models.Model):
+    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='timetable_stops', on_delete=models.CASCADE)
+    stop = models.ForeignKey(Stop, related_name='timetable_stops', on_delete=models.CASCADE)
+    time = models.TimeField()
+    direction = models.CharField(max_length=100,null=True,blank=True)
+    run_time = models.DurationField()
+    wait_time = models.DurationField(null=True, blank=True)
     order = models.IntegerField()  # Order of the stop in the vehicle journey (first stop, order = 1)
     last_stop = models.BooleanField(default=False)  # Last stop of a vehicle journey
 
