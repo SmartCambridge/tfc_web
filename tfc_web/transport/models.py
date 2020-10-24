@@ -288,7 +288,7 @@ class JourneyPattern(models.Model):
 ################################################################################################
 class VehicleJourney(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    journey_pattern = models.ForeignKey(JourneyPattern, related_name='journeys', null=True, blank=True, on_delete=models.CASCADE)
+    journey_pattern_ref = models.CharField(max_length=100, null=True, blank=True) # E.g. "JP2"
     line = models.ForeignKey(Line, related_name='journeys', null=True, blank=True, on_delete=models.CASCADE)
     departure_time = models.TimeField()
     days_of_week = models.CharField(max_length=100, null=True, blank=True)
@@ -298,24 +298,6 @@ class VehicleJourney(models.Model):
     tnds_zone = models.CharField(max_length=20, null=True, blank=True) # E.g. "EA"
     order = models.IntegerField()
     last_modified = models.DateTimeField(auto_now=True)
-
-    def generate_timetable(self):
-        departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), self.departure_time)
-        timing_links = self.journey_pattern.section.timing_links.order_by('stop_from_sequence_number')\
-            .select_related("stop_from")
-        order = 1
-        timetable_objects = []
-        if timing_links:
-            for timing_link in timing_links:
-                timetable_objects.append(Timetable(
-                    vehicle_journey=self, stop_id=timing_link.stop_from.atco_code, time=departure_time.time(), order=order))
-                departure_time += timing_link.run_time
-                if timing_link.wait_time:
-                    departure_time += timing_link.wait_time
-                order += 1
-            timetable_objects.append(Timetable(vehicle_journey=self, stop_id=timing_links.last().stop_to.atco_code,
-                                               time=departure_time.time(), order=order, last_stop=True))
-        return timetable_objects
 
     def get_timetable(self):
         return Timetable.objects.filter(vehicle_journey=self).order_by('order')
@@ -360,7 +342,7 @@ class Timetable(models.Model):
         ]
 
 ################################################################################################
-# TimetableStops replaces Timetable, contains stop-time pairs for each VehicleJourney
+# TimetableStop replaces Timetable, contains stop-time pairs for each VehicleJourney
 # ALL timetable info stored in TimetableStops and VehicleJourney
 # i.e. we collect data from JourneyPattern, JourneyPatternSections, JourneyPatternTimingLinks
 ################################################################################################

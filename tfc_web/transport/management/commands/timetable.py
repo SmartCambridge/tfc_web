@@ -5,6 +5,7 @@ import re
 import os
 import xmltodict
 import zipfile
+from datetime import datetime as dt
 from datetime import timedelta
 from django.core.management import BaseCommand
 from urllib.request import urlretrieve
@@ -98,11 +99,11 @@ def load_ftp():
                 logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
 
 ###############################################################
-# Create Operator object in PostgreSQL and return it
+# Create XML -> Operator object in PostgreSQL and return it
 ###############################################################
-def load_operator(content):
+def load_operator(xml_content):
     # Operator
-    operator = content['TransXChange']['Operators']['Operator']
+    operator = xml_content['TransXChange']['Operators']['Operator']
 
     # We will try and set short_name and trading_name from XML info.
     # If either is missing we'll use the other.
@@ -126,9 +127,9 @@ def load_operator(content):
     return bus_operator
 
 ###############################################################
-# Create Line object in PostgreSQL and return it
+# Create XML -> Line object in PostgreSQL and return it
 ###############################################################
-def load_line(tnds_zone, content, bus_operator, service):
+def load_line(tnds_zone, xml_content, bus_operator, service):
 
     # If no OperatingPeriod.StartDate, we will use today's date
     if 'StartDate' in service['OperatingPeriod']:
@@ -148,7 +149,7 @@ def load_line(tnds_zone, content, bus_operator, service):
         line_id=service['Lines']['Line']['@id'],
         line_name=service['Lines']['Line']['LineName'],
         area=tnds_zone, # ijl20 - not used anywhere ?
-        filename=content['TransXChange']['@FileName'],
+        filename=xml_content['TransXChange']['@FileName'],
         description=service.get('Description', ''),
         operator=bus_operator,
         standard_origin=service['StandardService']['Origin'],
@@ -171,18 +172,18 @@ def load_line(tnds_zone, content, bus_operator, service):
     return line
 
 ###############################################################
-# Create Route objects in PostgreSQL
+# Create XML -> Route objects in PostgreSQL
 ###############################################################
-def load_routes(tnds_zone, service_code, content, line):
+def load_routes(tnds_zone, service_code, xml_content, line):
     route_objects = []
 
     # Collect all the routesections under the <RouteSections> tag
-    routesections = content['TransXChange']['RouteSections']['RouteSection']
+    routesections = xml_content['TransXChange']['RouteSections']['RouteSection']
     if routesections.__class__ is not list:
         routesections = list([routesections])
-        routes = list([content['TransXChange']['Routes']['Route']])
+        routes = list([xml_content['TransXChange']['Routes']['Route']])
     else:
-        routes = content['TransXChange']['Routes']['Route']
+        routes = xml_content['TransXChange']['Routes']['Route']
 
     # Iterate the <Routes>, iterate the <RouteSection>s for each <Route>
     for route_id in range(0, len(routes)):
@@ -238,9 +239,9 @@ def load_routes(tnds_zone, service_code, content, line):
 #   JourneyPatternSection_id: [ list of timing_link objects ]
 #
 ##################################################################################
-def parse_journey_pattern_sections(content):
+def parse_journey_pattern_sections(xml_content):
     # Journey Pattern Sections
-    sections = content['TransXChange']['JourneyPatternSections']['JourneyPatternSection']
+    sections = xml_content['TransXChange']['JourneyPatternSections']['JourneyPatternSection']
     if sections.__class__ is not list:
         sections = list([journey_pattern_sections])
 
@@ -305,9 +306,9 @@ def parse_journey_pattern_sections(content):
 #   JourneyPattern_id: [ list of JourneyPatternSection identifiers ]
 #
 ##################################################################################
-def parse_journey_patterns(content):
+def parse_journey_patterns(xml_content):
     # Journey Pattern
-    patterns = content['TransXChange']['Services']['Service']['StandardService']['JourneyPattern']
+    patterns = xml_content['TransXChange']['Services']['Service']['StandardService']['JourneyPattern']
     if patterns.__class__ is not list:
         patterns = list([patterns])
 
@@ -332,17 +333,20 @@ def parse_journey_patterns(content):
     return pattern_objects
 
 ##################################################################################
-# Parse and load <VehicleJourney> elements
+# Parse and return list of <VehicleJourney> elements
 #
 ##################################################################################
-def load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects):
+def parse_vehicle_journeys(tnds_zone, xml_content, line, journey_pattern_objects):
     # Make list of <VehicleJourney> elements from xmltodict(TNDS xml)
-    journeys = content['TransXChange']['VehicleJourneys']['VehicleJourney']
+    journeys = xml_content['TransXChange']['VehicleJourneys']['VehicleJourney']
     journeys = list([journeys]) if journeys.__class__ is not list else journeys
 
-    order_journey = 1
+    order_journey = 1 # ijl20? not sure why we have this
+
+    # Lists to collect all VehicleJourneys and their SpecialDaysOperation objects
     vehicle_journey_objects = []
     special_days_operation = []
+
     for journey in journeys:
         service_code = journey['ServiceRef']
         # Make globally unique identifier for this VehicleJourney
@@ -360,7 +364,7 @@ def load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects):
             for parent_journey in journeys:
                 if parent_journey['VehicleJourneyCode'] == vehicle_journey_ref:
                     #DEBUG
-                    print("Matched VehicleJourney {} to parent {}".format(vehicle_journey_id, vehicle_journey_ref))
+                    #print("Matched VehicleJourney {} to parent {}".format(vehicle_journey_id, vehicle_journey_ref))
                     parent_found = parent_journey
                     break
         ######################################################
@@ -444,8 +448,8 @@ def load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects):
 
         vehicle_journey_objects.append(VehicleJourney(
             id = vehicle_journey_id,
-            journey_pattern_id = None, # Deprecated. Was tnds_zone+'-'+journey['JourneyPatternRef']
-            departure_time = journey['DepartureTime'],
+            journey_pattern_ref = journey_pattern_ref, # we used to link to a JourneyPattern object here
+            departure_time = dt.strptime(journey['DepartureTime'],'%H:%M:%S').time(),
             days_of_week = ' '.join(regular_days),
             nonoperation_bank_holidays = ' '.join(nonoperation_bank_holidays),
             operation_bank_holidays = ' '.join(operation_bank_holidays),
@@ -455,43 +459,91 @@ def load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects):
         )
         order_journey += 1
 
-    if vehicle_journey_objects:
-        VehicleJourney.objects.bulk_create(vehicle_journey_objects)
-        SpecialDaysOperation.objects.bulk_create(special_days_operation)
+    return vehicle_journey_objects, special_days_operation
+
+#################################################################
+# make list of TimetableStops for list of VehicleJourney objects
+#################################################################
+def timetable_stops(vehicle_journey_objects, journey_pattern_objects, journey_pattern_section_objects):
+    timetable_stop_objects = []
+    for vehicle_journey in vehicle_journey_objects:
+        #DEBUG
+        print("VehicleJourney {}".format(vehicle_journey.id))
+        departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), vehicle_journey.departure_time)
+        # get list of journey_pattern_section_refs
+        section_refs = journey_pattern_objects[vehicle_journey.journey_pattern_ref]['sections']
+        #DEBUG
+        print("section_refs {}".format(section_refs))
+        order = 1
+        for section_ref in section_refs:
+            # get list of timing links
+            timing_links = journey_pattern_section_objects[section_ref]
+            if timing_links:
+                for timing_link in timing_links:
+                    timetable_stop_objects.append(TimetableStop(
+                        vehicle_journey = vehicle_journey,
+                        stop_id = timing_link['stop_from_id'],
+                        time = departure_time.time(),
+                        run_time = timing_link['run_time'],
+                        wait_time = timing_link['wait_time'],
+                        order = order))
+                    departure_time += timing_link['run_time']
+                    if timing_link['wait_time']:
+                        departure_time += timing_link['wait_time']
+                    order += 1
+
+        # Add 'last' stop, i.e. the 'stop_to' in the final timing_link
+        timetable_stop_objects.append(TimetableStop(
+                vehicle_journey = vehicle_journey,
+                stop_id = timing_link['stop_to_id'],
+                time = departure_time.time(),
+                run_time = timing_link['run_time'],
+                wait_time = timing_link['wait_time'],
+                order=order,
+                last_stop=True))
+                
+    return timetable_stop_objects
 
 ###############################################################
 # Load the XML content for a single service (i.e. TNDS file)
 ###############################################################
 def load_xml(tnds_zone, xml_file):
-    content = xmltodict.parse(xml_file)
+    xml_content = xmltodict.parse(xml_file)
 
-    if content['TransXChange']['Services']['Service'].get('Mode')  not in ["bus", "coach"]:
+    if xml_content['TransXChange']['Services']['Service'].get('Mode')  not in ["bus", "coach"]:
         return
 
     # Create Operator record in PostgreSQL
-    bus_operator = load_operator(content) # Update database Operator
+    bus_operator = load_operator(xml_content) # Update database Operator
 
-    service = content['TransXChange']['Services']['Service']
+    service = xml_content['TransXChange']['Services']['Service']
 
     # Create Line record in PostgreSQL
-    line = load_line(tnds_zone, content, bus_operator, service) # Update database Line
+    line = load_line(tnds_zone, xml_content, bus_operator, service) # Update database Line
 
     service_code = service['ServiceCode'] # will re-use for Route
 
     # Create Route records in PostgreSQL
-    load_routes(tnds_zone, service_code, content, line)
+    load_routes(tnds_zone, service_code, xml_content, line)
 
     # Build dictionary of journey_pattern_sections
-    journey_pattern_section_objects = parse_journey_pattern_sections(content)
+    journey_pattern_section_objects = parse_journey_pattern_sections(xml_content)
 
     #print(section_objects)
 
     # Build dictionary of journey_patterns
-    journey_pattern_objects = parse_journey_patterns(content)
+    journey_pattern_objects = parse_journey_patterns(xml_content)
 
     #print(journey_pattern_objects)
 
-    load_vehicle_journeys(tnds_zone, content, line, journey_pattern_objects)
+    vehicle_journey_objects, special_days_operation = parse_vehicle_journeys(tnds_zone, xml_content, line, journey_pattern_objects)
+    if vehicle_journey_objects:
+        VehicleJourney.objects.bulk_create(vehicle_journey_objects)
+        SpecialDaysOperation.objects.bulk_create(special_days_operation)
+
+    timetable_stop_objects = timetable_stops(vehicle_journey_objects, journey_pattern_objects, journey_pattern_section_objects)
+    if timetable_stop_objects:
+        TimetableStop.objects.bulk_create(timetable_stop_objects)
 
     #DEBUG
     return
