@@ -16,15 +16,16 @@ class VehicleJourneySerializer(serializers.ModelSerializer):
 
 class VehicleJourneySummarisedSerializer(serializers.ModelSerializer):
     timetable = serializers.SerializerMethodField()
-    direction = serializers.CharField(source='journey_pattern.direction')
-    route_description = serializers.CharField(source='journey_pattern.route.description')
+    #direction = serializers.CharField(source='journey_pattern.direction')
+    direction = serializers.CharField()
+    #route_description = serializers.CharField(source='journey_pattern.route.description')
 
     def get_timetable(self, obj):
         return TimetableSerializerForJourney(obj.get_timetable(), many=True).data
 
     class Meta:
         model = VehicleJourney
-        fields = ['id', 'timetable', 'departure_time', 'days_of_week', 'direction', 'route_description']
+        fields = ['id', 'timetable', 'departure_time', 'days_of_week', 'direction'] #, 'route_description']
         depth = 3
 
 

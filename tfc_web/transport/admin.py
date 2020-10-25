@@ -23,3 +23,10 @@ class TimetableAdmin(ModelAdmin):
     list_display = ('id', 'vehicle_journey', 'stop', 'time')
     search_fields = ['stop__atco_code', 'vehicle_journey__id']
 admin.site.register(Timetable, TimetableAdmin)
+
+class TimetableStopAdmin(ModelAdmin):
+    list_display = ('id', 'vehicle_journey', 'stop', 'time')
+    search_fields = ['stop__atco_code', 'vehicle_journey__id']
+admin.site.register(TimetableStop, TimetableStopAdmin)
+
+

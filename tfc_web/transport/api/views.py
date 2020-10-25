@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
     VehicleJourneySummarisedSerializer, StopSerializer
-from transport.models import Stop, Timetable, VehicleJourney
+from transport.models import Stop, Timetable, TimetableStop, VehicleJourney
 from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
@@ -217,15 +217,24 @@ def journeys_by_time_and_stop(request):
     if nresults < 1:
         return Response({"details": "nresults is should be at least 1"}, status=400)
 
-    query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
+    #query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
+    #                                  vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
+    #query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
+    #                                  vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
+    #                                  vehicle_journey__special_days_operation__operates=False)
+    # We fetch an extra entry to see if there are more than one bus leaving at the same hour,
+    # to calculate next_datetime correctly
+    #timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
+    #                 .order_by('time')[:nresults+1])
+
+    query1 = TimetableStop.objects.filter(stop=stop, time__gte=datetime_from.time(),
                                       vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
-    query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
+    query2 = TimetableStop.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
                                       vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
                                       vehicle_journey__special_days_operation__operates=False)
     # We fetch an extra entry to see if there are more than one bus leaving at the same hour,
     # to calculate next_datetime correctly
-    timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
-                     .order_by('time')[:nresults+1])
+    timetable = list(query1.difference(query2).order_by('time')[:nresults+1])
 
     if len(timetable) < nresults:
         # no more results for the current day selected
@@ -251,7 +260,8 @@ def journeys_by_time_and_stop(request):
             {'time': result.time,
              'journey': VehicleJourneySummarisedSerializer(result.vehicle_journey).data
              if request.GET.get('expand_journey', 'false').lower() == 'true' else result.vehicle_journey.id,
-             'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
+             #'line': LineSerializer(result.vehicle_journey.journey_pattern.route.line).data})
+             'line': LineSerializer(result.vehicle_journey.line).data})
 
     results_json['next'] = "%s?stop_id=%s&datetime_from=%s&nresults=%s&expand_journey=%s" % \
                            (reverse(journeys_by_time_and_stop), stop_id, quote(next_datetime.isoformat()), nresults,

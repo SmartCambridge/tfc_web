@@ -107,8 +107,8 @@ class Line(models.Model):
     filename = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     operator = models.ForeignKey(Operator, related_name="lines", on_delete=models.CASCADE)
-    standard_origin = models.CharField(max_length=255)
-    standard_destination = models.CharField(max_length=255)
+    standard_origin = models.CharField(max_length=255, blank=True, null=True)
+    standard_destination = models.CharField(max_length=255, blank=True, null=True)
     regular_days_of_week = models.CharField(max_length=255, null=True)
     bank_holiday_operation = models.CharField(max_length=255, null=True)
     start_date = models.DateField(null=True)
@@ -216,7 +216,7 @@ class Line(models.Model):
 
 class Route(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    description = models.CharField(max_length=255)
+    description = models.TextField()
     line = models.ForeignKey(Line, related_name='routes', on_delete=models.CASCADE)
     stops_list = models.TextField()
     last_modified = models.DateTimeField(auto_now=True)
@@ -300,12 +300,12 @@ class VehicleJourney(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
 
     def get_timetable(self):
-        return Timetable.objects.filter(vehicle_journey=self).order_by('order')
+        return TimetableStop.objects.filter(vehicle_journey=self).order_by('order')
 
     @property
     def timetable(self):
         timetable = []
-        for time in Timetable.objects.filter(vehicle_journey=self).order_by('order'):
+        for time in TimetableStop.objects.filter(vehicle_journey=self).order_by('order'):
             timetable.append({'stop': time.stop.atco_code, 'time': time.time, 'order': time.order})
         return timetable
 
@@ -313,7 +313,7 @@ class VehicleJourney(models.Model):
         return self.get_timetable().select_related('stop')
 
     def get_stops_list(self):
-        return Timetable.objects.filter(vehicle_journey=self).order_by('order').values('stop')
+        return TimetableStop.objects.filter(vehicle_journey=self).order_by('order').values('stop')
 
     @python_2_unicode_compatible
     def __str__(self):

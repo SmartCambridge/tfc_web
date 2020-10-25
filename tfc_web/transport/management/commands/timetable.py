@@ -73,11 +73,29 @@ def cmd_status():
 ###############################################################
 # Load TNDS XML data file into PostgreSQL from filesystem
 ###############################################################
-def load_file(tnds_zone, filename):
-    print('load_file loading {} {}'.format(tnds_zone, filename))
+def load_xml_file(tnds_zone, filename):
+    print('load_xml_file loading {} {}'.format(tnds_zone, filename))
     try:
         with open(filename) as xml_file:
             load_xml(tnds_zone, xml_file.read())
+    except Exception as e:
+        logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
+
+###############################################################
+# Load TNDS Zip file into PostgreSQL from filesystem
+###############################################################
+def load_zip_file(tnds_zone, filename):
+    print('load_zip_file loading {} {}'.format(tnds_zone, filename))
+    try:
+        traveline_zip_file = zipfile.ZipFile(filename)
+        for filename in traveline_zip_file.namelist():
+            logger.info("Processing file %s" % filename)
+            try:
+                with traveline_zip_file.open(filename) as xml_file:
+                    with transaction.atomic():
+                        load_xml(tnds_zone, xml_file)
+            except Exception as e:
+                logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
     except Exception as e:
         logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
 
@@ -89,14 +107,7 @@ def load_ftp():
         local_filename, headers = urlretrieve('ftp://%s:%s@ftp.tnds.basemap.co.uk/%s.zip' %
                                               (settings.TNDS_USERNAME, settings.TNDS_PASSWORD, tnds_zone),
                                               filename=os.path.join(settings.TNDS_NEW_DIR, '%s.zip' % tnds_zone))
-        traveline_zip_file = zipfile.ZipFile(local_filename)
-        for filename in traveline_zip_file.namelist():
-            logger.info("Processing file %s" % filename)
-            try:
-                with traveline_zip_file.open(filename) as xml_file:
-                    load_xml(tnds_zone, xml_file)
-            except Exception as e:
-                logger.exception("Error while trying to process file %s, exception was %s" % (filename, e))
+        load_zip_file(tnds_zone, local_filename)
 
 ###############################################################
 # Create XML -> Operator object in PostgreSQL and return it
@@ -152,8 +163,8 @@ def load_line(tnds_zone, xml_content, bus_operator, service):
         filename=xml_content['TransXChange']['@FileName'],
         description=service.get('Description', ''),
         operator=bus_operator,
-        standard_origin=service['StandardService']['Origin'],
-        standard_destination=service['StandardService']['Destination'],
+        standard_origin=service['StandardService']['Origin'] if 'Origin' in service['StandardService'] else None,
+        standard_destination=service['StandardService']['Destination']if 'Destination' in service['StandardService'] else None,
         start_date=start_date,
         end_date=end_date,
         regular_days_of_week = (
@@ -181,9 +192,10 @@ def load_routes(tnds_zone, service_code, xml_content, line):
     routesections = xml_content['TransXChange']['RouteSections']['RouteSection']
     if routesections.__class__ is not list:
         routesections = list([routesections])
-        routes = list([xml_content['TransXChange']['Routes']['Route']])
-    else:
-        routes = xml_content['TransXChange']['Routes']['Route']
+
+    routes = xml_content['TransXChange']['Routes']['Route']
+    if routes.__class__ is not list:
+        routes = list([routes])
 
     # Iterate the <Routes>, iterate the <RouteSection>s for each <Route>
     for route_id in range(0, len(routes)):
@@ -243,7 +255,7 @@ def parse_journey_pattern_sections(xml_content):
     # Journey Pattern Sections
     sections = xml_content['TransXChange']['JourneyPatternSections']['JourneyPatternSection']
     if sections.__class__ is not list:
-        sections = list([journey_pattern_sections])
+        sections = list([sections])
 
     section_objects = {}
 
@@ -417,24 +429,33 @@ def parse_vehicle_journeys(tnds_zone, xml_content, line, journey_pattern_objects
                 if 'DaysOfNonOperation' in operating_profile['SpecialDaysOperation'] and operating_profile['SpecialDaysOperation']['DaysOfNonOperation']:
                     noopdays = operating_profile['SpecialDaysOperation']['DaysOfNonOperation']['DateRange']
                     noopdays = list([noopdays]) if noopdays.__class__ is not list else noopdays
-                    nonoperation_days = \
-                        list(map(lambda x:
-                                 SpecialDaysOperation(vehicle_journey_id=vehicle_journey_id,
-                                                      days=DateRange(lower=x['StartDate'],
-                                                                     upper=x['EndDate'],
-                                                                     bounds="[]"),
-                                                      operates=False), noopdays))
+                    nonoperation_days = []
+                    for noopday in noopdays:
+                        if noopday['StartDate'] <= noopday['EndDate']: # bad dates can be a bug in some TNDS XML files
+                            nonoperation_days.append(SpecialDaysOperation(
+                                vehicle_journey_id=vehicle_journey_id,
+                                days=DateRange(lower=noopday['StartDate'],
+                                                upper=noopday['EndDate'],
+                                                bounds="[]"),
+                                operates=False))
+                        else:
+                            logger.error("VehicleJourney {} bad DateRange in DaysOfNonOperation".format(vehicle_journey_id))
                     special_days_operation += nonoperation_days
+
                 if 'DaysOfOperation' in operating_profile['SpecialDaysOperation'] and operating_profile['SpecialDaysOperation']['DaysOfOperation']:
                     opdays = operating_profile['SpecialDaysOperation']['DaysOfOperation']['DateRange']
                     opdays = list([opdays]) if opdays.__class__ is not list else opdays
-                    operation_days = \
-                        list(map(lambda x:
-                                 SpecialDaysOperation(vehicle_journey_id=vehicle_journey_id,
-                                                      days=DateRange(lower=x['StartDate'],
-                                                                     upper=x['EndDate'],
-                                                                     bounds="[]"),
-                                                      operates=True), opdays))
+                    operation_days = []
+                    for opday in opdays:
+                        if opday['StartDate'] <= opday['EndDate']: # bad dates can be a bug in some TNDS XML files
+                            operation_days.append(SpecialDaysOperation(
+                                vehicle_journey_id=vehicle_journey_id,
+                                days=DateRange(lower=opday['StartDate'],
+                                               upper=opday['EndDate'],
+                                               bounds="[]"),
+                                operates=True))
+                        else:
+                            logger.error("VehicleJourney {} bad DateRange in DaysOfOperation".format(vehicle_journey_id))
                     special_days_operation += operation_days
 
             # Bank Holidays
@@ -468,12 +489,12 @@ def timetable_stops(vehicle_journey_objects, journey_pattern_objects, journey_pa
     timetable_stop_objects = []
     for vehicle_journey in vehicle_journey_objects:
         #DEBUG
-        print("VehicleJourney {}".format(vehicle_journey.id))
+        #print("VehicleJourney {}".format(vehicle_journey.id))
         departure_time = datetime.datetime.combine(datetime.date(1, 1, 1), vehicle_journey.departure_time)
         # get list of journey_pattern_section_refs
         section_refs = journey_pattern_objects[vehicle_journey.journey_pattern_ref]['sections']
         #DEBUG
-        print("section_refs {}".format(section_refs))
+        #print("section_refs {}".format(section_refs))
         order = 1
         for section_ref in section_refs:
             # get list of timing links
@@ -501,7 +522,7 @@ def timetable_stops(vehicle_journey_objects, journey_pattern_objects, journey_pa
                 wait_time = timing_link['wait_time'],
                 order=order,
                 last_stop=True))
-                
+
     return timetable_stop_objects
 
 ###############################################################
@@ -522,6 +543,8 @@ def load_xml(tnds_zone, xml_file):
     line = load_line(tnds_zone, xml_content, bus_operator, service) # Update database Line
 
     service_code = service['ServiceCode'] # will re-use for Route
+    #DEBUG
+    #print("Loading {}".format(service_code))
 
     # Create Route records in PostgreSQL
     load_routes(tnds_zone, service_code, xml_content, line)
@@ -545,13 +568,9 @@ def load_xml(tnds_zone, xml_file):
     if timetable_stop_objects:
         TimetableStop.objects.bulk_create(timetable_stop_objects)
 
-    #DEBUG
-    return
-
-    # Create Timetable objects from each VehicleJourney
-    for vehicle_journey in VehicleJourney.objects.all():
-        Timetable.objects.bulk_create(vehicle_journey.generate_timetable())
-
+###########################################################################################
+##### The manage.py Command class                 #########################################
+###########################################################################################
 
 class Command(BaseCommand):
     help = "Updates database from TNDS XML file"
@@ -559,14 +578,19 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument(
-            '--loadfile',
-            help='Load XML file into database, requires zone, e.g. timetable --zone EA --loadfile cambs_SCCM_4_20004_.xml',
+            '--loadzip',
+            help='Load TNDS Zip file into database, e.g. timetable --zone EA --loadzip EA.zip',
+        )
+
+        parser.add_argument(
+            '--loadxml',
+            help='Load XML file into database, requires zone, e.g. timetable --zone EA --loadxml cambs_SCCM_4_20004_.xml',
         )
 
         parser.add_argument(
             '--zone',
             default='TNDS_ZONE',
-            help='Specify TNDS zone for XML file, e.g. --zone EA, see --loadfile',
+            help='Specify TNDS zone for XML file, e.g. --zone EA, see --loadzml and --loadzip',
         )
 
         parser.add_argument(
@@ -590,14 +614,20 @@ class Command(BaseCommand):
             help='Show database status for TNDS timetable data',
         )
 
-    @transaction.atomic
     def handle(self, **options):
 
-        if options['loadfile']:
-            filename = options['loadfile']
+        if options['loadxml']:
+            filename = options['loadxml']
             tnds_zone = options['zone']
             print('loading {}'.format(filename))
-            load_file(tnds_zone, filename)
+            load_xml_file(tnds_zone, filename)
+            return
+
+        if options['loadzip']:
+            filename = options['loadzip']
+            tnds_zone = options['zone']
+            print('loading {}'.format(filename))
+            load_zip_file(tnds_zone, filename)
             return
 
         if options['loadftp']:
