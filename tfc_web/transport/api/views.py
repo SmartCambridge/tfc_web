@@ -116,11 +116,11 @@ def calculate_vehicle_journey(departure_time, departure_stop_id, destination_sto
     :return: list of Vehicle Journeys
     """
     journey_day_of_week = departure_time.date().strftime("%A")
-    query1 = Timetable.objects.filter(stop_id=departure_stop_id, time=departure_time.time(), order=1,
+    query1 = TimetableStop.objects.filter(stop_id=departure_stop_id, time=departure_time.time(), order=1,
                                       vehicle_journey__days_of_week__contains=journey_day_of_week) \
         .values_list('vehicle_journey', flat=True)
     if destination_stop_id and len(query1) > 1:
-        query1b = Timetable.objects.filter(stop_id=destination_stop_id, last_stop=True,
+        query1b = TimetableStop.objects.filter(stop_id=destination_stop_id, last_stop=True,
                                            vehicle_journey__days_of_week__contains=journey_day_of_week) \
             .values_list('vehicle_journey', flat=True)
         query1 = query1.intersection(query1b)
