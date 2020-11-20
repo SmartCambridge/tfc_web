@@ -146,7 +146,10 @@ def zones_list(request):
 
 def zone_map(request, zone_id):
 
-    zone_config = get_zone_metadata(zone_id)
+    try:
+        zone_config = get_zone_metadata(zone_id)
+    except:
+        raise Http404("Zone transit plot invalid zone id {0}".format(zone_id))
 
     return render(request, 'traffic/zone_map.html', {
         'config_zone_id': zone_id,

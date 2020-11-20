@@ -74,7 +74,7 @@ class ServiceDetailView(DetailView):
 
     model = Line
     template_name = "transport/new_timetable.html"
-    
+
     def get_object(self, queryset=None):
         """
         Returns the object the view is displaying.
@@ -117,7 +117,11 @@ class ServiceDetailView(DetailView):
                 date = None
         if not date:
             date = timezone.now().date()
-        context['timetables'] = timetable_from_service(self.object, date)
+
+        try:
+            context['timetables'] = timetable_from_service(self.object, date)
+        except:
+            raise Http404("No timetable found matching your query")
 
         if context.get('timetables'):
             for table in context['timetables']:
