@@ -78,6 +78,6 @@ html, body {
 
 .page-menu img {
     display: block;
-    margin: 0.5em auto 0.5em 14px;
-    width: 160px;
+    margin: 0.1em auto 0.1em 14px;
+    width: 85%;
 }
