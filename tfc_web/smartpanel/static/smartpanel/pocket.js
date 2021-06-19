@@ -14,7 +14,8 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
-var VERSION = '3.00';
+var VERSION = '3.01';
+// 3.01 Added additional Market Towns
 // 3.00 Added defaults, first-use hint, feedback link, PWA support, etc.
 // 2.02 modified Edit..Delete confirm notificatio, added version, click-to-reload to page debug string
 // 2.01 moved debug id and timestamp to bottom of page
@@ -30,13 +31,21 @@ var INSTANCE_KEY_NAME = 'POCKET_SMARTPANEL_INSTANCE';
 // Available weather stations and their names
 var WEATHER_OPTIONS = [
     { value: '310042', text: 'Cambridge' },
+    { value: '350874', text: 'Chatteris' },
     { value: '324249', text: 'Ely' },
     { value: '351524', text: 'Fulbourn' },
     { value: '324061', text: 'Huntingdon' },
+    { value: '352315', text: 'Littleport' },
     { value: '310105', text: 'Luton' },
+    { value: '352530', text: 'March' },
     { value: '310120', text: 'Peterborough' },
+    { value: '322689', text: 'Ramsey' },
+    { value: '353555', text: 'Soham' },
     { value: '353656', text: 'Stansted' },
-    { value: '353330', text: 'St. Neots' }
+    { value: '353320', text: 'St. Ives' },
+    { value: '353330', text: 'St. Neots' },
+    { value: '322951', text: 'Wisbech' },
+    { value: '354209', text: 'Wittlesey' }
 ];
 
 // Available train station and their names
