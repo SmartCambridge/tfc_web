@@ -10,7 +10,7 @@ class ZoneJourneySerializer(serializers.Serializer):
     origin_name = serializers.CharField(source='OriginName', required=False)
     destination = serializers.CharField(source='DestinationRef', required=False)
     destination_name = serializers.CharField(source='DestinationName', required=False)
-    departure_time = serializers.CharField(source='OriginAimedDepartureTime')
+    departure_time = serializers.CharField(source='OriginAimedDepartureTime', required=False)
 
 
 class ZoneRecordSerializer(serializers.Serializer):
