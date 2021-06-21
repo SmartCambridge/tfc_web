@@ -14,7 +14,7 @@ var DEBUG = '';
 // var DEBUG = 'weather_log station_board_log stop_timetable_log stop_bus_map_log rtmonitor_api_log';
 // var DEBUG = 'stop_bus_map_log stop_timetable_log rtmonitor_api_log';
 
-var VERSION = '3.01';
+var VERSION = '3.02';
 // 3.01 Added additional Market Towns
 // 3.00 Added defaults, first-use hint, feedback link, PWA support, etc.
 // 2.02 modified Edit..Delete confirm notificatio, added version, click-to-reload to page debug string
@@ -45,11 +45,12 @@ var WEATHER_OPTIONS = [
     { value: '353320', text: 'St. Ives' },
     { value: '353330', text: 'St. Neots' },
     { value: '322951', text: 'Wisbech' },
-    { value: '354209', text: 'Wittlesey' }
+    { value: '354209', text: 'Whittlesey' }
 ];
 
 // Available train station and their names
 var STATION_OPTIONS = [
+    { value: 'AWM', text: 'Ashwell & Morden' },
     { value: 'CBG', text: 'Cambridge' },
     { value: 'CMB', text: 'Cambridge North' },
     { value: 'ELY', text: 'Ely' },
