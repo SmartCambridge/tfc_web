@@ -4,7 +4,7 @@ django-allauth
 requests
 whitenoise
 xmltodict
-psycopg2-binary
+psycopg2-binary==2.8.6
 gunicorn
 Pillow
 pytz

@@ -46,7 +46,7 @@ Get the tfc_web source
 
 ### Set up Django and tfc_web application
 
-Change to tfc_web Django directory:
+Change to tfc_web Django directory (with the virtual env active):
 ```
 cd tfc_web/tfc_web
 ```
@@ -56,12 +56,27 @@ python3 -m pip install -r requirements.txt
 ```
 
 ### Configure the database:
-Install and configure postgreSQL database
+Install and configure postgreSQL database.
+
+Note an existing postgresql installation can be removed as here:
+[https://askubuntu.com/questions/32730/how-to-remove-postgres-from-my-installation](https://askubuntu.com/questions/32730/how-to-remove-postgres-from-my-installation).
+
+E.g. to install postgresql-14 see [https://www.postgresql.org/download/linux/ubuntu/](https://www.postgresql.org/download/linux/ubuntu/).
+
 ```
-$ sudo apt-get install postgresql postgresql-contrib postgis
+$ sudo apt install postgresql-14 postgresql-contrib postgresql-14-postgis-3
 ```
 
-Set up initial configuration executing tfc_web/migrations and making sure tfcserver database has already been set up.
+Set up initial configuration executing tfc_web/migrations and making sure tfcweb database has already been set up.
+
+The existing smartcambridge.org database can be copied:
+```
+sudo -u postgres /usr/bin/pg_dumpall --clean >backup.sql
+```
+and restore with:
+```
+sudo -u postgres psql -f "backup.sql" postgres
+```
 
 Apply all the migrations
 ```
