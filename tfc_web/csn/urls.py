@@ -15,8 +15,6 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.views.generic import TemplateView
 from csn import views
-from machina import urls as machina_urls
-
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='csn/home.html'), name='csn-home'),
@@ -33,6 +31,4 @@ urlpatterns = [
     url(r'^connections/(?P<connection_id>[\w\-]+)/', views.connection, name='csn_connection'),
     url(r'^connections', views.connections, name='csn_connections'),
 
-    # Forum
-    url(r'^forum/', include(machina_urls)),
 ]

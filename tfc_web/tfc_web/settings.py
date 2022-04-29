@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from machina import MACHINA_MAIN_TEMPLATE_DIR, MACHINA_MAIN_STATIC_DIR
 from tfc_web.secrets import *
 
 
@@ -152,59 +151,6 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 LOGIN_REDIRECT_URL = 'home'
 ACCOUNT_FORMS = {'signup': 'smartcambridge.forms.CustomSignupForm'}
-
-######### Forum app (django-machina) configuration ##########
-INSTALLED_APPS += [
-    # Machina dependencies:
-    'mptt',
-    'haystack',
-    'widget_tweaks',
-
-    # Machina apps:
-    'machina',
-    'machina.apps.forum',
-    'machina.apps.forum_conversation',
-    'machina.apps.forum_conversation.forum_attachments',
-    'machina.apps.forum_conversation.forum_polls',
-    'machina.apps.forum_feeds',
-    'machina.apps.forum_moderation',
-    'machina.apps.forum_search',
-    'machina.apps.forum_tracking',
-    'machina.apps.forum_member',
-    'machina.apps.forum_permission'
-]
-MIDDLEWARE += [
-    'machina.apps.forum_permission.middleware.ForumPermissionMiddleware',
-]
-TEMPLATES[0]['DIRS'].append(os.path.join(BASE_DIR, 'templates/forum'))
-TEMPLATES[0]['DIRS'].append(MACHINA_MAIN_TEMPLATE_DIR)
-TEMPLATES[0]['OPTIONS']['context_processors'].append('machina.core.context_processors.metadata')
-STATICFILES_DIRS.append(MACHINA_MAIN_STATIC_DIR)
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    },
-    'machina_attachments': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/tmp',
-    }
-}
-HAYSTACK_CONNECTIONS = {
-  'default': {
-    'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-  },
-}
-MACHINA_FORUM_NAME = "SmartCambridge Forum"
-MACHINA_DEFAULT_AUTHENTICATED_USER_FORUM_PERMISSIONS = [
-    'can_see_forum',
-    'can_read_forum',
-    'can_start_new_topics',
-    'can_reply_to_topics',
-    'can_edit_own_posts',
-    'can_create_polls',
-    'can_vote_in_polls',
-    'can_download_file',
-]
 
 ###### everynet API #########
 EVERYNET_API_ENDPOINT = "https://ns.eu.everynet.io/api/v1.0/"

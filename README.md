@@ -172,7 +172,6 @@ This project uses:
 - [Leaflet](http://leafletjs.com/)
 - [Leaflet Moving Marker](https://github.com/ewoken/Leaflet.MovingMarker)
 - [Material Design Lite](https://getmdl.io/)
-- [django-machina](https://github.com/ellmetha/django-machina)
 - [django-allauth](https://github.com/pennersr/django-allauth)
 
 ## Overriding default Django config

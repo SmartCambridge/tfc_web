@@ -8,11 +8,7 @@ psycopg2-binary==2.8.6
 gunicorn
 Pillow
 pytz
-django-mptt
-django-haystack
 markdown2
-django-widget-tweaks
-django-machina
 wheel
 djangorestframework<3.12
 coreapi
