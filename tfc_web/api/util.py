@@ -151,4 +151,4 @@ def do_api_call(query):
     return  json.load(reader(urlopen(query)))
 
 def check_query(s):
-    return re.match(r'^[A-Za-z0-9_\-\?\&\/\=]+$', s)
+    return re.match(r'^[A-Za-z0-9_\-\?\&\/\=\|]+$', s)
