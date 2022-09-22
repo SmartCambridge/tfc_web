@@ -9,6 +9,7 @@ import codecs
 import json
 import logging
 import os
+import re
 
 
 # Path to the data store
@@ -141,8 +142,13 @@ def do_api_call(query):
     Helper function for authenticated access to the API
     '''
     logger.debug('Query: %s', query)
+    if not check_query(query):
+        raise ValueError('API issue', query)
+
     reader = codecs.getreader("utf-8")
     query = Request(settings.NEW_API_ENDPOINT + query)
     query.add_header('Authorization', 'Token ' + settings.LOCAL_API_KEY)
     return  json.load(reader(urlopen(query)))
 
+def check_query(s):
+    return re.match(r'^[A-Za-z0-9_\-\?\&\/\=]+$', s)

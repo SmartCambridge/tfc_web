@@ -73,11 +73,17 @@ def get_zone_history(zone_id, date):
 
 def zone_transit_plot(request, zone_id):
 
+    if len(zone_id) > 36:
+        raise Http404("Page not found zi")
+
     today = date.today().strftime('%Y-%m-%d')
 
     user_date = request.GET.get('date')
     if not user_date:
         user_date = today
+
+    if len(user_date) != 10:
+        raise Http404("Page not found dl")
 
     yyyy = user_date[0:4]
     MM = user_date[5:7]
@@ -87,10 +93,9 @@ def zone_transit_plot(request, zone_id):
         transit_json = get_zone_history(zone_id, user_date)
         zone_config = get_zone_metadata(zone_id)
     except HTTPError as e:
-        if e.code == 404:
-            raise Http404("Zone transit plot invalid zone id {0}".format(zone_id))
-        else:
-            raise e
+        raise Http404("Page not found {0}".format(e.code))
+    except Exception as e:
+        raise Http404("Page not found e {0}".format(e.__class__.__name__))
 
     zone_reverse_id = zone_config['request_data']['options']['config'].get('zone_reverse_id',None)
 
