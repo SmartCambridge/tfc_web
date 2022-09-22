@@ -58,6 +58,60 @@ python3 -m pip install -r requirements.txt
 ### Configure the database:
 Install and configure postgreSQL database.
 
+The Django system is using the `tfcweb` database which can be viewed in `psql` via:
+```
+sudo -u postgres psql [-d tfcweb]
+...
+postgres# \l
+... lists databases
+postgres# \c tfcweb
+You are now connected to database "tfcweb" as user "postgres".
+postgres#
+```
+List tables with:
+```
+postgres# \dt
+```
+
+Show table structure with (e.g.):
+```
+postgres# \d auth_user
+```
+
+Check table sizes with:
+```
+SELECT *, pg_size_pretty(total_bytes) AS total
+    , pg_size_pretty(index_bytes) AS index
+    , pg_size_pretty(toast_bytes) AS toast
+    , pg_size_pretty(table_bytes) AS table
+  FROM (
+  SELECT *, total_bytes-index_bytes-coalesce(toast_bytes,0) AS table_bytes FROM (
+      SELECT c.oid,nspname AS table_schema, relname AS table_name
+              , c.reltuples AS row_estimate
+              , pg_total_relation_size(c.oid) AS total_bytes
+              , pg_indexes_size(c.oid) AS index_bytes
+              , pg_total_relation_size(reltoastrelid) AS toast_bytes
+          FROM pg_class c
+          LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
+          WHERE relkind = 'r'
+  ) a
+) a;
+```
+
+Set users who have never logged in to "inactive":
+```
+update auth_user set is_active = FALSE where last_login is null;
+```
+Deactivate users inactive for more than X days, e.g. for X = 6 months (180 days):
+```
+update auth_user set is_active = FALSE where last_login < now()::date - 180;
+```
+
+List active users with:
+```
+select email, username, last_login, is_active from auth_user where is_active = TRUE;
+```
+
 Note an existing postgresql installation can be removed as here:
 [https://askubuntu.com/questions/32730/how-to-remove-postgres-from-my-installation](https://askubuntu.com/questions/32730/how-to-remove-postgres-from-my-installation).
 
