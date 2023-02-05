@@ -3,7 +3,6 @@ import logging
 from fnmatch import fnmatchcase
 from urllib.parse import urlparse
 
-from django.utils.six import text_type
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import HTTP_HEADER_ENCODING, exceptions
@@ -18,7 +17,7 @@ def get_authorization_header(request):
     Hide some test client ickyness where the header can be unicode.
     """
     auth = request.META.get('HTTP_AUTHORIZATION', b'')
-    if isinstance(auth, text_type):
+    if isinstance(auth, str):
         # Work around django test client oddness
         auth = auth.encode(HTTP_HEADER_ENCODING)
     return auth

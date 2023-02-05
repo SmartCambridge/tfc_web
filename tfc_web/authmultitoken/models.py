@@ -5,7 +5,6 @@ import os
 
 from django.conf import settings
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,6 @@ class TokenManager(models.Manager):
         return token
 
 
-@python_2_unicode_compatible
 class Token(models.Model):
 
     objects = TokenManager()
@@ -54,7 +52,6 @@ class Token(models.Model):
         return '%s - %s' % (self.user, self.name)
 
 
-@python_2_unicode_compatible
 class Referer(models.Model):
 
     token = models.ForeignKey(

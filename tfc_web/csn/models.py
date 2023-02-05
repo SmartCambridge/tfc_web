@@ -2,7 +2,6 @@ import logging
 import uuid
 
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
@@ -18,7 +17,7 @@ class Sensor(models.Model):
     """This is the model is used to store a json version of any type of
     sensor object."""
     id = models.AutoField(primary_key=True)
-    info = JSONField()
+    info = models.JSONField()
 
     @classmethod
     def get_lorawan(cls, sensor_id, user_id):
@@ -72,7 +71,7 @@ class Connection(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    info = JSONField()
+    info = models.JSONField()
 
 
 @receiver(post_save, sender=Connection)
