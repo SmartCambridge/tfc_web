@@ -242,6 +242,7 @@ def load_routes(tnds_zone, service_code, xml_content, line):
 
     # Store route_objects to Route table (i.e. transport_route)
     if route_objects:
+        Route.objects.filter(id__in=[r.id for r in route_objects]).delete()
         Route.objects.bulk_create(route_objects)
 
 ##################################################################################
@@ -561,11 +562,15 @@ def load_xml(tnds_zone, xml_file):
 
     vehicle_journey_objects, special_days_operation = parse_vehicle_journeys(tnds_zone, xml_content, line, journey_pattern_objects)
     if vehicle_journey_objects:
+        VehicleJourney.objects.filter(id__in=[vj.id for vj in vehicle_journey_objects]).delete()
         VehicleJourney.objects.bulk_create(vehicle_journey_objects)
+    if special_days_operation:
+        SpecialDaysOperation.objects.filter(id__in=[vj.id for vj in special_days_operation]).delete()
         SpecialDaysOperation.objects.bulk_create(special_days_operation)
 
     timetable_stop_objects = timetable_stops(vehicle_journey_objects, journey_pattern_objects, journey_pattern_section_objects)
     if timetable_stop_objects:
+        TimetableStop.objects.filter(id__in=[ts.id for ts in timetable_stop_objects]).delete()
         TimetableStop.objects.bulk_create(timetable_stop_objects)
 
 ###########################################################################################
