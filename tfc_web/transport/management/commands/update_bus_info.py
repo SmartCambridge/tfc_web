@@ -44,10 +44,6 @@ def xml_timedelta_to_python(xml_timedelta):
 ###############################################################
 def cmd_clear():
     SpecialDaysOperation.objects.all().delete()
-#    Timetable.objects.all().delete() # We now build/use TimetableStop without storing JourneyPattern..
-#    JourneyPattern.objects.all().delete()
-#    JourneyPatternSection.objects.all().delete()
-#    JourneyPatternTimingLink.objects.all().delete()
     Route.objects.all().delete()
     Operator.objects.all().delete()
     Line.objects.all().delete()

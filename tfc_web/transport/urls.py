@@ -31,7 +31,6 @@ urlpatterns = [
     url(r'^lines/$', views.bus_lines_list, name='bus-lines-list'),
 
     # New Bus Timetable
-    url(r'^timetable/journey/(?P<vehicle_journey_id>.+)/$', views.vehicle_journey_real_time, name='vehicle-journey-real-time'),
     url(r'^timetable/(?P<slug>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
 
     # API - legacy support

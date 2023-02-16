@@ -235,44 +235,6 @@ class Route(models.Model):
     def __str__(self):
         return "%s - %s" % (self.line, self.description)
 
-
-class JourneyPatternSection(models.Model):
-    id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    last_modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return "%s" % (self.id)
-
-
-class JourneyPatternTimingLink(models.Model):
-    id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    stop_from = models.ForeignKey(Stop, related_name='departure_journeys', on_delete=models.CASCADE)
-    stop_from_timing_status = models.CharField(max_length=3)
-    stop_from_sequence_number = models.IntegerField()
-    stop_to = models.ForeignKey(Stop, related_name='arrival_journeys', on_delete=models.CASCADE)
-    stop_to_timing_status = models.CharField(max_length=3)
-    stop_to_sequence_number = models.IntegerField()
-    run_time = models.DurationField()
-    wait_time = models.DurationField(null=True, blank=True)
-    journey_pattern_section = models.ForeignKey(JourneyPatternSection, related_name='timing_links',
-                                                on_delete=models.CASCADE)
-    last_modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return "%s - %s (%s)" % (self.stop_from, self.stop_to, self.run_time)
-
-
-class JourneyPattern(models.Model):
-    id = models.CharField(max_length=255, primary_key=True, db_index=True)
-    route = models.ForeignKey(Route, related_name='journey_patterns', on_delete=models.CASCADE)
-    direction = models.CharField(max_length=100)
-    section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns', on_delete=models.CASCADE)
-    last_modified = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.id
-
-
 ################################################################################################
 # VehicleJourney
 # Directly from TNDS file
@@ -320,21 +282,9 @@ class SpecialDaysOperation(models.Model):
             models.Index(fields=['vehicle_journey', 'days', 'operates']),
         ]
 
-class Timetable(models.Model):
-    vehicle_journey = models.ForeignKey(VehicleJourney, related_name='journey_times', on_delete=models.CASCADE)
-    stop = models.ForeignKey(Stop, related_name='journey_times', on_delete=models.CASCADE)
-    time = models.TimeField()
-    order = models.IntegerField()  # Order of the stop in the vehicle journey (first stop, order = 1)
-    last_stop = models.BooleanField(default=False)  # Last stop of a vehicle journey
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['vehicle_journey', 'stop', 'time', 'order', 'last_stop']),
-        ]
-
 ################################################################################################
-# TimetableStop replaces Timetable, contains stop-time pairs for each VehicleJourney
-# ALL timetable info stored in TimetableStops and VehicleJourney
+# TimetableStop, contains stop-time pairs for each VehicleJourney
+# All timetable info is stored in TimetableStops and VehicleJourney
 # i.e. we collect data from JourneyPattern, JourneyPatternSections, JourneyPatternTimingLinks
 ################################################################################################
 class TimetableStop(models.Model):

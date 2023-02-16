@@ -12,21 +12,11 @@ class StopAdmin(OSMGeoAdmin):
 admin.site.register(Route, ModelAdmin)
 admin.site.register(Operator, ModelAdmin)
 admin.site.register(Line, ModelAdmin)
-admin.site.register(JourneyPatternTimingLink, ModelAdmin)
-admin.site.register(JourneyPatternSection, ModelAdmin)
-admin.site.register(JourneyPattern, ModelAdmin)
 admin.site.register(VehicleJourney, ModelAdmin)
 admin.site.register(SpecialDaysOperation, ModelAdmin)
 
-
-class TimetableAdmin(ModelAdmin):
-    list_display = ('id', 'vehicle_journey', 'stop', 'time')
-    search_fields = ['stop__atco_code', 'vehicle_journey__id']
-admin.site.register(Timetable, TimetableAdmin)
 
 class TimetableStopAdmin(ModelAdmin):
     list_display = ('id', 'vehicle_journey', 'stop', 'time')
     search_fields = ['stop__atco_code', 'vehicle_journey__id']
 admin.site.register(TimetableStop, TimetableStopAdmin)
-
-

@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.schemas import ManualSchema, AutoSchema
 from transport.api.serializers import VehicleJourneySerializer, LineSerializer, \
     VehicleJourneySummarisedSerializer, StopSerializer
-from transport.models import Stop, Timetable, TimetableStop, VehicleJourney
+from transport.models import Stop, TimetableStop, VehicleJourney
 from urllib.parse import quote
 import re
 from api.auth import default_authentication, default_permission, \
@@ -216,16 +216,6 @@ def journeys_by_time_and_stop(request):
         return Response({"details": "nresults is not an int"}, status=400)
     if nresults < 1:
         return Response({"details": "nresults is should be at least 1"}, status=400)
-
-    #query1 = Timetable.objects.filter(stop=stop, time__gte=datetime_from.time(),
-    #                                  vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))
-    #query2 = Timetable.objects.filter(vehicle_journey__id__in=query1.values_list('vehicle_journey', flat=True),
-    #                                  vehicle_journey__special_days_operation__days__contains=datetime_from.date(),
-    #                                  vehicle_journey__special_days_operation__operates=False)
-    # We fetch an extra entry to see if there are more than one bus leaving at the same hour,
-    # to calculate next_datetime correctly
-    #timetable = list(query1.difference(query2).prefetch_related('vehicle_journey__journey_pattern__route__line')
-    #                 .order_by('time')[:nresults+1])
 
     query1 = TimetableStop.objects.filter(stop=stop, time__gte=datetime_from.time(),
                                       vehicle_journey__days_of_week__contains=datetime_from.strftime("%A"))

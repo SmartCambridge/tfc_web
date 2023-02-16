@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
 from smartpanel.views.smartpanel import smartpanel_settings
-from transport.models import Stop, Line, Route, VehicleJourney, Timetable
+from transport.models import Stop, Line, Route, VehicleJourney
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
 from smartcambridge import rt_crypto
@@ -58,15 +58,6 @@ def bus_stop(request, bus_stop_id):
         'rt_token': rt_token,
         'RTMONITOR_URI': settings.RTMONITOR_URI,
         'settings': smartpanel_settings()})
-
-
-def vehicle_journey_real_time(request, vehicle_journey_id):
-    vj = get_object_or_404(VehicleJourney, id=vehicle_journey_id)
-    timetable = Timetable.objects.filter(vehicle_journey_id=vehicle_journey_id).select_related('stop').order_by('order')
-    return render(request, 'transport/vjrt.html', {
-        'vj': vj,
-        'timetable': timetable
-    })
 
 
 class ServiceDetailView(DetailView):

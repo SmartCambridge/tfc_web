@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from transport.models import VehicleJourney, Line, Stop, Timetable, Operator
+from transport.models import VehicleJourney, Line, Stop, Operator, TimetableStop
 
 
 class VehicleJourneySerializer(serializers.ModelSerializer):
@@ -67,6 +67,6 @@ class TimetableSerializerForJourney(serializers.ModelSerializer):
         return StopSerializer(obj.stop).data
 
     class Meta:
-        model = Timetable
+        model = TimetableStop
         fields = ['order', 'stop', 'time']
         depth = 2
