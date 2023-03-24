@@ -789,7 +789,7 @@ function StopTimetable(widget_id) {
 
             // Line name and final stop
             cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
+            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.journey_pattern.service.line.line_name)));
             row.appendChild(cell);
 
             cell = document.createElement('td');
@@ -892,7 +892,7 @@ function StopTimetable(widget_id) {
             row.due = journey.due.format('HH:mm');
 
             // Line
-            row.line = tidy_name(journey.timetable.line.line_name);
+            row.line = tidy_name(journey.timetable.journey_pattern.service.line.line_name);
 
             // Final destination and time
             var last = journey.last;
@@ -1197,7 +1197,7 @@ function StopTimetable(widget_id) {
             row.appendChild(cell);
 
             cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
+            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.journey_pattern.service.line.line_name)));
             cell.appendChild(document.createElement('br'));
             cell.appendChild(document.createTextNode(journey.last.due.format('HH:mm')));
             row.appendChild(cell);
@@ -1320,7 +1320,7 @@ function StopTimetable(widget_id) {
 
                     // Line name
                     cell = document.createElement('td');
-                    cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
+                    cell.appendChild(document.createTextNode(tidy_name(journey.timetable.journey_pattern.service.line.line_name)));
                     row.appendChild(cell);
 
                     // Expected arrival

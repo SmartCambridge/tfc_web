@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
 from smartpanel.views.smartpanel import smartpanel_settings
-from transport.models import Stop, Line, Route, VehicleJourney
+from transport.models import Line, VehicleJourney, Stop
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
 from smartcambridge import rt_crypto
@@ -26,11 +26,6 @@ def map_real_time(request):
         "rt_token": rt_token,
         "RTMONITOR_URI": settings.RTMONITOR_URI
     })
-
-
-def bus_lines_list(request):
-    bus_lines = Line.objects.all().order_by('line_name')
-    return render(request, 'transport/bus_lines_list.html', {'bus_lines': bus_lines})
 
 
 def bus_stops_map(request):

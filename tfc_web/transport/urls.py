@@ -27,9 +27,6 @@ urlpatterns = [
     url(r'^stops/$', views.bus_stops_map, name='bus-stops-map'),
     url(r'^stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
 
-    # Bus Lines
-    url(r'^lines/$', views.bus_lines_list, name='bus-lines-list'),
-
     # New Bus Timetable
     url(r'^timetable/(?P<slug>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),
 
