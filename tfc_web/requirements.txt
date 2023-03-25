@@ -3,7 +3,7 @@ python-dateutil
 django-allauth
 requests
 whitenoise
-psycopg2
+psycopg2-binary
 gunicorn
 Pillow
 pytz
