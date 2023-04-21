@@ -207,7 +207,7 @@ def journeys_by_time_and_stop(request):
     for departure in departures:
         for timetable_entry in departure['timetable']:
             timetable_entry['stop'] = StopSerializer(
-                next((stop for stop in stop_objects if stop.atco_code == timetable_entry['stop_id']), None))
+                next((stop for stop in stop_objects if stop.atco_code == timetable_entry['stop_id']), None)).data
 
     if len(departures) < nresults:
         # no more results for the current day selected
