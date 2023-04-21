@@ -130,7 +130,7 @@ class Stop(models.Model):
             time_diff = (datetime.combine(current_time.date(), current_stop_departure_time) - current_time) % timedelta(days=1)
             departure_datetime = current_time + time_diff
             departure_time = departure_datetime.time()
-            if departure_datetime.date() == current_time.date():
+            if departure_datetime.date() == current_time.date() and departure_time >= current_time.time():
                 next_departures.append({'vehicle_journey': vehicle_journey, 'time': departure_time, 'timetable': timetable})
 
         next_departures.sort(key=lambda x: x['time'])
