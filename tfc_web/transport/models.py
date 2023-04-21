@@ -82,7 +82,7 @@ class Stop(models.Model):
         else:
             return '%s, %s' % (self.locality_name, self.common_name) if self.locality_name else '%s' % self.common_name
 
-    def next_departures(self, current_time = datetime.now()):
+    def next_departures(self, lite = True, current_time = datetime.now()):
         from transport.api.serializers import StopSerializer
 
         journey_patterns = JourneyPattern.objects.filter(journeypatterntiminglink__from_stop=self).distinct()
@@ -99,35 +99,47 @@ class Stop(models.Model):
                 jp=vehicle_journey.journey_pattern
             ).order_by('order')
 
-            origin_departure_time = vehicle_journey.departure_time
-            origin_departure_datetime = current_time.replace(hour=origin_departure_time.hour, minute=origin_departure_time.minute, second=origin_departure_time.second)
+            departure_time = vehicle_journey.departure_time
+            origin_departure_datetime = current_time.replace(hour=departure_time.hour, minute=departure_time.minute, second=departure_time.second)
 
             timetable = []
             order = 1
-            stop = journey_pattern_timing_links[0].from_stop
+            if lite:
+                stop_id = journey_pattern_timing_links[0].from_stop_id
+                stop = {"id": stop_id, "locality_name": ""}
+            else:
+                stop = journey_pattern_timing_links[0].from_stop
             timetable.append({
                 "order": order,
-                "stop": StopSerializer(stop).data,
-                "time": vehicle_journey.departure_time
+                "stop": stop if lite else StopSerializer(stop).data,
+                "time": departure_time
             })
+            if (lite and stop['id'] == self.atco_code) or (not lite and stop.id == self.atco_code):
+                current_stop_departure_time = departure_time
             total_run_time = timedelta()
             for jptl in journey_pattern_timing_links:
                 total_run_time += isodate.parse_duration(jptl.run_time)
-                stop = jptl.to_stop
+                if lite:
+                    stop_id = jptl.to_stop_id
+                    stop = {"id": stop_id, "locality_name": ""}
+                else:
+                    stop = jptl.to_stop
                 departure_datetime = origin_departure_datetime + total_run_time
+                departure_time = departure_datetime.time()
                 order += 1
                 timetable.append({
                     "order": order,
-                    "stop": StopSerializer(stop).data,
-                    "time": departure_datetime.time()
+                    "stop": stop if lite else StopSerializer(stop).data,
+                    "time": departure_time
                 })
-                if jptl.from_stop == self:
-                    current_stop_departure_time = departure_datetime.time()
+                if (lite and stop['id'] == self.atco_code) or (not lite and stop.id == self.atco_code):
+                    current_stop_departure_time = departure_time
 
             time_diff = (datetime.combine(current_time.date(), current_stop_departure_time) - current_time) % timedelta(days=1)
             departure_datetime = current_time + time_diff
+            departure_time = departure_datetime.time()
             if departure_datetime.date() == current_time.date():
-                next_departures.append({'vehicle_journey': vehicle_journey, 'time': departure_datetime.time(), 'timetable': timetable})
+                next_departures.append({'vehicle_journey': vehicle_journey, 'time': departure_time, 'timetable': timetable})
 
         next_departures.sort(key=lambda x: x['time'])
         return next_departures
