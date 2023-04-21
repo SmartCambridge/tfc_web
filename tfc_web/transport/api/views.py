@@ -195,6 +195,18 @@ def journeys_by_time_and_stop(request):
         return Response({"details": "nresults is should be at least 1"}, status=400)
 
     departures = stop.next_departures(datetime_from)
+    departures = departures[:nresults]
+
+    # Convert all stop_id to full stop objects
+    stop_ids_list = []
+    for departure in departures:
+        for timetable_entry in departure['timetable']:
+            stop_ids_list.append(timetable_entry['stop_id'])
+    # This means that we only rely on 1 single SQL query to get all the stops, making it faster
+    stop_objects = list(Stop.objects.filter(atco_code__in=stop_ids_list))
+    for departure in departures:
+        for timetable_entry in departure['timetable']:
+            timetable_entry['stop'] = next((stop for stop in stop_objects if stop.atco_code == timetable_entry['stop_id']), None)
 
     if len(departures) < nresults:
         # no more results for the current day selected
