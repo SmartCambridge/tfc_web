@@ -146,25 +146,6 @@ class Stop(models.Model):
 def update_gis_fields(sender, instance, **kwargs):
     instance.gis_location = Point(float(instance.longitude), float(instance.latitude))
 
-# class Stop(models.Model):
-#     atco_code = models.CharField(max_length=12, unique=True, primary_key=True, db_index=True)
-#     naptan_code = models.CharField(max_length=12)
-#     # plate_code = models.CharField(max_length=12, null=True, blank=True)
-#     # cleardown_code = models.CharField(max_length=10, null=True, blank=True)
-#     common_name = models.CharField(max_length=48)
-#     indicator = models.CharField(max_length=48, null=True, blank=True)
-#     locality_name = models.CharField(max_length=48)
-#     # locality_centre = models.BooleanField()
-#     # grid_type = models.CharField(max_length=1, null=True, blank=True)
-#     longitude = models.FloatField()
-#     latitude = models.FloatField()
-#     # default_wait_time = models.IntegerField(null=True, blank=True)
-#     # notes = models.TextField(null=True, blank=True)
-#     # revision_number = models.IntegerField(null=True, blank=True)
-#     gis_location = models.PointField(null=True)
-#     data = models.JSONField(null=True, blank=True)
-#     last_modified = models.DateTimeField(auto_now=True)
-
 class TransXChange(models.Model):
     file_name = models.CharField(max_length=255)
     creation_date_time = models.DateTimeField()
@@ -231,112 +212,6 @@ class Service(models.Model):
     class Meta:
         unique_together = [['service_code', 'tx']]
 
-# class Service(models.Model):
-#     regular_days_of_week = models.CharField(max_length=255, null=True)
-#     bank_holiday_operation = models.CharField(max_length=255, null=True)
-#     stop_list = models.JSONField(null=True, blank=True)
-#     timetable = models.JSONField(null=True, blank=True)
-#     slug = models.SlugField(max_length=50)
-#     last_modified = models.DateTimeField(auto_now=True)
-
-    # def get_stop_list(self):
-    #     stop_list = {}
-    #     for bound in ['inbound', 'outbound']:
-    #         for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
-    #             for stop in self.stop_list[bound][dayperiod]:
-    #                 stop_list[stop] = Stop.objects.get(atco_code=stop)
-    #     return stop_list
-
-    # def get_all_vehicle_journeys(self):
-    #     return VehicleJourney.objects.filter(journey_pattern__route__line=self).order_by('departure_time')
-
-    # def generate_stop_list(self):
-    #     stop_list = {
-    #         'inbound': {
-    #             'MondayToFriday': [],
-    #             'Saturday': [],
-    #             'Sunday': [],
-    #             'HolidaysOnly': []
-    #         },
-    #         'outbound': {
-    #             'MondayToFriday': [],
-    #             'Saturday': [],
-    #             'Sunday': [],
-    #             'HolidaysOnly': []
-    #         }
-    #     }
-
-    #     for bound in ['inbound', 'outbound']:
-    #         for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
-    #             stop_list[bound][dayperiod] = list(Stop.objects.filter(
-    #                 departure_journeys__journey_pattern_section__journey_patterns__route__in=
-    #                 Route.objects.filter(line=self, journey_patterns__direction=bound,
-    #                                      journey_patterns__journeys__days_of_week=dayperiod)).distinct()\
-    #                 .order_by('departure_journeys__stop_from_sequence_number').values_list('atco_code', flat=True))
-    #             last_stop = Stop.objects.filter(
-    #                 arrival_journeys__journey_pattern_section__journey_patterns__route__in=
-    #                 Route.objects.filter(line=self, journey_patterns__direction=bound,
-    #                                      journey_patterns__journeys__days_of_week=dayperiod))\
-    #                 .order_by('departure_journeys__stop_to_sequence_number').last()
-    #             if last_stop:
-    #                 stop_list[bound][dayperiod].append(last_stop.atco_code)
-    #     self.stop_list = stop_list
-    #     self.save()
-
-    # def generate_timetable(self):
-    #     # Create list of stops per line number
-    #     self.generate_stop_list()
-
-    #     line_timetable = {
-    #         'inbound': {
-    #             'MondayToFriday': {},
-    #             'Saturday': {},
-    #             'Sunday': {},
-    #             'HolidaysOnly': {}
-    #         },
-    #         'outbound': {
-    #             'MondayToFriday': {},
-    #             'Saturday': {},
-    #             'Sunday': {},
-    #             'HolidaysOnly': {}
-    #         }
-    #     }
-
-    #     for bound in ['inbound', 'outbound']:
-    #         for dayperiod in ['MondayToFriday', 'Saturday', 'Sunday', 'HolidaysOnly']:
-    #             journeys = VehicleJourney.objects.filter(journey_pattern__route__line=self,
-    #                                                      journey_pattern__direction=bound,
-    #                                                      days_of_week=dayperiod).distinct().order_by('departure_time')
-    #             timetable = line_timetable[bound][dayperiod]
-    #             for stop in self.stop_list[bound][dayperiod]:
-    #                 timetable[stop] = []
-    #             i = 0
-    #             for journey in journeys:
-    #                 journey.generate_timetable()
-    #                 for stop in self.stop_list[bound][dayperiod]:
-    #                     timetable[stop].append(None)
-    #                 for journey_timetable_entry in journey.timetable:
-    #                     try:
-    #                         timetable[journey_timetable_entry['stop_id']][i] = journey_timetable_entry['time']
-    #                     except:
-    #                         print(bound, dayperiod, journey.id, journey.journey_pattern.id, journey.journey_pattern.route.id, journey_timetable_entry)
-    #                 i += 1
-
-    #     self.timetable = line_timetable
-    #     self.save()
-
-    # def get_stops_list(self):
-    #     bus_stops = []
-    #     for stop in self.stops_list.split(','):
-    #         bus_stops.append(Stop.objects.get(atco_code=stop))
-    #     return bus_stops
-
-    # def get_route_coordinates(self):
-    #     bus_stops = []
-    #     for stop in self.stops_list.split(','):
-    #         bus_stops.append(Stop.objects.get(atco_code=stop).get_coordinates())
-    #     return bus_stops
-
 class JourneyPattern(models.Model):
     jp_id = models.CharField(max_length=50, blank=False, null=False)
     direction = models.CharField(max_length=50, blank=True, null=True)
@@ -352,7 +227,7 @@ class JourneyPattern(models.Model):
     def get_coordinates(self):
         # Generate coordinates from journey pattern timing links
         coordinates = []
-        jptls = self.journeypatterntiminglink.all().order_by('order').prefetch_related('from_stop', 'to_stop')
+        jptls = self.journeypatterntiminglink_set.all().order_by('order').prefetch_related('from_stop', 'to_stop')
         coordinates.append(jptls[0].from_stop.gis_location)
         for jptl in jptls:
             coordinates.append(jptl.to_stop.gis_location)
