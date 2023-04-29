@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+    {% include 'leaflet_snippet.html' %}
+    {% include 'leaflet_markercluster_snippet.html' %}
+    <style>
+        .info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
+    </style>
+{% endblock %}
+{% block content %}
+    <div style="height: 80vh;">
+        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="map" style="height: 90%; width: 100%;"></div>
+    </div>
+    <script>
+        var jps = {
+            "type": "FeatureCollection",
+            "features": []
+        };
+        {% for jp in jps %}
+        jps.features.push({
+            "type": "Feature",
+            "id": "{{ jp.id }}",
+            "properties": {
+                "line": "{{ jp.service.line.line_name }}",
+                "service_description": "{{ jp.service.description }}",
+                "route_description": "{{ jp.route_description }}",
+                "direction": "{{ jp.direction }}"
+            },
+            "geometry": {{ jp.coordinates.json|safe }}
+        });
+        {% endfor %}
+
+        $(document).ready(function() {
+            map = L.map('map').setView([52.204, 0.124], 13);
+            {% if area %}map.fitBounds({{area}});{% endif %}
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            // control that shows state info on hover
+            const info = L.control();
+
+            info.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+
+            info.update = function (props) {
+                const contents = props ? `<b>${props.line} - ${props.direction}</b><br />${props.service_description}` : 'Hover over a line';
+                this._div.innerHTML = `<h4>Bus lines</h4>${contents}`;
+            };
+
+            info.addTo(map);
+
+            L.geoJson(jps, {
+                style: setcolor,
+                onEachFeature: onEachFeature
+            }).addTo(map);
+
+            function setcolor(feature) {
+                var color;
+                var r = Math.floor(Math.random() * 255);
+                var g = Math.floor(Math.random() * 255);
+                var b = Math.floor(Math.random() * 255);
+                color= "rgb("+r+" ,"+g+","+ b+")";
+                return {color: color};
+            }
+
+            function onEachFeature(feature, layer) {
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    // click: zoomToFeature
+                });
+            }
+            
+            function highlightFeature(e) {
+                var layer = e.target;
+
+                layer.setStyle({
+                    weight: 15
+                });
+
+                info.update(layer.feature.properties);
+            }
+
+            function resetHighlight(e) {
+                var layer = e.target;
+
+                layer.setStyle({
+                    weight: 3
+                });
+
+                info.update();
+            }
+        });
+    </script>
+{% endblock %}

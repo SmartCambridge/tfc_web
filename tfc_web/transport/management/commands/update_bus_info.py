@@ -118,10 +118,10 @@ def load_stops(transxchange, ns):
 
         stop = Stop(
             atco_code = atco_code,
-            common_name = getattr(stop_node.find('ns:CommonName', ns), 'text', None),
-            locality_name = getattr(stop_node.find('ns:LocalityName', ns), 'text', None),
-            longitude = getattr(stop_node.find('ns:Location/ns:Longitude', ns), 'text', None),
-            latitude = getattr(stop_node.find('ns:Location/ns:Latitude', ns), 'text', None)
+            common_name = stop_node.findtext('ns:CommonName', namespaces=ns),
+            locality_name = stop_node.findtext('ns:LocalityName', namespaces=ns),
+            longitude = stop_node.findtext('ns:Location/ns:Longitude', namespaces=ns),
+            latitude = stop_node.findtext('ns:Location/ns:Latitude', namespaces=ns
         )
         stops.append(stop)
 
@@ -141,20 +141,20 @@ def load_operators(transxchange, ns):
         operator, created = Operator.objects.update_or_create(
             operator_id=operator_node.attrib.get('id'),
             defaults={
-                'operator_code': getattr(operator_node.find('ns:OperatorCode', ns), 'text', None),
-                'operator_short_name': getattr(operator_node.find('ns:OperatorShortName', ns), 'text', None),
-                'operator_name': getattr(operator_node.find('ns:OperatorNameOnLicence', ns), 'text', None),
-                'trading_name': getattr(operator_node.find('ns:TradingName', ns), 'text', None),
-                'contact_phone': getattr(operator_node.find('ns:ContactDetails/ns:PhoneNumber', ns), 'text', None),
-                'contact_email': getattr(operator_node.find('ns:ContactDetails/ns:Email', ns), 'text', None),
-                'contact_url': getattr(operator_node.find('ns:ContactDetails/ns:Url', ns), 'text', None),
-                'national_operator_code': getattr(operator_node.find('ns:NationalOperatorCode', ns), 'text', None),
-                'license_number': getattr(operator_node.find('ns:LicenceNumber', ns), 'text', None),
-                'license_expiry_date': datetime.strptime(operator_node.find('ns:OperatorLicence/ns:EffectiveToDate', ns).text, '%Y-%m-%d') if operator_node.find('ns:OperatorLicence/ns:EffectiveToDate', ns) is not None else None,
-                'street': getattr(operator_node.find('ns:OperatorAddress/ns:AddressLine1', ns), 'text', None),
-                'locality': getattr(operator_node.find('ns:OperatorAddress/ns:AddressLine2', ns), 'text', None),
-                'town': getattr(operator_node.find('ns:OperatorAddress/ns:Town', ns), 'text', None),
-                'postcode': getattr(operator_node.find('ns:OperatorAddress/ns:PostCode', ns), 'text', None),
+                'operator_code': operator_node.findtext('ns:OperatorCode', namespaces=ns),
+                'operator_short_name': operator_node.findtext('ns:OperatorShortName', namespaces=ns),
+                'operator_name': operator_node.findtext('ns:OperatorNameOnLicence', namespaces=ns),
+                'trading_name': operator_node.findtext('ns:TradingName', namespaces=ns),
+                'contact_phone': operator_node.findtext('ns:ContactDetails/ns:PhoneNumber', namespaces=ns),
+                'contact_email': operator_node.findtext('ns:ContactDetails/ns:Email', namespaces=ns),
+                'contact_url': operator_node.findtext('ns:ContactDetails/ns:Url', namespaces=ns),
+                'national_operator_code': operator_node.findtext('ns:NationalOperatorCode', namespaces=ns),
+                'license_number': operator_node.findtext('ns:LicenceNumber', namespaces=ns),
+                'license_expiry_date': datetime.strptime(operator_node.findtext('ns:OperatorLicence/ns:EffectiveToDate', namespaces=ns), '%Y-%m-%d') if operator_node.findtext('ns:OperatorLicence/ns:EffectiveToDate', namespaces=ns) is not None else None,
+                'street': operator_node.findtext('ns:OperatorAddress/ns:AddressLine1', namespaces=ns),
+                'locality': operator_node.findtext('ns:OperatorAddress/ns:AddressLine2', namespaces=ns),
+                'town': operator_node.findtext('ns:OperatorAddress/ns:Town', namespaces=ns),
+                'postcode': operator_node.findtext('ns:OperatorAddress/ns:PostCode', namespaces=ns)
             }
         )
     return operator
@@ -256,10 +256,10 @@ def load_services_and_journeys(transxchange, ns, tx):
                 jp_id = journey_pattern_node.attrib['id'],
                 service=service,
                 defaults={
-                    'destination_display': getattr(journey_pattern_node.find('ns:DestinationDisplay', ns), 'text', None),  
-                    'direction': getattr(journey_pattern_node.find('ns:Direction', ns), 'text', None),
-                    'route_private_code': getattr(route_node.find('ns:PrivateCode', ns), 'text', None) if route_node is not None else None,
-                    'route_description': getattr(route_node.find('ns:Description', ns), 'text', None) if route_node is not None else None
+                    'destination_display': journey_pattern_node.findtext('ns:DestinationDisplay', namespaces=ns),  
+                    'direction': journey_pattern_node.findtext('ns:Direction', namespaces=ns),
+                    'route_private_code': route_node.findtext('ns:PrivateCode', namespaces=ns) if route_node is not None else None,
+                    'route_description': route_node.findtext('ns:Description', namespaces=ns) if route_node is not None else None
                 }
             )
 
@@ -277,21 +277,22 @@ def load_services_and_journeys(transxchange, ns, tx):
                         jp=journey_pattern,
                         defaults={
                             'order': order,
-                            'from_display': getattr(from_node.find('ns:DynamicDestinationDisplay', ns), 'text', None),  
-                            'from_stop_id': getattr(from_node.find('ns:StopPointRef', ns), 'text', None),
-                            'from_timing_status': getattr(from_node.find('ns:TimingStatus', ns), 'text', None),
+                            'from_display': from_node.findtext('ns:DynamicDestinationDisplay', namespaces=ns),
+                            'from_stop_id': from_node.findtext('ns:StopPointRef', namespaces=ns),
+                            'from_timing_status': from_node.findtext('ns:TimingStatus', namespaces=ns),
                             'from_sequence_number': from_node.attrib['SequenceNumber'] if 'SequenceNumber' in from_node.attrib else None,
-                            'to_display': getattr(to_node.find('ns:DynamicDestinationDisplay', ns), 'text', None),  
-                            'to_stop_id': getattr(to_node.find('ns:StopPointRef', ns), 'text', None),
-                            'to_timing_status': getattr(to_node.find('ns:TimingStatus', ns), 'text', None),
+                            'to_display': to_node.findtext('ns:DynamicDestinationDisplay', namespaces=ns),
+                            'to_stop_id': to_node.findtext('ns:StopPointRef', namespaces=ns),
+                            'to_timing_status': to_node.findtext('ns:TimingStatus', namespaces=ns),
                             'to_sequence_number': to_node.attrib['SequenceNumber'] if 'SequenceNumber' in from_node.attrib else None,
-                            'run_time': getattr(jptl_node.find('ns:RunTime', ns), 'text', None),
-                            'distance': getattr(route_link_node.find('ns:Distance', ns), 'text', None) if route_link_node is not None else None,
-                            'direction': getattr(route_link_node.find('ns:Direction', ns), 'text', None) if route_link_node is not None else None,
+                            'run_time': jptl_node.findtext('ns:RunTime', namespaces=ns),
+                            'distance': route_link_node.findtext('ns:Distance', namespaces=ns) if route_link_node is not None else None,
+                            'direction': route_link_node.findtext('ns:Direction', namespaces=ns) if route_link_node is not None else None
                         }
                     )
                     order += 1
-
+            
+            journey_pattern.update_coordinates()
 
 
 ###############################################################

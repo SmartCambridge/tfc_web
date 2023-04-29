@@ -888,6 +888,9 @@ function StopTimetable(widget_id) {
             var row = {};
             row.rows = 1;
 
+            // Service code
+            row.service_code = journey.timetable.journey_pattern.service.service_code;
+
             // Due
             row.due = journey.due.format('HH:mm');
 
@@ -994,7 +997,12 @@ function StopTimetable(widget_id) {
             tr.appendChild(td);
             td.classList.add('line');
             td.setAttribute('rowspan', row.rows);
-            td.textContent = row.line;
+            // Add link to line page
+            var a = document.createElement('a');
+            td.appendChild(a);
+            a.setAttribute('href', '/transport/service/' + row.service_code);
+            a.setAttribute('target', '_blank');
+            a.textContent = row.line;
 
             td = document.createElement('td');
             tr.appendChild(td);

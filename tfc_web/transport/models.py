@@ -1,12 +1,12 @@
 from django.contrib.gis.db import models
-from django.contrib.gis.geos import Point
-from django.contrib.postgres.fields import DateRangeField
+from django.contrib.gis.geos import Point, Polygon, MultiPoint, LineString
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.db.models import Q
 from datetime import datetime, timedelta
-import isodate
+from isodate import parse_duration
+
 
 class Stop(models.Model):
     #####################
@@ -114,7 +114,7 @@ class Stop(models.Model):
                 current_stop_departure_time = departure_time
             total_run_time = timedelta()
             for jptl in journey_pattern_timing_links:
-                total_run_time += isodate.parse_duration(jptl.run_time)
+                total_run_time += parse_duration(jptl.run_time)
                 stop_id = jptl.to_stop_id
                 departure_datetime = origin_departure_datetime + total_run_time
                 departure_time = departure_datetime.time()
@@ -344,18 +344,26 @@ class JourneyPattern(models.Model):
     route_private_code = models.CharField(max_length=255, blank=True, null=True)
     route_description = models.CharField(max_length=500, blank=True, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    # journey_pattern_code = models.CharField(max_length=20)
-    # route_ref = models.CharField(max_length=200, blank=True)
-    # distance = models.FloatField()
-    # minimum_run_time = models.CharField(max_length=8, blank=True)
-    # route = models.ForeignKey(Route, on_delete=models.CASCADE)
-
-    # I'm not sure if I need this
-    # stops = models.ManyToManyField('Stop', through='JourneyPatternStop')
+    coordinates = models.LineStringField(blank=True, null=True)
 
     class Meta:
         unique_together = [['jp_id', 'service']]
 
+    def get_coordinates(self):
+        # Generate coordinates from journey pattern timing links
+        coordinates = []
+        jptls = self.journeypatterntiminglink.all().order_by('order').prefetch_related('from_stop', 'to_stop')
+        coordinates.append(jptls[0].from_stop.gis_location)
+        for jptl in jptls:
+            coordinates.append(jptl.to_stop.gis_location)
+        return coordinates
+
+    def update_coordinates(self):
+        # Generate coordinates from journey pattern timing links, cache them and generate bounding box
+        coordinates = self.get_coordinates()
+        if len(coordinates) > 0:
+            self.coordinates = LineString(coordinates)
+            self.save()
 
 class JourneyPatternTimingLink(models.Model):
     jptl_id = models.CharField(max_length=50, blank=False, null=False)
