@@ -1,5 +1,4 @@
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
 
 
 class Bike(models.Model):
@@ -13,4 +12,4 @@ class Bike(models.Model):
     lat = models.FloatField()
     gis_location = models.PointField(db_index=True)
     timestamp = models.DateTimeField(db_index=True, auto_now_add=True)
-    data = JSONField()
+    data = models.JSONField()

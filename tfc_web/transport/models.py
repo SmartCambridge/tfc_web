@@ -1,11 +1,10 @@
 import datetime
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-from django.contrib.postgres.fields import JSONField, DateRangeField
+from django.contrib.postgres.fields import DateRangeField
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import slugify
 
 
@@ -54,7 +53,7 @@ class Stop(models.Model):
     # modification = models.CharField(max_length=3, null=True, blank=True)
     # status = models.CharField(max_length=3, null=True, blank=True)
     gis_location = models.PointField(null=True)
-    data = JSONField(null=True, blank=True)
+    data = models.JSONField(null=True, blank=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     def get_coordinates(self):
@@ -70,7 +69,6 @@ class Stop(models.Model):
     def locality(self):
         return None
 
-    @python_2_unicode_compatible
     def __str__(self):
         if self.indicator:
             if self.indicator in ('opp', 'adj', 'at', 'o/s', 'nr', 'before', 'after', 'by', 'on', 'in', 'near'):
@@ -95,7 +93,6 @@ class Operator(models.Model):
     trading_name = models.CharField(max_length=255)
     last_modified = models.DateTimeField(auto_now=True)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return self.trading_name
 
@@ -113,8 +110,8 @@ class Line(models.Model):
     bank_holiday_operation = models.CharField(max_length=255, null=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
-    stop_list = JSONField(null=True, blank=True)
-    timetable = JSONField(null=True, blank=True)
+    stop_list = models.JSONField(null=True, blank=True)
+    timetable = models.JSONField(null=True, blank=True)
     slug = models.SlugField(max_length=50)
     last_modified = models.DateTimeField(auto_now=True)
 
@@ -209,7 +206,6 @@ class Line(models.Model):
         self.save()
 
 
-    @python_2_unicode_compatible
     def __str__(self):
         return "%s (%s)" % (self.line_name, self.description)
 
@@ -236,7 +232,6 @@ class Route(models.Model):
             bus_stops.append(Stop.objects.get(atco_code=stop).get_coordinates())
         return bus_stops
 
-    @python_2_unicode_compatible
     def __str__(self):
         return "%s - %s" % (self.line, self.description)
 
@@ -245,7 +240,6 @@ class JourneyPatternSection(models.Model):
     id = models.CharField(max_length=255, primary_key=True, db_index=True)
     last_modified = models.DateTimeField(auto_now=True)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return "%s" % (self.id)
 
@@ -264,7 +258,6 @@ class JourneyPatternTimingLink(models.Model):
                                                 on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return "%s - %s (%s)" % (self.stop_from, self.stop_to, self.run_time)
 
@@ -276,7 +269,6 @@ class JourneyPattern(models.Model):
     section = models.ForeignKey(JourneyPatternSection, related_name='journey_patterns', on_delete=models.CASCADE)
     last_modified = models.DateTimeField(auto_now=True)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return self.id
 
@@ -315,7 +307,6 @@ class VehicleJourney(models.Model):
     def get_stops_list(self):
         return TimetableStop.objects.filter(vehicle_journey=self).order_by('order').values('stop')
 
-    @python_2_unicode_compatible
     def __str__(self):
         return self.id
 

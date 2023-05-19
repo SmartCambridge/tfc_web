@@ -5,15 +5,13 @@ import string
 
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models import PointField, DO_NOTHING
-from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 
 
 class Layout(models.Model):
     name = models.CharField(max_length=100)
-    design = JSONField()
-    configuration = JSONField(null=True, blank=True)
+    design = models.JSONField()
+    configuration = models.JSONField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=DO_NOTHING)
     version = models.IntegerField(default=1)
     version_date = models.DateTimeField(auto_now_add=True)
@@ -27,7 +25,6 @@ class Layout(models.Model):
             self.slug = slug
         super(Layout, self).save(*args, **kwargs)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return self.name
 
@@ -55,15 +52,13 @@ class Display(models.Model):
             self.slug = slug
         super(Display, self).save(*args, **kwargs)
 
-    @python_2_unicode_compatible
     def __str__(self):
         return "%s (%s)" % (self.name, self.slug)
 
 class Pocket(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    params = JSONField()
+    params = models.JSONField()
 
-    @python_2_unicode_compatible
     def __str__(self):
         return self.name
 

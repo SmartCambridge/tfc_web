@@ -41,7 +41,7 @@ services:
     <<: *devserver
     command: ["shell"]
   db:
-    image: mdillon/postgis:10
+    image: postgis/postgis
     environment:
       - POSTGRES_DB=tfcweb
       - POSTGRES_USER=tfcweb

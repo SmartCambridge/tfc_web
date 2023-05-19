@@ -25,6 +25,8 @@ ALLOWED_HOSTS = ['smartcambridge.org', 'www.smartcambridge.org', '.cl.cam.ac.uk'
 ADMINS = [('SmartCambridge Admins', 'admin@smartcambridge.org')]
 SERVER_EMAIL = 'root@smartcambridge.org'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # Application apps
 PROJECT_APPS = [
     'tfc_gis',
