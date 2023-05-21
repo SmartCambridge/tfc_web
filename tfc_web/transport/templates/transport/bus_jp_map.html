@@ -14,7 +14,13 @@
 {% endblock %}
 {% block content %}
     <div style="height: 80vh;">
-        <div id="title" style="height: 5%; width: 100%;"></div>
+        <div id="title" style="height: 5%; width: 100%;">
+            {% if line_name %}
+            <h3>{{ line_name }}</h3>
+            {% else %}
+            <h3>Bus Lines around Cambridge</h3>
+            {% endif %}
+        </div>
         <div id="map" style="height: 90%; width: 100%;"></div>
     </div>
     <script>

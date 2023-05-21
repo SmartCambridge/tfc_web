@@ -99,7 +99,10 @@ def service_map(request, service_code):
     bus_stops = list(Stop.objects.filter(journey_arrivals__jp__service=service).distinct())
     bus_stops = list(Stop.objects.filter(journey_departures__jp__service=service).distinct()) + bus_stops
 
-    return render(request, 'transport/bus_jp_map.html', {'jps': [inbound_journey_pattern, outbound_journey_pattern], 'area': area, 'bus_stops': bus_stops})
+    return render(request, 'transport/bus_jp_map.html', {
+        'jps': [inbound_journey_pattern, outbound_journey_pattern],
+        'area': area, 'bus_stops': bus_stops, 'line_name': service.line.line_name,
+        'service_description': service.description})
 
 
 def bus_stop(request, bus_stop_id):
