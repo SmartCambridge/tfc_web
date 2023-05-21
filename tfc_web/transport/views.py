@@ -1,8 +1,8 @@
 import json
-from datetime import datetime, date, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
-from django.db.models import Count, F, OuterRef, Subquery
+from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
@@ -93,7 +93,13 @@ def service_map(request, service_code):
     # Invert from longlat to latlong
     area = [area[0][::-1], area[1][::-1], area[2][::-1], area[3][::-1]]
 
-    return render(request, 'transport/bus_jp_map.html', {'jps': [inbound_journey_pattern, outbound_journey_pattern], 'area': area})
+    # Retrieve all the bus stops for all the JourneyPatterns for a service_code
+    # Use an OR for journey_departures and journey_arrivals
+    # This code is faster than a massive SQL JOIN if attempting to do this via querysets
+    bus_stops = list(Stop.objects.filter(journey_arrivals__jp__service=service).distinct())
+    bus_stops = list(Stop.objects.filter(journey_departures__jp__service=service).distinct()) + bus_stops
+
+    return render(request, 'transport/bus_jp_map.html', {'jps': [inbound_journey_pattern, outbound_journey_pattern], 'area': area, 'bus_stops': bus_stops})
 
 
 def bus_stop(request, bus_stop_id):

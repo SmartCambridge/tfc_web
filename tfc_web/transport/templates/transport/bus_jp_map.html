@@ -5,6 +5,11 @@
     {% include 'leaflet_markercluster_snippet.html' %}
     <style>
         .info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
+        .bus_stop_chooser_stop {
+            background-image: url("{% static 'smartpanel/bus_stop_chooser/bus_stop_S.png' %}");
+            background-repeat: no-repeat;
+            background-size: 20px 40px;
+        }
     </style>
 {% endblock %}
 {% block content %}
@@ -29,6 +34,17 @@
                 "direction": "{{ jp.direction }}"
             },
             "geometry": {{ jp.coordinates.json|safe }}
+        });
+        {% endfor %}
+        var bus_stops = {
+            "type": "FeatureCollection",
+            "features": []
+        };
+        {% for bus_stop in bus_stops %}
+        bus_stops.features.push({
+            "type": "Feature",
+            "id": "{{ bus_stop.atco_code }}",
+            "geometry": {{ bus_stop.gis_location.json|safe }}
         });
         {% endfor %}
 
@@ -56,9 +72,32 @@
 
             info.addTo(map);
 
+            var stop_icon = L.divIcon({
+                className: 'bus_stop_chooser_stop',
+                iconSize: [20, 40],
+                iconAnchor: [2, 38],
+                tooltipAnchor: [2, -20],
+                popupAnchor: [10, -40],
+            });
+
             L.geoJson(jps, {
                 style: setcolor,
                 onEachFeature: onEachFeature
+            }).addTo(map);
+
+            L.geoJson(bus_stops, {
+                pointToLayer: function (feature, latlng) {
+                    return L.marker(latlng, {
+                        icon: stop_icon
+                    });
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.on({
+                        click: function(e) {
+                            window.location.href = "{% url 'bus-stop' %}" + feature.id;
+                        }
+                    });
+                }
             }).addTo(map);
 
             function setcolor(feature) {

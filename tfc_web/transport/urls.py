@@ -25,7 +25,7 @@ urlpatterns = [
 
     # Bus Stops
     url(r'^stops/$', views.bus_stops_map, name='bus-stops-map'),
-    url(r'^stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
+    url(r'^stop/(?P<bus_stop_id>\w+)?$', views.bus_stop, name='bus-stop'),
 
     # Journey Patterns
     url(r'^services/$', views.bus_jp_map, name='bus-jp-map'),
