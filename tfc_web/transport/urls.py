@@ -12,7 +12,7 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url, include, re_path
 from django.views.generic import TemplateView, RedirectView
 from transport import views
 
@@ -28,10 +28,10 @@ urlpatterns = [
     url(r'^stop/(?P<bus_stop_id>\w+)/$', views.bus_stop, name='bus-stop'),
 
     # Journey Patterns
-    url(r'^jps/$', views.bus_jp_map, name='bus-jp-map'),
+    url(r'^services/$', views.bus_jp_map, name='bus-jp-map'),
 
     # Service
-    url(r'^service/(?P<service_code>[^/]+)$', views.service_map, name='service-map'),
+    re_path(r'^service/(?P<service_code>[^/]+)?$', views.service_map, name='service-map'),
 
     # New Bus Timetable
     url(r'^timetable/(?P<slug>[^/]+)', views.ServiceDetailView.as_view(), name='bus-line-timetable'),

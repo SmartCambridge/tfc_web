@@ -23,6 +23,7 @@
             "id": "{{ jp.id }}",
             "properties": {
                 "line": "{{ jp.service.line.line_name }}",
+                "service_code": "{{ jp.service.service_code }}",
                 "service_description": "{{ jp.service.description }}",
                 "route_description": "{{ jp.route_description }}",
                 "direction": "{{ jp.direction }}"
@@ -73,7 +74,10 @@
                 layer.on({
                     mouseover: highlightFeature,
                     mouseout: resetHighlight,
-                    // click: zoomToFeature
+                    // on click, go to the service page URL
+                    click: function(e) {
+                        window.location.href = "{% url 'service-map' %}" + feature.properties.service_code;
+                    }
                 });
             }
             

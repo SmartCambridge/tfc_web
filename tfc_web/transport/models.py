@@ -171,7 +171,7 @@ class Operator(models.Model):
     postcode = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
-        return self.trading_name or self.short_name or self.code
+        return self.trading_name or self.operator_short_name or self.code
 
 class Line(models.Model):
     line_id = models.CharField(max_length=64, primary_key=True)
