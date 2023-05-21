@@ -4,7 +4,6 @@ import logging
 import pytz
 import requests
 import sys
-import xmltodict
 
 from django.conf import settings
 from django.core.cache import cache

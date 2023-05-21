@@ -1,13 +1,15 @@
+import json
 from datetime import datetime, date, timedelta, timezone
 from django.conf import settings
 from django.contrib.gis.geos import Polygon
+from django.db.models import Count, F, OuterRef, Subquery
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView
 from django.urls import reverse
 from smartpanel.views.smartpanel import smartpanel_settings
-from transport.models import Stop, Line, Route, VehicleJourney, Timetable
+from transport.models import Line, VehicleJourney, Stop, JourneyPattern, Service
 from transport.utils.transxchange import timetable_from_service
 from smartcambridge.decorator import smartcambridge_admin
 from smartcambridge import rt_crypto
@@ -28,17 +30,70 @@ def map_real_time(request):
     })
 
 
-def bus_lines_list(request):
-    bus_lines = Line.objects.all().order_by('line_name')
-    return render(request, 'transport/bus_lines_list.html', {'bus_lines': bus_lines})
-
-
 def bus_stops_map(request):
     area = Polygon.from_bbox((-0.11230006814002992, 52.29464119811643, 0.24690136313438418, 52.10594080364339))
     bus_stops = Stop.objects.filter(gis_location__contained=area)
     return render(request, 'transport/bus_stops_map.html', {'bus_stops': bus_stops, 'area': area[0],
                                                             'SMARTPANEL_API_ENDPOINT': settings.SMARTPANEL_API_ENDPOINT,
                                                             'SMARTPANEL_API_TOKEN': settings.SMARTPANEL_API_TOKEN})
+
+
+def bus_jp_map(request):
+    area = Polygon.from_bbox((-0.11230006814002992, 52.29464119811643, 0.24690136313438418, 52.10594080364339))
+    # Retrieve all JourneyPatterns which coordinates intersect the area but select only one for each Service for inbound and for outbound
+    # We will choose the JourneyPattern with the longer amount of JourneyPatterTimmingLinks associated to it as this is the most likely to be the Standard Service
+
+    # Filter JourneyPatterns based on the intersection with the area
+    journey_patterns = JourneyPattern.objects.filter(coordinates__intersects=area)
+
+    # Annotate the queryset with the count of related JourneyPatternTimingLinks
+    journey_patterns = journey_patterns.annotate(
+        num_jptls=Count('journeypatterntiminglink'),
+    )
+
+    # Get the distinct combinations of Service, direction, and the maximum count of JourneyPatternTimingLinks
+    distinct_combinations = journey_patterns.values('service', 'direction').annotate(
+        max_jptl_count=Count('journeypatterntiminglink')
+    ).order_by()
+
+    # Initialize an empty queryset to store the final results
+    jp_per_service_and_direction = JourneyPattern.objects.none()
+
+    # Iterate over the distinct combinations and filter the JourneyPattern objects based on these combinations
+    for combination in distinct_combinations:
+        journey_pattern = journey_patterns.filter(
+            service=combination['service'],
+            direction=combination['direction']
+        ).order_by('num_jptls').first()
+
+        if journey_pattern:
+            jp_per_service_and_direction |= JourneyPattern.objects.filter(pk=journey_pattern.pk)
+
+    jp_per_service_and_direction = jp_per_service_and_direction.order_by('service__line__line_id').prefetch_related('service__line', 'service')
+
+    # Now, jp_per_service_and_direction will contain one JourneyPattern per service and direction
+    return render(request, 'transport/bus_jp_map.html', {'jps': jp_per_service_and_direction})
+
+
+def service_map(request, service_code):
+    service = get_object_or_404(Service, service_code=service_code)
+
+    # Retrieve the longer JourneyPattern for the given service for inbound and for outbound
+    journey_patterns = JourneyPattern.objects.filter(service=service).annotate(
+        num_jptls=Count('journeypatterntiminglink'),
+    ).order_by('num_jptls')
+    
+    # Get the longest JourneyPattern for inbound and for outbound
+    inbound_journey_pattern = journey_patterns.filter(direction='inbound').first()
+    outbound_journey_pattern = journey_patterns.filter(direction='outbound').first()
+
+    # Bounding box for the coordinates of the JourneyPattern
+    area = Polygon.from_bbox(inbound_journey_pattern.coordinates.extent)
+    area = json.loads(area.boundary.json)['coordinates']
+    # Invert from longlat to latlong
+    area = [area[0][::-1], area[1][::-1], area[2][::-1], area[3][::-1]]
+
+    return render(request, 'transport/bus_jp_map.html', {'jps': [inbound_journey_pattern, outbound_journey_pattern], 'area': area})
 
 
 def bus_stop(request, bus_stop_id):
@@ -58,15 +113,6 @@ def bus_stop(request, bus_stop_id):
         'rt_token': rt_token,
         'RTMONITOR_URI': settings.RTMONITOR_URI,
         'settings': smartpanel_settings()})
-
-
-def vehicle_journey_real_time(request, vehicle_journey_id):
-    vj = get_object_or_404(VehicleJourney, id=vehicle_journey_id)
-    timetable = Timetable.objects.filter(vehicle_journey_id=vehicle_journey_id).select_related('stop').order_by('order')
-    return render(request, 'transport/vjrt.html', {
-        'vj': vj,
-        'timetable': timetable
-    })
 
 
 class ServiceDetailView(DetailView):

@@ -789,7 +789,7 @@ function StopTimetable(widget_id) {
 
             // Line name and final stop
             cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
+            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.journey_pattern.service.line.line_name)));
             row.appendChild(cell);
 
             cell = document.createElement('td');
@@ -888,11 +888,14 @@ function StopTimetable(widget_id) {
             var row = {};
             row.rows = 1;
 
+            // Service code
+            row.service_code = journey.timetable.journey_pattern.service.service_code;
+
             // Due
             row.due = journey.due.format('HH:mm');
 
             // Line
-            row.line = tidy_name(journey.timetable.line.line_name);
+            row.line = tidy_name(journey.timetable.journey_pattern.service.line.line_name);
 
             // Final destination and time
             var last = journey.last;
@@ -994,7 +997,12 @@ function StopTimetable(widget_id) {
             tr.appendChild(td);
             td.classList.add('line');
             td.setAttribute('rowspan', row.rows);
-            td.textContent = row.line;
+            // Add link to line page
+            var a = document.createElement('a');
+            td.appendChild(a);
+            a.setAttribute('href', '/transport/service/' + row.service_code);
+            a.setAttribute('target', '_blank');
+            a.textContent = row.line;
 
             td = document.createElement('td');
             tr.appendChild(td);
@@ -1197,7 +1205,7 @@ function StopTimetable(widget_id) {
             row.appendChild(cell);
 
             cell = document.createElement('td');
-            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
+            cell.appendChild(document.createTextNode(tidy_name(journey.timetable.journey_pattern.service.line.line_name)));
             cell.appendChild(document.createElement('br'));
             cell.appendChild(document.createTextNode(journey.last.due.format('HH:mm')));
             row.appendChild(cell);
@@ -1320,7 +1328,7 @@ function StopTimetable(widget_id) {
 
                     // Line name
                     cell = document.createElement('td');
-                    cell.appendChild(document.createTextNode(tidy_name(journey.timetable.line.line_name)));
+                    cell.appendChild(document.createTextNode(tidy_name(journey.timetable.journey_pattern.service.line.line_name)));
                     row.appendChild(cell);
 
                     // Expected arrival

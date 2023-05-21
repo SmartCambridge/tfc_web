@@ -3,8 +3,7 @@ python-dateutil
 django-allauth
 requests
 whitenoise
-xmltodict
-psycopg2
+psycopg2-binary
 gunicorn
 Pillow
 pytz
@@ -19,8 +18,11 @@ iso8601
 zeep
 django-filter
 pyofo
-pycrypto
+pycryptodome
 geopy
 ipython
 pandas
 xlrd
+untangle
+pyproj
+isodate
