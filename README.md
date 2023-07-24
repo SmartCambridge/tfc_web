@@ -56,7 +56,57 @@ python3 -m pip install -r requirements.txt
 ```
 
 ### Configure the database:
-Install and configure postgreSQL database.
+Install and configure postgreSQL database:
+
+Check running postgresql with:
+```
+sudo systemctl status postgresql@14-main.service
+```
+
+Backup an existing database with:
+```
+sudo -u postgres pg_dump -c tfcweb >tfcweb_backup_2023-07-21.sql
+```
+
+Check if installed postgresql packages with:
+```
+dpkg -l | grep postgres
+```
+
+If necessary remove existing postgresql packages with:
+```
+sudo apt --purge remove postgresql-*
+sudo rm -r /var/lib/postgresql
+```
+
+Install postgresql packages:
+```
+sudo apt install postgresql-14 postgresql-common postgresql-client-14 postgresql-client-common postgresql-14-postgis-3 postgresql-14-postgis-3-scripts
+```
+
+Check with
+```
+sudo systemctl status postgresql@14-main.service
+```
+
+Create tfcweb database, tfc_prod user, collect password from tfc_web secrets.py:
+```
+sudo -u postgres psql
+create database tfcweb;
+create role tfc_prod LOGIN PASSWORD '<pwd>';
+```
+
+Restore tfcweb database from previous backup:
+```
+sudo -u postgres psql tfcweb <tfcweb_backup_2023-07-21.sql 
+```
+
+Check tables exist ok:
+```
+sudo -u postgres psql
+\c tfcweb
+\dt
+```
 
 The Django system is using the `tfcweb` database which can be viewed in `psql` via:
 ```
