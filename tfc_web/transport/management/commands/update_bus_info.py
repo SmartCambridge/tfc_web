@@ -121,7 +121,7 @@ def load_stops(transxchange, ns):
             common_name = stop_node.findtext('ns:CommonName', namespaces=ns),
             locality_name = stop_node.findtext('ns:LocalityName', namespaces=ns),
             longitude = stop_node.findtext('ns:Location/ns:Longitude', namespaces=ns),
-            latitude = stop_node.findtext('ns:Location/ns:Latitude', namespaces=ns
+            latitude = stop_node.findtext('ns:Location/ns:Latitude', namespaces=ns)
         )
         stops.append(stop)
 

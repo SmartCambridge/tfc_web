@@ -496,3 +496,5 @@ LOGGING = {
     }
 
 }
+
+SECURE_REFERRER_POLICY = "origin-when-cross-origin"
