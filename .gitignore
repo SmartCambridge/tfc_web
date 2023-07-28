@@ -109,3 +109,4 @@ nohup.out
 
 tfc_web/api/tests/data/download_api/
 tfc_web/api/tests/data/download_private/
+data/
