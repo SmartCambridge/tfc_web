@@ -94,7 +94,7 @@ def download(request):
                 archive_pattern = archive_item['destination_filename']
                 # Convert '{...}' format() patterns into '\d+' regexp patterns
                 # This does rather assume that all format substitutions are numeric...
-                archive_pattern = re.sub(r'\{date:.*?\}', r'\d+', archive_pattern)
+                archive_pattern = re.sub(r'\{date:.*?\}', r'\\d+', archive_pattern)
                 archive_pattern += '.zip'
                 # Include all the filenames in archive directory that match the pattern
                 # and which don't accidentally include the string 'metadata'

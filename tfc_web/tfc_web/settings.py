@@ -213,8 +213,8 @@ except NameError:
 # SMARTPANEL CONFIGURATION =============================================
 # Everything prefixed by SMARTPANEL_ is passed to widget instances
 
-SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
-#SMARTPANEL_API_ENDPOINT = 'https://tfc-app2.cl.cam.ac.uk/api/v1/'
+#SMARTPANEL_API_ENDPOINT = 'https://smartcambridge.org/api/v1/'
+SMARTPANEL_API_ENDPOINT = 'https://tfc-app1.cl.cam.ac.uk/api/v1/'
 SMARTPANEL_API_TOKEN = JS_API_KEY
 
 SMARTPANEL_TRAFFIC_MAP_RELOAD_LIMIT_DEFAULT = 10
@@ -498,3 +498,5 @@ LOGGING = {
 }
 
 SECURE_REFERRER_POLICY = "origin-when-cross-origin"
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
