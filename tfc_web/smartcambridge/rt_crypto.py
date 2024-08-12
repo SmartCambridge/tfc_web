@@ -71,7 +71,7 @@ def rt_token(issuer, token_params):
     expires = expires_datetime.isoformat()
 
     # default origin to smartcambridge servers
-    origin = token_params.get("origin", '[ "https://tfc-app[1-5].cl.cam.ac.uk", "https://smartcambridge.org", "https://www.smartcambridge.org" ]')
+    origin = token_params.get("origin", '[ "https://tfc-app[1-9].cl.cam.ac.uk", "https://smartcambridge.org", "https://www.smartcambridge.org" ]')
 
     # default to 10000 uses limit
     uses = token_params.get("uses", "10000")

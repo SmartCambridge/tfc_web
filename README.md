@@ -184,12 +184,12 @@ sudo -u postgres psql -f "backup.sql" postgres
 
 Apply all the migrations
 ```
-python3 manage.py migrate --database
+python3 manage.py migrate
 ```
 
 ### Collect static files for Django
 ```
-./manage.py collectstatic
+python3 manage.py collectstatic
 
 ```
 
