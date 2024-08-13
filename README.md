@@ -43,6 +43,50 @@ Get the tfc_web source
 (tfc_web_venv):# git clone https://github.com/ijl20/tfc_web.git
 ```
 
+## Secrets
+
+You will need to set up some secrets in a file called secrets.py inside tfc_web/tfc_web folder where the settings
+files are stored. Secrets need to be:
+
+```
+SECRET_KEY = ''
+TNDS_USERNAME = ''
+TNDS_PASSWORD = ''
+DATABASE_PASSWORD = ''
+LW_APP_EUI = ''
+LW_APP_API_KEY = ''
+LW_API_KEY = ''
+TFC_SERVER_CSN_TOKEN = ''
+OFO_TOKEN = ''
+NRE_API_KEY = ''
+METOFFICE_KEY = ''
+TFC_PROD_PASSWORD = ''
+SYSTEM_API_TOKENS = {
+    'TFC_WEB INTERNAL': {
+        'key': '',
+        'digest': '',
+        'restrictions': [ '', ]
+    },
+}
+```
+
+* SECRET_KEY is the standard django SECRET_KEY, look in django documentation for how to set up a django secret key.
+* TNDS_USERNAME and TNDS_PASSWORD are the username and password used to download transport data from TNDS
+(stop information and timetables).
+* LW_APP_EUI, LW_APP_API_KEY, and LW_API_KEY are the loraWAN secrets needed for
+set up devices in the loraWAN network, these keys need to be retrieved from Everynet panel.
+* TFC_SERVER_CSN_TOKEN is the token shared with tfc_server for retrieving data
+from loraWAN sensors.
+* OFO_TOKEN is the token used to communicatie with ofo server to retrieve bikes data, to know
+how to retrieve this token visit: https://github.com/ubahnverleih/WoBike/blob/master/Ofo.md
+* NRE_API_KEY is the token used to access the National Rail Enquiries 'Live
+Departure Boards Web Service' (LDBWS) used by the Station Board SmartPanel widget. See
+http://www.nationalrail.co.uk/100296.aspx
+* METOFFICE_KEY is the token used to access the Met Office's DataPoint API used by the
+Weather Forecast SmartPanel widget. See https://www.metoffice.gov.uk/datapoint
+* TFC_PROD_PASSWORD is the password for the TFC_PROD Django user
+* SYSTEM_API_TOKENS contains the list of API tokens (the key, corresponding digest, and
+a list of referer restrictions) that are assigned to the TFC_PROD user.
 
 ### Set up Django and tfc_web application
 
@@ -221,51 +265,6 @@ cd /home/tfc_prod/tfc_web/tfc_web
 This replaces the previous approach of manually creating tfc_prod and then running
 `/home/tfc_prod/tfc_web/scripts/insert_tfc_web_internal_token`. It is safe to
 run `./manage.py setup_tfc_prod` even if it may have been run before.
-
-## Secrets
-
-You will need to set up some secrets in a file called secrets.py inside tfc_web/tfc_web folder where the settings
-files are stored. Secrets need to be:
-
-```
-SECRET_KEY = ''
-TNDS_USERNAME = ''
-TNDS_PASSWORD = ''
-DATABASE_PASSWORD = ''
-LW_APP_EUI = ''
-LW_APP_API_KEY = ''
-LW_API_KEY = ''
-TFC_SERVER_CSN_TOKEN = ''
-OFO_TOKEN = ''
-NRE_API_KEY = ''
-METOFFICE_KEY = ''
-TFC_PROD_PASSWORD = ''
-SYSTEM_API_TOKENS = {
-    'TFC_WEB INTERNAL': {
-        'key': '',
-        'digest': '',
-        'restrictions': [ '', ]
-    },
-}
-```
-
-* SECRET_KEY is the standard django SECRET_KEY, look in django documentation for how to set up a django secret key.
-* TNDS_USERNAME and TNDS_PASSWORD are the username and password used to download transport data from TNDS
-(stop information and timetables).
-* LW_APP_EUI, LW_APP_API_KEY, and LW_API_KEY are the loraWAN secrets needed for
-set up devices in the loraWAN network, these keys need to be retrieved from Everynet panel.
-* TFC_SERVER_CSN_TOKEN is the token shared with tfc_server for retrieving data
-from loraWAN sensors.
-* OFO_TOKEN is the token used to communicatie with ofo server to retrieve bikes data, to know
-how to retrieve this token visit: https://github.com/ubahnverleih/WoBike/blob/master/Ofo.md
-* NRE_API_KEY is the token used to access the National Rail Enquiries 'Live
-Departure Boards Web Service' (LDBWS) used by the Station Board SmartPanel widget. See
-http://www.nationalrail.co.uk/100296.aspx
-* METOFFICE_KEY is the token used to access the Met Office's DataPoint API used by the
-Weather Forecast SmartPanel widget. See https://www.metoffice.gov.uk/datapoint
-* TFC_PROD_PASSWORD is the password for the TFC_PROD Django user
-* SYSTEM_API_TOKENS contains the list of API tokens (the key, corresponding digest, and
-a list of referer restrictions) that are assigned to the TFC_PROD user.
 
 ## Dependencies
 
