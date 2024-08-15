@@ -5,7 +5,7 @@ import zipfile
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from django.db import transaction
-from django.utils.timezone import make_aware
+from django.utils.timezone import is_naive, make_aware
 from django.core.management import BaseCommand
 from urllib.request import urlretrieve
 from django.conf import settings
@@ -54,15 +54,17 @@ def cmd_clear():
 ###############################################################
 def cmd_status():
     print("Operator objects: {}".format(Operator.objects.all().count()))
+    print("Service objects: {}".format(Service.objects.all().count()))
     print("Line objects: {}".format(Line.objects.all().count()))
     print("VehicleJourney objects: {}".format(VehicleJourney.objects.all().count()))
-
+    print("TransXChange objects: {}".format(TransXChange.objects.all().count()))
+    print("Latest update: {}".format(TransXChange.objects.latest('modification_date_time').modification_date_time))
 
 ###############################################################
 # Load TNDS XML data file into PostgreSQL from filesystem
 ###############################################################
 def load_xml_file(tnds_zone, filename):
-    print('load_xml_file loading {} {}'.format(tnds_zone, filename))
+    #print('load_xml_file loading {} {}'.format(tnds_zone, filename))
     try:
         with open(filename) as xml_file:
             with transaction.atomic():
@@ -108,11 +110,11 @@ def load_ftp():
 ###############################################################
 # Create XML -> Stops object in PostgreSQL and return it
 ###############################################################
-def load_stops(transxchange, ns):
+def load_stops(root, ns, tx):
     # We collect the list of all stop id in the XML file
     stop_ids = []
     stops = []
-    for stop_node in transxchange.findall('.//ns:AnnotatedStopPointRef', ns):
+    for stop_node in root.findall('.//ns:AnnotatedStopPointRef', ns):
         atco_code = stop_node.find('ns:StopPointRef', ns).text
         stop_ids.append(atco_code)
 
@@ -130,14 +132,18 @@ def load_stops(transxchange, ns):
     
     for stop in stops:
         if stop.atco_code in stop_ids_that_need_importing:
-            stop.save()
+            try:
+                stop.save()
+            except Exception as e:
+                print('Stop save error in {} for {} lat={}, lng={}'.format(tx.file_name, stop.atco_code,stop.latitude, stop.longitude))
+                raise e
 
 
 ###############################################################
 # Create XML -> Operator object in PostgreSQL and return it
 ###############################################################
-def load_operators(transxchange, ns):
-    for operator_node in transxchange.findall('.//ns:Operator', ns):
+def load_operators(root, ns):
+    for operator_node in root.findall('.//ns:Operator', ns):
         operator, created = Operator.objects.update_or_create(
             operator_id=operator_node.attrib.get('id'),
             defaults={
@@ -163,14 +169,19 @@ def load_operators(transxchange, ns):
 #################################################################
 # Create XML -> Service and JourneyPattern objects in PostgreSQL
 #################################################################
-def load_services_and_journeys(transxchange, ns, tx):
+def load_services_and_journeys(root, ns, tx):
+
+    #print('load_services_and_journeys() tx={}'.format(tx));
 
     # Create Service objects
-    for service_node in transxchange.findall('.//ns:Service', ns):
+    for service_node in root.findall('.//ns:Service', ns):
         service_code = service_node.findtext('ns:ServiceCode', namespaces=ns)
-        
+
+        #print('load_services_and_journeys(): service_code={}'.format(service_code))
+
         for line_node in service_node.findall('.//ns:Line', ns):
             line_id = service_code + line_node.attrib['id']
+            #print('load_services_and_journeys(): line_id={}'.format(line_id))
             line, created = Line.objects.update_or_create(
                 line_id=line_id,
                 defaults={
@@ -181,19 +192,21 @@ def load_services_and_journeys(transxchange, ns, tx):
                 }
             )
 
+        #print('load_services_and_journeys(): update_or_create(service_code={})'.format(service_code))
         service, created = Service.objects.update_or_create(
-            tx = tx,
+            #tx = tx,
             service_code = service_code,
-            defaults={
-                'operating_period_start': datetime.fromisoformat(service_node.find('ns:OperatingPeriod/ns:StartDate', ns).text) if service_node.find('ns:OperatingPeriod/ns:StartDate', ns) is not None else None,
-                'operating_period_end': datetime.fromisoformat(service_node.find('ns:OperatingPeriod/ns:EndDate', ns).text) if service_node.find('ns:OperatingPeriod/ns:EndDate', ns) is not None else None,
-                'registered_travel_mode': service_node.findtext('ns:RegisteredTravelMode', namespaces=ns),
-                'description': service_node.findtext('ns:Description', namespaces=ns),
-                'standard_origin': service_node.findtext('ns:StandardService/ns:Origin', namespaces=ns),
-                'standard_destination': service_node.findtext('ns:StandardService/ns:Destination', namespaces=ns),
-                'operator_id': service_node.findtext('ns:RegisteredOperatorRef', namespaces=ns),
-                'line': line,
-            }
+            defaults=dict(
+                tx = tx,
+                operating_period_start = datetime.fromisoformat(service_node.find('ns:OperatingPeriod/ns:StartDate', ns).text) if service_node.find('ns:OperatingPeriod/ns:StartDate', ns) is not None else None,
+                operating_period_end = datetime.fromisoformat(service_node.find('ns:OperatingPeriod/ns:EndDate', ns).text) if service_node.find('ns:OperatingPeriod/ns:EndDate', ns) is not None else None,
+                registered_travel_mode = service_node.findtext('ns:RegisteredTravelMode', namespaces=ns),
+                description = service_node.findtext('ns:Description', namespaces=ns),
+                standard_origin = service_node.findtext('ns:StandardService/ns:Origin', namespaces=ns),
+                standard_destination = service_node.findtext('ns:StandardService/ns:Destination', namespaces=ns),
+                operator_id = service_node.findtext('ns:RegisteredOperatorRef', namespaces=ns),
+                line = line
+            )
         )
         
         # EXAMPLE 1
@@ -250,7 +263,7 @@ def load_services_and_journeys(transxchange, ns, tx):
         # Create JourneyPattern objects
         for journey_pattern_node in service_node.findall('.//ns:JourneyPattern', ns):
             route_id = getattr(journey_pattern_node.find('ns:RouteRef', ns), 'text', None)
-            route_node = transxchange.find(f'.//ns:Route[@id="{route_id}"]', ns)
+            route_node = root.find(f'.//ns:Route[@id="{route_id}"]', ns)
 
             journey_pattern, created = JourneyPattern.objects.update_or_create(
                 jp_id = journey_pattern_node.attrib['id'],
@@ -266,11 +279,11 @@ def load_services_and_journeys(transxchange, ns, tx):
             order = 1
             for jptl_id in journey_pattern_node.findall('ns:JourneyPatternSectionRefs', ns):
                 jptl_id = jptl_id.text
-                for jptl_node in transxchange.findall(f'.//ns:JourneyPatternSection[@id="{jptl_id}"]/ns:JourneyPatternTimingLink', ns):
+                for jptl_node in root.findall(f'.//ns:JourneyPatternSection[@id="{jptl_id}"]/ns:JourneyPatternTimingLink', ns):
                     from_node = jptl_node.find('ns:From', ns)
                     to_node = jptl_node.find('ns:To', ns)
                     route_link_id = getattr(jptl_node.find('ns:RouteLinkRef', ns), 'text', None)
-                    route_link_node = transxchange.find(f'.//ns:RouteLink[@id="{route_link_id}"]', ns)
+                    route_link_node = root.find(f'.//ns:RouteLink[@id="{route_link_id}"]', ns)
 
                     jptl, created = JourneyPatternTimingLink.objects.update_or_create(
                         jptl_id = jptl_node.attrib['id'],
@@ -284,7 +297,7 @@ def load_services_and_journeys(transxchange, ns, tx):
                             'to_display': to_node.findtext('ns:DynamicDestinationDisplay', namespaces=ns),
                             'to_stop_id': to_node.findtext('ns:StopPointRef', namespaces=ns),
                             'to_timing_status': to_node.findtext('ns:TimingStatus', namespaces=ns),
-                            'to_sequence_number': to_node.attrib['SequenceNumber'] if 'SequenceNumber' in from_node.attrib else None,
+                            'to_sequence_number': to_node.attrib['SequenceNumber'] if 'SequenceNumber' in to_node.attrib else None,
                             'run_time': jptl_node.findtext('ns:RunTime', namespaces=ns),
                             'distance': route_link_node.findtext('ns:Distance', namespaces=ns) if route_link_node is not None else None,
                             'direction': route_link_node.findtext('ns:Direction', namespaces=ns) if route_link_node is not None else None
@@ -298,13 +311,13 @@ def load_services_and_journeys(transxchange, ns, tx):
 ###############################################################
 # Create XML -> VehicleJourney objects in PostgreSQL
 ###############################################################
-def load_vehicle_journeys(transxchange, ns, tx):
+def load_vehicle_journeys(root, ns, tx):
 
     # Create VehicleJourney objects
-    for vj_node in transxchange.findall('.//ns:VehicleJourney', ns):
+    for vj_node in root.findall('.//ns:VehicleJourney', ns):
         service_ref = vj_node.findtext('ns:ServiceRef', namespaces=ns)
         line_ref = vj_node.findtext('ns:LineRef', namespaces=ns)
-        service = Service.objects.get(service_code=service_ref, tx=tx)
+        service = Service.objects.get(service_code=service_ref)
 
         vehicle_journey_code = vj_node.findtext('ns:VehicleJourneyCode', namespaces=ns)
         vehicle_journey_id = vj_node.findtext('ns:VehicleJourneyId', namespaces=ns)
@@ -323,7 +336,7 @@ def load_vehicle_journeys(transxchange, ns, tx):
 
         operating_profile = vj_node.find('ns:OperatingProfile', ns)
         if operating_profile is None:
-            operating_profile = transxchange.find(f'.//ns:Service[ns:ServiceCode = "{service_ref}"]/ns:OperatingProfile', ns)
+            operating_profile = root.find(f'.//ns:Service[ns:ServiceCode = "{service_ref}"]/ns:OperatingProfile', ns)
 
         days_of_week = {}
         for day, *expressions in DAYS:
@@ -396,21 +409,55 @@ def load_xml(tnds_zone, filename, xml_content):
     root = ET.fromstring(xml_content)
 
     ns = {'ns': 'http://www.transxchange.org.uk/'}
+
+    # ijl20: regex to remove decimal seconds for python 3.10 datetime.fromisoformat()
+    p = re.compile('(.*)\.\d+(.*)')
     
     # Get TransXChange model fields
     transxchange = root
-    creation_time = make_aware(datetime.fromisoformat(transxchange.attrib.get('CreationDateTime')))
-    modification_time = make_aware(datetime.fromisoformat(transxchange.attrib.get('ModificationDateTime')))
+
+    # get CreationDateTime and work around multiple ISO format issues
+    creation_time_str = transxchange.attrib.get('CreationDateTime')
+    creation_time_str_original = creation_time_str
+    m = p.match(creation_time_str)
+    if m is not None and len(m.groups()) == 2:
+        creation_time_str = m.groups()[0]+m.groups()[1]
+
+    creation_time = datetime.fromisoformat(creation_time_str)
+
+    if is_naive(creation_time):
+        creation_time = make_aware(creation_time)
+
+    #print('creation_time {}'.format(creation_time))
+
+    # get ModificationDateTime and work around multiple ISO format issues
+    modification_time_str = transxchange.attrib.get('ModificationDateTime')
+    modification_time_str_original = modification_time_str
+    m = p.match(modification_time_str)
+    if m is not None and len(m.groups()) == 2:
+        modification_time_str = m.groups()[0]+m.groups()[1]
+
+    modification_time = datetime.fromisoformat(modification_time_str)
+
+    if is_naive(modification_time):
+        modification_time = make_aware(modification_time)
+
+    #print('modification_time {}'.format(modification_time))
+
     schema_version = transxchange.attrib.get('SchemaVersion')
     transxchange_filename = transxchange.attrib.get('FileName') or filename
     revision_number = transxchange.attrib.get('RevisionNumber')
 
     # Create TransXChange object
     tx, created = TransXChange.objects.update_or_create(
-        file_name=transxchange_filename, creation_date_time=creation_time,
-        modification_date_time=modification_time, schema_version=schema_version,
+        file_name=transxchange_filename, 
+        creation_date_time=creation_time,
+        modification_date_time=modification_time, 
+        schema_version=schema_version,
         revision_number=revision_number
     )
+
+    #print('transxchange_id: {}, create={}'.format(tx, created))
 
     # {http://www.transxchange.org.uk/}StopPoints {}
     # {http://www.transxchange.org.uk/}RouteSections {}
@@ -427,12 +474,16 @@ def load_xml(tnds_zone, filename, xml_content):
     # {http://www.transxchange.org.uk/}RegisteredOperatorRef {}
     # {http://www.transxchange.org.uk/}PublicUse {}
     # {http://www.transxchange.org.uk/}StandardService {}
-    
-    load_stops(root, ns)
+   
+    #print("load_xml():load_stops");
+    load_stops(root, ns, tx)
+    #print("load_xml():load_operators");
     load_operators(root, ns)
+    #print("load_xml():load_services_and_journeys");
     load_services_and_journeys(root, ns, tx)
+    #print("load_xml():load_vehicle_journeys");
     load_vehicle_journeys(root, ns, tx)
-
+    #print("load_xml() completed")
 
 ###########################################################################################
 ##### The manage.py Command class                 #########################################
