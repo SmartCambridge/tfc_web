@@ -4,7 +4,7 @@ The functions used by the build_download_data command to extract
 Bluetooth-derived journey data and store it in CVS files.
 '''
 
-import collections
+from collections.abc import Mapping 
 import json
 import logging
 
@@ -37,7 +37,7 @@ def btjourney_journey_extractor(files, writer):
                     # In particular this has been observed for very recently
                     # created links (see e.g. CAMBRIDGE_JTMS|9800YRAA8RIZ on
                     # 2020-02-16)
-                    if isinstance(data['period'], collections.Mapping):
+                    if isinstance(data['period'], Mapping):
                         data['period'] = None
                     writer.writerow([data.get(f) for f in fields])
         except OSError as e:

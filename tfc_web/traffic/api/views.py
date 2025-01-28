@@ -1,4 +1,4 @@
-import collections
+from collections.abc import Mapping
 from datetime import timedelta
 import logging
 import os
@@ -337,7 +337,7 @@ class BTJourneyLinkHistory(auth.AuthenticateddAPIView):
         # observed for very recently created links
         # (see e.g. CAMBRIDGE_JTMS|9800YRAA8RIZ on 2020-02-16)
         for result in results:
-            if isinstance(result['period'], collections.Mapping):
+            if isinstance(result['period'], Mapping):
                 result['period'] = None
 
         serializer = BTJourneyLinkRecordListSerializer({'request_data': results})
