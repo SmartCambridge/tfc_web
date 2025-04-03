@@ -3,6 +3,7 @@ from datetime import date, timedelta, datetime
 from urllib.error import HTTPError
 from django.shortcuts import render
 from django.http import Http404
+from django.views.decorators.clickjacking import xframe_options_exempt
 import logging
 
 from api.util import do_api_call
@@ -57,7 +58,7 @@ def get_parking_occupancy(parking_list):
 # parking/plot/<parking_id>?date=YYYY-MM-DD&priordays=n[,n...]              #
 #############################################################################
 
-
+@xframe_options_exempt
 def parking_plot(request, parking_id):
 
     today = date.today()

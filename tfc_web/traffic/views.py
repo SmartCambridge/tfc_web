@@ -8,6 +8,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 from django.urls import reverse
 from django.http import Http404, JsonResponse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from urllib.error import HTTPError
 import logging
 
@@ -71,6 +72,7 @@ def get_zone_history(zone_id, date):
 # traffic/zone/transit_plot/<zone_id>?date=YYYY-MM-DD                       #
 #############################################################################
 
+@xframe_options_exempt
 def zone_transit_plot(request, zone_id):
 
     if len(zone_id) > 36:
